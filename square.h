@@ -4,6 +4,8 @@
 #include "piece.h"
 
 struct Square {
+    int x;
+    int y;
     struct Piece* piece;
 };
 
