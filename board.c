@@ -56,6 +56,7 @@ void show_board(struct Board* board) {
         }
         printf("\n");
     }
+    printf("\n");
 }
 
 

@@ -4,8 +4,10 @@
 #include "square.h"
 
 struct Move {
-    Square* start_square;
-    Square* end_square;
+    struct Square* start_square;
+    struct Square* end_square;
 };
+
+void make_move(struct Move);
 
 #endif
