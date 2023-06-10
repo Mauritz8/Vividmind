@@ -76,7 +76,7 @@ bool is_valid_bishop_move(struct Move* move, struct Board* board) {
     return true;
 }
 
-bool is_valid_queen_move(struct Move *move, struct Board *board) {
+bool is_valid_queen_move(struct Move* move, struct Board* board) {
     if (is_valid_rook_move(move, board)) {
         return true;
     }
@@ -101,11 +101,33 @@ bool is_valid_knight_move(struct Move* move) {
     return false;
 }
 
-bool is_valid_king_move(struct Move *move) {
+bool is_valid_king_move(struct Move* move) {
     int x_diff = abs(move->start_square->x - move->end_square->x);
     int y_diff = abs(move->start_square->y - move->end_square->y);
     if (x_diff > 1 || y_diff > 1) {
         return false;
     }
     return true;
+}
+
+bool is_valid_pawn_move(struct Move* move, struct Board* board) {
+    int direction = move->start_square->piece->color == BLACK ? 1 : -1;
+
+    int x_diff = move->end_square->x - move->start_square->x;
+    int y_diff = move->end_square->y - move->start_square->y;
+
+    bool end_square_is_empty = move->end_square->piece == NULL;
+    bool is_valid_move_one_square_forward = x_diff == 0 && y_diff == direction && end_square_is_empty;
+
+    int starting_row = move->start_square->piece->color == BLACK ? 1 : 6;
+    bool is_on_starting_row = move->start_square->y == starting_row;
+    bool one_square_forward_is_empty = board->squares[move->start_square->y + direction][move->start_square->x].piece == NULL;
+    bool is_valid_move_two_squares_forward = x_diff == 0 && y_diff == 2 * direction && is_on_starting_row && one_square_forward_is_empty && end_square_is_empty;
+
+    bool is_valid_capture = abs(x_diff) == 1 && y_diff == direction && !end_square_is_empty && move->end_square->piece->color != move->start_square->piece->color;
+
+    if (is_valid_move_one_square_forward || is_valid_move_two_squares_forward || is_valid_capture) {
+        return true;
+    }
+    return false;
 }
