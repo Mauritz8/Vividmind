@@ -100,3 +100,12 @@ bool is_valid_knight_move(struct Move* move) {
     }
     return false;
 }
+
+bool is_valid_king_move(struct Move *move) {
+    int x_diff = abs(move->start_square->x - move->end_square->x);
+    int y_diff = abs(move->start_square->y - move->end_square->y);
+    if (x_diff > 1 || y_diff > 1) {
+        return false;
+    }
+    return true;
+}
