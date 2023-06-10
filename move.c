@@ -131,3 +131,36 @@ bool is_valid_pawn_move(struct Move* move, struct Board* board) {
     }
     return false;
 }
+
+bool is_square_outside_board(struct Square* square) {
+    return square->x < 0 || square->x > 7 || square->y < 0 || square->y > 7;
+}
+
+bool is_valid_move(struct Move* move, struct Board* board) {
+    if (is_square_outside_board(move->start_square) || is_square_outside_board(move->end_square)) {
+        return false;
+    }
+
+    if (move->start_square->piece == NULL) {
+        return false;
+    }
+
+    if (move->start_square->piece->color == move->end_square->piece->color) {
+        return false;
+    }
+
+    switch (move->start_square->piece->piece_type) {
+        case PAWN:
+            return is_valid_pawn_move(move, board);
+        case KNIGHT:
+            return is_valid_knight_move(move);
+        case BISHOP:
+            return is_valid_bishop_move(move, board);
+        case ROOK:
+            return is_valid_rook_move(move, board);
+        case QUEEN:
+            return is_valid_queen_move(move, board);
+        case KING:
+            return is_valid_king_move(move);
+    }
+}
