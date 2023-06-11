@@ -7,7 +7,7 @@
 
 
 
-static void test_knight_move_valid_move() {
+static void test_knight_move_valid_move(void) {
     Board board;
     setup_empty_board(&board);
     Piece knight = {.piece_type = KNIGHT};
@@ -36,7 +36,7 @@ static void test_knight_move_valid_move() {
     deallocate_board(&board);
 }
 
-static void test_knight_move_invalid_pattern() {
+static void test_knight_move_invalid_pattern(void) {
     Board board;
     setup_empty_board(&board);
     Piece knight = {.piece_type = KNIGHT};
@@ -61,7 +61,7 @@ static void test_knight_move_invalid_pattern() {
     deallocate_board(&board);
 }
 
-static void test_knight_move_same_color_on_target_square() {
+static void test_knight_move_same_color_on_target_square(void) {
     Board board;
     setup_empty_board(&board);
     Piece knight = {.piece_type = KNIGHT, .color = WHITE};
@@ -75,7 +75,7 @@ static void test_knight_move_same_color_on_target_square() {
     CU_ASSERT_FALSE(is_valid_move(&move, &board));
 }
 
-void test_knight_move_capture_opponent_piece() {
+void test_knight_move_capture_opponent_piece(void) {
     Board board;
     setup_empty_board(&board);
     Piece knight = {.piece_type = KNIGHT, .color = WHITE};
@@ -89,7 +89,7 @@ void test_knight_move_capture_opponent_piece() {
     CU_ASSERT_TRUE(is_valid_move(&move, &board));
 }
 
-static void test_knight_move_out_of_bounds() {
+static void test_knight_move_out_of_bounds(void) {
     Board board;
     setup_empty_board(&board);
     Piece knight = {.piece_type = KNIGHT, .color = WHITE};
@@ -101,7 +101,7 @@ static void test_knight_move_out_of_bounds() {
     CU_ASSERT_FALSE(is_valid_move(&move, &board));
 }
 
-static void test_knight_move_on_edge_of_board() {
+static void test_knight_move_on_edge_of_board(void) {
     Board board;
     setup_empty_board(&board);
     Piece knight = {.piece_type = KNIGHT, .color = WHITE};
@@ -124,7 +124,7 @@ static void test_knight_move_on_edge_of_board() {
     CU_ASSERT_FALSE(is_valid_move(&move, &board));
 }
 
-static void test_knight_move_jump_over_pieces() {
+static void test_knight_move_jump_over_pieces(void) {
     Board board;
     setup_empty_board(&board);
     Piece knight = {.piece_type = KNIGHT};
@@ -146,7 +146,7 @@ static void test_knight_move_jump_over_pieces() {
     deallocate_board(&board);
 }
 
-int knight_moves_tests() {
+int knight_moves_tests(void) {
     CU_pSuite pSuite = NULL;
     pSuite = CU_add_suite("knight_moves_test_suite", 0, 0);
 

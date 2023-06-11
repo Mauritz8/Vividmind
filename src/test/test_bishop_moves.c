@@ -7,7 +7,7 @@
 
 
 
-static void test_bishop_move_valid_move() {
+static void test_bishop_move_valid_move(void) {
     Board board;
     setup_empty_board(&board);
     Piece bishop = {.piece_type = BISHOP};
@@ -28,7 +28,7 @@ static void test_bishop_move_valid_move() {
     deallocate_board(&board);
 }
 
-static void test_bishop_move_jump_over_pieces() {
+static void test_bishop_move_jump_over_pieces(void) {
     Board board;
     setup_empty_board(&board);
     Piece bishop = {.piece_type = BISHOP};
@@ -50,7 +50,7 @@ static void test_bishop_move_jump_over_pieces() {
     deallocate_board(&board);
 }
 
-static void test_bishop_move_same_color_on_target_square() {
+static void test_bishop_move_same_color_on_target_square(void) {
     Board board;
     setup_empty_board(&board);
     Piece bishop = {.piece_type = BISHOP, .color = BLACK};
@@ -67,7 +67,7 @@ static void test_bishop_move_same_color_on_target_square() {
     deallocate_board(&board);
 }
 
-static void test_bishop_move_capture_opponent_piece() {
+static void test_bishop_move_capture_opponent_piece(void) {
     Board board;
     setup_empty_board(&board);
     Piece bishop = {.piece_type = BISHOP, .color = BLACK};
@@ -84,7 +84,7 @@ static void test_bishop_move_capture_opponent_piece() {
     deallocate_board(&board);
 }
 
-static void test_bishop_move_out_of_bounds() {
+static void test_bishop_move_out_of_bounds(void) {
     Board board;
     setup_empty_board(&board);
     Piece bishop = {.piece_type = BISHOP};
@@ -101,7 +101,7 @@ static void test_bishop_move_out_of_bounds() {
     deallocate_board(&board);
 }
 
-int bishop_moves_tests() {
+int bishop_moves_tests(void) {
     CU_pSuite pSuite = NULL;
     pSuite = CU_add_suite("bishop_moves_test_suite", 0, 0);
 

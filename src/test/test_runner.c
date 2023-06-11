@@ -4,7 +4,7 @@
 #include "test/test_bishop_moves.h"
 
 
-int main() {
+int main(void) {
     if (CUE_SUCCESS != CU_initialize_registry()) {
         return CU_get_error(); 
     }
