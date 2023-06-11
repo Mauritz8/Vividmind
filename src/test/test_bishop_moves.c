@@ -1,5 +1,4 @@
 #include <CUnit/Basic.h>
-#include <CUnit/CUnit.h>
 
 #include "test/test_utils.h"
 #include "board.h"
