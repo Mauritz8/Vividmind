@@ -3,10 +3,10 @@
 
 #include "piece.h"
 
-struct Square {
+typedef struct Square {
     int x;
     int y;
-    struct Piece* piece;
-};
+    Piece* piece;
+} Square;
 
 #endif

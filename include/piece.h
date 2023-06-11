@@ -4,11 +4,11 @@
 enum Piece_type {PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING};
 enum Color {WHITE, BLACK};
 
-struct Piece {
+typedef struct Piece {
     enum Piece_type piece_type;
     enum Color color;
-};
+} Piece;
 
-char get_char_representation(struct Piece* piece);
+char get_char_representation(Piece* piece);
 
 #endif

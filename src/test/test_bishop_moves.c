@@ -8,12 +8,12 @@
 
 
 static void test_bishop_move_valid_move() {
-    struct Board board;
+    Board board;
     setup_empty_board(&board);
-    struct Piece bishop = {.piece_type = BISHOP};
+    Piece bishop = {.piece_type = BISHOP};
     place_piece_at(&bishop, &board, 3, 4);
 
-    struct Move move;
+    Move move;
     move.start_square = &board.squares[4][3];
 
     move.end_square = &board.squares[0][7];
@@ -29,15 +29,15 @@ static void test_bishop_move_valid_move() {
 }
 
 static void test_bishop_move_jump_over_pieces() {
-    struct Board board;
+    Board board;
     setup_empty_board(&board);
-    struct Piece bishop = {.piece_type = BISHOP};
+    Piece bishop = {.piece_type = BISHOP};
     place_piece_at(&bishop, &board, 3, 4);
 
-    struct Piece blocking_piece = {.piece_type = PAWN};
+    Piece blocking_piece = {.piece_type = PAWN};
     place_piece_at(&blocking_piece, &board, 5, 2);
 
-    struct Move move;
+    Move move;
     move.start_square = &board.squares[4][3];
 
     move.end_square = &board.squares[3][4];
@@ -51,15 +51,15 @@ static void test_bishop_move_jump_over_pieces() {
 }
 
 static void test_bishop_move_same_color_on_target_square() {
-    struct Board board;
+    Board board;
     setup_empty_board(&board);
-    struct Piece bishop = {.piece_type = BISHOP, .color = BLACK};
+    Piece bishop = {.piece_type = BISHOP, .color = BLACK};
     place_piece_at(&bishop, &board, 3, 4);
 
-    struct Piece same_color_piece = {.piece_type = PAWN, .color = BLACK};
+    Piece same_color_piece = {.piece_type = PAWN, .color = BLACK};
     place_piece_at(&same_color_piece, &board, 5, 2);
 
-    struct Move move;
+    Move move;
     move.start_square = &board.squares[4][3];
     move.end_square = &board.squares[2][5];
     CU_ASSERT_FALSE(is_valid_move(&move, &board));
@@ -68,15 +68,15 @@ static void test_bishop_move_same_color_on_target_square() {
 }
 
 static void test_bishop_move_capture_opponent_piece() {
-    struct Board board;
+    Board board;
     setup_empty_board(&board);
-    struct Piece bishop = {.piece_type = BISHOP, .color = BLACK};
+    Piece bishop = {.piece_type = BISHOP, .color = BLACK};
     place_piece_at(&bishop, &board, 3, 4);
 
-    struct Piece same_color_piece = {.piece_type = PAWN, .color = WHITE};
+    Piece same_color_piece = {.piece_type = PAWN, .color = WHITE};
     place_piece_at(&same_color_piece, &board, 1, 6);
 
-    struct Move move;
+    Move move;
     move.start_square = &board.squares[4][3];
     move.end_square = &board.squares[6][1];
     CU_ASSERT_TRUE(is_valid_move(&move, &board));
@@ -85,12 +85,12 @@ static void test_bishop_move_capture_opponent_piece() {
 }
 
 static void test_bishop_move_out_of_bounds() {
-    struct Board board;
+    Board board;
     setup_empty_board(&board);
-    struct Piece bishop = {.piece_type = BISHOP};
+    Piece bishop = {.piece_type = BISHOP};
     place_piece_at(&bishop, &board, 6, 4);
 
-    struct Move move;
+    Move move;
     move.start_square = &board.squares[4][6];
 
     move.end_square = &board.squares[2][8];

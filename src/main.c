@@ -5,7 +5,7 @@
 #include "move.h"
 
 int main(void) {
-    struct Board board;
+    Board board;
     setup_board(&board);
 
     while (true) {
@@ -21,7 +21,7 @@ int main(void) {
         printf("end_y: ");
         scanf("%d", &end_y);
 
-        struct Move move;
+        Move move;
         move.start_square = &board.squares[start_y][start_x];
         move.end_square = &board.squares[end_y][end_x];
         if (is_valid_move(&move, &board)) {

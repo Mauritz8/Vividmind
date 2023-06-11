@@ -4,23 +4,23 @@
 #include "board.h"
 #include "piece.h"
 
-static void setup_pieces(struct Board* board, int row, const enum Piece_type* order, enum Color color) {
+static void setup_pieces(Board* board, int row, const enum Piece_type* order, enum Color color) {
     for (int i = 0; i < 8; i++) {
-        board->squares[row][i].piece = malloc(sizeof(struct Piece));
+        board->squares[row][i].piece = malloc(sizeof(Piece));
         board->squares[row][i].piece->piece_type = order[i];
         board->squares[row][i].piece->color = color;
     }
 }
 
-static void setup_pawns(struct Board* board, int row, enum Color color) {
+static void setup_pawns(Board* board, int row, enum Color color) {
     for (int i = 0; i < 8; i++) {
-        board->squares[row][i].piece = malloc(sizeof(struct Piece));
+        board->squares[row][i].piece = malloc(sizeof(Piece));
         board->squares[row][i].piece->piece_type = PAWN;
         board->squares[row][i].piece->color = color;
     }
 }
 
-void setup_board(struct Board* board) {
+void setup_board(Board* board) {
     // setup square coordinates
     for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 8; j++) {
@@ -44,10 +44,10 @@ void setup_board(struct Board* board) {
     }
 }
 
-void show_board(struct Board* board) {
+void show_board(Board* board) {
     for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 8; j++) {
-            struct Piece* piece = board->squares[i][j].piece;
+            Piece* piece = board->squares[i][j].piece;
             if (piece) {
                 printf(" %c", get_char_representation(piece));
             } else {
@@ -60,10 +60,10 @@ void show_board(struct Board* board) {
 }
 
 
-void deallocate_board(struct Board* board) {
+void deallocate_board(Board* board) {
     for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 8; j++) {
-            struct Piece* piece = board->squares[i][j].piece; 
+            Piece* piece = board->squares[i][j].piece; 
             if (piece) {
                 free(piece);
             }

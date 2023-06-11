@@ -4,12 +4,12 @@
 #include "piece.h"
 #include "square.h"
 
-struct Board {
-    struct Square squares[8][8];
-};
+typedef struct Board {
+    Square squares[8][8];
+} Board;
 
-void setup_board(struct Board* board);
-void show_board(struct Board* board);
-void deallocate_board(struct Board* board);
+void setup_board(Board* board);
+void show_board(Board* board);
+void deallocate_board(Board* board);
 
 #endif

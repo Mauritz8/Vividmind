@@ -8,12 +8,12 @@
 
 
 static void test_knight_move_valid_move() {
-    struct Board board;
+    Board board;
     setup_empty_board(&board);
-    struct Piece knight = {.piece_type = KNIGHT};
+    Piece knight = {.piece_type = KNIGHT};
     place_piece_at(&knight, &board, 4, 4);
 
-    struct Move move;
+    Move move;
     move.start_square = &board.squares[4][4];
 
     move.end_square = &board.squares[2][5];
@@ -37,12 +37,12 @@ static void test_knight_move_valid_move() {
 }
 
 static void test_knight_move_invalid_pattern() {
-    struct Board board;
+    Board board;
     setup_empty_board(&board);
-    struct Piece knight = {.piece_type = KNIGHT};
+    Piece knight = {.piece_type = KNIGHT};
     place_piece_at(&knight, &board, 3, 3);
 
-    struct Move move;
+    Move move;
     move.start_square = &board.squares[3][3];
 
     move.end_square = &board.squares[1][3];
@@ -62,52 +62,52 @@ static void test_knight_move_invalid_pattern() {
 }
 
 static void test_knight_move_same_color_on_target_square() {
-    struct Board board;
+    Board board;
     setup_empty_board(&board);
-    struct Piece knight = {.piece_type = KNIGHT, .color = WHITE};
-    struct Piece piece_of_same_color = {.piece_type = ROOK, .color = WHITE};
+    Piece knight = {.piece_type = KNIGHT, .color = WHITE};
+    Piece piece_of_same_color = {.piece_type = ROOK, .color = WHITE};
     place_piece_at(&knight, &board, 3, 3);
     place_piece_at(&piece_of_same_color, &board, 4, 5);
 
-    struct Move move;
+    Move move;
     move.start_square = &board.squares[3][3];
     move.end_square = &board.squares[5][4];
     CU_ASSERT_FALSE(is_valid_move(&move, &board));
 }
 
 void test_knight_move_capture_opponent_piece() {
-    struct Board board;
+    Board board;
     setup_empty_board(&board);
-    struct Piece knight = {.piece_type = KNIGHT, .color = WHITE};
-    struct Piece piece_of_opposite_color = {.piece_type = ROOK, .color = BLACK};
+    Piece knight = {.piece_type = KNIGHT, .color = WHITE};
+    Piece piece_of_opposite_color = {.piece_type = ROOK, .color = BLACK};
     place_piece_at(&knight, &board, 3, 3);
     place_piece_at(&piece_of_opposite_color, &board, 4, 5);
 
-    struct Move move;
+    Move move;
     move.start_square = &board.squares[3][3];
     move.end_square = &board.squares[5][4];
     CU_ASSERT_TRUE(is_valid_move(&move, &board));
 }
 
 static void test_knight_move_out_of_bounds() {
-    struct Board board;
+    Board board;
     setup_empty_board(&board);
-    struct Piece knight = {.piece_type = KNIGHT, .color = WHITE};
+    Piece knight = {.piece_type = KNIGHT, .color = WHITE};
     place_piece_at(&knight, &board, 4, 4);
 
-    struct Move move;
+    Move move;
     move.start_square = &board.squares[4][4];
     move.end_square = &board.squares[9][3];
     CU_ASSERT_FALSE(is_valid_move(&move, &board));
 }
 
 static void test_knight_move_on_edge_of_board() {
-    struct Board board;
+    Board board;
     setup_empty_board(&board);
-    struct Piece knight = {.piece_type = KNIGHT, .color = WHITE};
+    Piece knight = {.piece_type = KNIGHT, .color = WHITE};
     place_piece_at(&knight, &board, 7, 1);
 
-    struct Move move;
+    Move move;
     move.start_square = &board.squares[1][7];
 
     move.end_square = &board.squares[0][5];
@@ -125,17 +125,17 @@ static void test_knight_move_on_edge_of_board() {
 }
 
 static void test_knight_move_jump_over_pieces() {
-    struct Board board;
+    Board board;
     setup_empty_board(&board);
-    struct Piece knight = {.piece_type = KNIGHT};
+    Piece knight = {.piece_type = KNIGHT};
     place_piece_at(&knight, &board, 4, 4);
 
-    struct Piece blocking_piece1 = {.piece_type = PAWN};
+    Piece blocking_piece1 = {.piece_type = PAWN};
     place_piece_at(&blocking_piece1, &board, 5, 4);
-    struct Piece blocking_piece2 = {.piece_type = PAWN};
+    Piece blocking_piece2 = {.piece_type = PAWN};
     place_piece_at(&blocking_piece2, &board, 3, 5);
 
-    struct Move move;
+    Move move;
     move.start_square = &board.squares[4][4];
 
     move.end_square = &board.squares[6][3];

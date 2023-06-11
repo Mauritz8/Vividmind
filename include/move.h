@@ -6,12 +6,12 @@
 #include "square.h"
 #include "board.h"
 
-struct Move {
-    struct Square* start_square;
-    struct Square* end_square;
-};
+typedef struct Move {
+    Square* start_square;
+    Square* end_square;
+} Move;
 
-void make_move(struct Move* move);
-bool is_valid_move(struct Move* move, struct Board* board);
+void make_move(Move* move);
+bool is_valid_move(Move* move, Board* board);
 
 #endif
