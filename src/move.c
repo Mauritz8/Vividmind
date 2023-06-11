@@ -145,7 +145,7 @@ bool is_valid_move(struct Move* move, struct Board* board) {
         return false;
     }
 
-    if (move->start_square->piece->color == move->end_square->piece->color) {
+    if (move->end_square->piece && move->start_square->piece->color == move->end_square->piece->color) {
         return false;
     }
 
