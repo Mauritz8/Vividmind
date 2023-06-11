@@ -10,15 +10,15 @@ void make_move(struct Move* move) {
     move->start_square->piece = NULL;
 }
 
-bool is_same_line(struct Square* square1, struct Square* square2) {
+static bool is_same_line(struct Square* square1, struct Square* square2) {
     return square1->x == square2->x || square1->y == square2->y;
 }
 
-bool is_same_diagonal(struct Square* square1, struct Square* square2) {
+static bool is_same_diagonal(struct Square* square1, struct Square* square2) {
     return abs(square1->x - square2->x) == abs(square1->y - square2->y);
 }
 
-bool is_clear_line(struct Square* square1, struct Square* square2, struct Board* board) {
+static bool is_clear_line(struct Square* square1, struct Square* square2, struct Board* board) {
     int x_direction = 0;
     int y_direction = 0;
 
@@ -40,7 +40,7 @@ bool is_clear_line(struct Square* square1, struct Square* square2, struct Board*
     return true;
 }
 
-bool is_clear_diagonal(struct Square* square1, struct Square* square2, struct Board *board) {
+static bool is_clear_diagonal(struct Square* square1, struct Square* square2, struct Board *board) {
     int x_direction = (square2->x - square1->x) > 0 ? 1 : -1;
     int y_direction = (square2->y - square1->y) > 0 ? 1 : -1;
 
@@ -56,7 +56,7 @@ bool is_clear_diagonal(struct Square* square1, struct Square* square2, struct Bo
     return true;
 }
 
-bool is_valid_rook_move(struct Move* move, struct Board* board) {
+static bool is_valid_rook_move(struct Move* move, struct Board* board) {
     if (!is_same_line(move->start_square, move->end_square)) {
         return false;
     }
@@ -66,7 +66,7 @@ bool is_valid_rook_move(struct Move* move, struct Board* board) {
     return true;
 }
 
-bool is_valid_bishop_move(struct Move* move, struct Board* board) {
+static bool is_valid_bishop_move(struct Move* move, struct Board* board) {
     if (!is_same_diagonal(move->start_square, move->end_square)) {
         return false;
     }
@@ -76,7 +76,7 @@ bool is_valid_bishop_move(struct Move* move, struct Board* board) {
     return true;
 }
 
-bool is_valid_queen_move(struct Move* move, struct Board* board) {
+static bool is_valid_queen_move(struct Move* move, struct Board* board) {
     if (is_valid_rook_move(move, board)) {
         return true;
     }
@@ -86,7 +86,7 @@ bool is_valid_queen_move(struct Move* move, struct Board* board) {
     return false;
 }
 
-bool is_valid_knight_move(struct Move* move) {
+static bool is_valid_knight_move(struct Move* move) {
     int start_x = move->start_square->x;
     int start_y = move->start_square->y;
     int end_x = move->end_square->x;
@@ -101,7 +101,7 @@ bool is_valid_knight_move(struct Move* move) {
     return false;
 }
 
-bool is_valid_king_move(struct Move* move) {
+static bool is_valid_king_move(struct Move* move) {
     int x_diff = abs(move->start_square->x - move->end_square->x);
     int y_diff = abs(move->start_square->y - move->end_square->y);
     if (x_diff > 1 || y_diff > 1) {
@@ -110,7 +110,7 @@ bool is_valid_king_move(struct Move* move) {
     return true;
 }
 
-bool is_valid_pawn_move(struct Move* move, struct Board* board) {
+static bool is_valid_pawn_move(struct Move* move, struct Board* board) {
     int direction = move->start_square->piece->color == BLACK ? 1 : -1;
 
     int x_diff = move->end_square->x - move->start_square->x;
@@ -132,7 +132,7 @@ bool is_valid_pawn_move(struct Move* move, struct Board* board) {
     return false;
 }
 
-bool is_square_outside_board(struct Square* square) {
+static bool is_square_outside_board(struct Square* square) {
     return square->x < 0 || square->x > 7 || square->y < 0 || square->y > 7;
 }
 

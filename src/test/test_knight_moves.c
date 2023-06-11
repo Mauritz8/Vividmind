@@ -1,5 +1,4 @@
 #include <CUnit/Basic.h>
-#include <stdlib.h>
 
 #include "test/test_utils.h"
 #include "board.h"
@@ -8,7 +7,7 @@
 
 
 
-void test_knight_move_valid_move() {
+static void test_knight_move_valid_move() {
     struct Board board;
     setup_empty_board(&board);
     struct Piece knight = {.piece_type = KNIGHT};
@@ -37,7 +36,7 @@ void test_knight_move_valid_move() {
     deallocate_board(&board);
 }
 
-void test_knight_move_invalid_pattern() {
+static void test_knight_move_invalid_pattern() {
     struct Board board;
     setup_empty_board(&board);
     struct Piece knight = {.piece_type = KNIGHT};
@@ -62,7 +61,7 @@ void test_knight_move_invalid_pattern() {
     deallocate_board(&board);
 }
 
-void test_knight_move_same_color_on_target_square() {
+static void test_knight_move_same_color_on_target_square() {
     struct Board board;
     setup_empty_board(&board);
     struct Piece knight = {.piece_type = KNIGHT, .color = WHITE};
@@ -90,7 +89,7 @@ void test_knight_move_capture_opponent_piece() {
     CU_ASSERT_TRUE(is_valid_move(&move, &board));
 }
 
-void test_knight_move_out_of_bounds() {
+static void test_knight_move_out_of_bounds() {
     struct Board board;
     setup_empty_board(&board);
     struct Piece knight = {.piece_type = KNIGHT, .color = WHITE};
@@ -102,7 +101,7 @@ void test_knight_move_out_of_bounds() {
     CU_ASSERT_FALSE(is_valid_move(&move, &board));
 }
 
-void test_knight_move_on_edge_of_board() {
+static void test_knight_move_on_edge_of_board() {
     struct Board board;
     setup_empty_board(&board);
     struct Piece knight = {.piece_type = KNIGHT, .color = WHITE};
@@ -125,7 +124,7 @@ void test_knight_move_on_edge_of_board() {
     CU_ASSERT_FALSE(is_valid_move(&move, &board));
 }
 
-void test_knight_move_jump_over_pieces() {
+static void test_knight_move_jump_over_pieces() {
     struct Board board;
     setup_empty_board(&board);
     struct Piece knight = {.piece_type = KNIGHT};
@@ -147,11 +146,7 @@ void test_knight_move_jump_over_pieces() {
     deallocate_board(&board);
 }
 
-int main() {
-    if (CUE_SUCCESS != CU_initialize_registry()) {
-        return CU_get_error();
-    }
-
+int knight_moves_tests() {
     CU_pSuite pSuite = NULL;
     pSuite = CU_add_suite("knight_moves_test_suite", 0, 0);
 
@@ -167,9 +162,5 @@ int main() {
         return CU_get_error();
     }
 
-    CU_basic_set_mode(CU_BRM_VERBOSE);
-    CU_basic_run_tests();
-    CU_cleanup_registry();
-
-    return CU_get_error();
+    return 0;
 }
