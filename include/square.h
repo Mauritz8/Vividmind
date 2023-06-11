@@ -3,7 +3,7 @@
 
 #include "piece.h"
 
-typedef struct Square {
+typedef struct {
     int x;
     int y;
     Piece* piece;

@@ -4,7 +4,7 @@
 #include "piece.h"
 #include "square.h"
 
-typedef struct Board {
+typedef struct {
     Square squares[8][8];
 } Board;
 

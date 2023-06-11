@@ -6,7 +6,7 @@
 #include "square.h"
 #include "board.h"
 
-typedef struct Move {
+typedef struct {
     Square* start_square;
     Square* end_square;
 } Move;

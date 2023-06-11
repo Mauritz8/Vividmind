@@ -4,7 +4,7 @@
 #include "board.h"
 #include "piece.h"
 
-static void setup_pieces(Board* board, int row, const enum Piece_type* order, enum Color color) {
+static void setup_pieces(Board* board, int row, const Piece_type* order, Color color) {
     for (int i = 0; i < 8; i++) {
         board->squares[row][i].piece = malloc(sizeof(Piece));
         board->squares[row][i].piece->piece_type = order[i];
@@ -12,7 +12,7 @@ static void setup_pieces(Board* board, int row, const enum Piece_type* order, en
     }
 }
 
-static void setup_pawns(Board* board, int row, enum Color color) {
+static void setup_pawns(Board* board, int row, Color color) {
     for (int i = 0; i < 8; i++) {
         board->squares[row][i].piece = malloc(sizeof(Piece));
         board->squares[row][i].piece->piece_type = PAWN;
@@ -30,7 +30,7 @@ void setup_board(Board* board) {
     }
 
     // setup pieces
-    const enum Piece_type PIECE_ORDER[8] = {ROOK, KNIGHT, BISHOP, QUEEN, KING, BISHOP, KNIGHT, ROOK};
+    const Piece_type PIECE_ORDER[8] = {ROOK, KNIGHT, BISHOP, QUEEN, KING, BISHOP, KNIGHT, ROOK};
     setup_pieces(board, 0, PIECE_ORDER, BLACK);
     setup_pawns(board, 1, BLACK);
     setup_pieces(board, 7, PIECE_ORDER, WHITE);
