@@ -212,9 +212,9 @@ static MoveArray get_all_legal_moves(Color color, Board* board) {
 
     for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 8; j++) {
-            Square square = board->squares[i][j];
-            if (square.piece && square.piece->color == color) {
-                MoveArray legal_moves = get_legal_moves(&square, board);
+            Square* square = &board->squares[i][j];
+            if (square->piece && square->piece->color == color) {
+                MoveArray legal_moves = get_legal_moves(square, board);
                 for (int i = 0; i < legal_moves.length; i++) {
                     if (all_legal_moves.length == capacity) {
                         capacity *= 2;
@@ -256,6 +256,21 @@ static bool leaves_king_in_check(Move* move, Board* board) {
     return false;
 }
 
+bool is_checkmated(Color color, Board* board) {
+   if (!is_in_check(color, board)) {
+       return false;
+   }
+
+   MoveArray moves = get_all_legal_moves(color, board);
+   for (int i = 0; i < moves.length; i++) {
+       if (!leaves_king_in_check(&moves.moves[i], board)) {
+           free(moves.moves);
+           return false;
+       }
+   }
+   free(moves.moves);
+   return true;
+}
 
 bool is_legal_move(Move* move, Board* board) {
     if (!validate_move_basic(move, board)) {

@@ -8,8 +8,14 @@ int main(void) {
     Board board;
     setup_board(&board);
 
+    Color player_to_move = WHITE;
     while (true) {
         show_board(&board);
+
+        if (is_checkmated(player_to_move, &board)) {
+            printf("Game over!\n");
+            break;
+        }
 
         int start_x, start_y, end_x, end_y;
         printf("start_x: ");
@@ -26,6 +32,12 @@ int main(void) {
         move.end_square = &board.squares[end_y][end_x];
         if (is_legal_move(&move, &board)) {
             make_move(&move, &board);
+        }
+
+        if (player_to_move == WHITE) {
+            player_to_move = BLACK;
+        } else {
+            player_to_move = WHITE;
         }
     }
 
