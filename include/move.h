@@ -17,6 +17,7 @@ typedef struct {
 } MoveArray;
 
 void make_move(Move* move, Board* board);
+bool is_checkmated(Color color, Board* board);
 bool is_legal_move(Move* move, Board* board);
 
 #endif

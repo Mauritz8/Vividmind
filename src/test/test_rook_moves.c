@@ -64,7 +64,7 @@ static void test_rook_move_jump_over_pieces(void) {
     move.start_square = &board.squares[4][3];
 
     move.end_square = &board.squares[0][3];
-    CU_ASSERT_TRUE(is_legal_move(&move, &board));
+    CU_ASSERT_FALSE(is_legal_move(&move, &board));
     move.end_square = &board.squares[1][3];
     CU_ASSERT_FALSE(is_legal_move(&move, &board));
     move.end_square = &board.squares[2][3];
