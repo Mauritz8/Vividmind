@@ -2,6 +2,7 @@
 
 #include "test/test_knight_moves.h"
 #include "test/test_bishop_moves.h"
+#include "test/test_rook_moves.h"
 
 
 int main(void) {
@@ -13,6 +14,9 @@ int main(void) {
         return CU_get_error();
     }
     if (0 != bishop_moves_tests()) {
+        return CU_get_error();
+    }
+    if (0 != rook_moves_tests()) {
         return CU_get_error();
     }
 
