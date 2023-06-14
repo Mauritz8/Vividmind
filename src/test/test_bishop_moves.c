@@ -17,13 +17,13 @@ static void test_bishop_move_valid_move(void) {
     move.start_square = &board.squares[4][3];
 
     move.end_square = &board.squares[0][7];
-    CU_ASSERT_TRUE(is_valid_move(&move, &board));
+    CU_ASSERT_TRUE(is_legal_move(&move, &board));
     move.end_square = &board.squares[7][6];
-    CU_ASSERT_TRUE(is_valid_move(&move, &board));
+    CU_ASSERT_TRUE(is_legal_move(&move, &board));
     move.end_square = &board.squares[6][1];
-    CU_ASSERT_TRUE(is_valid_move(&move, &board));
+    CU_ASSERT_TRUE(is_legal_move(&move, &board));
     move.end_square = &board.squares[3][2];
-    CU_ASSERT_TRUE(is_valid_move(&move, &board));
+    CU_ASSERT_TRUE(is_legal_move(&move, &board));
 
     deallocate_board(&board);
 }
@@ -41,11 +41,11 @@ static void test_bishop_move_jump_over_pieces(void) {
     move.start_square = &board.squares[4][3];
 
     move.end_square = &board.squares[3][4];
-    CU_ASSERT_TRUE(is_valid_move(&move, &board));
+    CU_ASSERT_TRUE(is_legal_move(&move, &board));
     move.end_square = &board.squares[1][6];
-    CU_ASSERT_FALSE(is_valid_move(&move, &board));
+    CU_ASSERT_FALSE(is_legal_move(&move, &board));
     move.end_square = &board.squares[0][7];
-    CU_ASSERT_FALSE(is_valid_move(&move, &board));
+    CU_ASSERT_FALSE(is_legal_move(&move, &board));
 
     deallocate_board(&board);
 }
@@ -62,7 +62,7 @@ static void test_bishop_move_same_color_on_target_square(void) {
     Move move;
     move.start_square = &board.squares[4][3];
     move.end_square = &board.squares[2][5];
-    CU_ASSERT_FALSE(is_valid_move(&move, &board));
+    CU_ASSERT_FALSE(is_legal_move(&move, &board));
 
     deallocate_board(&board);
 }
@@ -79,7 +79,7 @@ static void test_bishop_move_capture_opponent_piece(void) {
     Move move;
     move.start_square = &board.squares[4][3];
     move.end_square = &board.squares[6][1];
-    CU_ASSERT_TRUE(is_valid_move(&move, &board));
+    CU_ASSERT_TRUE(is_legal_move(&move, &board));
 
     deallocate_board(&board);
 }
@@ -94,9 +94,9 @@ static void test_bishop_move_out_of_bounds(void) {
     move.start_square = &board.squares[4][6];
 
     move.end_square = &board.squares[2][8];
-    CU_ASSERT_FALSE(is_valid_move(&move, &board));
+    CU_ASSERT_FALSE(is_legal_move(&move, &board));
     move.end_square = &board.squares[7][9];
-    CU_ASSERT_FALSE(is_valid_move(&move, &board));
+    CU_ASSERT_FALSE(is_legal_move(&move, &board));
 
     deallocate_board(&board);
 }

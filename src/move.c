@@ -1,13 +1,17 @@
 #include <stdlib.h>
 
+#include "board.h"
 #include "move.h"
+#include "piece.h"
 
-void make_move(Move* move) {
-    if (move->end_square->piece) {
-        free(move->end_square->piece);
+void make_move(Move* move, Board* board) {
+    Square* start_square = &board->squares[move->start_square->y][move->start_square->x]; 
+    Square* end_square = &board->squares[move->end_square->y][move->end_square->x]; 
+    if (end_square->piece) {
+        free(end_square->piece);
     }
-    move->end_square->piece = move->start_square->piece;
-    move->start_square->piece = NULL;
+    end_square->piece = start_square->piece;
+    start_square->piece = NULL;
 }
 
 static bool is_same_line(Square* square1, Square* square2) {
@@ -136,7 +140,7 @@ static bool is_square_outside_board(Square* square) {
     return square->x < 0 || square->x > 7 || square->y < 0 || square->y > 7;
 }
 
-bool is_valid_move(Move* move, Board* board) {
+static bool validate_move_basic(Move* move, Board* board) {
     if (is_square_outside_board(move->start_square) || is_square_outside_board(move->end_square)) {
         return false;
     }
@@ -163,4 +167,103 @@ bool is_valid_move(Move* move, Board* board) {
         case KING:
             return is_valid_king_move(move);
     }
+}
+
+static Square* get_king_square(Color color, Board* board) {
+    for (int i = 0; i < 8; i++) {
+        for (int j = 0; j < 8; j++) {
+            Piece* piece = board->squares[i][j].piece;
+            if (piece && piece->piece_type == KING && piece->color == color) {
+                return &board->squares[i][j];
+            }
+        }
+    }
+    return NULL;
+}
+
+static MoveArray get_legal_moves(Square* square, Board* board) {
+    MoveArray legal_moves;
+    int capacity = 8;
+    legal_moves.moves = malloc(capacity * sizeof(Move));
+    legal_moves.length = 0;
+
+    Move move;
+    move.start_square = square;
+    for (int i = 0; i < 8; i++) {
+        for (int j = 0; j < 8; j++) {
+            move.end_square = &board->squares[i][j];
+            if (validate_move_basic(&move, board)) {
+                if (legal_moves.length == capacity) {
+                    capacity *= 2;
+                    legal_moves.moves = realloc(legal_moves.moves, capacity * sizeof(Move));
+                }
+                legal_moves.moves[legal_moves.length++] = move;
+            }
+        }
+    }
+    return legal_moves;
+}
+
+static MoveArray get_all_legal_moves(Color color, Board* board) {
+    MoveArray all_legal_moves;
+    int capacity = 16;
+    all_legal_moves.moves = malloc(capacity * sizeof(Move));
+    all_legal_moves.length = 0;
+
+    for (int i = 0; i < 8; i++) {
+        for (int j = 0; j < 8; j++) {
+            Square square = board->squares[i][j];
+            if (square.piece && square.piece->color == color) {
+                MoveArray legal_moves = get_legal_moves(&square, board);
+                for (int i = 0; i < legal_moves.length; i++) {
+                    if (all_legal_moves.length == capacity) {
+                        capacity *= 2;
+                        all_legal_moves.moves = realloc(all_legal_moves.moves, capacity * sizeof(Move));
+                    }
+                    all_legal_moves.moves[all_legal_moves.length++] = legal_moves.moves[i];
+                }
+                free(legal_moves.moves);
+            }
+        }
+    }
+    return all_legal_moves;
+}
+
+static bool is_in_check(Color color, Board* board) {
+    Square* king_square = get_king_square(color, board);
+
+    Color opponent_color = color == WHITE ? BLACK : WHITE;
+    MoveArray opponent_moves = get_all_legal_moves(opponent_color, board);
+    for (int i = 0; i < opponent_moves.length; i++) {
+        if (opponent_moves.moves[i].end_square == king_square) {
+            free(opponent_moves.moves);
+            return true;
+        }
+    }
+    free(opponent_moves.moves);
+    return false;
+}
+
+static bool leaves_king_in_check(Move* move, Board* board) {
+    Board board_copy = copy_board(board);
+    Color color_to_move = move->start_square->piece->color;
+    make_move(move, &board_copy);
+    if (is_in_check(color_to_move, &board_copy)) {
+        deallocate_board(&board_copy);
+        return true;
+    }
+    deallocate_board(&board_copy);
+    return false;
+}
+
+
+bool is_legal_move(Move* move, Board* board) {
+    if (!validate_move_basic(move, board)) {
+        return false;
+    }
+    if (leaves_king_in_check(move, board)) {
+        return false;
+    }
+
+    return true;
 }

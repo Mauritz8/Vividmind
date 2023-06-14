@@ -11,7 +11,12 @@ typedef struct {
     Square* end_square;
 } Move;
 
-void make_move(Move* move);
-bool is_valid_move(Move* move, Board* board);
+typedef struct {
+    Move* moves;
+    int length;
+} MoveArray;
+
+void make_move(Move* move, Board* board);
+bool is_legal_move(Move* move, Board* board);
 
 #endif

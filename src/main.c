@@ -24,8 +24,8 @@ int main(void) {
         Move move;
         move.start_square = &board.squares[start_y][start_x];
         move.end_square = &board.squares[end_y][end_x];
-        if (is_valid_move(&move, &board)) {
-            make_move(&move);
+        if (is_legal_move(&move, &board)) {
+            make_move(&move, &board);
         }
     }
 

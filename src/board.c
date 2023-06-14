@@ -70,3 +70,21 @@ void deallocate_board(Board* board) {
         }
     }
 }
+
+Board copy_board(Board* board) {
+    Board board_copy;
+    for (int i = 0; i < 8; i++) {
+        for (int j = 0; j < 8; j++) {
+            Square square = {square.x = j, square.y = i};
+            Piece* piece = board->squares[i][j].piece;
+            if (piece) {
+                square.piece = malloc(sizeof(Piece));
+                *square.piece = *board->squares[i][j].piece;
+            } else {
+                square.piece = NULL;
+            }
+            board_copy.squares[i][j] = square;
+        }
+    }
+    return board_copy;
+}
