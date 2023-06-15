@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdbool.h>
+#include <stdlib.h>
 
 #include "board.h"
 #include "move.h"
@@ -20,18 +21,10 @@ int main(void) {
         Move move;
         bool legal_move = false;
         while (!legal_move) {
-            int start_x, start_y, end_x, end_y;
-            printf("start_x: ");
-            scanf("%d", &start_x);
-            printf("start_y: ");
-            scanf("%d", &start_y);
-            printf("end_x: ");
-            scanf("%d", &end_x);
-            printf("end_y: ");
-            scanf("%d", &end_y);
-
-            move.start_square = &board.squares[start_y][start_x];
-            move.end_square = &board.squares[end_y][end_x];
+            char move_uci[4];
+            printf("Move: ");
+            scanf("%s", move_uci);
+            move = uci_notation_to_move(move_uci, &board);
 
             if (is_legal_move(&move, &board)) {
                 legal_move = true;
@@ -40,7 +33,6 @@ int main(void) {
             }
         }
         make_move(&move, &board);
-
 
         if (player_to_move == WHITE) {
             player_to_move = BLACK;

@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <stdlib.h>
 
 #include "board.h"
@@ -281,4 +282,28 @@ bool is_legal_move(Move* move, Board* board) {
     }
 
     return true;
+}
+
+char* move_to_uci_notation(Move* move) {
+    const char files[] = "abcdefgh";
+    const char ranks[] = "87654321";
+
+    char* uci_notation = malloc(5 * sizeof(char));
+    sprintf(uci_notation, "%c%c%c%c",
+            files[move->start_square->x],
+            ranks[move->start_square->y],
+            files[move->end_square->x],
+            ranks[move->end_square->y]);
+    return uci_notation;
+}
+
+Move uci_notation_to_move(char* uci_notation, Board* board) {
+    int start_x = uci_notation[0] - 'a';
+    int start_y = 8 - (uci_notation[1] - '0');
+    int end_x = uci_notation[2] - 'a';
+    int end_y = 8 - (uci_notation[3] - '0');
+    Move move;
+    move.start_square = &board->squares[start_y][start_x];
+    move.end_square = &board->squares[end_y][end_x];
+    return move;
 }

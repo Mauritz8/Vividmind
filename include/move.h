@@ -19,5 +19,7 @@ typedef struct {
 void make_move(Move* move, Board* board);
 bool is_checkmated(Color color, Board* board);
 bool is_legal_move(Move* move, Board* board);
+char* move_to_uci_notation(Move* move);
+Move uci_notation_to_move(char* uci_notation, Board* board);
 
 #endif
