@@ -9,6 +9,11 @@ int main(void) {
     Board board;
     setup_board(&board);
 
+    MoveArray move_history;
+    int move_history_capacity = 16;
+    move_history.moves = malloc(move_history_capacity * sizeof(Move));
+    move_history.length = 0;
+
     Color player_to_move = WHITE;
     while (true) {
         show_board(&board);
@@ -33,6 +38,14 @@ int main(void) {
             }
         }
         make_move(&move, &board);
+
+        // add move to move history
+        if (move_history.length == move_history_capacity) {
+            move_history_capacity *= 2;
+            move_history.moves = realloc(move_history.moves, move_history_capacity * sizeof(Move));
+        }
+        move_history.moves[move_history.length++] = move;
+
 
         if (player_to_move == WHITE) {
             player_to_move = BLACK;
