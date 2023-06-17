@@ -273,7 +273,94 @@ bool is_checkmated(Color color, Board* board) {
    return true;
 }
 
-bool is_legal_move(Move* move, Board* board) {
+static bool is_castling_move(Move* move, Board* board) {
+    const int starting_row = move->start_square->piece->color == WHITE ? 7 : 0;
+    const int king_x = 4;
+    if (move->start_square->x != king_x || move->start_square->y != starting_row) {
+        return false;
+    }
+    if (move->end_square->x != 6 && move->end_square->x != 2) {
+        return false;
+    }
+    return true;
+}
+
+static bool has_castling_pieces_moved(MoveArray* move_history, int starting_row, int king_x, int rook_x) {
+    for (int i = 0; i < move_history->length; i++) {
+        Move played_move = move_history->moves[i];
+        if (played_move.start_square->y == starting_row) {
+            if (played_move.start_square->x == king_x || played_move.start_square->x == rook_x) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+static bool passes_through_check_when_castling(Move* move, Board* board) {
+    Board board_copy = copy_board(board);
+    const int row = move->start_square->y;
+    const int start_x = move->start_square->x;
+    const int end_x = move->end_square->x;
+    const int direction = end_x - start_x > 0 ? 1 : -1;
+
+    int x = start_x;
+    Move submove;
+    submove.start_square = malloc(sizeof(Square));
+    submove.end_square = malloc(sizeof(Square));
+    submove.start_square->y = row;
+    submove.end_square->y = row;
+    while (x != end_x) {
+        submove.start_square->x = x;
+        submove.end_square->x = x + 1;
+        make_move(&submove, &board_copy);
+        if (is_in_check(move->start_square->piece->color, &board_copy)) {
+            free(submove.start_square);
+            free(submove.end_square);
+            deallocate_board(&board_copy);
+            return true;
+        }
+        x += direction;
+    }
+    free(submove.start_square);
+    free(submove.end_square);
+    deallocate_board(&board_copy);
+    return false;
+}
+
+static bool is_valid_castling_move(Move* move, MoveArray* move_history, Board* board) {
+    const Color color = move->start_square->piece->color;
+    const int starting_row = color == WHITE ? 7 : 0;
+    const int king_x = 4;
+    int rook_x;
+    if (move->end_square->x == 6) {
+        rook_x = 7;
+    } else if (move->end_square->x == 2) {
+        rook_x = 0;
+    } else {
+        return false;
+    }
+
+    if (has_castling_pieces_moved(move_history, starting_row, king_x, rook_x)) {
+        return false;
+    }
+    if (!is_clear_line(&board->squares[starting_row][king_x], &board->squares[starting_row][rook_x], board)) {
+        return false;
+    }
+    if (is_in_check(color, board)) {
+        return false;
+    }
+    if (passes_through_check_when_castling(move, board)) {
+        return false;
+    }
+
+    return true;
+}
+
+bool is_legal_move(Move* move, Board* board, MoveArray* move_history) {
+    if (is_castling_move(move, board)) {
+        return is_valid_castling_move(move, move_history, board);
+    }
     if (!validate_move_basic(move, board)) {
         return false;
     }
