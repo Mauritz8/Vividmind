@@ -58,5 +58,6 @@ int main(void) {
         }
     }
 
+    free(move_history.moves);
     deallocate_board(&board);
 }
