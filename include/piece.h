@@ -9,6 +9,6 @@ typedef struct {
     Color color;
 } Piece;
 
-char get_char_representation(Piece* piece);
+char get_char_representation(const Piece* piece);
 
 #endif

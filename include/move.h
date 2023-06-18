@@ -16,12 +16,12 @@ typedef struct {
     int length;
 } MoveArray;
 
-void make_move(Move* move, Board* board);
-bool is_checkmated(Color color, Board* board);
-bool is_castling_move(Move* move);
-void make_castling_move(Move* move, Board* board);
-bool is_legal_move(Move* move, Board* board, MoveArray* move_history);
-char* move_to_uci_notation(Move* move);
-Move uci_notation_to_move(char* uci_notation, Board* board);
+void make_move(const Move* move, Board* board);
+bool is_checkmated(const Color color, Board* board);
+bool is_castling_move(const Move* move);
+void make_castling_move(const Move* move, Board* board);
+bool is_legal_move(const Move* move, Board* board, const MoveArray* move_history);
+char* move_to_uci_notation(const Move* move);
+Move uci_notation_to_move(const char* uci_notation, Board* board);
 
 #endif

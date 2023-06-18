@@ -17,12 +17,12 @@ void setup_empty_board(Board* board) {
     }
 }
 
-void place_piece_at(Piece* piece, Board* board, int x, int y) {
+void place_piece_at(const Piece* piece, Board* board, const int x, const int y) {
     board->squares[y][x].piece = malloc(sizeof(Piece));
-    *(board->squares[y][x].piece) = *piece;
+    *board->squares[y][x].piece = *piece;
 }
 
-MoveArray create_emtpy_move_history() {
+MoveArray create_empty_move_history() {
     MoveArray move_history;
     move_history.length = 0;
     return move_history;

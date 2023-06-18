@@ -1,6 +1,6 @@
 #include "piece.h"
 
-char get_char_representation(Piece* piece) {
+char get_char_representation(const Piece* piece) {
     switch (piece->piece_type) {
         case PAWN:
             return 'p';

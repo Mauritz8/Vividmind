@@ -10,8 +10,8 @@
 static void test_rook_move_valid_move(void) {
     Board board;
     setup_empty_board(&board);
-    MoveArray move_history = create_emtpy_move_history();
-    Piece rook = {.piece_type = ROOK};
+    const MoveArray move_history = create_empty_move_history();
+    const Piece rook = {.piece_type = ROOK};
     place_piece_at(&rook, &board, 3, 4);
 
     Move move;
@@ -32,8 +32,8 @@ static void test_rook_move_valid_move(void) {
 static void test_rook_move_invalid_pattern(void) {
     Board board;
     setup_empty_board(&board);
-    MoveArray move_history = create_emtpy_move_history();
-    Piece rook = {.piece_type = ROOK};
+    const MoveArray move_history = create_empty_move_history();
+    const Piece rook = {.piece_type = ROOK};
     place_piece_at(&rook, &board, 3, 3);
 
     Move move;
@@ -56,11 +56,11 @@ static void test_rook_move_invalid_pattern(void) {
 static void test_rook_move_jump_over_pieces(void) {
     Board board;
     setup_empty_board(&board);
-    MoveArray move_history = create_emtpy_move_history();
-    Piece rook = {.piece_type = ROOK};
+    const MoveArray move_history = create_empty_move_history();
+    const Piece rook = {.piece_type = ROOK};
     place_piece_at(&rook, &board, 3, 4);
 
-    Piece blocking_piece = {.piece_type = PAWN};
+    const Piece blocking_piece = {.piece_type = PAWN};
     place_piece_at(&blocking_piece, &board, 3, 3);
 
     Move move;
@@ -79,11 +79,11 @@ static void test_rook_move_jump_over_pieces(void) {
 static void test_rook_move_same_color_on_target_square(void) {
     Board board;
     setup_empty_board(&board);
-    MoveArray move_history = create_emtpy_move_history();
-    Piece rook = {.piece_type = ROOK, .color = BLACK};
+    const MoveArray move_history = create_empty_move_history();
+    const Piece rook = {.piece_type = ROOK, .color = BLACK};
     place_piece_at(&rook, &board, 3, 4);
 
-    Piece same_color_piece = {.piece_type = PAWN, .color = BLACK};
+    const Piece same_color_piece = {.piece_type = PAWN, .color = BLACK};
     place_piece_at(&same_color_piece, &board, 5, 4);
 
     Move move;
@@ -97,11 +97,11 @@ static void test_rook_move_same_color_on_target_square(void) {
 static void test_rook_move_capture_opponent_piece(void) {
     Board board;
     setup_empty_board(&board);
-    MoveArray move_history = create_emtpy_move_history();
-    Piece rook = {.piece_type = ROOK, .color = BLACK};
+    const MoveArray move_history = create_empty_move_history();
+    const Piece rook = {.piece_type = ROOK, .color = BLACK};
     place_piece_at(&rook, &board, 3, 4);
 
-    Piece same_color_piece = {.piece_type = PAWN, .color = WHITE};
+    const Piece same_color_piece = {.piece_type = PAWN, .color = WHITE};
     place_piece_at(&same_color_piece, &board, 3, 7);
 
     Move move;
@@ -115,8 +115,8 @@ static void test_rook_move_capture_opponent_piece(void) {
 static void test_rook_move_out_of_bounds(void) {
     Board board;
     setup_empty_board(&board);
-    MoveArray move_history = create_emtpy_move_history();
-    Piece rook = {.piece_type = ROOK};
+    const MoveArray move_history = create_empty_move_history();
+    const Piece rook = {.piece_type = ROOK};
     place_piece_at(&rook, &board, 6, 4);
 
     Move move;

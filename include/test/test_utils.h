@@ -6,7 +6,7 @@
 #include "piece.h"
 
 void setup_empty_board(Board* board);
-void place_piece_at(Piece* piece, Board* board, int x, int y);
-MoveArray create_emtpy_move_history();
+void place_piece_at(const Piece* piece, Board* board, const int x, const int y);
+MoveArray create_empty_move_history();
 
 #endif

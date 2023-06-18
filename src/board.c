@@ -4,7 +4,7 @@
 #include "board.h"
 #include "piece.h"
 
-static void setup_pieces(Board* board, int row, const Piece_type* order, Color color) {
+static void setup_pieces(Board* board, const int row, const Piece_type* order, const Color color) {
     for (int i = 0; i < 8; i++) {
         board->squares[row][i].piece = malloc(sizeof(Piece));
         board->squares[row][i].piece->piece_type = order[i];
@@ -12,7 +12,7 @@ static void setup_pieces(Board* board, int row, const Piece_type* order, Color c
     }
 }
 
-static void setup_pawns(Board* board, int row, Color color) {
+static void setup_pawns(Board* board, const int row, const Color color) {
     for (int i = 0; i < 8; i++) {
         board->squares[row][i].piece = malloc(sizeof(Piece));
         board->squares[row][i].piece->piece_type = PAWN;
@@ -44,10 +44,10 @@ void setup_board(Board* board) {
     }
 }
 
-void show_board(Board* board) {
+void show_board(const Board* board) {
     for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 8; j++) {
-            Piece* piece = board->squares[i][j].piece;
+            const Piece* piece = board->squares[i][j].piece;
             if (piece) {
                 printf(" %c", get_char_representation(piece));
             } else {
@@ -71,12 +71,12 @@ void deallocate_board(Board* board) {
     }
 }
 
-Board copy_board(Board* board) {
+Board copy_board(const Board* board) {
     Board board_copy;
     for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 8; j++) {
             Square square = {square.x = j, square.y = i};
-            Piece* piece = board->squares[i][j].piece;
+            const Piece* piece = board->squares[i][j].piece;
             if (piece) {
                 square.piece = malloc(sizeof(Piece));
                 *square.piece = *board->squares[i][j].piece;

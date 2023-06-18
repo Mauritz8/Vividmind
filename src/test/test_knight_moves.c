@@ -10,8 +10,8 @@
 static void test_knight_move_valid_move(void) {
     Board board;
     setup_empty_board(&board);
-    MoveArray move_history = create_emtpy_move_history();
-    Piece knight = {.piece_type = KNIGHT};
+    const MoveArray move_history = create_empty_move_history();
+    const Piece knight = {.piece_type = KNIGHT};
     place_piece_at(&knight, &board, 4, 4);
 
     Move move;
@@ -40,8 +40,8 @@ static void test_knight_move_valid_move(void) {
 static void test_knight_move_invalid_pattern(void) {
     Board board;
     setup_empty_board(&board);
-    MoveArray move_history = create_emtpy_move_history();
-    Piece knight = {.piece_type = KNIGHT};
+    const MoveArray move_history = create_empty_move_history();
+    const Piece knight = {.piece_type = KNIGHT};
     place_piece_at(&knight, &board, 3, 3);
 
     Move move;
@@ -66,9 +66,9 @@ static void test_knight_move_invalid_pattern(void) {
 static void test_knight_move_same_color_on_target_square(void) {
     Board board;
     setup_empty_board(&board);
-    MoveArray move_history = create_emtpy_move_history();
-    Piece knight = {.piece_type = KNIGHT, .color = WHITE};
-    Piece piece_of_same_color = {.piece_type = ROOK, .color = WHITE};
+    const MoveArray move_history = create_empty_move_history();
+    const Piece knight = {.piece_type = KNIGHT, .color = WHITE};
+    const Piece piece_of_same_color = {.piece_type = ROOK, .color = WHITE};
     place_piece_at(&knight, &board, 3, 3);
     place_piece_at(&piece_of_same_color, &board, 4, 5);
 
@@ -81,9 +81,9 @@ static void test_knight_move_same_color_on_target_square(void) {
 void test_knight_move_capture_opponent_piece(void) {
     Board board;
     setup_empty_board(&board);
-    MoveArray move_history = create_emtpy_move_history();
-    Piece knight = {.piece_type = KNIGHT, .color = WHITE};
-    Piece piece_of_opposite_color = {.piece_type = ROOK, .color = BLACK};
+    const MoveArray move_history = create_empty_move_history();
+    const Piece knight = {.piece_type = KNIGHT, .color = WHITE};
+    const Piece piece_of_opposite_color = {.piece_type = ROOK, .color = BLACK};
     place_piece_at(&knight, &board, 3, 3);
     place_piece_at(&piece_of_opposite_color, &board, 4, 5);
 
@@ -96,8 +96,8 @@ void test_knight_move_capture_opponent_piece(void) {
 static void test_knight_move_out_of_bounds(void) {
     Board board;
     setup_empty_board(&board);
-    MoveArray move_history = create_emtpy_move_history();
-    Piece knight = {.piece_type = KNIGHT, .color = WHITE};
+    const MoveArray move_history = create_empty_move_history();
+    const Piece knight = {.piece_type = KNIGHT, .color = WHITE};
     place_piece_at(&knight, &board, 4, 4);
 
     Move move;
@@ -109,8 +109,8 @@ static void test_knight_move_out_of_bounds(void) {
 static void test_knight_move_on_edge_of_board(void) {
     Board board;
     setup_empty_board(&board);
-    MoveArray move_history = create_emtpy_move_history();
-    Piece knight = {.piece_type = KNIGHT, .color = WHITE};
+    const MoveArray move_history = create_empty_move_history();
+    const Piece knight = {.piece_type = KNIGHT, .color = WHITE};
     place_piece_at(&knight, &board, 7, 1);
 
     Move move;
@@ -133,13 +133,13 @@ static void test_knight_move_on_edge_of_board(void) {
 static void test_knight_move_jump_over_pieces(void) {
     Board board;
     setup_empty_board(&board);
-    MoveArray move_history = create_emtpy_move_history();
-    Piece knight = {.piece_type = KNIGHT};
+    const MoveArray move_history = create_empty_move_history();
+    const Piece knight = {.piece_type = KNIGHT};
     place_piece_at(&knight, &board, 4, 4);
 
-    Piece blocking_piece1 = {.piece_type = PAWN};
+    const Piece blocking_piece1 = {.piece_type = PAWN};
     place_piece_at(&blocking_piece1, &board, 5, 4);
-    Piece blocking_piece2 = {.piece_type = PAWN};
+    const Piece blocking_piece2 = {.piece_type = PAWN};
     place_piece_at(&blocking_piece2, &board, 3, 5);
 
     Move move;
