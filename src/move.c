@@ -306,24 +306,16 @@ static bool passes_through_check_when_castling(Move* move, Board* board) {
 
     int x = start_x;
     Move submove;
-    submove.start_square = malloc(sizeof(Square));
-    submove.end_square = malloc(sizeof(Square));
-    submove.start_square->y = row;
-    submove.end_square->y = row;
     while (x != end_x) {
-        submove.start_square->x = x;
-        submove.end_square->x = x + 1;
+        submove.start_square = &board_copy.squares[row][x];
+        submove.end_square = &board_copy.squares[row][x + 1];
         make_move(&submove, &board_copy);
         if (is_in_check(move->start_square->piece->color, &board_copy)) {
-            free(submove.start_square);
-            free(submove.end_square);
             deallocate_board(&board_copy);
             return true;
         }
         x += direction;
     }
-    free(submove.start_square);
-    free(submove.end_square);
     deallocate_board(&board_copy);
     return false;
 }
