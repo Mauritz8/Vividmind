@@ -1,5 +1,6 @@
 #include <stdlib.h>
 
+#include "move.h"
 #include "test/test_utils.h"
 
 void setup_empty_board(Board* board) {
@@ -19,4 +20,10 @@ void setup_empty_board(Board* board) {
 void place_piece_at(Piece* piece, Board* board, int x, int y) {
     board->squares[y][x].piece = malloc(sizeof(Piece));
     *(board->squares[y][x].piece) = *piece;
+}
+
+MoveArray create_emtpy_move_history() {
+    MoveArray move_history;
+    move_history.length = 0;
+    return move_history;
 }

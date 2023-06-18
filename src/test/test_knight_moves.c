@@ -10,6 +10,7 @@
 static void test_knight_move_valid_move(void) {
     Board board;
     setup_empty_board(&board);
+    MoveArray move_history = create_emtpy_move_history();
     Piece knight = {.piece_type = KNIGHT};
     place_piece_at(&knight, &board, 4, 4);
 
@@ -17,21 +18,21 @@ static void test_knight_move_valid_move(void) {
     move.start_square = &board.squares[4][4];
 
     move.end_square = &board.squares[2][5];
-    CU_ASSERT_TRUE(is_legal_move(&move, &board));
+    CU_ASSERT_TRUE(is_legal_move(&move, &board, &move_history));
     move.end_square = &board.squares[3][6];
-    CU_ASSERT_TRUE(is_legal_move(&move, &board));
+    CU_ASSERT_TRUE(is_legal_move(&move, &board, &move_history));
     move.end_square = &board.squares[5][6];
-    CU_ASSERT_TRUE(is_legal_move(&move, &board));
+    CU_ASSERT_TRUE(is_legal_move(&move, &board, &move_history));
     move.end_square = &board.squares[6][5];
-    CU_ASSERT_TRUE(is_legal_move(&move, &board));
+    CU_ASSERT_TRUE(is_legal_move(&move, &board, &move_history));
     move.end_square = &board.squares[6][3];
-    CU_ASSERT_TRUE(is_legal_move(&move, &board));
+    CU_ASSERT_TRUE(is_legal_move(&move, &board, &move_history));
     move.end_square = &board.squares[5][2];
-    CU_ASSERT_TRUE(is_legal_move(&move, &board));
+    CU_ASSERT_TRUE(is_legal_move(&move, &board, &move_history));
     move.end_square = &board.squares[3][2];
-    CU_ASSERT_TRUE(is_legal_move(&move, &board));
+    CU_ASSERT_TRUE(is_legal_move(&move, &board, &move_history));
     move.end_square = &board.squares[2][3];
-    CU_ASSERT_TRUE(is_legal_move(&move, &board));
+    CU_ASSERT_TRUE(is_legal_move(&move, &board, &move_history));
 
     deallocate_board(&board);
 }
@@ -39,6 +40,7 @@ static void test_knight_move_valid_move(void) {
 static void test_knight_move_invalid_pattern(void) {
     Board board;
     setup_empty_board(&board);
+    MoveArray move_history = create_emtpy_move_history();
     Piece knight = {.piece_type = KNIGHT};
     place_piece_at(&knight, &board, 3, 3);
 
@@ -46,17 +48,17 @@ static void test_knight_move_invalid_pattern(void) {
     move.start_square = &board.squares[3][3];
 
     move.end_square = &board.squares[1][3];
-    CU_ASSERT_FALSE(is_legal_move(&move, &board));
+    CU_ASSERT_FALSE(is_legal_move(&move, &board, &move_history));
     move.end_square = &board.squares[2][3];
-    CU_ASSERT_FALSE(is_legal_move(&move, &board));
+    CU_ASSERT_FALSE(is_legal_move(&move, &board, &move_history));
     move.end_square = &board.squares[3][4];
-    CU_ASSERT_FALSE(is_legal_move(&move, &board));
+    CU_ASSERT_FALSE(is_legal_move(&move, &board, &move_history));
     move.end_square = &board.squares[7][5];
-    CU_ASSERT_FALSE(is_legal_move(&move, &board));
+    CU_ASSERT_FALSE(is_legal_move(&move, &board, &move_history));
     move.end_square = &board.squares[3][0];
-    CU_ASSERT_FALSE(is_legal_move(&move, &board));
+    CU_ASSERT_FALSE(is_legal_move(&move, &board, &move_history));
     move.end_square = &board.squares[0][2];
-    CU_ASSERT_FALSE(is_legal_move(&move, &board));
+    CU_ASSERT_FALSE(is_legal_move(&move, &board, &move_history));
 
     deallocate_board(&board);
 }
@@ -64,6 +66,7 @@ static void test_knight_move_invalid_pattern(void) {
 static void test_knight_move_same_color_on_target_square(void) {
     Board board;
     setup_empty_board(&board);
+    MoveArray move_history = create_emtpy_move_history();
     Piece knight = {.piece_type = KNIGHT, .color = WHITE};
     Piece piece_of_same_color = {.piece_type = ROOK, .color = WHITE};
     place_piece_at(&knight, &board, 3, 3);
@@ -72,12 +75,13 @@ static void test_knight_move_same_color_on_target_square(void) {
     Move move;
     move.start_square = &board.squares[3][3];
     move.end_square = &board.squares[5][4];
-    CU_ASSERT_FALSE(is_legal_move(&move, &board));
+    CU_ASSERT_FALSE(is_legal_move(&move, &board, &move_history));
 }
 
 void test_knight_move_capture_opponent_piece(void) {
     Board board;
     setup_empty_board(&board);
+    MoveArray move_history = create_emtpy_move_history();
     Piece knight = {.piece_type = KNIGHT, .color = WHITE};
     Piece piece_of_opposite_color = {.piece_type = ROOK, .color = BLACK};
     place_piece_at(&knight, &board, 3, 3);
@@ -86,24 +90,26 @@ void test_knight_move_capture_opponent_piece(void) {
     Move move;
     move.start_square = &board.squares[3][3];
     move.end_square = &board.squares[5][4];
-    CU_ASSERT_TRUE(is_legal_move(&move, &board));
+    CU_ASSERT_TRUE(is_legal_move(&move, &board, &move_history));
 }
 
 static void test_knight_move_out_of_bounds(void) {
     Board board;
     setup_empty_board(&board);
+    MoveArray move_history = create_emtpy_move_history();
     Piece knight = {.piece_type = KNIGHT, .color = WHITE};
     place_piece_at(&knight, &board, 4, 4);
 
     Move move;
     move.start_square = &board.squares[4][4];
     move.end_square = &board.squares[9][3];
-    CU_ASSERT_FALSE(is_legal_move(&move, &board));
+    CU_ASSERT_FALSE(is_legal_move(&move, &board, &move_history));
 }
 
 static void test_knight_move_on_edge_of_board(void) {
     Board board;
     setup_empty_board(&board);
+    MoveArray move_history = create_emtpy_move_history();
     Piece knight = {.piece_type = KNIGHT, .color = WHITE};
     place_piece_at(&knight, &board, 7, 1);
 
@@ -111,22 +117,23 @@ static void test_knight_move_on_edge_of_board(void) {
     move.start_square = &board.squares[1][7];
 
     move.end_square = &board.squares[0][5];
-    CU_ASSERT_TRUE(is_legal_move(&move, &board));
+    CU_ASSERT_TRUE(is_legal_move(&move, &board, &move_history));
     move.end_square = &board.squares[2][5];
-    CU_ASSERT_TRUE(is_legal_move(&move, &board));
+    CU_ASSERT_TRUE(is_legal_move(&move, &board, &move_history));
     move.end_square = &board.squares[3][6];
-    CU_ASSERT_TRUE(is_legal_move(&move, &board));
+    CU_ASSERT_TRUE(is_legal_move(&move, &board, &move_history));
     move.end_square = &board.squares[3][8];
-    CU_ASSERT_FALSE(is_legal_move(&move, &board));
+    CU_ASSERT_FALSE(is_legal_move(&move, &board, &move_history));
     move.end_square = &board.squares[2][9];
-    CU_ASSERT_FALSE(is_legal_move(&move, &board));
+    CU_ASSERT_FALSE(is_legal_move(&move, &board, &move_history));
     move.end_square = &board.squares[0][9];
-    CU_ASSERT_FALSE(is_legal_move(&move, &board));
+    CU_ASSERT_FALSE(is_legal_move(&move, &board, &move_history));
 }
 
 static void test_knight_move_jump_over_pieces(void) {
     Board board;
     setup_empty_board(&board);
+    MoveArray move_history = create_emtpy_move_history();
     Piece knight = {.piece_type = KNIGHT};
     place_piece_at(&knight, &board, 4, 4);
 
@@ -139,9 +146,9 @@ static void test_knight_move_jump_over_pieces(void) {
     move.start_square = &board.squares[4][4];
 
     move.end_square = &board.squares[6][3];
-    CU_ASSERT_TRUE(is_legal_move(&move, &board));
+    CU_ASSERT_TRUE(is_legal_move(&move, &board, &move_history));
     move.end_square = &board.squares[3][6];
-    CU_ASSERT_TRUE(is_legal_move(&move, &board));
+    CU_ASSERT_TRUE(is_legal_move(&move, &board, &move_history));
 
     deallocate_board(&board);
 }
