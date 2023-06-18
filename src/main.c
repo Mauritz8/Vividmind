@@ -37,7 +37,11 @@ int main(void) {
                 printf("\nThat's not a legal move\n\n");
             }
         }
-        make_move(&move, &board);
+        if (is_castling_move(&move)) {
+            make_castling_move(&move, &board);
+        } else {
+            make_move(&move, &board);
+        }
 
         // add move to move history
         if (move_history.length == move_history_capacity) {

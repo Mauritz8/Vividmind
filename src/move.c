@@ -273,7 +273,7 @@ bool is_checkmated(Color color, Board* board) {
    return true;
 }
 
-static bool is_castling_move(Move* move, Board* board) {
+bool is_castling_move(Move* move) {
     const int starting_row = move->start_square->piece->color == WHITE ? 7 : 0;
     const int king_x = 4;
     if (move->start_square->x != king_x || move->start_square->y != starting_row) {
@@ -357,8 +357,25 @@ static bool is_valid_castling_move(Move* move, MoveArray* move_history, Board* b
     return true;
 }
 
+void make_castling_move(Move* move, Board* board) {
+    make_move(move, board);
+
+    Move rook_move;
+    int row = move->start_square->y;
+    if (move->end_square->x > move->start_square->x) {
+        // kingside castling
+        rook_move.start_square = &board->squares[row][7];
+        rook_move.end_square = &board->squares[row][5];
+    } else {
+        // queenside castling
+        rook_move.start_square = &board->squares[row][0];
+        rook_move.end_square = &board->squares[row][3];
+    }
+    make_move(&rook_move, board);
+}
+
 bool is_legal_move(Move* move, Board* board, MoveArray* move_history) {
-    if (is_castling_move(move, board)) {
+    if (is_castling_move(move)) {
         return is_valid_castling_move(move, move_history, board);
     }
     if (!validate_move_basic(move, board)) {
