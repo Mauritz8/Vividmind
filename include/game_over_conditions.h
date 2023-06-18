@@ -4,5 +4,6 @@
 #include "board.h"
 
 bool is_checkmated(const Color color, Board* board);
+bool is_insufficient_material(Board* board);
 
 #endif

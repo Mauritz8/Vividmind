@@ -9,6 +9,11 @@ typedef struct {
     Color color;
 } Piece;
 
+typedef struct {
+    Piece* pieces;
+    int length;
+} PieceArray;
+
 char get_char_representation(const Piece* piece);
 
 #endif

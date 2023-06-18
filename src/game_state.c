@@ -3,6 +3,7 @@
 
 #include "board.h"
 #include "move.h"
+#include "piece.h"
 
 static Square* get_king_square(const Color color, Board* board) {
     for (int i = 0; i < 8; i++) {
@@ -77,4 +78,25 @@ bool is_in_check(const Color color, Board* board) {
     }
     free(opponent_moves.moves);
     return false;
+}
+
+PieceArray get_all_pieces(const Color color, Board* board) {
+    PieceArray pieces;
+    int capacity = 16;
+    pieces.pieces = malloc(capacity * sizeof(Piece));
+    pieces.length = 0;
+
+    for (int i = 0; i < 8; i++) {
+        for (int j = 0; j < 8; j++) {
+            Piece* piece = board->squares[i][j].piece;
+            if (piece && piece->color == color) {
+                if (pieces.length == capacity) {
+                    capacity *= 2;
+                    pieces.pieces = realloc(pieces.pieces, capacity * sizeof(Piece));
+                }
+                pieces.pieces[pieces.length++] = *piece;
+            }
+        }
+    }
+    return pieces;
 }
