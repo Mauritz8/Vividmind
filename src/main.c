@@ -4,6 +4,7 @@
 
 #include "board.h"
 #include "move.h"
+#include "game_over_conditions.h"
 
 int main(void) {
     Board board;
