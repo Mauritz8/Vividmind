@@ -21,7 +21,7 @@ typedef struct {
 void make_move(const Move* move, Board* board);
 bool validate_threatened_move(const Move* move, Board* board);
 bool leaves_king_in_check(const Move* move, const Board* board);
-bool is_castling_move(const Move* move);
+bool is_valid_castling_move(const Move* move, const MoveArray* move_history, Board* board);
 void make_castling_move(const Move* move, Board* board);
 bool is_valid_en_passant_move(const Move* move, Board* board, const MoveArray* move_history);
 void make_en_passant_move(const Move* move, Board* board);

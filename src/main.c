@@ -38,7 +38,7 @@ int main(void) {
                 printf("\nThat's not a legal move\n\n");
             }
         }
-        if (is_castling_move(&move)) {
+        if (is_valid_castling_move(&move, &move_history, &board)) {
             make_castling_move(&move, &board);
         } else if (is_valid_en_passant_move(&move, &board, &move_history)) {
             make_en_passant_move(&move, &board);

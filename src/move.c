@@ -224,18 +224,6 @@ bool leaves_king_in_check(const Move* move, const Board* board) {
     return false;
 }
 
-bool is_castling_move(const Move* move) {
-    const int starting_row = move->start_square->piece->color == WHITE ? 7 : 0;
-    const int king_x = 4;
-    if (move->start_square->x != king_x || move->start_square->y != starting_row) {
-        return false;
-    }
-    if (move->end_square->x != 6 && move->end_square->x != 2) {
-        return false;
-    }
-    return true;
-}
-
 static bool has_castling_pieces_moved(const MoveArray* move_history, const int starting_row, const int king_x, const int rook_x) {
     for (int i = 0; i < move_history->length; i++) {
         const Move played_move = move_history->moves[i];
@@ -271,10 +259,14 @@ static bool passes_through_check_when_castling(const Move* move, const Board* bo
     return false;
 }
 
-static bool is_valid_castling_move(const Move* move, const MoveArray* move_history, Board* board) {
+bool is_valid_castling_move(const Move* move, const MoveArray* move_history, Board* board) {
     const Color color = move->start_square->piece->color;
     const int starting_row = color == WHITE ? 7 : 0;
+
     const int king_x = 4;
+    if (move->start_square->x != king_x || move->start_square->y != starting_row) {
+        return false;
+    }
     int rook_x;
     if (move->end_square->x == 6) {
         rook_x = 7;
@@ -362,8 +354,8 @@ bool is_legal_move(const Move* move, Board* board, const MoveArray* move_history
         return false;
     }
 
-    if (is_castling_move(move)) {
-        return is_valid_castling_move(move, move_history, board);
+    if (is_valid_castling_move(move, move_history, board)) {
+        return true;
     }
     if (is_valid_en_passant_move(move, board, move_history)) {
         return true;
