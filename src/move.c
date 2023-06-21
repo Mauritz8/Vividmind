@@ -374,7 +374,28 @@ bool is_legal_move(const Move* move, Board* board, const MoveArray* move_history
         return false;
     }
 
+    if (is_promotion(move, board) && move->promotion_piece == -1) {
+        return false;
+    }
+
     return true;
+}
+
+bool is_promotion(const Move* move, Board* board) {
+    const Piece* piece = move->start_square->piece;
+    const Piece_type piece_type = piece->piece_type;
+    const int y_end = move->end_square->y;
+    const int promotion_row = piece->color == WHITE ? 0 : 7;
+
+    if (piece_type == PAWN && y_end == promotion_row) {
+        return true;
+    }
+    return false;
+}
+
+void make_promotion_move(const Move* move, Board* board) {
+    make_move(move, board);
+    move->end_square->piece->piece_type = move->promotion_piece;
 }
 
 char* move_to_uci_notation(const Move* move) {
@@ -398,5 +419,10 @@ Move uci_notation_to_move(const char* uci_notation, Board* board) {
     Move move;
     move.start_square = &board->squares[start_y][start_x];
     move.end_square = &board->squares[end_y][end_x];
+
+    const char promotion_piece = uci_notation[4];
+    if (promotion_piece) {
+        move.promotion_piece = get_promotion_piece_type(promotion_piece);
+    }
     return move;
 }

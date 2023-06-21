@@ -3,12 +3,14 @@
 
 #include <stdbool.h>
 
+#include "piece.h"
 #include "square.h"
 #include "board.h"
 
 typedef struct {
     Square* start_square;
     Square* end_square;
+    Piece_type promotion_piece;
 } Move;
 
 typedef struct {
@@ -24,6 +26,8 @@ void make_castling_move(const Move* move, Board* board);
 bool is_en_passant_move(const Move* move, Board* board);
 void make_en_passant_move(const Move* move, Board* board);
 bool is_legal_move(const Move* move, Board* board, const MoveArray* move_history);
+bool is_promotion(const Move* move, Board* board);
+void make_promotion_move(const Move* move, Board* board);
 char* move_to_uci_notation(const Move* move);
 Move uci_notation_to_move(const char* uci_notation, Board* board);
 

@@ -27,7 +27,7 @@ int main(void) {
         Move move;
         bool legal_move = false;
         while (!legal_move) {
-            char move_uci[4];
+            char move_uci[6];
             printf("Move: ");
             scanf("%s", move_uci);
             move = uci_notation_to_move(move_uci, &board);
@@ -42,6 +42,8 @@ int main(void) {
             make_castling_move(&move, &board);
         } else if (is_en_passant_move(&move, &board)) {
             make_en_passant_move(&move, &board);
+        } else if (is_promotion(&move, &board)) {
+            make_promotion_move(&move, &board);
         } else {
             make_move(&move, &board);
         }
