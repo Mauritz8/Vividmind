@@ -7,12 +7,12 @@
 #include "game_state.h"
 #include "piece.h"
 
-bool is_checkmated(const Color color, Board* board, const MoveArray* move_history) {
-   if (!is_in_check(color, board)) {
+static bool is_checkmated(const Color player_to_move, Board* board, const MoveArray* move_history) {
+   if (!is_in_check(player_to_move, board)) {
        return false;
    }
 
-   MoveArray moves = get_all_legal_moves(color, board, move_history);
+   MoveArray moves = get_all_legal_moves(player_to_move, board, move_history);
    for (int i = 0; i < moves.length; i++) {
        if (!leaves_king_in_check(&moves.moves[i], board)) {
            free(moves.moves);
@@ -23,7 +23,7 @@ bool is_checkmated(const Color color, Board* board, const MoveArray* move_histor
    return true;
 }
 
-bool is_insufficient_material(Board* board) {
+static bool is_insufficient_material(Board* board) {
     const PieceArray white_pieces = get_all_pieces(WHITE, board);
     const PieceArray black_pieces = get_all_pieces(BLACK, board);
 
@@ -44,4 +44,18 @@ bool is_insufficient_material(Board* board) {
         }
     }
     return true;
+}
+
+static bool is_stalemated(const Color player_to_move, Board* board, const MoveArray* move_history) {
+    MoveArray legal_moves = get_all_legal_moves(player_to_move, board, move_history);
+    if (!is_in_check(player_to_move, board) && legal_moves.length == 0) {
+        return true;
+    }
+    return false;
+}
+
+bool is_game_over(const Color player_to_move, Board* board, const MoveArray* move_history) {
+    return is_checkmated(player_to_move, board, move_history) ||
+           is_insufficient_material(board) ||
+           is_stalemated(player_to_move, board, move_history);
 }

@@ -4,7 +4,6 @@
 #include "board.h"
 #include "move.h"
 
-bool is_checkmated(const Color color, Board* board, const MoveArray* move_history);
-bool is_insufficient_material(Board* board);
+bool is_game_over(const Color player_to_move, Board* board, const MoveArray* move_history);
 
 #endif
