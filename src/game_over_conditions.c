@@ -7,12 +7,12 @@
 #include "game_state.h"
 #include "piece.h"
 
-bool is_checkmated(const Color color, Board* board) {
+bool is_checkmated(const Color color, Board* board, const MoveArray* move_history) {
    if (!is_in_check(color, board)) {
        return false;
    }
 
-   MoveArray moves = get_all_legal_moves(color, board);
+   MoveArray moves = get_all_legal_moves(color, board, move_history);
    for (int i = 0; i < moves.length; i++) {
        if (!leaves_king_in_check(&moves.moves[i], board)) {
            free(moves.moves);

@@ -9,4 +9,9 @@ typedef struct {
     Piece* piece;
 } Square;
 
+typedef struct {
+    Square** squares;
+    int length;
+} SquareArray;
+
 #endif

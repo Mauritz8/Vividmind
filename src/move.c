@@ -130,9 +130,22 @@ static bool is_valid_pawn_move(const Move* move, const Board* board) {
     const bool one_square_forward_is_empty = board->squares[move->start_square->y + direction][move->start_square->x].piece == NULL;
     const bool is_valid_move_two_squares_forward = x_diff == 0 && y_diff == 2 * direction && is_on_starting_row && one_square_forward_is_empty && end_square_is_empty;
 
-    const bool is_valid_capture = abs(x_diff) == 1 && y_diff == direction && !end_square_is_empty && move->end_square->piece->color != move->start_square->piece->color;
+    const bool is_valid_capture = abs(x_diff) == 1 && y_diff == direction && !end_square_is_empty;
 
     if (is_valid_move_one_square_forward || is_valid_move_two_squares_forward || is_valid_capture) {
+        return true;
+    }
+    return false;
+}
+
+static bool is_valid_pawn_move_threat(const Move* move, const Board* board) {
+    const int direction = move->start_square->piece->color == BLACK ? 1 : -1;
+    const int x_diff = move->end_square->x - move->start_square->x;
+    const int y_diff = move->end_square->y - move->start_square->y;
+
+    const bool is_threatening_diagonally = abs(x_diff) == 1 && y_diff == direction;
+
+    if (is_threatening_diagonally) {
         return true;
     }
     return false;
@@ -158,6 +171,31 @@ bool validate_move_basic(const Move* move, const Board* board) {
     switch (move->start_square->piece->piece_type) {
         case PAWN:
             return is_valid_pawn_move(move, board);
+        case KNIGHT:
+            return is_valid_knight_move(move);
+        case BISHOP:
+            return is_valid_bishop_move(move, board);
+        case ROOK:
+            return is_valid_rook_move(move, board);
+        case QUEEN:
+            return is_valid_queen_move(move, board);
+        case KING:
+            return is_valid_king_move(move);
+    }
+}
+
+bool validate_threatened_move(const Move* move, Board* board) {
+    if (is_square_outside_board(move->start_square) || is_square_outside_board(move->end_square)) {
+        return false;
+    }
+
+    if (move->start_square->piece == NULL) {
+        return false;
+    }
+
+    switch (move->start_square->piece->piece_type) {
+        case PAWN:
+            return is_valid_pawn_move_threat(move, board);
         case KNIGHT:
             return is_valid_knight_move(move);
         case BISHOP:

@@ -5,7 +5,8 @@
 #include "move.h"
 #include "piece.h"
 
-MoveArray get_all_legal_moves(const Color color, Board* board);
+SquareArray get_all_threatened_squares(const Color color, Board* board);
+MoveArray get_all_legal_moves(const Color color, Board* board, const MoveArray* move_history);
 bool is_in_check(const Color color, Board* board);
 PieceArray get_all_pieces(const Color color, Board* board);
 

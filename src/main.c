@@ -19,7 +19,7 @@ int main(void) {
     while (true) {
         show_board(&board);
 
-        if (is_checkmated(player_to_move, &board) || is_insufficient_material(&board)) {
+        if (is_checkmated(player_to_move, &board, &move_history) || is_insufficient_material(&board)) {
             printf("Game over!\n");
             break;
         }
