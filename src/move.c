@@ -318,7 +318,7 @@ void make_castling_move(const Move* move, Board* board) {
     make_move(&rook_move, board);
 }
 
-static bool is_en_passant_move(const Move* move, Board* board) {
+bool is_en_passant_move(const Move* move, Board* board) {
     if (move->start_square->piece->piece_type != PAWN) {
         return false;
     }
@@ -338,9 +338,21 @@ static bool is_valid_en_passant_move(const Move* move, Board* board, const MoveA
     const int x_diff = move->end_square->x - move->start_square->x;
     const Piece* adjacent_pawn = board->squares[move->start_square->y][move->start_square->x + x_diff].piece;
     const Move previous_move = move_history->moves[move_history->length - 1];
-    const Piece* piece_previous_move = previous_move.start_square->piece;
+    const Piece* piece_previous_move = previous_move.end_square->piece;
     const int y_diff_previous_move = previous_move.end_square->y - previous_move.start_square->y;
     return adjacent_pawn == piece_previous_move && abs(y_diff_previous_move) == 2;
+}
+
+void make_en_passant_move(const Move* move, Board* board) {
+    Square* start_square = &board->squares[move->start_square->y][move->start_square->x];
+    Square* end_square = &board->squares[move->end_square->y][move->end_square->x];
+    end_square->piece = start_square->piece;
+    start_square->piece = NULL;
+
+    const int x_diff = move->end_square->x - move->start_square->x;
+    Square* captured_square = &board->squares[move->start_square->y][move->start_square->x + x_diff];
+    free(captured_square->piece);
+    captured_square->piece = NULL;
 }
 
 bool is_legal_move(const Move* move, Board* board, const MoveArray* move_history) {

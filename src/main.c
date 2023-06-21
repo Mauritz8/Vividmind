@@ -40,6 +40,8 @@ int main(void) {
         }
         if (is_castling_move(&move)) {
             make_castling_move(&move, &board);
+        } else if (is_en_passant_move(&move, &board)) {
+            make_en_passant_move(&move, &board);
         } else {
             make_move(&move, &board);
         }
