@@ -155,7 +155,7 @@ static bool is_square_outside_board(const Square* square) {
     return square->x < 0 || square->x > 7 || square->y < 0 || square->y > 7;
 }
 
-bool validate_move_basic(const Move* move, const Board* board) {
+static bool validate_move_basic(const Move* move, const Board* board) {
     if (is_square_outside_board(move->start_square) || is_square_outside_board(move->end_square)) {
         return false;
     }
@@ -167,7 +167,10 @@ bool validate_move_basic(const Move* move, const Board* board) {
     if (move->end_square->piece && move->start_square->piece->color == move->end_square->piece->color) {
         return false;
     }
+    return true;
+}
 
+static bool is_valid_piece_movement(const Move* move, Board* board) {
     switch (move->start_square->piece->piece_type) {
         case PAWN:
             return is_valid_pawn_move(move, board);
@@ -315,11 +318,44 @@ void make_castling_move(const Move* move, Board* board) {
     make_move(&rook_move, board);
 }
 
+static bool is_en_passant_move(const Move* move, Board* board) {
+    if (move->start_square->piece->piece_type != PAWN) {
+        return false;
+    }
+    const int direction = move->start_square->piece->color == BLACK ? 1 : -1;
+    const int x_diff = move->end_square->x - move->start_square->x;
+    const int y_diff = move->end_square->y - move->start_square->y;
+
+    const bool is_diagonal_pawn_move = abs(x_diff) == 1 && y_diff == direction;
+    const Piece* adjacent_piece = board->squares[move->start_square->y][move->start_square->x + x_diff].piece;
+    const bool has_pawn_adjacent = adjacent_piece && adjacent_piece->piece_type == PAWN;
+    const bool is_adjacent_pawn_opponents_piece = adjacent_piece->color != move->start_square->piece->color;
+
+    return is_diagonal_pawn_move && has_pawn_adjacent && is_adjacent_pawn_opponents_piece;
+}
+
+static bool is_valid_en_passant_move(const Move* move, Board* board, const MoveArray* move_history) {
+    const int x_diff = move->end_square->x - move->start_square->x;
+    const Piece* adjacent_pawn = board->squares[move->start_square->y][move->start_square->x + x_diff].piece;
+    const Move previous_move = move_history->moves[move_history->length - 1];
+    const Piece* piece_previous_move = previous_move.start_square->piece;
+    const int y_diff_previous_move = previous_move.end_square->y - previous_move.start_square->y;
+    return adjacent_pawn == piece_previous_move && abs(y_diff_previous_move) == 2;
+}
+
 bool is_legal_move(const Move* move, Board* board, const MoveArray* move_history) {
+    if (!validate_move_basic(move, board)) {
+        return false;
+    }
+
     if (is_castling_move(move)) {
         return is_valid_castling_move(move, move_history, board);
     }
-    if (!validate_move_basic(move, board)) {
+    if (is_en_passant_move(move, board)) {
+        return is_valid_en_passant_move(move, board, move_history);
+    }
+
+    if (!is_valid_piece_movement(move, board)) {
         return false;
     }
     if (leaves_king_in_check(move, board)) {

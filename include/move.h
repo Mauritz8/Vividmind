@@ -17,7 +17,6 @@ typedef struct {
 } MoveArray;
 
 void make_move(const Move* move, Board* board);
-bool validate_move_basic(const Move* move, const Board* board);
 bool validate_threatened_move(const Move* move, Board* board);
 bool leaves_king_in_check(const Move* move, const Board* board);
 bool is_castling_move(const Move* move);
