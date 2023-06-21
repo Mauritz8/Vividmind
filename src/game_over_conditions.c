@@ -7,7 +7,7 @@
 #include "game_state.h"
 #include "piece.h"
 
-static bool is_checkmated(const Color player_to_move, Board* board, const MoveArray* move_history) {
+bool is_checkmated(const Color player_to_move, Board* board, const MoveArray* move_history) {
    if (!is_in_check(player_to_move, board)) {
        return false;
    }
@@ -54,8 +54,6 @@ static bool is_stalemated(const Color player_to_move, Board* board, const MoveAr
     return false;
 }
 
-bool is_game_over(const Color player_to_move, Board* board, const MoveArray* move_history) {
-    return is_checkmated(player_to_move, board, move_history) ||
-           is_insufficient_material(board) ||
-           is_stalemated(player_to_move, board, move_history);
+bool is_draw(const Color player_to_move, Board* board, const MoveArray* move_history) {
+    return is_insufficient_material(board) || is_stalemated(player_to_move, board, move_history);
 }

@@ -5,6 +5,7 @@
 #include "board.h"
 #include "move.h"
 #include "game_over_conditions.h"
+#include "piece.h"
 
 int main(void) {
     Board board;
@@ -19,8 +20,12 @@ int main(void) {
     while (true) {
         show_board(&board);
 
-        if (is_game_over(player_to_move, &board, &move_history)) {
-            printf("Game over!\n");
+        if (is_checkmated(player_to_move, &board, &move_history)) {
+            Color winner = player_to_move == WHITE ? BLACK : WHITE;
+            printf("%s won!\n", winner == WHITE ? "White" : "Black");
+            break;
+        } else if (is_draw(player_to_move, &board, &move_history)) {
+            printf("It's a draw\n");
             break;
         }
 
@@ -56,11 +61,7 @@ int main(void) {
         move_history.moves[move_history.length++] = move;
 
 
-        if (player_to_move == WHITE) {
-            player_to_move = BLACK;
-        } else {
-            player_to_move = WHITE;
-        }
+        player_to_move = player_to_move == WHITE ? BLACK : WHITE;
     }
 
     free(move_history.moves);
