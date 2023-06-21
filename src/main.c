@@ -6,6 +6,7 @@
 #include "move.h"
 #include "game_over_conditions.h"
 #include "piece.h"
+#include "engine/engine.h"
 
 int main(void) {
     Board board;
@@ -30,19 +31,24 @@ int main(void) {
         }
 
         Move move;
-        bool legal_move = false;
-        while (!legal_move) {
-            char move_uci[6];
-            printf("Move: ");
-            scanf("%s", move_uci);
-            move = uci_notation_to_move(move_uci, &board);
+        if (player_to_move == WHITE) {
+            bool legal_move = false;
+            while (!legal_move) {
+                char move_uci[6];
+                printf("Move: ");
+                scanf("%s", move_uci);
+                move = uci_notation_to_move(move_uci, &board);
 
-            if (is_legal_move(&move, &board, &move_history)) {
-                legal_move = true;
-            } else {
-                printf("\nThat's not a legal move\n\n");
+                if (is_legal_move(&move, &board, &move_history)) {
+                    legal_move = true;
+                } else {
+                    printf("\nThat's not a legal move\n\n");
+                }
             }
+        } else {
+            move = get_best_move(player_to_move, &board, &move_history);
         }
+
         if (is_valid_castling_move(&move, &move_history, &board)) {
             make_castling_move(&move, &board);
         } else if (is_valid_en_passant_move(&move, &board, &move_history)) {

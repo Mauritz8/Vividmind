@@ -1,7 +1,7 @@
 CC=clang
-CFLAGS=-I include/
-DEPS = $(wildcard include/*.h)
-SRC = $(wildcard src/*.c)
+CFLAGS=-I include/ -I include/engine/
+DEPS = $(wildcard include/*.h include/engine/*.h)
+SRC = $(wildcard src/*.c src/engine/*.c)
 SRC := $(filter-out src/main.c, $(SRC))
 OBJ = $(patsubst src/%.c,obj/%.o,$(SRC))
 TEST_SRC = $(wildcard src/test/*.c)
@@ -13,14 +13,14 @@ LIBS = -lcunit
 all: $(EXECUTABLE)
 
 obj/%.o: src/%.c $(DEPS)
-	mkdir -p obj
+	mkdir -p $(dir $@)
 	$(CC) -c -o $@ $< $(CFLAGS)
 
 $(EXECUTABLE): obj/main.o $(OBJ)
 	$(CC) -o $@ $^ $(CFLAGS)
 
 obj/%.o: src/test/%.c $(DEPS)
-	mkdir -o obj
+	mkdir -p $(dir $@)
 	$(CC) -c -o $@ $< $(CFLAGS)
 
 $(TEST_EXECUTABLE): $(OBJ) $(TEST_OBJ)
