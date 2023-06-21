@@ -329,7 +329,7 @@ bool is_en_passant_move(const Move* move, Board* board) {
     const bool is_diagonal_pawn_move = abs(x_diff) == 1 && y_diff == direction;
     const Piece* adjacent_piece = board->squares[move->start_square->y][move->start_square->x + x_diff].piece;
     const bool has_pawn_adjacent = adjacent_piece && adjacent_piece->piece_type == PAWN;
-    const bool is_adjacent_pawn_opponents_piece = adjacent_piece->color != move->start_square->piece->color;
+    const bool is_adjacent_pawn_opponents_piece = adjacent_piece && adjacent_piece->color != move->start_square->piece->color;
 
     return is_diagonal_pawn_move && has_pawn_adjacent && is_adjacent_pawn_opponents_piece;
 }
