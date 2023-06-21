@@ -1,13 +1,13 @@
 CC=clang
-CFLAGS=-I include/ -I include/engine/
+CFLAGS=-I include/ -I include/engine/ -I tests/include
 DEPS = $(wildcard include/*.h include/engine/*.h)
 SRC = $(wildcard src/*.c src/engine/*.c)
 SRC := $(filter-out src/main.c, $(SRC))
 OBJ = $(patsubst src/%.c,obj/%.o,$(SRC))
-TEST_SRC = $(wildcard src/test/*.c)
-TEST_OBJ = $(patsubst src/test/*.c,obj/%.o,$(TEST_SRC))
+TEST_SRC = $(wildcard tests/src/*.c)
+TEST_OBJ = $(patsubst tests/src/*.c,tests/obj/%.o,$(TEST_SRC))
 EXECUTABLE = main
-TEST_EXECUTABLE = tests
+TEST_EXECUTABLE = unit_tests
 LIBS = -lcunit
 
 all: $(EXECUTABLE)

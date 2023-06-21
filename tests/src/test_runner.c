@@ -1,8 +1,8 @@
 #include <CUnit/Basic.h>
 
-#include "test/test_knight_moves.h"
-#include "test/test_bishop_moves.h"
-#include "test/test_rook_moves.h"
+#include "test_knight_moves.h"
+#include "test_bishop_moves.h"
+#include "test_rook_moves.h"
 
 
 int main(void) {

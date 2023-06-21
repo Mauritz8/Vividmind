@@ -1,7 +1,7 @@
 #include <stdlib.h>
 
+#include "test_utils.h"
 #include "move.h"
-#include "test/test_utils.h"
 
 void setup_empty_board(Board* board) {
     for (int i = 0; i < 8; i++) {

@@ -1,6 +1,6 @@
 #include <CUnit/Basic.h>
 
-#include "test/test_utils.h"
+#include "test_utils.h"
 #include "board.h"
 #include "piece.h"
 #include "move.h"

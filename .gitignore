@@ -1,4 +1,4 @@
 obj/
 main
-tests
+unit_tests
 .clangd
