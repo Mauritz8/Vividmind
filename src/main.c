@@ -40,7 +40,7 @@ int main(void) {
         }
         if (is_castling_move(&move)) {
             make_castling_move(&move, &board);
-        } else if (is_en_passant_move(&move, &board)) {
+        } else if (is_valid_en_passant_move(&move, &board, &move_history)) {
             make_en_passant_move(&move, &board);
         } else if (is_promotion(&move, &board)) {
             make_promotion_move(&move, &board);
