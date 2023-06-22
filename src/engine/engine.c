@@ -1,10 +1,12 @@
 #include <stdlib.h>
+#include <time.h>
 
 #include "engine/engine.h"
 #include "game_state.h"
 #include "move.h"
 
 static int get_random_num(int min, int max) {
+    srand(time(NULL));
     return min + rand() % (max - min);
 }
 
