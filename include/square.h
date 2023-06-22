@@ -11,6 +11,7 @@ typedef struct {
 
 typedef struct {
     Square** squares;
+    int capacity;
     int length;
 } SquareArray;
 

@@ -11,6 +11,7 @@ typedef struct {
 
 typedef struct {
     Piece* pieces;
+    int capacity;
     int length;
 } PieceArray;
 
