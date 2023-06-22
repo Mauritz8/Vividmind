@@ -1,3 +1,4 @@
+#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -360,7 +361,7 @@ static void make_en_passant_move(const Move* move, Board* board) {
     captured_square->piece = NULL;
 }
 
-static bool is_promotion(const Move* move, Board* board) {
+bool is_promotion(const Move* move, Board* board) {
     const Piece* piece = move->start_square->piece;
     const Piece_type piece_type = piece->piece_type;
     const int y_end = move->end_square->y;
@@ -426,12 +427,16 @@ char* move_to_uci_notation(const Move* move) {
     const char files[] = "abcdefgh";
     const char ranks[] = "87654321";
 
-    char* uci_notation = malloc(5 * sizeof(char));
+    char* uci_notation = malloc(6 * sizeof(char));
     sprintf(uci_notation, "%c%c%c%c",
             files[move->start_square->x],
             ranks[move->start_square->y],
             files[move->end_square->x],
             ranks[move->end_square->y]);
+    if (move->promotion_piece) {
+        uci_notation[4] = tolower(get_char_representation(move->promotion_piece));
+        uci_notation[5] = '\0';
+    }
     return uci_notation;
 }
 

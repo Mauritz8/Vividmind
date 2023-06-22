@@ -10,8 +10,8 @@ void piece_array_push(PieceArray* piece_array, const Piece* piece) {
     piece_array->pieces[piece_array->length++] = *piece;
 }
 
-char get_char_representation(const Piece* piece) {
-    switch (piece->piece_type) {
+char get_char_representation(const Piece_type piece_type) {
+    switch (piece_type) {
         case PAWN:
             return 'p';
         case KNIGHT:

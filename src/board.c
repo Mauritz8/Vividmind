@@ -51,7 +51,7 @@ void show_board(const Board* board) {
         for (int j = 0; j < 8; j++) {
             const Piece* piece = board->squares[i][j].piece;
             if (piece) {
-                printf(" %c", get_char_representation(piece));
+                printf(" %c", get_char_representation(piece->piece_type));
             } else {
                 printf(" _");
             }

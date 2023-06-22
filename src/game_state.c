@@ -71,7 +71,15 @@ static MoveArray get_legal_moves(Square* square, Board* board, const MoveArray* 
         for (int j = 0; j < 8; j++) {
             move.end_square = &board->squares[i][j];
             if (is_legal_move(&move, board, move_history)) {
-                move_array_push(&legal_moves, &move);
+                if (is_promotion(&move, board)) {
+                    const Piece_type promotion_pieces[] = {KNIGHT, BISHOP, ROOK, QUEEN};
+                    for (int i = 0; i < 4; i++) {
+                        move.promotion_piece = promotion_pieces[i];
+                        move_array_push(&legal_moves, &move);
+                    }
+                } else {
+                    move_array_push(&legal_moves, &move);
+                }
             }
         }
     }
