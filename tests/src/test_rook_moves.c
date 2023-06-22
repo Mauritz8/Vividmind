@@ -11,7 +11,7 @@
 static void test_rook_move_valid_move(void) {
     Board board;
     setup_empty_board(&board);
-    const MoveArray move_history = create_empty_move_history();
+    MoveArray move_history = create_empty_move_history();
     const Piece rook = {.piece_type = ROOK};
     place_piece_at(&rook, &board, 3, 4);
 
@@ -27,13 +27,13 @@ static void test_rook_move_valid_move(void) {
     move.end_square = &board.squares[4][1];
     CU_ASSERT_TRUE(is_legal_move(&move, &board, &move_history));
 
-    deallocate_board(&board);
+    deallocate_game_resources(&board, &move_history);
 }
 
 static void test_rook_move_invalid_pattern(void) {
     Board board;
     setup_empty_board(&board);
-    const MoveArray move_history = create_empty_move_history();
+    MoveArray move_history = create_empty_move_history();
     const Piece rook = {.piece_type = ROOK};
     place_piece_at(&rook, &board, 3, 3);
 
@@ -51,13 +51,13 @@ static void test_rook_move_invalid_pattern(void) {
     move.end_square = &board.squares[1][0];
     CU_ASSERT_FALSE(is_legal_move(&move, &board, &move_history));
 
-    deallocate_board(&board);
+    deallocate_game_resources(&board, &move_history);
 }
 
 static void test_rook_move_jump_over_pieces(void) {
     Board board;
     setup_empty_board(&board);
-    const MoveArray move_history = create_empty_move_history();
+    MoveArray move_history = create_empty_move_history();
     const Piece rook = {.piece_type = ROOK};
     place_piece_at(&rook, &board, 3, 4);
 
@@ -74,13 +74,13 @@ static void test_rook_move_jump_over_pieces(void) {
     move.end_square = &board.squares[2][3];
     CU_ASSERT_FALSE(is_legal_move(&move, &board, &move_history));
 
-    deallocate_board(&board);
+    deallocate_game_resources(&board, &move_history);
 }
 
 static void test_rook_move_same_color_on_target_square(void) {
     Board board;
     setup_empty_board(&board);
-    const MoveArray move_history = create_empty_move_history();
+    MoveArray move_history = create_empty_move_history();
     const Piece rook = {.piece_type = ROOK, .color = BLACK};
     place_piece_at(&rook, &board, 3, 4);
 
@@ -92,13 +92,13 @@ static void test_rook_move_same_color_on_target_square(void) {
     move.end_square = &board.squares[4][5];
     CU_ASSERT_FALSE(is_legal_move(&move, &board, &move_history));
 
-    deallocate_board(&board);
+    deallocate_game_resources(&board, &move_history);
 }
 
 static void test_rook_move_capture_opponent_piece(void) {
     Board board;
     setup_empty_board(&board);
-    const MoveArray move_history = create_empty_move_history();
+    MoveArray move_history = create_empty_move_history();
     const Piece rook = {.piece_type = ROOK, .color = BLACK};
     place_piece_at(&rook, &board, 3, 4);
 
@@ -110,13 +110,13 @@ static void test_rook_move_capture_opponent_piece(void) {
     move.end_square = &board.squares[7][3];
     CU_ASSERT_TRUE(is_legal_move(&move, &board, &move_history));
 
-    deallocate_board(&board);
+    deallocate_game_resources(&board, &move_history);
 }
 
 static void test_rook_move_out_of_bounds(void) {
     Board board;
     setup_empty_board(&board);
-    const MoveArray move_history = create_empty_move_history();
+    MoveArray move_history = create_empty_move_history();
     const Piece rook = {.piece_type = ROOK};
     place_piece_at(&rook, &board, 6, 4);
 
@@ -128,7 +128,7 @@ static void test_rook_move_out_of_bounds(void) {
     move.end_square = &board.squares[8][6];
     CU_ASSERT_FALSE(is_legal_move(&move, &board, &move_history));
 
-    deallocate_board(&board);
+    deallocate_game_resources(&board, &move_history);
 }
 
 int rook_moves_tests(void) {
