@@ -12,9 +12,10 @@ int main(void) {
     setup_board(&board);
     MoveArray move_history = create_empty_move_history();
 
-    char input[200];
+    const int UCI_COMMAND_CHARACTER_LIMIT = 2048;
+    char input[UCI_COMMAND_CHARACTER_LIMIT];
     while (true) {
-        fgets(input, 200, stdin);
+        fgets(input, UCI_COMMAND_CHARACTER_LIMIT, stdin);
         input[strcspn(input, "\n")] = '\0';
         process_uci_command(input, &board, &move_history);
     }
