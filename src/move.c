@@ -263,6 +263,9 @@ bool is_valid_castling_move(const Move* move, const MoveArray* move_history, Boa
     const Color color = move->start_square->piece->color;
     const int starting_row = color == WHITE ? 7 : 0;
 
+    if (move->end_square->y != starting_row) {
+        return false;
+    }
     const int king_x = 4;
     if (move->start_square->x != king_x || move->start_square->y != starting_row) {
         return false;
