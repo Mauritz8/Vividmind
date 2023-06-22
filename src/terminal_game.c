@@ -27,22 +27,18 @@ int main(void) {
         }
 
         Move move;
-        if (board.player_to_move == WHITE) {
-            bool legal_move = false;
-            while (!legal_move) {
-                char move_uci[6];
-                printf("Move: ");
-                scanf("%s", move_uci);
-                move = uci_notation_to_move(move_uci, &board);
+        bool legal_move = false;
+        while (!legal_move) {
+            char move_uci[6];
+            printf("Move: ");
+            scanf("%s", move_uci);
+            move = uci_notation_to_move(move_uci, &board);
 
-                if (is_legal_move(&move, &board, &move_history)) {
-                    legal_move = true;
-                } else {
-                    printf("\nThat's not a legal move\n\n");
-                }
+            if (is_legal_move(&move, &board, &move_history)) {
+                legal_move = true;
+            } else {
+                printf("\nThat's not a legal move\n\n");
             }
-        } else {
-            move = get_best_move(&board, &move_history);
         }
 
         make_appropriate_move(&move, &board, &move_history);

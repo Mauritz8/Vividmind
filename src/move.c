@@ -165,6 +165,10 @@ static bool is_square_outside_board(const Square* square) {
 }
 
 static bool validate_move_basic(const Move* move, const Board* board) {
+    if (move->start_square->piece->color != board->player_to_move) {
+        return false;
+    }
+
     if (is_square_outside_board(move->start_square) || is_square_outside_board(move->end_square)) {
         return false;
     }
