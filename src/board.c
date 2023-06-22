@@ -75,6 +75,7 @@ void deallocate_board(Board* board) {
 
 Board copy_board(const Board* board) {
     Board board_copy;
+    board_copy.player_to_move = board->player_to_move;
     for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 8; j++) {
             Square square = {square.x = j, square.y = i};
