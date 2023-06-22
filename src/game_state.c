@@ -90,7 +90,7 @@ static MoveArray get_legal_moves(Square* square, Board* board, const MoveArray* 
     return legal_moves;
 }
 
-MoveArray get_all_legal_moves(const Color color, Board* board, const MoveArray* move_history) {
+MoveArray get_all_legal_moves(Board* board, const MoveArray* move_history) {
     MoveArray all_legal_moves;
     int capacity = 16;
     all_legal_moves.moves = malloc(capacity * sizeof(Move));
@@ -99,7 +99,7 @@ MoveArray get_all_legal_moves(const Color color, Board* board, const MoveArray* 
     for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 8; j++) {
             Square* square = &board->squares[i][j];
-            if (square->piece && square->piece->color == color) {
+            if (square->piece && square->piece->color == board->player_to_move) {
                 const MoveArray legal_moves = get_legal_moves(square, board, move_history);
                 for (int i = 0; i < legal_moves.length; i++) {
                     if (all_legal_moves.length == capacity) {
@@ -115,10 +115,10 @@ MoveArray get_all_legal_moves(const Color color, Board* board, const MoveArray* 
     return all_legal_moves;
 }
 
-bool is_in_check(const Color color, Board* board) {
-    const Square* king_square = get_king_square(color, board);
+bool is_check(Board* board) {
+    const Square* king_square = get_king_square(board->player_to_move, board);
 
-    const Color opponent_color = color == WHITE ? BLACK : WHITE;
+    const Color opponent_color = board->player_to_move == WHITE ? BLACK : WHITE;
     const SquareArray opponent_threatened_squares = get_all_threatened_squares(opponent_color, board);
     for (int i = 0; i < opponent_threatened_squares.length; i++) {
         Square* threatened_square = opponent_threatened_squares.squares[i];
@@ -150,4 +150,17 @@ PieceArray get_all_pieces(const Color color, Board* board) {
         }
     }
     return pieces;
+}
+
+void deallocate_game_resources(Board* board, MoveArray* move_history) {
+    deallocate_board(board);
+    free(move_history->moves);
+}
+
+MoveArray create_empty_move_history() {
+    MoveArray move_history;
+    move_history.capacity = 16;
+    move_history.moves = malloc(move_history.capacity * sizeof(Move));
+    move_history.length = 0;
+    return move_history;
 }

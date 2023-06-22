@@ -1,4 +1,5 @@
-obj/
-main
-unit_tests
-.clangd
+/obj/
+/engine
+/terminal_game
+/unit_tests
+/.clangd

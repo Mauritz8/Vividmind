@@ -15,20 +15,16 @@ typedef struct {
 
 typedef struct {
     Move* moves;
+    int capacity;
     int length;
 } MoveArray;
 
-void make_move(const Move* move, Board* board);
 bool validate_threatened_move(const Move* move, Board* board);
 bool leaves_king_in_check(const Move* move, const Board* board);
-bool is_valid_castling_move(const Move* move, const MoveArray* move_history, Board* board);
-void make_castling_move(const Move* move, Board* board);
-bool is_valid_en_passant_move(const Move* move, Board* board, const MoveArray* move_history);
-void make_en_passant_move(const Move* move, Board* board);
 bool is_legal_move(const Move* move, Board* board, const MoveArray* move_history);
-bool is_promotion(const Move* move, Board* board);
-void make_promotion_move(const Move* move, Board* board);
+void make_appropriate_move(const Move* move, Board* board, MoveArray* move_history);
 char* move_to_uci_notation(const Move* move);
 Move uci_notation_to_move(const char* uci_notation, Board* board);
+void add_move_to_move_history(const Move* move, MoveArray* move_history);
 
 #endif

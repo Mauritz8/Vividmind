@@ -21,6 +21,8 @@ static void setup_pawns(Board* board, const int row, const Color color) {
 }
 
 void setup_board(Board* board) {
+    board->player_to_move = WHITE;
+
     // setup square coordinates
     for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 8; j++) {

@@ -5,6 +5,7 @@
 
 typedef struct {
     Square squares[8][8];
+    Color player_to_move;
 } Board;
 
 void setup_board(Board* board);

@@ -1,5 +1,6 @@
 #include <CUnit/Basic.h>
 
+#include "game_state.h"
 #include "test_utils.h"
 #include "board.h"
 #include "piece.h"

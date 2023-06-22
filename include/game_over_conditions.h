@@ -4,7 +4,7 @@
 #include "board.h"
 #include "move.h"
 
-bool is_checkmated(const Color player_to_move, Board* board, const MoveArray* move_history);
-bool is_draw(const Color player_to_move, Board* board, const MoveArray* move_history);
+bool is_checkmate(Board* board, const MoveArray* move_history);
+bool is_draw(Board* board, const MoveArray* move_history);
 
 #endif
