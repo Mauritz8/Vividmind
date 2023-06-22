@@ -22,9 +22,7 @@ static void handle_ucinewgame_command(Board* board, MoveArray* move_history) {
     deallocate_game_resources(board, move_history);
 
     setup_board(board); 
-    move_history->capacity = 16;
-    move_history->moves = malloc(move_history->capacity * sizeof(Move));
-    move_history->length = 0;
+    *move_history = create_empty_move_history();
 }
 
 static void handle_position_command(char* position, Board* board, MoveArray* move_history) {
