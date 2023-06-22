@@ -386,6 +386,12 @@ bool is_legal_move(const Move* move, Board* board, const MoveArray* move_history
     if (!validate_move_basic(move, board)) {
         return false;
     }
+    if (leaves_king_in_check(move, board)) {
+        return false;
+    }
+    if (is_promotion(move, board) && move->promotion_piece == -1) {
+        return false;
+    }
 
     if (is_valid_castling_move(move, move_history, board)) {
         return true;
@@ -395,13 +401,6 @@ bool is_legal_move(const Move* move, Board* board, const MoveArray* move_history
     }
 
     if (!is_valid_piece_movement(move, board)) {
-        return false;
-    }
-    if (leaves_king_in_check(move, board)) {
-        return false;
-    }
-
-    if (is_promotion(move, board) && move->promotion_piece == -1) {
         return false;
     }
 
