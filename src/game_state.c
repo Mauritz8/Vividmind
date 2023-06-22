@@ -31,11 +31,7 @@ static SquareArray get_threatened_squares(Square* square, Board* board) {
         for (int j = 0; j < 8; j++) {
             move.end_square = &board->squares[i][j];
             if (validate_threatened_move(&move, board)) {
-                if (threatened_squares.length == threatened_squares.capacity) {
-                    threatened_squares.capacity *= 2;
-                    threatened_squares.squares = realloc(threatened_squares.squares, threatened_squares.capacity * sizeof(Square));
-                }
-                threatened_squares.squares[threatened_squares.length++] = move.end_square;
+                square_array_push(&threatened_squares, move.end_square);
             }
         }
     }
@@ -54,11 +50,7 @@ SquareArray get_all_threatened_squares(const Color color, Board* board) {
             if (square->piece && square->piece->color == color) {
                 const SquareArray threatened_squares = get_threatened_squares(square, board);
                 for (int i = 0; i < threatened_squares.length; i++) {
-                    if (all_threatened_squares.length == all_threatened_squares.capacity) {
-                        all_threatened_squares.capacity *= 2;
-                        all_threatened_squares.squares = realloc(all_threatened_squares.squares, all_threatened_squares.capacity * sizeof(Square));
-                    }
-                    all_threatened_squares.squares[all_threatened_squares.length++] = threatened_squares.squares[i];
+                    square_array_push(&all_threatened_squares, threatened_squares.squares[i]);
                 }
                 free(threatened_squares.squares);
             }
@@ -79,11 +71,7 @@ static MoveArray get_legal_moves(Square* square, Board* board, const MoveArray* 
         for (int j = 0; j < 8; j++) {
             move.end_square = &board->squares[i][j];
             if (is_legal_move(&move, board, move_history)) {
-                if (legal_moves.length == legal_moves.capacity) {
-                    legal_moves.capacity *= 2;
-                    legal_moves.moves = realloc(legal_moves.moves, legal_moves.capacity * sizeof(Move));
-                }
-                legal_moves.moves[legal_moves.length++] = move;
+                move_array_push(&legal_moves, &move);
             }
         }
     }
@@ -102,11 +90,7 @@ MoveArray get_all_legal_moves(Board* board, const MoveArray* move_history) {
             if (square->piece && square->piece->color == board->player_to_move) {
                 const MoveArray legal_moves = get_legal_moves(square, board, move_history);
                 for (int i = 0; i < legal_moves.length; i++) {
-                    if (all_legal_moves.length == all_legal_moves.capacity) {
-                        all_legal_moves.capacity *= 2;
-                        all_legal_moves.moves = realloc(all_legal_moves.moves, all_legal_moves.capacity * sizeof(Move));
-                    }
-                    all_legal_moves.moves[all_legal_moves.length++] = legal_moves.moves[i];
+                    move_array_push(&all_legal_moves, &legal_moves.moves[i]);
                 }
                 free(legal_moves.moves);
             }
@@ -141,11 +125,7 @@ PieceArray get_all_pieces(const Color color, Board* board) {
         for (int j = 0; j < 8; j++) {
             Piece* piece = board->squares[i][j].piece;
             if (piece && piece->color == color) {
-                if (pieces.length == pieces.capacity) {
-                    pieces.capacity *= 2;
-                    pieces.pieces = realloc(pieces.pieces, pieces.capacity * sizeof(Piece));
-                }
-                pieces.pieces[pieces.length++] = *piece;
+                piece_array_push(&pieces, piece);
             }
         }
     }

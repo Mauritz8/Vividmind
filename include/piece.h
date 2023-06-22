@@ -15,6 +15,7 @@ typedef struct {
     int length;
 } PieceArray;
 
+void piece_array_push(PieceArray* piece_array, const Piece* piece);
 char get_char_representation(const Piece* piece);
 Piece_type get_promotion_piece_type(const char char_representation_lowercase);
 

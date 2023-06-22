@@ -19,12 +19,12 @@ typedef struct {
     int length;
 } MoveArray;
 
+void move_array_push(MoveArray* move_array, const Move* move);
 bool validate_threatened_move(const Move* move, Board* board);
 bool leaves_king_in_check(const Move* move, const Board* board);
 bool is_legal_move(const Move* move, Board* board, const MoveArray* move_history);
 void make_appropriate_move(const Move* move, Board* board, MoveArray* move_history);
 char* move_to_uci_notation(const Move* move);
 Move uci_notation_to_move(const char* uci_notation, Board* board);
-void add_move_to_move_history(const Move* move, MoveArray* move_history);
 
 #endif

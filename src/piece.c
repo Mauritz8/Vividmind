@@ -1,4 +1,14 @@
+#include <stdlib.h>
+
 #include "piece.h"
+
+void piece_array_push(PieceArray* piece_array, const Piece* piece) {
+    if (piece_array->length == piece_array->capacity) {
+        piece_array->capacity *= 2;
+        piece_array->pieces = realloc(piece_array->pieces, piece_array->capacity * sizeof(Piece));
+    }
+    piece_array->pieces[piece_array->length++] = *piece;
+}
 
 char get_char_representation(const Piece* piece) {
     switch (piece->piece_type) {

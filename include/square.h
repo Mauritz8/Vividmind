@@ -15,4 +15,6 @@ typedef struct {
     int length;
 } SquareArray;
 
+void square_array_push(SquareArray* square_array, Square* square);
+
 #endif

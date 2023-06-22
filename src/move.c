@@ -6,6 +6,14 @@
 #include "piece.h"
 #include "game_state.h"
 
+void move_array_push(MoveArray* move_array, const Move* move) {
+    if (move_array->length == move_array->capacity) {
+        move_array->capacity *= 2;
+        move_array->moves = realloc(move_array->moves, move_array->capacity * sizeof(Move));
+    }
+    move_array->moves[move_array->length++] = *move;
+}
+
 static void make_move(const Move* move, Board* board) {
     Square* start_square = &board->squares[move->start_square->y][move->start_square->x]; 
     Square* end_square = &board->squares[move->end_square->y][move->end_square->x]; 
@@ -406,7 +414,7 @@ void make_appropriate_move(const Move* move, Board* board, MoveArray* move_histo
         make_move(move, board);
     }
 
-    add_move_to_move_history(move, move_history);
+    move_array_push(move_history, move);
     if (board->player_to_move == WHITE) {
         board->player_to_move = BLACK;
     } else {
@@ -441,12 +449,4 @@ Move uci_notation_to_move(const char* uci_notation, Board* board) {
         move.promotion_piece = get_promotion_piece_type(promotion_piece);
     }
     return move;
-}
-
-void add_move_to_move_history(const Move* move, MoveArray* move_history) {
-        if (move_history->length == move_history->capacity) {
-            move_history->capacity *= 2;
-            move_history->moves = realloc(move_history->moves, move_history->capacity * sizeof(Move));
-        }
-        move_history->moves[move_history->length++] = *move;
 }
