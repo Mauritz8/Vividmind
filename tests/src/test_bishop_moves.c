@@ -11,8 +11,9 @@
 static void test_bishop_move_valid_move(void) {
     Board board;
     setup_empty_board(&board);
+    board.player_to_move = WHITE;
     MoveArray move_history = create_empty_move_history();
-    const Piece bishop = {.piece_type = BISHOP};
+    const Piece bishop = {.piece_type = BISHOP, .color = WHITE};
     place_piece_at(&bishop, &board, 3, 4);
 
     Move move;
@@ -33,8 +34,9 @@ static void test_bishop_move_valid_move(void) {
 static void test_bishop_move_jump_over_pieces(void) {
     Board board;
     setup_empty_board(&board);
+    board.player_to_move = WHITE;
     MoveArray move_history = create_empty_move_history();
-    const Piece bishop = {.piece_type = BISHOP};
+    const Piece bishop = {.piece_type = BISHOP, .color = WHITE};
     place_piece_at(&bishop, &board, 3, 4);
 
     const Piece blocking_piece = {.piece_type = PAWN};
@@ -74,6 +76,7 @@ static void test_bishop_move_same_color_on_target_square(void) {
 static void test_bishop_move_capture_opponent_piece(void) {
     Board board;
     setup_empty_board(&board);
+    board.player_to_move = BLACK;
     MoveArray move_history = create_empty_move_history();
     const Piece bishop = {.piece_type = BISHOP, .color = BLACK};
     place_piece_at(&bishop, &board, 3, 4);

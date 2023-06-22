@@ -11,8 +11,9 @@
 static void test_knight_move_valid_move(void) {
     Board board;
     setup_empty_board(&board);
+    board.player_to_move = BLACK;
     MoveArray move_history = create_empty_move_history();
-    const Piece knight = {.piece_type = KNIGHT};
+    const Piece knight = {.piece_type = KNIGHT, .color = BLACK};
     place_piece_at(&knight, &board, 4, 4);
 
     Move move;
@@ -82,6 +83,7 @@ static void test_knight_move_same_color_on_target_square(void) {
 void test_knight_move_capture_opponent_piece(void) {
     Board board;
     setup_empty_board(&board);
+    board.player_to_move = WHITE;
     const MoveArray move_history = create_empty_move_history();
     const Piece knight = {.piece_type = KNIGHT, .color = WHITE};
     const Piece piece_of_opposite_color = {.piece_type = ROOK, .color = BLACK};
@@ -110,6 +112,7 @@ static void test_knight_move_out_of_bounds(void) {
 static void test_knight_move_on_edge_of_board(void) {
     Board board;
     setup_empty_board(&board);
+    board.player_to_move = WHITE;
     const MoveArray move_history = create_empty_move_history();
     const Piece knight = {.piece_type = KNIGHT, .color = WHITE};
     place_piece_at(&knight, &board, 7, 1);
@@ -134,8 +137,9 @@ static void test_knight_move_on_edge_of_board(void) {
 static void test_knight_move_jump_over_pieces(void) {
     Board board;
     setup_empty_board(&board);
+    board.player_to_move = BLACK;
     MoveArray move_history = create_empty_move_history();
-    const Piece knight = {.piece_type = KNIGHT};
+    const Piece knight = {.piece_type = KNIGHT, .color = BLACK};
     place_piece_at(&knight, &board, 4, 4);
 
     const Piece blocking_piece1 = {.piece_type = PAWN};

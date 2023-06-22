@@ -11,8 +11,9 @@
 static void test_rook_move_valid_move(void) {
     Board board;
     setup_empty_board(&board);
+    board.player_to_move = WHITE;
     MoveArray move_history = create_empty_move_history();
-    const Piece rook = {.piece_type = ROOK};
+    const Piece rook = {.piece_type = ROOK, .color = WHITE};
     place_piece_at(&rook, &board, 3, 4);
 
     Move move;
@@ -98,6 +99,7 @@ static void test_rook_move_same_color_on_target_square(void) {
 static void test_rook_move_capture_opponent_piece(void) {
     Board board;
     setup_empty_board(&board);
+    board.player_to_move = BLACK;
     MoveArray move_history = create_empty_move_history();
     const Piece rook = {.piece_type = ROOK, .color = BLACK};
     place_piece_at(&rook, &board, 3, 4);
