@@ -20,6 +20,7 @@ typedef struct {
 } MoveArray;
 
 void move_array_push(MoveArray* move_array, const Move* move);
+MoveArray copy_move_array(const MoveArray* move_array);
 bool validate_threatened_move(const Move* move, Board* board);
 bool leaves_king_in_check(const Move* move, const Board* board);
 bool is_promotion(const Move* move, Board* board);

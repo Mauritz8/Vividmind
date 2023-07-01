@@ -107,10 +107,14 @@ MoveArray get_all_legal_moves(Board* board, const MoveArray* move_history) {
     return all_legal_moves;
 }
 
+Color get_opposite_color(const Color color) {
+    return color == WHITE ? BLACK : WHITE;
+}
+
 bool is_check(Board* board) {
     const Square* king_square = get_king_square(board->player_to_move, board);
 
-    const Color opponent_color = board->player_to_move == WHITE ? BLACK : WHITE;
+    const Color opponent_color = get_opposite_color(board->player_to_move);
     const SquareArray opponent_threatened_squares = get_all_threatened_squares(opponent_color, board);
     for (int i = 0; i < opponent_threatened_squares.length; i++) {
         Square* threatened_square = opponent_threatened_squares.squares[i];

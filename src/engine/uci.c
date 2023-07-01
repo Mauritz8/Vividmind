@@ -42,7 +42,8 @@ static void handle_position_command(char* position, Board* board, MoveArray* mov
 }
 
 static void handle_go_command(Board* board, MoveArray* move_history) {
-    Move best_move = get_best_move(board, move_history);
+    const int depth = 1;
+    Move best_move = get_best_move(depth, board, move_history);
     printf("bestmove %s\n", move_to_uci_notation(&best_move));
 }
 

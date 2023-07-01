@@ -15,6 +15,36 @@ void move_array_push(MoveArray* move_array, const Move* move) {
     move_array->moves[move_array->length++] = *move;
 }
 
+MoveArray copy_move_array(const MoveArray* move_array) {
+    MoveArray move_history_copy;
+    move_history_copy.capacity = move_array->capacity;
+    move_history_copy.moves = malloc(move_history_copy.capacity * sizeof(Move));
+    move_history_copy.length = move_array->length;
+    for (int i = 0; i < move_array->length; i++) {
+        Move move;
+        move.promotion_piece = move_array->moves[i].promotion_piece;
+        move.start_square = malloc(sizeof(Square));
+        move.end_square = malloc(sizeof(Square));
+        *move.start_square = *move_array->moves[i].start_square;
+        *move.end_square = *move_array->moves[i].end_square;
+        if (move_array->moves[i].start_square->piece) {
+            move.start_square->piece = malloc(sizeof(Piece));
+            *move.start_square->piece = *move_array->moves[i].start_square->piece;
+        } else {
+            move.start_square->piece = NULL;
+        }
+        if (move_array->moves[i].end_square->piece) {
+            move.end_square->piece = malloc(sizeof(Piece));
+            *move.end_square->piece = *move_array->moves[i].end_square->piece;
+        } else {
+            move.end_square->piece = NULL;
+        }
+
+        move_history_copy.moves[i] = move;
+    }
+    return move_history_copy;
+}
+
 static void make_move(const Move* move, Board* board) {
     Square* start_square = &board->squares[move->start_square->y][move->start_square->x]; 
     Square* end_square = &board->squares[move->end_square->y][move->end_square->x]; 
