@@ -144,9 +144,19 @@ PieceArray get_all_pieces(const Color color, Board* board) {
     return pieces;
 }
 
+static void deallocate_move_history(MoveArray* move_history) {
+    for (int i = 0; i < move_history->length; i++) {
+        Move move = move_history->moves[i];
+        free(move.start_square);
+        free(move.end_square);
+        free(move.captured_piece);
+    }
+    free(move_history->moves);
+}
+
 void deallocate_game_resources(Board* board, MoveArray* move_history) {
     deallocate_board(board);
-    free(move_history->moves);
+    deallocate_move_history(move_history);
 }
 
 MoveArray create_empty_move_history() {

@@ -45,14 +45,25 @@ MoveArray copy_move_array(const MoveArray* move_array) {
     return move_history_copy;
 }
 
-static void make_move(const Move* move, Board* board) {
+static void make_move(Move* move, Board* board) {
     Square* start_square = &board->squares[move->start_square->y][move->start_square->x]; 
     Square* end_square = &board->squares[move->end_square->y][move->end_square->x]; 
     if (end_square->piece) {
-        free(end_square->piece);
+        move->captured_piece = end_square->piece;
     }
     end_square->piece = start_square->piece;
     start_square->piece = NULL;
+}
+
+void undo_move(Move* move, Board* board) {
+    Square* start_square = &board->squares[move->start_square->y][move->start_square->x]; 
+    Square* end_square = &board->squares[move->end_square->y][move->end_square->x]; 
+    start_square->piece = end_square->piece;
+    if (move->captured_piece) {
+        end_square->piece = move->captured_piece;
+    } else {
+        end_square->piece = NULL;
+    }
 }
 
 static bool is_same_line(const Square* square1, const Square* square2) {
@@ -437,14 +448,26 @@ bool is_legal_move(const Move* move, Board* board, const MoveArray* move_history
     return true;
 }
 
-void make_appropriate_move(const Move* move, Board* board, MoveArray* move_history) {
+void make_appropriate_move(Move* move, Board* board, MoveArray* move_history) {
     if (is_valid_castling_move(move, move_history, board)) {
+        move->is_castling_move = true;
+        move->is_promotion = false;
+        move->is_en_passant = false;
         make_castling_move(move, board);
     } else if (is_valid_en_passant_move(move, board, move_history)) {
+        move->is_en_passant = true;
+        move->is_castling_move = false;
+        move->is_promotion = false;
         make_en_passant_move(move, board);
     } else if (is_promotion(move, board)) {
+        move->is_promotion = true;
+        move->is_castling_move = false;
+        move->is_en_passant = false;
         make_promotion_move(move, board);
     } else {
+        move->is_castling_move = false;
+        move->is_promotion = false;
+        move->is_en_passant = false;
         make_move(move, board);
     }
 
