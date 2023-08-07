@@ -290,7 +290,7 @@ static bool passes_through_check_when_castling(const Move* move, const Board* bo
     Move submove;
     while (x != end_x) {
         submove.start_square = &board_copy.squares[row][x];
-        submove.end_square = &board_copy.squares[row][x + 1];
+        submove.end_square = &board_copy.squares[row][x + direction];
         make_move(&submove, &board_copy);
         if (is_check(&board_copy)) {
             deallocate_board(&board_copy);
