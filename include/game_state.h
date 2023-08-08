@@ -12,5 +12,6 @@ bool is_check(Board* board);
 PieceArray get_all_pieces(const Color color, Board* board);
 void deallocate_game_resources(Board* board, MoveArray* move_history);
 MoveArray create_empty_move_history();
+void switch_player_to_move(Board* board);
 
 #endif

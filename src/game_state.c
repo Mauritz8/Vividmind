@@ -166,3 +166,11 @@ MoveArray create_empty_move_history() {
     move_history.length = 0;
     return move_history;
 }
+
+void switch_player_to_move(Board* board) {
+    if (board->player_to_move == WHITE) {
+        board->player_to_move = BLACK;
+    } else {
+        board->player_to_move = WHITE;
+    }
+}

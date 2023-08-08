@@ -50,12 +50,14 @@ static void make_move(Move* move, Board* board) {
     Square* end_square = &board->squares[move->end_square->y][move->end_square->x]; 
     if (end_square->piece) {
         move->captured_piece = end_square->piece;
+    } else {
+        move->captured_piece = NULL;
     }
     end_square->piece = start_square->piece;
     start_square->piece = NULL;
 }
 
-void undo_move(Move* move, Board* board) {
+static void undo_move(Move* move, Board* board) {
     Square* start_square = &board->squares[move->start_square->y][move->start_square->x]; 
     Square* end_square = &board->squares[move->end_square->y][move->end_square->x]; 
     start_square->piece = end_square->piece;
@@ -349,12 +351,10 @@ static bool is_valid_castling_move(const Move* move, const MoveArray* move_histo
     return true;
 }
 
-static void make_castling_move(const Move* move, Board* board) {
-    make_move(move, board);
-
+static Move get_castling_rook_move(const Move* castling_king_move, Board* board) {
     Move rook_move;
-    const int row = move->start_square->y;
-    const int move_direction = move->end_square->x - move->start_square->x; 
+    const int row = castling_king_move->start_square->y;
+    const int move_direction = castling_king_move->end_square->x - castling_king_move->start_square->x; 
     if (move_direction > 0) {
         // kingside castling
         rook_move.start_square = &board->squares[row][7];
@@ -364,7 +364,19 @@ static void make_castling_move(const Move* move, Board* board) {
         rook_move.start_square = &board->squares[row][0];
         rook_move.end_square = &board->squares[row][3];
     }
+    return rook_move;
+}
+
+static void make_castling_move(const Move* move, Board* board) {
+    make_move(move, board);
+    Move rook_move = get_castling_rook_move(move, board);
     make_move(&rook_move, board);
+}
+
+static void undo_castling_move(const Move* move, Board* board) {
+    undo_move(move, board);
+    Move rook_move = get_castling_rook_move(move, board);
+    undo_move(&rook_move, board);
 }
 
 static bool is_valid_en_passant_move(const Move* move, Board* board, const MoveArray* move_history) {
@@ -394,7 +406,7 @@ static bool is_valid_en_passant_move(const Move* move, Board* board, const MoveA
            abs(y_diff_previous_move) == 2;
 }
 
-static void make_en_passant_move(const Move* move, Board* board) {
+static void make_en_passant_move(Move* move, Board* board) {
     Square* start_square = &board->squares[move->start_square->y][move->start_square->x];
     Square* end_square = &board->squares[move->end_square->y][move->end_square->x];
     end_square->piece = start_square->piece;
@@ -402,8 +414,19 @@ static void make_en_passant_move(const Move* move, Board* board) {
 
     const int x_diff = move->end_square->x - move->start_square->x;
     Square* captured_square = &board->squares[move->start_square->y][move->start_square->x + x_diff];
-    free(captured_square->piece);
+    move->captured_piece = captured_square->piece;
     captured_square->piece = NULL;
+}
+
+static void undo_en_passant_move(Move* move, Board* board) {
+    Square* start_square = &board->squares[move->start_square->y][move->start_square->x];
+    Square* end_square = &board->squares[move->end_square->y][move->end_square->x];
+    start_square->piece = end_square->piece;
+    end_square->piece = NULL;
+
+    const int x_diff = move->end_square->x - move->start_square->x;
+    Square* captured_square = &board->squares[move->start_square->y][move->start_square->x + x_diff];
+    captured_square->piece = move->captured_piece;
 }
 
 bool is_promotion(const Move* move, Board* board) {
@@ -421,6 +444,11 @@ bool is_promotion(const Move* move, Board* board) {
 static void make_promotion_move(const Move* move, Board* board) {
     make_move(move, board);
     move->end_square->piece->piece_type = move->promotion_piece;
+}
+
+static void undo_promotion_move(const Move* move, Board* board) {
+    undo_move(move, board);
+    move->start_square->piece->piece_type = PAWN;
 }
 
 bool is_legal_move(const Move* move, Board* board, const MoveArray* move_history) {
@@ -472,11 +500,22 @@ void make_appropriate_move(Move* move, Board* board, MoveArray* move_history) {
     }
 
     move_array_push(move_history, move);
-    if (board->player_to_move == WHITE) {
-        board->player_to_move = BLACK;
+    switch_player_to_move(board);
+}
+
+void undo_appropriate_move(Move* move, Board* board, MoveArray* move_history) {
+    if (move->is_castling_move) {
+        undo_castling_move(move, board);
+    } else if (move->is_en_passant) {
+        undo_en_passant_move(move, board);
+    } else if (move->is_promotion) {
+        undo_promotion_move(move, board);
     } else {
-        board->player_to_move = WHITE;
+        undo_move(move, board);
     }
+
+    move_history->length--;
+    switch_player_to_move(board);
 }
 
 char* move_to_uci_notation(const Move* move) {
