@@ -27,6 +27,18 @@ char get_char_representation(const Piece_type piece_type) {
     }
 }
 
+Piece_type get_piece_type(const char char_representation) {
+    switch (tolower(char_representation)) {
+        case 'p': return PAWN;
+        case 'n': return KNIGHT;
+        case 'b': return BISHOP;
+        case 'r': return ROOK;
+        case 'q': return QUEEN;
+        case 'k': return KING;
+        default: return -1;
+    }
+}
+
 Piece_type get_promotion_piece_type(const char char_representation_lowercase) {
     if (char_representation_lowercase == 'n') return KNIGHT;
     if (char_representation_lowercase == 'b') return BISHOP;
