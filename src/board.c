@@ -91,3 +91,63 @@ Board copy_board(const Board* board) {
     }
     return board_copy;
 }
+
+static int place_pieces(const char* fen_piece_placement_field, Board* board) {
+    for (int i = 0; i < 8; i++) {
+        for (int j = 0; j < 8; j++) {
+            board->squares[i][j].x = j;
+            board->squares[i][j].y = i;
+            char ch = *fen_piece_placement_field++;
+            if (strchr("rnbqkp", tolower(ch))) {
+                board->squares[i][j].piece = malloc(sizeof(Piece));
+                board->squares[i][j].piece->piece_type = get_piece_type(ch);
+                if (islower(ch)) {
+                    board->squares[i][j].piece->color = BLACK;
+                } else {
+                    board->squares[i][j].piece->color = WHITE;
+                }
+            } else if (ch >= '1' && ch <= '8') {
+                int num = ch - '0';
+                for (int k = 0; k < num; k++) {
+                    board->squares[i][j + k].piece = NULL;
+                }
+                j += num - 1;
+            } else if (ch == '/') {
+                j--;
+                continue;
+            } else {
+                return EXIT_FAILURE;
+            }
+        }
+    }
+    return EXIT_SUCCESS;
+}
+
+static int set_player_to_move(const char* fen_active_color_field, Board* board) {
+    if (*fen_active_color_field == 'w') {
+        board->player_to_move = WHITE;
+    } else if (*fen_active_color_field == 'b') {
+        board->player_to_move = BLACK;
+    } else {
+        return EXIT_FAILURE;
+    }
+    return EXIT_SUCCESS;
+}
+
+Board* get_position_from_fen(char* fen) {
+    Board* board = malloc(sizeof(Board));
+    const char* piece_placement_field = strtok(fen, " ");
+    const char* active_color_field = strtok(NULL, " ");
+    const char* castling_availability_field = strtok(NULL, " ");
+    const char* en_passant_target_square_field = strtok(NULL, " ");
+    const char* halfmove_clock_field = strtok(NULL, " ");
+    const char* fullmove_number_field = strtok(NULL, " ");
+
+    const int place_pieces_status = place_pieces(piece_placement_field, board);
+    const int set_player_to_move_status = set_player_to_move(active_color_field, board);
+
+    if (place_pieces_status == EXIT_FAILURE || set_player_to_move_status == EXIT_FAILURE) {
+        return NULL;
+    }
+    return board;
+}
