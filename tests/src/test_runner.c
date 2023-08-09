@@ -3,6 +3,7 @@
 #include "test_knight_moves.h"
 #include "test_bishop_moves.h"
 #include "test_rook_moves.h"
+#include "test_move_generator.h"
 
 
 int main(void) {
@@ -17,6 +18,9 @@ int main(void) {
         return CU_get_error();
     }
     if (0 != rook_moves_tests()) {
+        return CU_get_error();
+    }
+    if (0 != move_generator_tests()) {
         return CU_get_error();
     }
 
