@@ -109,6 +109,8 @@ static int place_pieces(const char* fen_piece_placement_field, Board* board) {
             } else if (ch >= '1' && ch <= '8') {
                 int num = ch - '0';
                 for (int k = 0; k < num; k++) {
+                    board->squares[i][j + k].x = j + k;
+                    board->squares[i][j + k].y = i;
                     board->squares[i][j + k].piece = NULL;
                 }
                 j += num - 1;
