@@ -72,6 +72,8 @@ static MoveArray get_legal_moves(Square* square, Board* board, const MoveArray* 
             move.end_square = &board->squares[i][j];
             if (is_promotion_move(&move, board)) {
                 move.promotion_piece = QUEEN;
+            } else {
+                move.promotion_piece = -1;
             }
             if (is_legal_move(&move, board, move_history)) {
                 if (is_valid_promotion_move(&move, board)) {
