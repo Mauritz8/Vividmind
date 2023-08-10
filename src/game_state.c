@@ -70,11 +70,15 @@ static MoveArray get_legal_moves(Square* square, Board* board, const MoveArray* 
     for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 8; j++) {
             move.end_square = &board->squares[i][j];
+            if (is_promotion_move(&move, board)) {
+                move.promotion_piece = QUEEN;
+            }
             if (is_legal_move(&move, board, move_history)) {
-                if (is_promotion(&move, board)) {
-                    const Piece_type promotion_pieces[] = {KNIGHT, BISHOP, ROOK, QUEEN};
-                    for (int i = 0; i < 4; i++) {
-                        move.promotion_piece = promotion_pieces[i];
+                if (is_valid_promotion_move(&move, board)) {
+                    move_array_push(&legal_moves, &move);
+                    const Piece_type other_promotion_pieces[] = {KNIGHT, BISHOP, ROOK};
+                    for (int i = 0; i < 3; i++) {
+                        move.promotion_piece = other_promotion_pieces[i];
                         move_array_push(&legal_moves, &move);
                     }
                 } else {
@@ -147,8 +151,6 @@ PieceArray get_all_pieces(const Color color, Board* board) {
 static void deallocate_move_history(MoveArray* move_history) {
     for (int i = 0; i < move_history->length; i++) {
         Move move = move_history->moves[i];
-        free(move.start_square);
-        free(move.end_square);
         free(move.captured_piece);
     }
     free(move_history->moves);

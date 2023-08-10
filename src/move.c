@@ -271,12 +271,13 @@ bool validate_threatened_move(const Move* move, Board* board) {
 bool leaves_king_in_check(const Move* move, const Board* board) {
     Board board_copy = copy_board(board);
     const Color color_to_move = move->start_square->piece->color;
-    make_move(move, &board_copy);
+    MoveArray empty_move_history = create_empty_move_history();
+    make_appropriate_move(move, &board_copy, &empty_move_history);
     if (is_check(&board_copy)) {
-        deallocate_board(&board_copy);
+        deallocate_game_resources(&board_copy, &empty_move_history);
         return true;
     }
-    deallocate_board(&board_copy);
+    deallocate_game_resources(&board_copy, &empty_move_history);
     return false;
 }
 
@@ -429,13 +430,27 @@ static void undo_en_passant_move(Move* move, Board* board) {
     captured_square->piece = move->captured_piece;
 }
 
-bool is_promotion(const Move* move, Board* board) {
+bool is_promotion_move(const Move* move, Board* board) {
     const Piece* piece = move->start_square->piece;
     const Piece_type piece_type = piece->piece_type;
     const int y_end = move->end_square->y;
     const int promotion_row = piece->color == WHITE ? 0 : 7;
 
     if (piece_type == PAWN && y_end == promotion_row) {
+        return true;
+    }
+    return false;
+}
+
+bool is_valid_promotion_move(const Move* move, Board* board) {
+    const bool is_correct_promotion_piece = 
+        move->promotion_piece == KNIGHT ||
+        move->promotion_piece == BISHOP ||
+        move->promotion_piece == ROOK ||
+        move->promotion_piece == QUEEN;
+
+
+    if (is_promotion_move(move, board) && is_valid_pawn_move(move, board) && is_correct_promotion_piece) {
         return true;
     }
     return false;
@@ -458,10 +473,10 @@ bool is_legal_move(const Move* move, Board* board, const MoveArray* move_history
     if (leaves_king_in_check(move, board)) {
         return false;
     }
-    if (is_promotion(move, board) && move->promotion_piece == -1) {
-        return false;
-    }
 
+    if (is_valid_promotion_move(move, board)) {
+        return true;
+    }
     if (is_valid_castling_move(move, move_history, board)) {
         return true;
     }
@@ -487,7 +502,7 @@ void make_appropriate_move(Move* move, Board* board, MoveArray* move_history) {
         move->is_castling_move = false;
         move->is_promotion = false;
         make_en_passant_move(move, board);
-    } else if (is_promotion(move, board)) {
+    } else if (is_valid_promotion_move(move, board)) {
         move->is_promotion = true;
         move->is_castling_move = false;
         move->is_en_passant = false;
