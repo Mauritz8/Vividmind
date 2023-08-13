@@ -281,8 +281,9 @@ static bool has_castling_pieces_moved(const MoveArray* move_history, const int s
     return false;
 }
 
-static bool passes_through_check_when_castling(const Move* move, const Board* board) {
+static bool passes_through_check_when_castling(const Move* move, const Board* board, const MoveArray* move_history) {
     Board board_copy = copy_board(board);
+    MoveArray move_history_copy = copy_move_array(move_history);
     const int row = move->start_square->y;
     const int start_x = move->start_square->x;
     const int end_x = move->end_square->x;
@@ -293,7 +294,7 @@ static bool passes_through_check_when_castling(const Move* move, const Board* bo
     while (x != end_x) {
         submove.start_square = &board_copy.squares[row][x];
         submove.end_square = &board_copy.squares[row][x + direction];
-        make_move(&submove, &board_copy);
+        make_appropriate_move(&submove, &board_copy, &move_history_copy);
         if (is_check(&board_copy)) {
             deallocate_board(&board_copy);
             return true;
@@ -333,7 +334,7 @@ static bool is_valid_castling_move(const Move* move, const MoveArray* move_histo
     if (is_check(board)) {
         return false;
     }
-    if (passes_through_check_when_castling(move, board)) {
+    if (passes_through_check_when_castling(move, board, move_history)) {
         return false;
     }
 
