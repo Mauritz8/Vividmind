@@ -118,18 +118,18 @@ Color get_opposite_color(const Color color) {
 }
 
 bool is_check(Board* board) {
-    const Square* king_square = get_king_square(board->player_to_move, board);
-
     const Color opponent_color = get_opposite_color(board->player_to_move);
-    const SquareArray opponent_threatened_squares = get_all_threatened_squares(opponent_color, board);
-    for (int i = 0; i < opponent_threatened_squares.length; i++) {
-        Square* threatened_square = opponent_threatened_squares.squares[i];
-        if (threatened_square == king_square) {
-            free(opponent_threatened_squares.squares);
+    const Square* opponent_king_square = get_king_square(opponent_color, board);
+
+    const SquareArray threatened_squares = get_all_threatened_squares(board->player_to_move, board);
+    for (int i = 0; i < threatened_squares.length; i++) {
+        Square* threatened_square = threatened_squares.squares[i];
+        if (threatened_square == opponent_king_square) {
+            free(threatened_squares.squares);
             return true;
         }
     }
-    free(opponent_threatened_squares.squares);
+    free(threatened_squares.squares);
     return false;
 }
 

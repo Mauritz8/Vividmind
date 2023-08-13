@@ -22,24 +22,13 @@ MoveArray copy_move_array(const MoveArray* move_array) {
     move_history_copy.length = move_array->length;
     for (int i = 0; i < move_array->length; i++) {
         Move move;
+        move.start_square = move_array->moves[i].start_square;
+        move.end_square = move_array->moves[i].end_square;
+        move.captured_piece = move_array->moves[i].captured_piece;
+        move.is_castling_move = move_array->moves[i].is_castling_move;
+        move.is_promotion = move_array->moves[i].is_promotion;
         move.promotion_piece = move_array->moves[i].promotion_piece;
-        move.start_square = malloc(sizeof(Square));
-        move.end_square = malloc(sizeof(Square));
-        *move.start_square = *move_array->moves[i].start_square;
-        *move.end_square = *move_array->moves[i].end_square;
-        if (move_array->moves[i].start_square->piece) {
-            move.start_square->piece = malloc(sizeof(Piece));
-            *move.start_square->piece = *move_array->moves[i].start_square->piece;
-        } else {
-            move.start_square->piece = NULL;
-        }
-        if (move_array->moves[i].end_square->piece) {
-            move.end_square->piece = malloc(sizeof(Piece));
-            *move.end_square->piece = *move_array->moves[i].end_square->piece;
-        } else {
-            move.end_square->piece = NULL;
-        }
-
+        move.is_en_passant = move_array->moves[i].is_en_passant;
         move_history_copy.moves[i] = move;
     }
     return move_history_copy;
@@ -268,16 +257,15 @@ bool validate_threatened_move(const Move* move, Board* board) {
     }
 }
 
-bool leaves_king_in_check(const Move* move, const Board* board) {
+bool leaves_king_in_check(const Move* move, const Board* board, const MoveArray* move_history) {
     Board board_copy = copy_board(board);
-    const Color color_to_move = move->start_square->piece->color;
-    MoveArray empty_move_history = create_empty_move_history();
-    make_appropriate_move(move, &board_copy, &empty_move_history);
+    MoveArray move_history_copy = copy_move_array(move_history);
+    make_appropriate_move(move, &board_copy, &move_history_copy);
     if (is_check(&board_copy)) {
-        deallocate_game_resources(&board_copy, &empty_move_history);
+        deallocate_board(&board_copy);
         return true;
     }
-    deallocate_game_resources(&board_copy, &empty_move_history);
+    deallocate_board(&board_copy);
     return false;
 }
 
@@ -397,13 +385,11 @@ static bool is_valid_en_passant_move(const Move* move, Board* board, const MoveA
         return false;
     }
     const Move previous_move = move_history->moves[move_history->length - 1];
-    const Piece* piece_previous_move = previous_move.end_square->piece;
     const int y_diff_previous_move = previous_move.end_square->y - previous_move.start_square->y;
 
     return is_diagonal_pawn_move &&
            has_pawn_adjacent &&
            is_adjacent_pawn_opponents_piece &&
-           adjacent_piece == piece_previous_move &&
            abs(y_diff_previous_move) == 2;
 }
 
@@ -470,7 +456,7 @@ bool is_legal_move(const Move* move, Board* board, const MoveArray* move_history
     if (!validate_move_basic(move, board)) {
         return false;
     }
-    if (leaves_king_in_check(move, board)) {
+    if (leaves_king_in_check(move, board, move_history)) {
         return false;
     }
 
