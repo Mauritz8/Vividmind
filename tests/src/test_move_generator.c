@@ -7,7 +7,7 @@
 #include "move.h"
 
 
-int perft(int depth, Board* board, MoveArray* move_history) {
+static int perft(int depth, Board* board, MoveArray* move_history) {
     if (depth == 0) {
         return 1;
     }
@@ -20,6 +20,20 @@ int perft(int depth, Board* board, MoveArray* move_history) {
         undo_appropriate_move(&move_list.moves[i], board, move_history);
     }
     return nodes;
+}
+
+static void divide(int depth, Board* board, MoveArray* move_history) {
+    puts("");
+    int nodes_searched = 0;
+    MoveArray move_list = get_all_legal_moves(board, move_history);
+    for (int i = 0; i < move_list.length; i++) {
+        make_appropriate_move(&move_list.moves[i], board, move_history);
+        int nodes =  perft(depth - 1, board, move_history);
+        nodes_searched += nodes;
+        printf("%s: %d\n", move_to_uci_notation(&move_list.moves[i]), nodes);
+        undo_appropriate_move(&move_list.moves[i], board, move_history);
+    }
+    printf("\nNodes searched: %d\n", nodes_searched);
 }
 
 static void test_move_generation_on_initial_position(void) {
