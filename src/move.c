@@ -446,12 +446,14 @@ bool is_valid_promotion_move(const Move* move, Board* board) {
 
 static void make_promotion_move(const Move* move, Board* board) {
     make_move(move, board);
-    move->end_square->piece->piece_type = move->promotion_piece;
+    Square* end_square = &board->squares[move->end_square->y][move->end_square->x];
+    end_square->piece->piece_type == move->promotion_piece;
 }
 
 static void undo_promotion_move(const Move* move, Board* board) {
     undo_move(move, board);
-    move->start_square->piece->piece_type = PAWN;
+    Square* start_square = &board->squares[move->start_square->y][move->start_square->x];
+    start_square->piece->piece_type == PAWN;
 }
 
 bool is_legal_move(const Move* move, Board* board, const MoveArray* move_history) {
