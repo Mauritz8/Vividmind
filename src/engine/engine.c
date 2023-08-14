@@ -79,21 +79,17 @@ static int evaluate(const Board* board) {
     return score;
 }
 
-static int nega_max(const int depth, const Board* board, const MoveArray* move_history) {
-    Board board_copy = copy_board(board);
-    MoveArray move_history_copy = copy_move_array(move_history);
-
+static int nega_max(const int depth, Board* board, MoveArray* move_history) {
     if (depth == 0) {
-        return evaluate(&board_copy);
+        return evaluate(board);
     }
     int max = INT_MIN;
-    MoveArray legal_moves = get_all_legal_moves(&board_copy, &move_history_copy);
+    MoveArray legal_moves = get_all_legal_moves(board, move_history);
     for (int i = 0; i < legal_moves.length; i++) {
         const Move move = legal_moves.moves[i];
-        make_appropriate_move(&move, &board_copy, &move_history_copy);
-        const int score = -nega_max(depth - 1, &board_copy, &move_history_copy);
-        board_copy = copy_board(board);
-        move_history_copy = copy_move_array(move_history);
+        make_appropriate_move(&move, board, move_history);
+        const int score = -nega_max(depth - 1, board, move_history);
+        undo_appropriate_move(&move, board, move_history);
         if (score > max) {
             max = score;
         }
@@ -112,8 +108,7 @@ Move get_best_move(const int depth, const Board* board, const MoveArray* move_hi
         Move move = legal_moves.moves[i];
         make_appropriate_move(&move, &board_copy, &move_history_copy);
         const int score = -nega_max(depth, &board_copy, &move_history_copy);
-        board_copy = copy_board(board);
-        move_history_copy = copy_move_array(move_history);
+        undo_appropriate_move(&move, &board_copy, &move_history_copy);
         if (score > max) {
             max = score;
             best_move = legal_moves.moves[i];
