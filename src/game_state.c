@@ -70,11 +70,17 @@ static MoveArray get_legal_moves(Square* square, Board* board, const MoveArray* 
     for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 8; j++) {
             move.end_square = &board->squares[i][j];
+            if (is_promotion_move(&move, board)) {
+                move.promotion_piece = QUEEN;
+            } else {
+                move.promotion_piece = -1;
+            }
             if (is_legal_move(&move, board, move_history)) {
-                if (is_promotion(&move, board)) {
-                    const Piece_type promotion_pieces[] = {KNIGHT, BISHOP, ROOK, QUEEN};
-                    for (int i = 0; i < 4; i++) {
-                        move.promotion_piece = promotion_pieces[i];
+                if (is_valid_promotion_move(&move, board)) {
+                    move_array_push(&legal_moves, &move);
+                    const Piece_type other_promotion_pieces[] = {KNIGHT, BISHOP, ROOK};
+                    for (int i = 0; i < 3; i++) {
+                        move.promotion_piece = other_promotion_pieces[i];
                         move_array_push(&legal_moves, &move);
                     }
                 } else {
@@ -112,18 +118,18 @@ Color get_opposite_color(const Color color) {
 }
 
 bool is_check(Board* board) {
-    const Square* king_square = get_king_square(board->player_to_move, board);
-
     const Color opponent_color = get_opposite_color(board->player_to_move);
-    const SquareArray opponent_threatened_squares = get_all_threatened_squares(opponent_color, board);
-    for (int i = 0; i < opponent_threatened_squares.length; i++) {
-        Square* threatened_square = opponent_threatened_squares.squares[i];
-        if (threatened_square == king_square) {
-            free(opponent_threatened_squares.squares);
+    const Square* opponent_king_square = get_king_square(opponent_color, board);
+
+    const SquareArray threatened_squares = get_all_threatened_squares(board->player_to_move, board);
+    for (int i = 0; i < threatened_squares.length; i++) {
+        Square* threatened_square = threatened_squares.squares[i];
+        if (threatened_square == opponent_king_square) {
+            free(threatened_squares.squares);
             return true;
         }
     }
-    free(opponent_threatened_squares.squares);
+    free(threatened_squares.squares);
     return false;
 }
 
@@ -147,8 +153,6 @@ PieceArray get_all_pieces(const Color color, Board* board) {
 static void deallocate_move_history(MoveArray* move_history) {
     for (int i = 0; i < move_history->length; i++) {
         Move move = move_history->moves[i];
-        free(move.start_square);
-        free(move.end_square);
         free(move.captured_piece);
     }
     free(move_history->moves);

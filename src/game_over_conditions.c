@@ -14,7 +14,7 @@ bool is_checkmate(Board* board, const MoveArray* move_history) {
 
    MoveArray moves = get_all_legal_moves(board, move_history);
    for (int i = 0; i < moves.length; i++) {
-       if (!leaves_king_in_check(&moves.moves[i], board)) {
+       if (!leaves_king_in_check(&moves.moves[i], board, move_history)) {
            free(moves.moves);
            return false;
        }

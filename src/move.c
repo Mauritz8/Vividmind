@@ -22,24 +22,13 @@ MoveArray copy_move_array(const MoveArray* move_array) {
     move_history_copy.length = move_array->length;
     for (int i = 0; i < move_array->length; i++) {
         Move move;
+        move.start_square = move_array->moves[i].start_square;
+        move.end_square = move_array->moves[i].end_square;
+        move.captured_piece = move_array->moves[i].captured_piece;
+        move.is_castling_move = move_array->moves[i].is_castling_move;
+        move.is_promotion = move_array->moves[i].is_promotion;
         move.promotion_piece = move_array->moves[i].promotion_piece;
-        move.start_square = malloc(sizeof(Square));
-        move.end_square = malloc(sizeof(Square));
-        *move.start_square = *move_array->moves[i].start_square;
-        *move.end_square = *move_array->moves[i].end_square;
-        if (move_array->moves[i].start_square->piece) {
-            move.start_square->piece = malloc(sizeof(Piece));
-            *move.start_square->piece = *move_array->moves[i].start_square->piece;
-        } else {
-            move.start_square->piece = NULL;
-        }
-        if (move_array->moves[i].end_square->piece) {
-            move.end_square->piece = malloc(sizeof(Piece));
-            *move.end_square->piece = *move_array->moves[i].end_square->piece;
-        } else {
-            move.end_square->piece = NULL;
-        }
-
+        move.is_en_passant = move_array->moves[i].is_en_passant;
         move_history_copy.moves[i] = move;
     }
     return move_history_copy;
@@ -268,10 +257,10 @@ bool validate_threatened_move(const Move* move, Board* board) {
     }
 }
 
-bool leaves_king_in_check(const Move* move, const Board* board) {
+bool leaves_king_in_check(const Move* move, const Board* board, const MoveArray* move_history) {
     Board board_copy = copy_board(board);
-    const Color color_to_move = move->start_square->piece->color;
-    make_move(move, &board_copy);
+    MoveArray move_history_copy = copy_move_array(move_history);
+    make_appropriate_move(move, &board_copy, &move_history_copy);
     if (is_check(&board_copy)) {
         deallocate_board(&board_copy);
         return true;
@@ -292,8 +281,9 @@ static bool has_castling_pieces_moved(const MoveArray* move_history, const int s
     return false;
 }
 
-static bool passes_through_check_when_castling(const Move* move, const Board* board) {
+static bool passes_through_check_when_castling(const Move* move, const Board* board, const MoveArray* move_history) {
     Board board_copy = copy_board(board);
+    MoveArray move_history_copy = copy_move_array(move_history);
     const int row = move->start_square->y;
     const int start_x = move->start_square->x;
     const int end_x = move->end_square->x;
@@ -304,7 +294,7 @@ static bool passes_through_check_when_castling(const Move* move, const Board* bo
     while (x != end_x) {
         submove.start_square = &board_copy.squares[row][x];
         submove.end_square = &board_copy.squares[row][x + direction];
-        make_move(&submove, &board_copy);
+        make_appropriate_move(&submove, &board_copy, &move_history_copy);
         if (is_check(&board_copy)) {
             deallocate_board(&board_copy);
             return true;
@@ -344,7 +334,7 @@ static bool is_valid_castling_move(const Move* move, const MoveArray* move_histo
     if (is_check(board)) {
         return false;
     }
-    if (passes_through_check_when_castling(move, board)) {
+    if (passes_through_check_when_castling(move, board, move_history)) {
         return false;
     }
 
@@ -364,6 +354,7 @@ static Move get_castling_rook_move(const Move* castling_king_move, Board* board)
         rook_move.start_square = &board->squares[row][0];
         rook_move.end_square = &board->squares[row][3];
     }
+    rook_move.captured_piece = NULL;
     return rook_move;
 }
 
@@ -396,13 +387,11 @@ static bool is_valid_en_passant_move(const Move* move, Board* board, const MoveA
         return false;
     }
     const Move previous_move = move_history->moves[move_history->length - 1];
-    const Piece* piece_previous_move = previous_move.end_square->piece;
     const int y_diff_previous_move = previous_move.end_square->y - previous_move.start_square->y;
 
     return is_diagonal_pawn_move &&
            has_pawn_adjacent &&
            is_adjacent_pawn_opponents_piece &&
-           adjacent_piece == piece_previous_move &&
            abs(y_diff_previous_move) == 2;
 }
 
@@ -429,7 +418,7 @@ static void undo_en_passant_move(Move* move, Board* board) {
     captured_square->piece = move->captured_piece;
 }
 
-bool is_promotion(const Move* move, Board* board) {
+bool is_promotion_move(const Move* move, Board* board) {
     const Piece* piece = move->start_square->piece;
     const Piece_type piece_type = piece->piece_type;
     const int y_end = move->end_square->y;
@@ -441,27 +430,43 @@ bool is_promotion(const Move* move, Board* board) {
     return false;
 }
 
+bool is_valid_promotion_move(const Move* move, Board* board) {
+    const bool is_correct_promotion_piece = 
+        move->promotion_piece == KNIGHT ||
+        move->promotion_piece == BISHOP ||
+        move->promotion_piece == ROOK ||
+        move->promotion_piece == QUEEN;
+
+
+    if (is_promotion_move(move, board) && is_valid_pawn_move(move, board) && is_correct_promotion_piece) {
+        return true;
+    }
+    return false;
+}
+
 static void make_promotion_move(const Move* move, Board* board) {
     make_move(move, board);
-    move->end_square->piece->piece_type = move->promotion_piece;
+    Square* end_square = &board->squares[move->end_square->y][move->end_square->x];
+    end_square->piece->piece_type == move->promotion_piece;
 }
 
 static void undo_promotion_move(const Move* move, Board* board) {
     undo_move(move, board);
-    move->start_square->piece->piece_type = PAWN;
+    Square* start_square = &board->squares[move->start_square->y][move->start_square->x];
+    start_square->piece->piece_type == PAWN;
 }
 
 bool is_legal_move(const Move* move, Board* board, const MoveArray* move_history) {
     if (!validate_move_basic(move, board)) {
         return false;
     }
-    if (leaves_king_in_check(move, board)) {
-        return false;
-    }
-    if (is_promotion(move, board) && move->promotion_piece == -1) {
+    if (leaves_king_in_check(move, board, move_history)) {
         return false;
     }
 
+    if (is_valid_promotion_move(move, board)) {
+        return true;
+    }
     if (is_valid_castling_move(move, move_history, board)) {
         return true;
     }
@@ -487,7 +492,7 @@ void make_appropriate_move(Move* move, Board* board, MoveArray* move_history) {
         move->is_castling_move = false;
         move->is_promotion = false;
         make_en_passant_move(move, board);
-    } else if (is_promotion(move, board)) {
+    } else if (is_valid_promotion_move(move, board)) {
         move->is_promotion = true;
         move->is_castling_move = false;
         move->is_en_passant = false;
