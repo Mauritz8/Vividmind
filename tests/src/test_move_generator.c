@@ -8,13 +8,12 @@
 
 
 static int perft(int depth, Board* board, MoveArray* move_history) {
-    MoveArray move_list = get_all_legal_moves(board, move_history);
-
-    if (depth == 1) {
-        return move_list.length;
+    if (depth == 0) {
+        return 1;
     }
 
     int nodes = 0;
+    MoveArray move_list = get_all_legal_moves(board, move_history);
     for (int i = 0; i < move_list.length; i++) {
         make_appropriate_move(&move_list.moves[i], board, move_history);
         nodes += perft(depth - 1, board, move_history);    
