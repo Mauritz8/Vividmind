@@ -354,6 +354,7 @@ static Move get_castling_rook_move(const Move* castling_king_move, Board* board)
         rook_move.start_square = &board->squares[row][0];
         rook_move.end_square = &board->squares[row][3];
     }
+    rook_move.captured_piece = NULL;
     return rook_move;
 }
 
