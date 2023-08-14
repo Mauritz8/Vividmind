@@ -1,5 +1,5 @@
 CC=clang
-CFLAGS=-I include/ -I include/engine/ -I tests/include
+CFLAGS=-I include/ -I include/engine/ -I tests/include -g
 DEPS = $(wildcard include/*.h include/engine/*.h)
 SRC = $(wildcard src/*.c src/engine/*.c)
 SRC := $(filter-out src/main.c src/terminal_game.c, $(SRC))
@@ -36,7 +36,7 @@ run: $(ENGINE)
 clean:
 	rm -f $(ENGINE) $(TERMINAL_GAME) $(TEST_EXECUTABLE) obj/*.o
 
-run_tests: $(TEST_EXECUTABLE)
+test: $(TEST_EXECUTABLE)
 	./$(TEST_EXECUTABLE)
 
 
