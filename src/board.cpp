@@ -1,33 +1,36 @@
+#include <iostream>
+#include <optional>
 #include <stdio.h>
 #include <stdlib.h>
+#include <cctype>
+#include <string>
 
 #include "board.h"
 #include "piece.h"
 
-static void setup_pieces(Board* board, const int row, const Piece_type* order, const Color color) {
+
+static void setup_pieces(Board& board, const int row, const Piece_type* order, const Color color) {
     for (int i = 0; i < 8; i++) {
-        board->squares[row][i].piece = malloc(sizeof(Piece));
-        board->squares[row][i].piece->piece_type = order[i];
-        board->squares[row][i].piece->color = color;
+        std::optional piece{Piece(order[i], color)};
+        board.get_square(i, row).set_piece(piece);
     }
 }
 
-static void setup_pawns(Board* board, const int row, const Color color) {
+static void setup_pawns(Board& board, const int row, const Color color) {
     for (int i = 0; i < 8; i++) {
-        board->squares[row][i].piece = malloc(sizeof(Piece));
-        board->squares[row][i].piece->piece_type = PAWN;
-        board->squares[row][i].piece->color = color;
+        std::optional piece{Piece(PAWN, color)};
+        board.get_square(i, row).set_piece(piece);
     }
 }
 
-void setup_board(Board* board) {
-    board->player_to_move = WHITE;
+void setup_board(Board& board) {
+    board.set_player_to_move(WHITE);
 
     // setup square coordinates
     for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 8; j++) {
-            board->squares[i][j].x = j;
-            board->squares[i][j].y = i;
+            board.get_square(j, i).set_x(j);
+            board.get_square(j, i).set_y(i);
         }
     }
 
@@ -41,17 +44,17 @@ void setup_board(Board* board) {
     // set the piece as null for all squares that don't have a piece
     for (int i = 2; i < 6; i++) {
         for (int j = 0; j < 8; j++) {
-            board->squares[i][j].piece = NULL;
+            board.get_square(j, i).set_piece({});
         }
     }
 }
 
-void show_board(const Board* board) {
+void show_board(Board& board) {
     for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 8; j++) {
-            const Piece* piece = board->squares[i][j].piece;
-            if (piece) {
-                printf(" %c", get_char_representation(piece->piece_type));
+            std::optional<Piece> piece = board.get_square(j, i).get_piece();
+            if (piece.has_value()) {
+                printf(" %c", piece.value().get_char_representation());
             } else {
                 printf(" _");
             }
@@ -62,27 +65,27 @@ void show_board(const Board* board) {
 }
 
 
-void deallocate_board(Board* board) {
+/*void deallocate_board(Board& board) {
     for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 8; j++) {
-            Piece* piece = board->squares[i][j].piece; 
+            Piece* piece = board.get_square(j, i).get_piece(); 
             if (piece) {
                 free(piece);
             }
         }
     }
-}
+}*/
 
-Board copy_board(const Board* board) {
+/*Board copy_board(Board& board) {
     Board board_copy;
-    board_copy.player_to_move = board->player_to_move;
+    board_copy.set_player_to_move(board.get_player_to_move());
     for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 8; j++) {
             Square square = {square.x = j, square.y = i};
-            const Piece* piece = board->squares[i][j].piece;
+            const Piece* piece = board.get_square(j, i).piece;
             if (piece) {
                 square.piece = malloc(sizeof(Piece));
-                *square.piece = *board->squares[i][j].piece;
+                *square.piece = *board.get_square(j, i).piece;
             } else {
                 square.piece = NULL;
             }
@@ -90,28 +93,31 @@ Board copy_board(const Board* board) {
         }
     }
     return board_copy;
-}
+}*/
 
-static int place_pieces(const char* fen_piece_placement_field, Board* board) {
+static int place_pieces(const char* fen_piece_placement_field, Board& board) {
     for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 8; j++) {
-            board->squares[i][j].x = j;
-            board->squares[i][j].y = i;
+            Square square = board.get_square(j, i);
+            square.set_x(j);
+            square.set_y(i);
             char ch = *fen_piece_placement_field++;
-            if (strchr("rnbqkp", tolower(ch))) {
-                board->squares[i][j].piece = malloc(sizeof(Piece));
-                board->squares[i][j].piece->piece_type = get_piece_type(ch);
+            std::string pieces = "rnbqkp";
+            if (pieces.find(tolower(ch)) != std::string::npos) {
+                Color color;
                 if (islower(ch)) {
-                    board->squares[i][j].piece->color = BLACK;
+                    color = BLACK;
                 } else {
-                    board->squares[i][j].piece->color = WHITE;
+                    color = WHITE;
                 }
+                Piece piece(Piece::get_piece_type(ch), color);
             } else if (ch >= '1' && ch <= '8') {
                 int num = ch - '0';
                 for (int k = 0; k < num; k++) {
-                    board->squares[i][j + k].x = j + k;
-                    board->squares[i][j + k].y = i;
-                    board->squares[i][j + k].piece = NULL;
+                    int x = j + k;
+                    board.get_square(x, i).set_x(x);
+                    board.get_square(x, i).set_y(i);
+                    board.get_square(x, i).set_piece({});
                 }
                 j += num - 1;
             } else if (ch == '/') {
@@ -125,11 +131,11 @@ static int place_pieces(const char* fen_piece_placement_field, Board* board) {
     return EXIT_SUCCESS;
 }
 
-static int set_player_to_move(const char* fen_active_color_field, Board* board) {
+static int set_player_to_move(const char* fen_active_color_field, Board& board) {
     if (*fen_active_color_field == 'w') {
-        board->player_to_move = WHITE;
+        board.set_player_to_move(WHITE);
     } else if (*fen_active_color_field == 'b') {
-        board->player_to_move = BLACK;
+        board.set_player_to_move(BLACK);
     } else {
         return EXIT_FAILURE;
     }

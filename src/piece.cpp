@@ -1,17 +1,9 @@
-#include <stdlib.h>
+#include <cctype>
 
 #include "piece.h"
 
-void piece_array_push(PieceArray* piece_array, const Piece* piece) {
-    if (piece_array->length == piece_array->capacity) {
-        piece_array->capacity *= 2;
-        piece_array->pieces = realloc(piece_array->pieces, piece_array->capacity * sizeof(Piece));
-    }
-    piece_array->pieces[piece_array->length++] = *piece;
-}
-
-char get_char_representation(const Piece_type piece_type) {
-    switch (piece_type) {
+char Piece::get_char_representation() {
+    switch (get_piece_type()) {
         case PAWN:
             return 'p';
         case KNIGHT:
@@ -27,7 +19,7 @@ char get_char_representation(const Piece_type piece_type) {
     }
 }
 
-Piece_type get_piece_type(const char char_representation) {
+Piece_type Piece::get_piece_type(const char char_representation) {
     switch (tolower(char_representation)) {
         case 'p': return PAWN;
         case 'n': return KNIGHT;
@@ -39,7 +31,7 @@ Piece_type get_piece_type(const char char_representation) {
     }
 }
 
-Piece_type get_promotion_piece_type(const char char_representation_lowercase) {
+Piece_type Piece::get_promotion_piece_type(const char char_representation_lowercase) {
     if (char_representation_lowercase == 'n') return KNIGHT;
     if (char_representation_lowercase == 'b') return BISHOP;
     if (char_representation_lowercase == 'r') return ROOK;
