@@ -1,0 +1,4 @@
+CompileFlags:
+  Add: 
+      - "-I/home/mauritz/code/chess-engine2/include"
+      - "-I/home/mauritz/code/chess-engine2/tests/include"
