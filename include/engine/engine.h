@@ -3,7 +3,8 @@
 
 #include "move.h"
 #include "board.h"
+#include <vector>
 
-Move get_best_move(const int depth, const Board* board, const MoveArray* move_history);
+Move get_best_move(int depth, const Board& board, const std::vector<Move> move_history);
 
 #endif

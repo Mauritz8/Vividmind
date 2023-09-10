@@ -1,9 +1,10 @@
 #include <cctype>
+#include <optional>
 
 #include "piece.h"
 
-char Piece::get_char_representation() {
-    switch (get_piece_type()) {
+char get_char_representation(Piece_type piece_type) {
+    switch (piece_type) {
         case PAWN:
             return 'p';
         case KNIGHT:
@@ -19,7 +20,7 @@ char Piece::get_char_representation() {
     }
 }
 
-Piece_type Piece::get_piece_type(const char char_representation) {
+std::optional<Piece_type> get_piece_type(const char char_representation) {
     switch (tolower(char_representation)) {
         case 'p': return PAWN;
         case 'n': return KNIGHT;
@@ -27,14 +28,14 @@ Piece_type Piece::get_piece_type(const char char_representation) {
         case 'r': return ROOK;
         case 'q': return QUEEN;
         case 'k': return KING;
-        default: return -1;
+        default: return {};
     }
 }
 
-Piece_type Piece::get_promotion_piece_type(const char char_representation_lowercase) {
+std::optional<Piece_type> get_promotion_piece_type(const char char_representation_lowercase) {
     if (char_representation_lowercase == 'n') return KNIGHT;
     if (char_representation_lowercase == 'b') return BISHOP;
     if (char_representation_lowercase == 'r') return ROOK;
     if (char_representation_lowercase == 'q') return QUEEN;
-    return -1;
+    return {};
 }
