@@ -45,7 +45,7 @@ class Move {
         Move() {}
 
         Move(Square start_square, Square end_square) {
-            this->set_start_square(start_square); 
+            this->set_start_square(start_square);
             this->set_end_square(end_square);
         }
 
@@ -54,8 +54,9 @@ class Move {
             const int start_y = 8 - (uci_notation[1] - '0');
             const int end_x = uci_notation[2] - 'a';
             const int end_y = 8 - (uci_notation[3] - '0');
-            this->set_start_square(board.get_square(start_x, start_y));
-            this->set_end_square(board.get_square(end_x, end_y));
+            const Square start = board.get_square(start_x, start_y);
+            const Square end = board.get_square(end_x, end_y);
+            Move move = Move(start, end);
 
             if (uci_notation.length() == 5) {
                 const char promotion_piece = uci_notation[4];
@@ -87,7 +88,7 @@ class Move {
             this->captured_piece = captured_piece; 
         }
 
-        bool is_castling_move() {
+        bool is_castling_move() const {
             return castling_move;
         }
 
@@ -95,7 +96,7 @@ class Move {
             this->castling_move = castling_move;
         }
 
-        bool is_promotion() {
+        bool is_promotion() const {
             return promotion;
         }
 
@@ -111,7 +112,7 @@ class Move {
             this->promotion_piece = promotion_piece;
         }
 
-        bool is_en_passant() {
+        bool is_en_passant() const {
             return en_passant;
         }
 
