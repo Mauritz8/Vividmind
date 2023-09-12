@@ -526,11 +526,11 @@ std::string Move::move_to_uci_notation() const {
     const std::string files = "abcdefgh";
     const std::string ranks = "87654321";
 
-    std::string uci_notation = 
-        std::to_string(files[this->get_start_square().get_x()]) + 
-        std::to_string(ranks[this->get_start_square().get_y()]) +
-        std::to_string(files[this->get_end_square().get_x()]) + 
-        std::to_string(ranks[this->get_end_square().get_y()]);
+    std::string uci_notation;
+    uci_notation += files[this->get_start_square().get_x()];
+    uci_notation += ranks[this->get_start_square().get_y()];
+    uci_notation += files[this->get_end_square().get_x()];
+    uci_notation += ranks[this->get_end_square().get_y()];
 
     if (this->get_promotion_piece().has_value()) {
         uci_notation += tolower(get_char_representation(this->get_promotion_piece().value()));
