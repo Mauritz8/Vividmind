@@ -14,26 +14,22 @@ class Square {
         Square() {}
 
         Square(int x, int y) {
-            set_x(x);
-            set_y(y);
+            this->x = x;
+            this->y = y;
+            this->piece = {};
         }
 
         Square(int x, int y, Piece piece) : piece(piece) {
-            Square(x, y);
-            this->piece.value() = piece;
+            this->x = x;
+            this->y = y;
+            this->piece = piece;
         }
 
         int get_x() const {
             return x;
         }
-        void set_x(int x) {
-            this->x = x;
-        } 
         int get_y() const {
             return y;
-        }
-        void set_y(int y) {
-            this->y = y;
         }
         std::optional<Piece> get_piece() const {
             return piece;

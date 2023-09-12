@@ -2,32 +2,43 @@
 #define BOARD_H
 
 #include "square.h"
+#include <array>
+#include <optional>
 #include <string>
+#include <vector>
 
 class Board {
     private:
-        Square squares[8][8];
+        std::vector<std::vector<Square>> squares;
         Color player_to_move;
 
-        void setup_pieces(int row, const Piece_type* order, Color color);
+        void setup_pieces(int row, std::vector<Piece_type> order, Color color);
         void setup_pawns(int row, Color color);
         int place_pieces(const std::string fen_piece_placement_field);
         int set_player_to_move(const std::string fen_active_color_field);
 
     public:
-        Board() {
-            for (int i = 0; i < 8; i++) {
-                for (int j = 0; j < 8; j++) {
-                    get_square(j, i) = Square(j, i);
+        Board(int size) {
+            for (int i = 0; i < size; i++) {
+                std::vector<Square> row;
+                for (int j = 0; j < size; j++) {
+                    row.push_back(Square(j, i));
                 }
+                squares.push_back(row);
             }
         }
 
         Board(std::string fen);
 
-        Square get_square(int x, int y) const { 
-            return squares[y][x]; 
+        const Square& get_square(int x, int y) const { 
+            return squares.at(y).at(x); 
         }
+
+        void set_square(int x, int y, const std::optional<Piece> piece) {
+            Square& square = squares.at(y).at(x); 
+            square.set_piece(piece);
+        }
+
         Color get_player_to_move() const { 
             return player_to_move; 
         }
@@ -36,8 +47,7 @@ class Board {
         }
 
         void setup_board();
-        void show_board();
-        Board get_position_from_fen(char* fen);
+        void show_board() const;
 };
 
 #endif

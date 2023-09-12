@@ -9,7 +9,7 @@
 #include "game_state.h"
 #include "piece.h"
 
-bool is_checkmate(const Board& board, std::vector<Move> move_history) {
+bool is_checkmate(const Board& board, const std::vector<Move> move_history) {
    if (!is_check(board)) {
        return false;
    }

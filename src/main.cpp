@@ -9,7 +9,7 @@
 #include "game_state.h"
 
 int main(void) {
-    Board board;
+    Board board = Board(8);
     board.setup_board();
     std::vector<Move> move_history;
 

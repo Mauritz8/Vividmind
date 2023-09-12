@@ -1,3 +1,4 @@
+#include <iostream>
 #include <optional>
 #include <cctype>
 #include <string>
@@ -62,6 +63,10 @@ static bool is_clear_line(const Square& square1, const Square& square2, const Bo
 }
 
 static bool is_clear_diagonal(const Square& square1, const Square& square2, const Board& board) {
+    if (square1 == square2) {
+        return true;
+    }
+
     const int x_direction = (square2.get_x() - square1.get_x()) > 0 ? 1 : -1;
     const int y_direction = (square2.get_y() - square1.get_y()) > 0 ? 1 : -1;
 
@@ -227,17 +232,17 @@ bool Move::validate_threatened_move(const Board& board) const {
 
     switch (this->get_start_square().get_piece().value().get_piece_type()) {
         case PAWN:
-            return is_valid_pawn_move_threat(board);
+            return this->is_valid_pawn_move_threat(board);
         case KNIGHT:
-            return is_valid_knight_move();
+            return this->is_valid_knight_move();
         case BISHOP:
-            return is_valid_bishop_move(board);
+            return this->is_valid_bishop_move(board);
         case ROOK:
-            return is_valid_rook_move(board);
+            return this->is_valid_rook_move(board);
         case QUEEN:
-            return is_valid_queen_move(board);
+            return this->is_valid_queen_move(board);
         case KING:
-            return is_valid_king_move();
+            return this->is_valid_king_move();
     }
 }
 

@@ -1,4 +1,3 @@
-#include <iostream>
 #include <optional>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -10,7 +9,7 @@
 #include "piece.h"
 #include "square.h"
 
-static Square get_king_square(const Color color, const Board& board) {
+static Square get_king_square(Color color, const Board& board) {
     for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 8; j++) {
             Square square = board.get_square(j, i);

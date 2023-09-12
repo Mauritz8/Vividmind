@@ -9,14 +9,13 @@
 #include <vector>
 
 int main() {
-    Board board;
+    Board board = Board(8);
     board.setup_board();
     std::vector<Move> move_history;
 
     while (true) {
         board.show_board();
 
-            std::cout << "1\n";
         if (is_checkmate(board, move_history)) {
             Color winner = board.get_player_to_move() == WHITE ? BLACK : WHITE;
             std::cout << (winner == WHITE ? "White" : "Black") << " won!\n";
