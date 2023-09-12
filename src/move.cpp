@@ -84,7 +84,7 @@ static bool is_clear_diagonal(const Square& square1, const Square& square2, cons
 
 bool Move::is_valid_rook_move(const Board& board) const {
     Square start_square = this->get_start_square();
-    Square end_square = this->get_start_square();
+    Square end_square = this->get_end_square();
     if (!is_same_line(start_square, end_square)) {
         return false;
     }
@@ -96,7 +96,7 @@ bool Move::is_valid_rook_move(const Board& board) const {
 
 bool Move::is_valid_bishop_move(const Board& board) const {
     Square start_square = this->get_start_square();
-    Square end_square = this->get_start_square();
+    Square end_square = this->get_end_square();
     if (!is_same_diagonal(start_square, end_square)) {
         return false;
     }
