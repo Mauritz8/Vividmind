@@ -31,7 +31,7 @@ int main() {
             std::string move_uci;
             std::cout << "Move: ";
             std::getline(std::cin, move_uci);
-            move = Move(move_uci);
+            move = Move(move_uci, board);
 
             if (move.is_legal_move(board, move_history)) {
                 legal_move = true;

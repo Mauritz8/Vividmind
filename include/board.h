@@ -33,6 +33,9 @@ class Board {
         const Square& get_square(int x, int y) const { 
             return squares.at(y).at(x); 
         }
+        Square& get_square(int x, int y) { 
+            return squares.at(y).at(x); 
+        }
 
         void set_square(int x, int y, const std::optional<Piece> piece) {
             Square& square = squares.at(y).at(x); 

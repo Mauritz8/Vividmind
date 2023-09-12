@@ -34,7 +34,7 @@ static void handle_position_command(char* position, Board& board, std::vector<Mo
     while ((token = strtok(NULL, " ")) != NULL) {
         if (strcmp(token, "moves") == 0) {
             while ((token = strtok(NULL, " ")) != NULL) {
-                Move move = Move(token);
+                Move move = Move(token, board);
                 move.make_appropriate_move(board, move_history);
             }
         }

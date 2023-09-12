@@ -10,8 +10,8 @@
 #include "game_state.h"
 
 void Move::make_move(Board& board) {
-    Square start_square = board.get_square(this->get_start_square().get_x(), this->get_start_square().get_y()); 
-    Square end_square = board.get_square(this->get_end_square().get_x(), this->get_end_square().get_y()); 
+    Square& start_square = board.get_square(this->get_start_square().get_x(), this->get_start_square().get_y()); 
+    Square& end_square = board.get_square(this->get_end_square().get_x(), this->get_end_square().get_y()); 
     if (end_square.get_piece().has_value()) {
         this->captured_piece = end_square.get_piece();
     } else {
@@ -22,8 +22,8 @@ void Move::make_move(Board& board) {
 }
 
 void Move::undo_move(Board& board) {
-    Square start_square = board.get_square(this->get_start_square().get_x(), this->get_start_square().get_y()); 
-    Square end_square = board.get_square(this->get_end_square().get_x(), this->get_end_square().get_y()); 
+    Square& start_square = board.get_square(this->get_start_square().get_x(), this->get_start_square().get_y()); 
+    Square& end_square = board.get_square(this->get_end_square().get_x(), this->get_end_square().get_y()); 
     start_square.set_piece(end_square.get_piece());
     if (this->get_captured_piece().has_value()) {
         end_square.set_piece(this->get_captured_piece());
@@ -182,6 +182,10 @@ static bool is_square_outside_board(const Square& square) {
 bool Move::validate_move_basic(const Board& board) const {
     Square start_square = this->get_start_square();
     Square end_square = this->get_end_square();
+
+    if (!start_square.get_piece().has_value()) {
+        return false;
+    }
 
     if (start_square.get_piece().value().get_color() != board.get_player_to_move()) {
         return false;

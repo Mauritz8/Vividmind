@@ -49,13 +49,13 @@ class Move {
             this->set_end_square(end_square);
         }
 
-        Move(std::string uci_notation) {
+        Move(std::string uci_notation, Board& board) {
             const int start_x = uci_notation[0] - 'a';
             const int start_y = 8 - (uci_notation[1] - '0');
             const int end_x = uci_notation[2] - 'a';
             const int end_y = 8 - (uci_notation[3] - '0');
-            this->set_start_square(Square(start_x, start_y));
-            this->set_end_square(Square(end_x, end_y));
+            this->set_start_square(board.get_square(start_x, start_y));
+            this->set_end_square(board.get_square(end_x, end_y));
 
             if (uci_notation.length() == 5) {
                 const char promotion_piece = uci_notation[4];
