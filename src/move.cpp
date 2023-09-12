@@ -502,6 +502,12 @@ void Move::make_appropriate_move(Board& board, std::vector<Move> move_history) {
 }
 
 void Move::undo_appropriate_move(Board& board, std::vector<Move> move_history) {
+    Square& end_square = board.get_square(this->get_end_square().get_x(), this->get_end_square().get_y());
+    if (!end_square.get_piece().has_value()) {
+        std::cout << "Can't undo move\n"; 
+        return;
+    }
+
     if (this->is_castling_move()) {
         this->undo_castling_move(board);
     } else if (this->is_en_passant()) {
