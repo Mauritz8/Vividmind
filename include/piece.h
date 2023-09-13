@@ -7,29 +7,17 @@ typedef enum {PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING} Piece_type;
 typedef enum {WHITE, BLACK} Color;
 
 class Piece {
+    public:
+        Piece(Piece_type piece_type, Color color);
+
+        Piece_type get_piece_type() const;
+        void set_piece_type(Piece_type piece_type);
+        Color get_color() const;
+        void set_color(Color color);
+
     private:
         Piece_type piece_type;
         Color color;
-
-    public:
-        Piece(Piece_type piece_type, Color color) {
-            set_piece_type(piece_type);
-            set_color(color);
-        }
-
-        Piece_type get_piece_type() const {
-            return piece_type;
-        }
-        void set_piece_type(Piece_type piece_type) {
-            this->piece_type = piece_type;
-        }
-        Color get_color() const {
-            return color;
-        }
-        void set_color(Color color) {
-            this->color = color;
-        }
-
 };
 
 char get_char_representation(Piece_type piece_type);

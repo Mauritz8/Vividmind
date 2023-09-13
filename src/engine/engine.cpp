@@ -11,22 +11,6 @@
 #include "move.h"
 #include "piece.h"
 
-#define KING_SCORE 200
-#define QUEEN_SCORE 9
-#define ROOK_SCORE 5
-#define BISHOP_SCORE 3
-#define KNIGHT_SCORE 3
-#define PAWN_SCORE 1
-
-typedef struct {
-    int kings;
-    int queens;
-    int rooks;
-    int bishops;
-    int knights;
-    int pawns;
-} PieceCounts;
-
 
 static PieceCounts get_piece_counts(const Board& board, Color color) {
     PieceCounts piece_counts = {0, 0, 0, 0, 0, 0};

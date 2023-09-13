@@ -3,6 +3,28 @@
 
 #include "piece.h"
 
+
+Piece::Piece(Piece_type piece_type, Color color) {
+    set_piece_type(piece_type);
+    set_color(color);
+}
+
+Piece_type Piece::get_piece_type() const {
+    return piece_type;
+}
+
+void Piece::set_piece_type(Piece_type piece_type) {
+    this->piece_type = piece_type;
+}
+
+Color Piece::get_color() const {
+    return color;
+}
+
+void Piece::set_color(Color color) {
+    this->color = color;
+}
+
 char get_char_representation(Piece_type piece_type) {
     switch (piece_type) {
         case PAWN:
