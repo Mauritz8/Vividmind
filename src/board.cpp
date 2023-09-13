@@ -25,16 +25,6 @@ void Board::setup_pawns(int row, Color color) {
     }
 }
 
-void Board::setup_board() {
-    this->set_player_to_move(WHITE);
-    std::vector<Piece_type> PIECE_ORDER = 
-        {ROOK, KNIGHT, BISHOP, QUEEN, KING, BISHOP, KNIGHT, ROOK};
-    this->setup_pieces(0, PIECE_ORDER, BLACK);
-    this->setup_pawns(1, BLACK);
-    this->setup_pieces(7, PIECE_ORDER, WHITE);
-    this->setup_pawns(6, WHITE);
-}
-
 void Board::show_board() const {
     for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 8; j++) {
@@ -89,8 +79,32 @@ int Board::set_player_to_move(const std::string fen_active_color_field) {
     return EXIT_SUCCESS;
 }
 
-Board::Board(std::string fen) {
-    *this = Board(8);
+Board Board::get_empty_board() {
+    Board board;
+    for (int i = 0; i < 8; i++) {
+        std::vector<Square> row;
+        for (int j = 0; j < 8; j++) {
+            row.push_back(Square(j, i));
+        }
+        board.squares.push_back(row);
+    }
+    return board;
+}
+
+Board Board::get_starting_position() {
+    Board board = get_empty_board();
+    board.set_player_to_move(WHITE);
+    std::vector<Piece_type> PIECE_ORDER = 
+        {ROOK, KNIGHT, BISHOP, QUEEN, KING, BISHOP, KNIGHT, ROOK};
+    board.setup_pieces(0, PIECE_ORDER, BLACK);
+    board.setup_pawns(1, BLACK);
+    board.setup_pieces(7, PIECE_ORDER, WHITE);
+    board.setup_pawns(6, WHITE);
+    return board;
+}
+
+Board Board::get_position_from_fen(std::string fen) {
+    Board board = Board::get_empty_board();
     const std::string piece_placement_field = fen.substr(0, fen.find(" "));
     const std::string active_color_field =
         fen.substr(piece_placement_field.length(), fen.find(" "));
@@ -113,6 +127,8 @@ Board::Board(std::string fen) {
                 en_passant_target_square_field.length() +
                 halfmove_clock_field.length(), fen.find(" "));
 
-    const int place_pieces_status = this->place_pieces(piece_placement_field);
-    const int set_player_to_move_status = this->set_player_to_move(active_color_field);
+    const int place_pieces_status = board.place_pieces(piece_placement_field);
+    const int set_player_to_move_status = board.set_player_to_move(active_color_field);
+
+    return board;
 };

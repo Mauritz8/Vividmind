@@ -18,17 +18,12 @@ class Board {
         int set_player_to_move(const std::string fen_active_color_field);
 
     public:
-        Board(int size) {
-            for (int i = 0; i < size; i++) {
-                std::vector<Square> row;
-                for (int j = 0; j < size; j++) {
-                    row.push_back(Square(j, i));
-                }
-                squares.push_back(row);
-            }
-        }
+        Board() {}
 
-        Board(std::string fen);
+        static Board get_empty_board();
+        static Board get_starting_position();
+        static Board get_position_from_fen(std::string fen);
+        
 
         const Square& get_square(int x, int y) const { 
             return squares.at(y).at(x); 
@@ -49,7 +44,6 @@ class Board {
             this->player_to_move = player_to_move; 
         }
 
-        void setup_board();
         void show_board() const;
 };
 

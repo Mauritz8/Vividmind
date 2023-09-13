@@ -21,7 +21,7 @@ static void handle_isready_command() {
 }
 
 static void handle_ucinewgame_command(Board& board, std::vector<Move>& move_history) {
-    board.setup_board(); 
+    board = Board::get_starting_position();
     move_history = {};
 }
 
@@ -35,7 +35,9 @@ static void handle_position_command(char* position, Board& board, std::vector<Mo
         if (strcmp(token, "moves") == 0) {
             while ((token = strtok(NULL, " ")) != NULL) {
                 Move move = Move(token, board);
-                move.make_appropriate_move(board, move_history);
+                if (move.is_legal_move(board, move_history)) {
+                    move.make_appropriate_move(board, move_history);
+                }
             }
         }
     }

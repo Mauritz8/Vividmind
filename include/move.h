@@ -54,9 +54,10 @@ class Move {
             const int start_y = 8 - (uci_notation[1] - '0');
             const int end_x = uci_notation[2] - 'a';
             const int end_y = 8 - (uci_notation[3] - '0');
-            const Square start = board.get_square(start_x, start_y);
-            const Square end = board.get_square(end_x, end_y);
-            Move move = Move(start, end);
+            const Square& start = board.get_square(start_x, start_y);
+            const Square& end = board.get_square(end_x, end_y);
+            this->set_start_square(start);
+            this->set_end_square(end);
 
             if (uci_notation.length() == 5) {
                 const char promotion_piece = uci_notation[4];

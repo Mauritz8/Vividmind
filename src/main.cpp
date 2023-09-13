@@ -9,8 +9,7 @@
 #include "game_state.h"
 
 int main(void) {
-    Board board = Board(8);
-    board.setup_board();
+    Board board = Board::get_starting_position();
     std::vector<Move> move_history;
 
     const int UCI_COMMAND_CHARACTER_LIMIT = 2048;
