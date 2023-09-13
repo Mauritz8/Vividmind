@@ -1,12 +1,13 @@
+#include <iostream>
+#include <string>
+#include <vector>
+
 #include "board.h"
 #include "game_state.h"
 #include "move.h"
 #include "game_over_conditions.h"
 #include "piece.h"
 #include "engine/engine.h"
-#include <iostream>
-#include <string>
-#include <vector>
 
 int main() {
     Board board = Board::get_starting_position();

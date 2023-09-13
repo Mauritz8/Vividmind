@@ -1,8 +1,5 @@
 #include <limits.h>
 #include <optional>
-#include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
 #include <vector>
 
 #include "board.h"

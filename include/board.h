@@ -2,7 +2,6 @@
 #define BOARD_H
 
 #include "square.h"
-#include <array>
 #include <optional>
 #include <string>
 #include <vector>

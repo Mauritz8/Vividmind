@@ -1,8 +1,5 @@
-#include <array>
 #include <iostream>
 #include <optional>
-#include <stdio.h>
-#include <stdlib.h>
 #include <cctype>
 #include <string>
 #include <vector>
