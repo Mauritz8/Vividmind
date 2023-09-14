@@ -1,5 +1,2 @@
-/obj/
-/engine
-/terminal_game
-/unit_tests
+/build/
 /.vscode
