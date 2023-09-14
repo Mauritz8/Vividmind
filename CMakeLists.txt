@@ -33,8 +33,6 @@ target_include_directories(chess_engine PRIVATE
     include
     include/engine
 )
-target_link_libraries(chess_engine gtest_main)
-
 
 add_executable(chess_cli_game 
     src/terminal_game.cpp
@@ -44,4 +42,24 @@ target_include_directories(chess_cli_game PRIVATE
     include
     include/engine
 )
-target_link_libraries(chess_cli_game gtest_main)
+
+
+enable_testing()
+
+add_executable(unit_tests
+    tests/src/test_bishop_moves.cpp
+    tests/src/test_knight_moves.cpp
+    tests/src/test_rook_moves.cpp
+    tests/src/test_move_generator.cpp
+    ${COMMON_SOURCES}
+)
+target_include_directories(unit_tests PRIVATE
+    include
+)
+target_link_libraries(
+    unit_tests
+    GTest::gtest_main
+)
+
+include(GoogleTest)
+gtest_discover_tests(unit_tests)
