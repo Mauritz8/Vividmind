@@ -28,8 +28,8 @@ class Board {
 
         void setup_pieces(int row, std::vector<Piece_type> order, Color color);
         void setup_pawns(int row, Color color);
-        int place_pieces(const std::string fen_piece_placement_field);
-        int set_player_to_move(const std::string fen_active_color_field);
+        void place_pieces(const std::string fen_piece_placement_field);
+        void set_player_to_move(const std::string fen_active_color_field);
 };
 
 #endif
