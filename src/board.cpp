@@ -118,7 +118,6 @@ void Board::setup_pawns(int row, Color color) {
 int Board::place_pieces(const std::string fen_piece_placement_field) {
     for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 8; j++) {
-            Square square = this->get_square(j, i);
             char ch = fen_piece_placement_field.at(i + j);
             std::string pieces = "rnbqkp";
             if (pieces.find(tolower(ch)) != std::string::npos) {
@@ -128,12 +127,12 @@ int Board::place_pieces(const std::string fen_piece_placement_field) {
                 } else {
                     color = WHITE;
                 }
-                Piece piece(get_piece_type(ch).value(), color);
+                Piece piece = Piece(get_piece_type(ch).value(), color);
+                this->set_square(j, i, piece);
             } else if (ch >= '1' && ch <= '8') {
                 int num = ch - '0';
                 j += num - 1;
             } else if (ch == '/') {
-                j--;
                 continue;
             } else {
                 return EXIT_FAILURE;
