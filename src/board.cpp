@@ -56,8 +56,8 @@ Board Board::get_position_from_fen(std::string fen) {
                 en_passant_target_square_field.length() +
                 halfmove_clock_field.length(), fen.find(" "));
 
-    const int place_pieces_status = board.place_pieces(piece_placement_field);
-    const int set_player_to_move_status = board.set_player_to_move(active_color_field);
+    board.place_pieces(piece_placement_field);
+    board.set_player_to_move(active_color_field);
 
     return board;
 }
@@ -115,41 +115,27 @@ void Board::setup_pawns(int row, Color color) {
     }
 }
 
-int Board::place_pieces(const std::string fen_piece_placement_field) {
+void Board::place_pieces(const std::string fen_piece_placement_field) {
     for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 8; j++) {
-            Square square = this->get_square(j, i);
             char ch = fen_piece_placement_field.at(i + j);
             std::string pieces = "rnbqkp";
             if (pieces.find(tolower(ch)) != std::string::npos) {
-                Color color;
-                if (islower(ch)) {
-                    color = BLACK;
-                } else {
-                    color = WHITE;
-                }
-                Piece piece(get_piece_type(ch).value(), color);
+                Color color = islower(ch) ? BLACK : WHITE;
+                Piece piece = Piece(get_piece_type(ch).value(), color);
+                this->set_square(j, i, piece);
             } else if (ch >= '1' && ch <= '8') {
                 int num = ch - '0';
                 j += num - 1;
-            } else if (ch == '/') {
-                j--;
-                continue;
-            } else {
-                return EXIT_FAILURE;
             }
         }
     }
-    return EXIT_SUCCESS;
 }
 
-int Board::set_player_to_move(const std::string fen_active_color_field) {
+void Board::set_player_to_move(const std::string fen_active_color_field) {
     if (fen_active_color_field.at(0) == 'w') {
         this->set_player_to_move(WHITE);
     } else if (fen_active_color_field.at(0) == 'b') {
         this->set_player_to_move(BLACK);
-    } else {
-        return EXIT_FAILURE;
-    }
-    return EXIT_SUCCESS;
+    } 
 }
