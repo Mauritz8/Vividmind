@@ -1,4 +1,6 @@
 #include <optional>
+#include <stdexcept>
+#include <string>
 #include <vector>
 
 #include "board.h"
@@ -17,6 +19,8 @@ static Square get_king_square(Color color, const Board& board) {
             }
         }
     }
+    std::string color_str = color == WHITE ? "white" : "black";
+    throw std::invalid_argument("There is no " +  color_str + " king on the board");
 }
 
 static std::vector<Square> get_threatened_squares(Square& square, const Board& board) {
@@ -104,7 +108,12 @@ Color get_opposite_color(const Color color) {
 
 bool is_check(const Board& board) {
     const Color opponent_color = get_opposite_color(board.get_player_to_move());
-    const Square opponent_king_square = get_king_square(opponent_color, board);
+    Square opponent_king_square;
+    try {
+        opponent_king_square = get_king_square(opponent_color, board);
+    } catch (const std::invalid_argument& e) {
+        return false;  
+    }
 
     const std::vector<Square> threatened_squares = get_all_threatened_squares(board.get_player_to_move(), board);
     for (int i = 0; i < threatened_squares.size(); i++) {
