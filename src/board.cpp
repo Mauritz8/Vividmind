@@ -34,27 +34,24 @@ Board Board::get_starting_position() {
 
 Board Board::get_position_from_fen(std::string fen) {
     Board board = Board::get_empty_board();
+
     const std::string piece_placement_field = fen.substr(0, fen.find(" "));
-    const std::string active_color_field =
-        fen.substr(piece_placement_field.length(), fen.find(" "));
-    const std::string castling_availability_field =
-        fen.substr(piece_placement_field.length() +
-                active_color_field.length(), fen.find(" "));
-    const std::string en_passant_target_square_field =
-        fen.substr(piece_placement_field.length() +
-                active_color_field.length() +
-                castling_availability_field.length(), fen.find(" "));
-    const std::string halfmove_clock_field =
-        fen.substr(piece_placement_field.length() +
-                active_color_field.length() +
-                castling_availability_field.length() +
-                en_passant_target_square_field.length(), fen.find(" "));
-    const std::string fullmove_number_field =
-        fen.substr(piece_placement_field.length() +
-                active_color_field.length() +
-                castling_availability_field.length() +
-                en_passant_target_square_field.length() +
-                halfmove_clock_field.length(), fen.find(" "));
+    fen.erase(0, piece_placement_field.length() + 1);
+
+    const std::string active_color_field = fen.substr(0, fen.find(" "));
+    fen.erase(0, active_color_field.length() + 1);
+
+    const std::string castling_availability_field = fen.substr(0, fen.find(" "));
+    fen.erase(0, castling_availability_field.length() + 1);
+
+    const std::string en_passant_target_square_field = fen.substr(0, fen.find(" "));
+    fen.erase(0, en_passant_target_square_field.length() + 1);
+
+    const std::string halfmove_clock_field = fen.substr(0, fen.find(" "));
+    fen.erase(0, halfmove_clock_field.length() + 1);
+
+    const std::string fullmove_number_field = fen.substr(0, fen.find(" "));
+    fen.erase(0, fullmove_number_field.length() + 1);
 
     board.place_pieces(piece_placement_field);
     board.set_player_to_move(active_color_field);
