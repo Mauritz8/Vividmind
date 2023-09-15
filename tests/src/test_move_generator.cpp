@@ -50,7 +50,7 @@ TEST(test_move_generation, test_move_generation_on_initial_position) {
 }
 
 TEST(test_move_generation, test_move_generation_on_position_2) {
-    const std::string fen = "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq -"; 
+    const std::string fen = "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq -"; 
     Board board = Board::get_position_from_fen(fen);
     std::vector<Move> move_history;
 
