@@ -20,14 +20,14 @@ class Board {
         Color get_player_to_move() const;
         void set_player_to_move(Color player_to_move);
 
-        void show_board() const;
+        void show() const;
         void switch_player_to_move();
 
     private:
         std::vector<std::vector<Square>> squares;
         Color player_to_move;
 
-        void setup_pieces(int row, const std::vector<Piece_type>& order, Color color);
+        void setup_pieces(int row, const std::vector<Piece_type> order, Color color);
         void setup_pawns(int row, Color color);
         void place_pieces(const std::string& fen_piece_placement_field);
         void set_player_to_move(const std::string& fen_active_color_field);

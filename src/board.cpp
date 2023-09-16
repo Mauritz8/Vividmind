@@ -82,7 +82,7 @@ void Board::set_player_to_move(Color player_to_move) {
 }
 
 
-void Board::show_board() const {
+void Board::show() const {
     for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 8; j++) {
             const std::optional<Piece>& piece = this->get_square(j, i).get_piece();
@@ -105,9 +105,9 @@ void Board::switch_player_to_move() {
     }
 }
 
-void Board::setup_pieces(int row, const std::vector<Piece_type>& order, Color color) {
+void Board::setup_pieces(int row, const std::vector<Piece_type> order, Color color) {
     for (int i = 0; i < order.size(); i++) {
-        const Piece piece = Piece(order[i], color);
+        const Piece piece = Piece(order.at(i), color);
         this->set_square(i, row, piece);
     }
 }

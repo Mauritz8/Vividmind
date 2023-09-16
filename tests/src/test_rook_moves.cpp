@@ -17,13 +17,13 @@ TEST(test_rook_moves, test_rook_move_valid_move) {
     move.set_start_square(board.get_square(3, 4));
 
     move.set_end_square(board.get_square(3, 1));
-    EXPECT_TRUE(move.is_legal_move(board, move_history));
+    EXPECT_TRUE(move.is_legal(board, move_history));
     move.set_end_square(board.get_square(7, 4));
-    EXPECT_TRUE(move.is_legal_move(board, move_history));
+    EXPECT_TRUE(move.is_legal(board, move_history));
     move.set_end_square(board.get_square(3, 5));
-    EXPECT_TRUE(move.is_legal_move(board, move_history));
+    EXPECT_TRUE(move.is_legal(board, move_history));
     move.set_end_square(board.get_square(1, 4));
-    EXPECT_TRUE(move.is_legal_move(board, move_history));
+    EXPECT_TRUE(move.is_legal(board, move_history));
 }
 
 TEST(test_rook_moves, test_rook_move_invalid_pattern) {
@@ -37,15 +37,15 @@ TEST(test_rook_moves, test_rook_move_invalid_pattern) {
     move.set_start_square(board.get_square(3, 3));
 
     move.set_end_square(board.get_square(4, 2));
-    EXPECT_FALSE(move.is_legal_move(board, move_history));
+    EXPECT_FALSE(move.is_legal(board, move_history));
     move.set_end_square(board.get_square(5, 5));
-    EXPECT_FALSE(move.is_legal_move(board, move_history));
+    EXPECT_FALSE(move.is_legal(board, move_history));
     move.set_end_square(board.get_square(2, 6));
-    EXPECT_FALSE(move.is_legal_move(board, move_history));
+    EXPECT_FALSE(move.is_legal(board, move_history));
     move.set_end_square(board.get_square(0, 4));
-    EXPECT_FALSE(move.is_legal_move(board, move_history));
+    EXPECT_FALSE(move.is_legal(board, move_history));
     move.set_end_square(board.get_square(0, 1));
-    EXPECT_FALSE(move.is_legal_move(board, move_history));
+    EXPECT_FALSE(move.is_legal(board, move_history));
 }
 
 TEST(test_rook_moves, test_rook_move_jump_over_pieces) {
@@ -61,11 +61,11 @@ TEST(test_rook_moves, test_rook_move_jump_over_pieces) {
     move.set_start_square(board.get_square(3, 4));
 
     move.set_end_square(board.get_square(3, 0));
-    EXPECT_FALSE(move.is_legal_move(board, move_history));
+    EXPECT_FALSE(move.is_legal(board, move_history));
     move.set_end_square(board.get_square(3, 1));
-    EXPECT_FALSE(move.is_legal_move(board, move_history));
+    EXPECT_FALSE(move.is_legal(board, move_history));
     move.set_end_square(board.get_square(3, 2));
-    EXPECT_FALSE(move.is_legal_move(board, move_history));
+    EXPECT_FALSE(move.is_legal(board, move_history));
 }
 
 TEST(test_rook_moves, test_rook_move_same_color_on_target_square) {
@@ -78,7 +78,7 @@ TEST(test_rook_moves, test_rook_move_same_color_on_target_square) {
     board.set_square(5, 4, piece_of_same_color);
 
     Move move = Move(board.get_square(3, 4), board.get_square(5, 4));
-    EXPECT_FALSE(move.is_legal_move(board, move_history));
+    EXPECT_FALSE(move.is_legal(board, move_history));
 }
 
 TEST(test_rook_moves, test_rook_move_capture_opponent_piece) {
@@ -91,5 +91,5 @@ TEST(test_rook_moves, test_rook_move_capture_opponent_piece) {
     board.set_square(3, 7, piece_of_opposite_color);
 
     Move move = Move(board.get_square(3, 4), board.get_square(3, 7));
-    EXPECT_TRUE(move.is_legal_move(board, move_history));
+    EXPECT_TRUE(move.is_legal(board, move_history));
 }

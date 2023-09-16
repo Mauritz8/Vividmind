@@ -31,7 +31,7 @@ static std::vector<Square> get_threatened_squares(const Square& square, const Bo
     for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 8; j++) {
             move.set_end_square(board.get_square(j, i));
-            if (move.validate_threatened_move(board)) {
+            if (move.is_threatened_move(board)) {
                 threatened_squares.push_back(move.get_end_square());
             }
         }
@@ -68,8 +68,8 @@ static std::vector<Move> get_legal_moves(const Square& square, const Board& boar
             } else {
                 move.set_promotion_piece({});
             }
-            if (move.is_legal_move(board, move_history)) {
-                if (move.is_valid_promotion_move(board)) {
+            if (move.is_legal(board, move_history)) {
+                if (move.is_valid_promotion(board)) {
                     legal_moves.push_back(move);
                     const std::array<Piece_type, 3> other_promotion_pieces = {KNIGHT, BISHOP, ROOK};
                     for (int i = 0; i < other_promotion_pieces.size(); i++) {

@@ -70,9 +70,9 @@ static int nega_max(int depth, Board& board, std::vector<Move>& move_history) {
     std::vector<Move> legal_moves = get_all_legal_moves(board, move_history);
     for (int i = 0; i < legal_moves.size(); i++) {
         Move move = legal_moves.at(i);
-        move.make_appropriate_move(board, move_history);
+        move.make_appropriate(board, move_history);
         const int score = -nega_max(depth - 1, board, move_history);
-        move.undo_appropriate_move(board, move_history);
+        move.undo_appropriate(board, move_history);
         if (score > max) {
             max = score;
         }
@@ -89,9 +89,9 @@ Move get_best_move(int depth, const Board& board, const std::vector<Move>& move_
     const std::vector<Move> legal_moves = get_all_legal_moves(board_copy, move_history_copy);
     for (int i = 0; i < legal_moves.size(); i++) {
         Move move = legal_moves.at(i);
-        move.make_appropriate_move(board_copy, move_history_copy);
+        move.make_appropriate(board_copy, move_history_copy);
         const int score = -nega_max(depth, board_copy, move_history_copy);
-        move.undo_appropriate_move(board_copy, move_history_copy);
+        move.undo_appropriate(board_copy, move_history_copy);
         if (score > max) {
             max = score;
             best_move = legal_moves.at(i);

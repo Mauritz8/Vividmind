@@ -17,13 +17,13 @@ TEST(test_bishop_moves, test_bishop_move_valid_move) {
     move.set_start_square(board.get_square(3, 4));
 
     move.set_end_square(board.get_square(7, 0));
-    EXPECT_TRUE(move.is_legal_move(board, move_history));
+    EXPECT_TRUE(move.is_legal(board, move_history));
     move.set_end_square(board.get_square(6, 7));
-    EXPECT_TRUE(move.is_legal_move(board, move_history));
+    EXPECT_TRUE(move.is_legal(board, move_history));
     move.set_end_square(board.get_square(1, 6));
-    EXPECT_TRUE(move.is_legal_move(board, move_history));
+    EXPECT_TRUE(move.is_legal(board, move_history));
     move.set_end_square(board.get_square(2, 3));
-    EXPECT_TRUE(move.is_legal_move(board, move_history));
+    EXPECT_TRUE(move.is_legal(board, move_history));
 }
 
 TEST(test_bishop_moves, test_bishop_move_jump_over_pieces) {
@@ -39,11 +39,11 @@ TEST(test_bishop_moves, test_bishop_move_jump_over_pieces) {
     move.set_start_square(board.get_square(3, 4));
 
     move.set_end_square(board.get_square(4, 3));
-    EXPECT_TRUE(move.is_legal_move(board, move_history));
+    EXPECT_TRUE(move.is_legal(board, move_history));
     move.set_end_square(board.get_square(6, 1));
-    EXPECT_TRUE(move.is_legal_move(board, move_history));
+    EXPECT_TRUE(move.is_legal(board, move_history));
     move.set_end_square(board.get_square(7, 0));
-    EXPECT_TRUE(move.is_legal_move(board, move_history));
+    EXPECT_TRUE(move.is_legal(board, move_history));
 }
 
 TEST(test_bishop_moves, test_bishop_move_same_color_on_target_square) {
@@ -58,7 +58,7 @@ TEST(test_bishop_moves, test_bishop_move_same_color_on_target_square) {
     Move move;
     move.set_start_square(board.get_square(3, 4));
     move.set_end_square(board.get_square(5, 2));
-    EXPECT_FALSE(move.is_legal_move(board, move_history));
+    EXPECT_FALSE(move.is_legal(board, move_history));
 }
 
 TEST(test_bishop_moves, test_bishop_move_capture_opponent_piece) {
@@ -73,5 +73,5 @@ TEST(test_bishop_moves, test_bishop_move_capture_opponent_piece) {
     Move move;
     move.set_start_square(board.get_square(3, 4));
     move.set_end_square(board.get_square(1, 6));
-    EXPECT_TRUE(move.is_legal_move(board, move_history));
+    EXPECT_TRUE(move.is_legal(board, move_history));
 }

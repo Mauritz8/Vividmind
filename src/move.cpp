@@ -75,7 +75,7 @@ std::optional<Piece_type> Move::get_promotion_piece() const {
     return promotion_piece;
 }
 
-void Move::set_promotion_piece(const std::optional<Piece_type>& promotion_piece) {
+void Move::set_promotion_piece(const std::optional<Piece_type> promotion_piece) {
     this->promotion_piece = promotion_piece;
 }
 
@@ -87,15 +87,15 @@ void Move::set_en_passant(bool en_passant) {
     this->en_passant = en_passant;
 }
 
-static bool is_square_outside_board(const Square& square) {
+static bool is_outside_board(const Square& square) {
     return square.get_x() < 0 || square.get_x() > 7 || square.get_y() < 0 || square.get_y() > 7;
 }
 
-bool Move::validate_threatened_move(const Board& board) const {
+bool Move::is_threatened_move(const Board& board) const {
     const Square& start_square = this->get_start_square();
     const Square& end_square = this->get_end_square();
 
-    if (is_square_outside_board(start_square) || is_square_outside_board(end_square)) {
+    if (is_outside_board(start_square) || is_outside_board(end_square)) {
         return false;
     }
 
@@ -123,7 +123,7 @@ bool Move::leaves_king_in_check(const Board& board, const std::vector<Move>& mov
     Move move_copy = *this;
     Board board_copy = board;
     std::vector<Move> move_history_copy = move_history;
-    move_copy.make_appropriate_move(board_copy, move_history_copy);
+    move_copy.make_appropriate(board_copy, move_history_copy);
     if (is_check(board_copy)) {
         return true;
     }
@@ -142,7 +142,7 @@ bool Move::is_promotion_move(const Board& board) const {
     return false;
 }
 
-bool Move::is_valid_promotion_move(const Board& board) const {
+bool Move::is_valid_promotion(const Board& board) const {
     const bool is_correct_promotion_piece = 
         this->get_promotion_piece() == KNIGHT ||
         this->get_promotion_piece() == BISHOP ||
@@ -156,21 +156,21 @@ bool Move::is_valid_promotion_move(const Board& board) const {
     return false;
 }
 
-bool Move::is_legal_move(const Board& board, const std::vector<Move>& move_history) const {
-    if (!this->validate_move_basic(board)) {
+bool Move::is_legal(const Board& board, const std::vector<Move>& move_history) const {
+    if (!this->validate_basic(board)) {
         return false;
     }
     if (this->leaves_king_in_check(board, move_history)) {
         return false;
     }
 
-    if (this->is_valid_promotion_move(board)) {
+    if (this->is_valid_promotion(board)) {
         return true;
     }
-    if (this->is_valid_castling_move(board, move_history)) {
+    if (this->is_valid_castling(board, move_history)) {
         return true;
     }
-    if (this->is_valid_en_passant_move(board, move_history)) {
+    if (this->is_valid_en_passant(board, move_history)) {
         return true;
     }
 
@@ -181,34 +181,34 @@ bool Move::is_legal_move(const Board& board, const std::vector<Move>& move_histo
     return true;
 }
 
-void Move::make_appropriate_move(Board& board, std::vector<Move>& move_history) {
-    if (this->is_valid_castling_move(board, move_history)) {
+void Move::make_appropriate(Board& board, std::vector<Move>& move_history) {
+    if (this->is_valid_castling(board, move_history)) {
         this->set_castling_move(true);
         this->set_promotion(false);
         this->set_en_passant(false);
-        this->make_castling_move(board);
-    } else if (this->is_valid_en_passant_move(board, move_history)) {
+        this->make_castling(board);
+    } else if (this->is_valid_en_passant(board, move_history)) {
         this->set_en_passant(true);
         this->set_castling_move(false);
         this->set_promotion(false);
-        this->make_en_passant_move(board);
-    } else if (this->is_valid_promotion_move(board)) {
+        this->make_en_passant(board);
+    } else if (this->is_valid_promotion(board)) {
         this->set_promotion(true);
         this->set_castling_move(false);
         this->set_en_passant(false);
-        this->make_promotion_move(board);
+        this->make_promotion(board);
     } else {
         this->set_castling_move(false);
         this->set_promotion(false);
         this->set_en_passant(false);
-        this->make_move(board);
+        this->make(board);
     }
 
     move_history.push_back(*this);
     board.switch_player_to_move();
 }
 
-void Move::undo_appropriate_move(Board& board, std::vector<Move>& move_history) {
+void Move::undo_appropriate(Board& board, std::vector<Move>& move_history) {
     const Square& end_square = board.get_square(this->get_end_square().get_x(), this->get_end_square().get_y());
     if (!end_square.get_piece().has_value()) {
         std::cout << "Can't undo move\n"; 
@@ -216,20 +216,20 @@ void Move::undo_appropriate_move(Board& board, std::vector<Move>& move_history) 
     }
 
     if (this->is_castling_move()) {
-        this->undo_castling_move(board);
+        this->undo_castling(board);
     } else if (this->is_en_passant()) {
-        this->undo_en_passant_move(board);
+        this->undo_en_passant(board);
     } else if (this->is_promotion()) {
-        this->undo_promotion_move(board);
+        this->undo_promotion(board);
     } else {
-        this->undo_move(board);
+        this->undo(board);
     }
 
     move_history.pop_back();
     board.switch_player_to_move();
 }
 
-std::string Move::move_to_uci_notation() const {
+std::string Move::to_uci_notation() const {
     const std::string files = "abcdefgh";
     const std::string ranks = "87654321";
 
@@ -245,7 +245,7 @@ std::string Move::move_to_uci_notation() const {
     return uci_notation;
 }
 
-void Move::make_move(Board& board) {
+void Move::make(Board& board) {
     Square& start_square = board.get_square(this->get_start_square().get_x(), this->get_start_square().get_y()); 
     Square& end_square = board.get_square(this->get_end_square().get_x(), this->get_end_square().get_y()); 
     if (end_square.get_piece().has_value()) {
@@ -257,7 +257,7 @@ void Move::make_move(Board& board) {
     start_square.set_piece({});
 }
 
-void Move::undo_move(Board& board) {
+void Move::undo(Board& board) {
     Square& start_square = board.get_square(this->get_start_square().get_x(), this->get_start_square().get_y()); 
     Square& end_square = board.get_square(this->get_end_square().get_x(), this->get_end_square().get_y()); 
     start_square.set_piece(end_square.get_piece());
@@ -411,7 +411,7 @@ bool Move::is_valid_pawn_move_threat(const Board& board) const {
     return false;
 }
 
-bool Move::validate_move_basic(const Board& board) const {
+bool Move::validate_basic(const Board& board) const {
     const Square& start_square = this->get_start_square();
     const Square& end_square = this->get_end_square();
 
@@ -423,7 +423,7 @@ bool Move::validate_move_basic(const Board& board) const {
         return false;
     }
 
-    if (is_square_outside_board(start_square) || is_square_outside_board(end_square)) {
+    if (is_outside_board(start_square) || is_outside_board(end_square)) {
         return false;
     }
 
@@ -479,7 +479,7 @@ bool Move::passes_through_check_when_castling(const Board& board, const std::vec
     while (x != end_x) {
         submove.start_square = board_copy.get_square(x, row);
         submove.end_square = board_copy.get_square(x + direction, row);
-        submove.make_appropriate_move(board_copy, move_history_copy);
+        submove.make_appropriate(board_copy, move_history_copy);
         if (is_check(board_copy)) {
             return true;
         }
@@ -488,7 +488,7 @@ bool Move::passes_through_check_when_castling(const Board& board, const std::vec
     return false;
 }
 
-bool Move::is_valid_castling_move(const Board& board, const std::vector<Move>& move_history) const {
+bool Move::is_valid_castling(const Board& board, const std::vector<Move>& move_history) const {
     const Color color = this->get_start_square().get_piece().value().get_color();
     const int starting_row = color == WHITE ? 7 : 0;
 
@@ -544,19 +544,19 @@ Move Move::get_castling_rook_move(const Board& board) const {
     return rook_move;
 }
 
-void Move::make_castling_move(Board& board) {
-    this->make_move(board);
+void Move::make_castling(Board& board) {
+    this->make(board);
     Move rook_move = this->get_castling_rook_move(board);
-    rook_move.make_move(board);
+    rook_move.make(board);
 }
 
-void Move::undo_castling_move(Board& board) {
-    this->undo_move(board);
+void Move::undo_castling(Board& board) {
+    this->undo(board);
     Move rook_move = this->get_castling_rook_move(board);
-    rook_move.undo_move(board);
+    rook_move.undo(board);
 }
 
-bool Move::is_valid_en_passant_move(const Board& board, const std::vector<Move>& move_history) const {
+bool Move::is_valid_en_passant(const Board& board, const std::vector<Move>& move_history) const {
     if (this->get_start_square().get_piece().value().get_piece_type() != PAWN) {
         return false;
     }
@@ -581,7 +581,7 @@ bool Move::is_valid_en_passant_move(const Board& board, const std::vector<Move>&
            abs(y_diff_previous_move) == 2;
 }
 
-void Move::make_en_passant_move(Board& board) {
+void Move::make_en_passant(Board& board) {
     Square& start_square = board.get_square(this->get_start_square().get_x(), this->get_start_square().get_y());
     Square& end_square = board.get_square(this->get_end_square().get_x(), this->get_end_square().get_y());
     end_square.set_piece(start_square.get_piece());
@@ -593,7 +593,7 @@ void Move::make_en_passant_move(Board& board) {
     captured_square.set_piece({});
 }
 
-void Move::undo_en_passant_move(Board& board) {
+void Move::undo_en_passant(Board& board) {
     Square& start_square = board.get_square(this->get_start_square().get_x(), this->get_start_square().get_y());
     Square& end_square = board.get_square(this->get_end_square().get_x(), this->get_end_square().get_y());
     start_square.set_piece(end_square.get_piece());
@@ -604,14 +604,14 @@ void Move::undo_en_passant_move(Board& board) {
     captured_square.set_piece(this->captured_piece);
 }
 
-void Move::make_promotion_move(Board& board) {
-    this->make_move(board);
+void Move::make_promotion(Board& board) {
+    this->make(board);
     Square& end_square = board.get_square(this->get_end_square().get_x(), this->get_end_square().get_y());
     end_square.get_piece().value().set_piece_type(this->get_promotion_piece().value());
 }
 
-void Move::undo_promotion_move(Board& board) {
-    this->undo_move(board);
+void Move::undo_promotion(Board& board) {
+    this->undo(board);
     Square& start_square = board.get_square(this->get_start_square().get_x(), this->get_start_square().get_y());
     start_square.get_piece().value().set_piece_type(PAWN);
 }

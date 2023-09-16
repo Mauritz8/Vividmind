@@ -28,8 +28,8 @@ static void make_moves(std::istringstream& moves, Board& board, std::vector<Move
     std::string move_uci;
     while (std::getline(moves, move_uci, ' ')) {
         Move move = Move(move_uci, board);
-        if (move.is_legal_move(board, move_history)) {
-            move.make_appropriate_move(board, move_history);
+        if (move.is_legal(board, move_history)) {
+            move.make_appropriate(board, move_history);
         }
     }
 }
@@ -50,7 +50,7 @@ static void handle_position_command(const std::string& position, Board& board, s
 static void handle_go_command(Board& board, std::vector<Move>& move_history) {
     const int depth = 1;
     const Move best_move = get_best_move(depth, board, move_history);
-    std::cout << "bestmove " << best_move.move_to_uci_notation() << "\n";
+    std::cout << "bestmove " << best_move.to_uci_notation() << "\n";
 }
 
 void process_uci_command(const std::string& command, Board& board, std::vector<Move>& move_history) {

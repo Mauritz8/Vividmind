@@ -14,7 +14,7 @@ int main() {
     std::vector<Move> move_history;
 
     while (true) {
-        board.show_board();
+        board.show();
 
         if (is_checkmate(board, move_history)) {
             const Color winner = board.get_player_to_move() == WHITE ? BLACK : WHITE;
@@ -33,13 +33,13 @@ int main() {
             std::cin >> move_uci;
             move = Move(move_uci, board);
 
-            if (move.is_legal_move(board, move_history)) {
+            if (move.is_legal(board, move_history)) {
                 legal_move = true;
             } else {
                 std::cout << "\nThat's not a legal move\n\n"; 
             }
         }
 
-        move.make_appropriate_move(board, move_history);
+        move.make_appropriate(board, move_history);
     }
 }
