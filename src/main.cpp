@@ -1,4 +1,6 @@
+#include <iostream>
 #include <string.h>
+#include <string>
 #include <vector>
 
 #include "board.h"
@@ -9,11 +11,9 @@ int main(void) {
     Board board = Board::get_starting_position();
     std::vector<Move> move_history;
 
-    const int UCI_COMMAND_CHARACTER_LIMIT = 2048;
-    char input[UCI_COMMAND_CHARACTER_LIMIT];
+    std::string input;
     while (true) {
-        fgets(input, UCI_COMMAND_CHARACTER_LIMIT, stdin);
-        input[strcspn(input, "\n")] = '\0';
+        std::getline(std::cin, input);
         process_uci_command(input, board, move_history);
     }
 
