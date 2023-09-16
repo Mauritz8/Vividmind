@@ -39,7 +39,7 @@ static std::vector<Square> get_threatened_squares(Square& square, const Board& b
     return threatened_squares;
 }
 
-std::vector<Square> get_all_threatened_squares(const Color color, const Board& board) {
+std::vector<Square> get_all_threatened_squares(Color color, const Board& board) {
     std::vector<Square> all_threatened_squares;
     for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 8; j++) {
