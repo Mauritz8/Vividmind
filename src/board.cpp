@@ -68,7 +68,7 @@ Square& Board::get_square(int x, int y) {
     return squares.at(y).at(x); 
 }
 
-void Board::set_square(int x, int y, const std::optional<Piece> piece) {
+void Board::set_square(int x, int y, const std::optional<Piece>& piece) {
     Square& square = squares.at(y).at(x); 
     square.set_piece(piece);
 }
@@ -85,7 +85,7 @@ void Board::set_player_to_move(Color player_to_move) {
 void Board::show_board() const {
     for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 8; j++) {
-            std::optional<Piece> piece = this->get_square(j, i).get_piece();
+            const std::optional<Piece>& piece = this->get_square(j, i).get_piece();
             if (piece.has_value()) {
                 std::cout << " " << get_char_representation(piece.value().get_piece_type());
             } else {
@@ -97,27 +97,34 @@ void Board::show_board() const {
     std::cout << "\n";
 }
 
+void Board::switch_player_to_move() {
+    if (this->get_player_to_move() == WHITE) {
+        this->set_player_to_move(BLACK);
+    } else {
+        this->set_player_to_move(WHITE);
+    }
+}
 
-void Board::setup_pieces(int row, std::vector<Piece_type> order, Color color) {
+void Board::setup_pieces(int row, const std::vector<Piece_type>& order, Color color) {
     for (int i = 0; i < order.size(); i++) {
-        Piece piece = Piece(order[i], color);
+        const Piece piece = Piece(order[i], color);
         this->set_square(i, row, piece);
     }
 }
 
 void Board::setup_pawns(int row, Color color) {
     for (int i = 0; i < 8; i++) {
-        Piece piece = Piece(PAWN, color);
+        const Piece piece = Piece(PAWN, color);
         this->set_square(i, row, piece);
     }
 }
 
-void Board::place_pieces(const std::string fen_piece_placement_field) {
+void Board::place_pieces(const std::string& fen_piece_placement_field) {
     int index = 0;
     for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 8; j++) {
-            char ch = fen_piece_placement_field.at(index++);
-            std::string pieces = "rnbqkp";
+            const char ch = fen_piece_placement_field.at(index++);
+            const std::string pieces = "rnbqkp";
             if (pieces.find(tolower(ch)) != std::string::npos) {
                 const Color color = islower(ch) ? BLACK : WHITE;
                 const Piece piece = Piece(get_piece_type(ch).value(), color);
@@ -132,7 +139,7 @@ void Board::place_pieces(const std::string fen_piece_placement_field) {
     }
 }
 
-void Board::set_player_to_move(const std::string fen_active_color_field) {
+void Board::set_player_to_move(const std::string& fen_active_color_field) {
     if (fen_active_color_field.at(0) == 'w') {
         this->set_player_to_move(WHITE);
     } else if (fen_active_color_field.at(0) == 'b') {

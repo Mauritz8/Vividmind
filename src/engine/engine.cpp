@@ -13,7 +13,7 @@ static PieceCounts get_piece_counts(const Board& board, Color color) {
     PieceCounts piece_counts = {0, 0, 0, 0, 0, 0};
     for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 8; j++) {
-            const std::optional<Piece> piece = board.get_square(j, i).get_piece();
+            const std::optional<Piece>& piece = board.get_square(j, i).get_piece();
             if (!piece.has_value() || piece.value().get_color() != color) {
                 continue;
             }
@@ -62,7 +62,7 @@ static int evaluate(const Board& board) {
     return score;
 }
 
-static int nega_max(int depth, Board& board, std::vector<Move> move_history) {
+static int nega_max(int depth, Board& board, std::vector<Move>& move_history) {
     if (depth == 0) {
         return evaluate(board);
     }
@@ -80,13 +80,13 @@ static int nega_max(int depth, Board& board, std::vector<Move> move_history) {
     return max;
 }
 
-Move get_best_move(int depth, const Board& board, const std::vector<Move> move_history) {
+Move get_best_move(int depth, const Board& board, const std::vector<Move>& move_history) {
     Board board_copy = board;
     std::vector<Move> move_history_copy = move_history;
 
     int max = INT_MIN;
     Move best_move;
-    std::vector<Move> legal_moves = get_all_legal_moves(board_copy, move_history_copy);
+    const std::vector<Move> legal_moves = get_all_legal_moves(board_copy, move_history_copy);
     for (int i = 0; i < legal_moves.size(); i++) {
         Move move = legal_moves.at(i);
         move.make_appropriate_move(board_copy, move_history_copy);

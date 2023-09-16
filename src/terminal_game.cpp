@@ -17,7 +17,7 @@ int main() {
         board.show_board();
 
         if (is_checkmate(board, move_history)) {
-            Color winner = board.get_player_to_move() == WHITE ? BLACK : WHITE;
+            const Color winner = board.get_player_to_move() == WHITE ? BLACK : WHITE;
             std::cout << (winner == WHITE ? "White" : "Black") << " won!\n";
             break;
         } else if (is_draw(board, move_history)) {
@@ -30,7 +30,7 @@ int main() {
         while (!legal_move) {
             std::string move_uci;
             std::cout << "Move: ";
-            std::getline(std::cin, move_uci);
+            std::cin >> move_uci;
             move = Move(move_uci, board);
 
             if (move.is_legal_move(board, move_history)) {

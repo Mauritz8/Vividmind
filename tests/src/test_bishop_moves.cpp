@@ -9,7 +9,7 @@
 TEST(test_bishop_moves, test_bishop_move_valid_move) {
     Board board = Board::get_empty_board();
     board.set_player_to_move(WHITE);
-    std::vector<Move> move_history;
+    const std::vector<Move> move_history;
     const Piece bishop = Piece(BISHOP, WHITE);
     board.set_square(3, 4, bishop);
 
@@ -29,7 +29,7 @@ TEST(test_bishop_moves, test_bishop_move_valid_move) {
 TEST(test_bishop_moves, test_bishop_move_jump_over_pieces) {
     Board board = Board::get_empty_board();
     board.set_player_to_move(WHITE);
-    std::vector<Move> move_history;
+    const std::vector<Move> move_history;
     const Piece bishop = Piece(BISHOP, WHITE);
     const Piece blocking_piece = Piece(PAWN, BLACK);
     board.set_square(3, 4, bishop);
@@ -49,7 +49,7 @@ TEST(test_bishop_moves, test_bishop_move_jump_over_pieces) {
 TEST(test_bishop_moves, test_bishop_move_same_color_on_target_square) {
     Board board = Board::get_empty_board();
     board.set_player_to_move(BLACK);
-    std::vector<Move> move_history;
+    const std::vector<Move> move_history;
     const Piece bishop = Piece(BISHOP, BLACK);
     const Piece same_color_piece = Piece(PAWN, BLACK);
     board.set_square(3, 4, bishop);
@@ -64,7 +64,7 @@ TEST(test_bishop_moves, test_bishop_move_same_color_on_target_square) {
 TEST(test_bishop_moves, test_bishop_move_capture_opponent_piece) {
     Board board = Board::get_empty_board();
     board.set_player_to_move(BLACK);
-    std::vector<Move> move_history;
+    const std::vector<Move> move_history;
     const Piece bishop = Piece(BISHOP, BLACK);
     const Piece opponent_piece = Piece(PAWN, WHITE);
     board.set_square(3, 4, bishop);

@@ -9,7 +9,7 @@
 TEST(test_knight_moves, test_knight_move_valid_move) {
     Board board = Board::get_empty_board();
     board.set_player_to_move(BLACK);
-    std::vector<Move> move_history;
+    const std::vector<Move> move_history;
     const Piece knight = Piece(KNIGHT, BLACK);
     board.set_square(4, 4, knight);
 
@@ -37,7 +37,7 @@ TEST(test_knight_moves, test_knight_move_valid_move) {
 TEST(test_knight_moves, test_knight_move_invalid_pattern) {
     Board board = Board::get_empty_board();
     board.set_player_to_move(BLACK);
-    std::vector<Move> move_history;
+    const std::vector<Move> move_history;
     const Piece knight = Piece(KNIGHT, BLACK);
     board.set_square(3, 3, knight);
 
@@ -61,7 +61,7 @@ TEST(test_knight_moves, test_knight_move_invalid_pattern) {
 TEST(test_knight_moves, test_knight_move_same_color_on_target_square) {
     Board board = Board::get_empty_board();
     board.set_player_to_move(WHITE);
-    std::vector<Move> move_history;
+    const std::vector<Move> move_history;
     const Piece knight = Piece(KNIGHT, WHITE);
     const Piece piece_of_same_color = Piece(ROOK, WHITE);
     board.set_square(3, 3, knight);
@@ -74,7 +74,7 @@ TEST(test_knight_moves, test_knight_move_same_color_on_target_square) {
 TEST(test_knight_moves, test_knight_move_capture_opponent_piece) {
     Board board = Board::get_empty_board();
     board.set_player_to_move(WHITE);
-    std::vector<Move> move_history;
+    const std::vector<Move> move_history;
     const Piece knight = Piece(KNIGHT, WHITE);
     const Piece piece_of_opposite_color = Piece(ROOK, BLACK);
     board.set_square(3, 3, knight);
@@ -87,7 +87,7 @@ TEST(test_knight_moves, test_knight_move_capture_opponent_piece) {
 TEST(test_knight_moves, test_knight_move_on_edge_of_board) {
     Board board = Board::get_empty_board();
     board.set_player_to_move(WHITE);
-    std::vector<Move> move_history;
+    const std::vector<Move> move_history;
     const Piece knight = Piece(KNIGHT, WHITE);
     board.set_square(7, 1, knight);
 
@@ -105,7 +105,7 @@ TEST(test_knight_moves, test_knight_move_on_edge_of_board) {
 TEST(test_knight_moves, test_knight_move_jump_over_pieces) {
     Board board = Board::get_empty_board();
     board.set_player_to_move(BLACK);
-    std::vector<Move> move_history;
+    const std::vector<Move> move_history;
     const Piece knight = Piece(KNIGHT, BLACK);
     const Piece blocking_piece1 = Piece(PAWN, BLACK);
     const Piece blocking_piece2 = Piece(PAWN, WHITE);

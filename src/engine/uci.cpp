@@ -49,7 +49,7 @@ static void handle_position_command(const std::string& position, Board& board, s
 
 static void handle_go_command(Board& board, std::vector<Move>& move_history) {
     const int depth = 1;
-    Move best_move = get_best_move(depth, board, move_history);
+    const Move best_move = get_best_move(depth, board, move_history);
     std::cout << "bestmove " << best_move.move_to_uci_notation() << "\n";
 }
 

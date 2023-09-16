@@ -9,13 +9,13 @@
 #include "move.h"
 
 
-static int perft(int depth, Board& board, std::vector<Move> move_history) {
+static int perft(int depth, Board& board, std::vector<Move>& move_history) {
     if (depth == 0) {
         return 1;
     }
 
     int nodes = 0;
-    std::vector<Move> move_list = get_all_legal_moves(board, move_history);
+    const std::vector<Move> move_list = get_all_legal_moves(board, move_history);
     for (int i = 0; i < move_list.size(); i++) {
         Move move = move_list.at(i);
         move.make_appropriate_move(board, move_history);
@@ -25,14 +25,14 @@ static int perft(int depth, Board& board, std::vector<Move> move_history) {
     return nodes;
 }
 
-static void divide(int depth, Board& board, std::vector<Move> move_history) {
+static void divide(int depth, Board& board, std::vector<Move>& move_history) {
     std::cout << "";
     int nodes_searched = 0;
-    std::vector<Move> move_list = get_all_legal_moves(board, move_history);
+    const std::vector<Move> move_list = get_all_legal_moves(board, move_history);
     for (int i = 0; i < move_list.size(); i++) {
         Move move = move_list.at(i);
         move.make_appropriate_move(board, move_history);
-        int nodes =  perft(depth - 1, board, move_history);
+        const int nodes = perft(depth - 1, board, move_history);
         nodes_searched += nodes;
         std::cout << move.move_to_uci_notation() << ": " << nodes << "\n";
         move.undo_appropriate_move(board, move_history);

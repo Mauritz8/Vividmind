@@ -21,6 +21,6 @@ typedef struct {
     int pawns;
 } PieceCounts;
 
-Move get_best_move(int depth, const Board& board, const std::vector<Move> move_history);
+Move get_best_move(int depth, const Board& board, const std::vector<Move>& move_history);
 
 #endif

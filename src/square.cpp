@@ -5,10 +5,9 @@ Square::Square(int x, int y) {
     this->y = y;
     this->piece = {};
 }
-Square::Square(int x, int y, Piece piece) : piece(piece) {
+Square::Square(int x, int y, const Piece& piece) : piece(piece) {
     this->x = x;
     this->y = y;
-    this->piece = piece;
 }
 
 int Square::get_x() const {
@@ -20,7 +19,7 @@ int Square::get_y() const {
 std::optional<Piece> Square::get_piece() const {
     return piece;
 }
-void Square::set_piece(std::optional<Piece> piece) {
+void Square::set_piece(const std::optional<Piece>& piece) {
     this->piece = piece;
 }
 

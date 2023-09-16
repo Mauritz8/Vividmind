@@ -42,7 +42,7 @@ char get_char_representation(Piece_type piece_type) {
     }
 }
 
-std::optional<Piece_type> get_piece_type(const char char_representation) {
+std::optional<Piece_type> get_piece_type(char char_representation) {
     switch (tolower(char_representation)) {
         case 'p': return PAWN;
         case 'n': return KNIGHT;
@@ -54,7 +54,7 @@ std::optional<Piece_type> get_piece_type(const char char_representation) {
     }
 }
 
-std::optional<Piece_type> get_promotion_piece_type(const char char_representation_lowercase) {
+std::optional<Piece_type> get_promotion_piece_type(char char_representation_lowercase) {
     if (char_representation_lowercase == 'n') return KNIGHT;
     if (char_representation_lowercase == 'b') return BISHOP;
     if (char_representation_lowercase == 'r') return ROOK;
