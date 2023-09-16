@@ -10,13 +10,13 @@
 #include "move.h"
 
 static void handle_uci_command() {
-    std::cout << "id name Stockfish 2.0";
-    std::cout << "id author DemonicBag"; 
-    std::cout << "uciok\n";
+    std::cout << "id name Stockfish 2.0\n";
+    std::cout << "id author DemonicBag\n"; 
+    std::cout << "uciok\n\n";
 }
 
 static void handle_isready_command() {
-    std::cout << "readyok\n";
+    std::cout << "readyok\n\n";
 }
 
 static void handle_ucinewgame_command(Board& board, std::vector<Move>& move_history) {
