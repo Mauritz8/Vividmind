@@ -1,16 +1,31 @@
-#include <stdlib.h>
+#include <cctype>
+#include <optional>
 
 #include "piece.h"
 
-void piece_array_push(PieceArray* piece_array, const Piece* piece) {
-    if (piece_array->length == piece_array->capacity) {
-        piece_array->capacity *= 2;
-        piece_array->pieces = realloc(piece_array->pieces, piece_array->capacity * sizeof(Piece));
-    }
-    piece_array->pieces[piece_array->length++] = *piece;
+
+Piece::Piece(Piece_type piece_type, Color color) {
+    set_piece_type(piece_type);
+    set_color(color);
 }
 
-char get_char_representation(const Piece_type piece_type) {
+Piece_type Piece::get_piece_type() const {
+    return piece_type;
+}
+
+void Piece::set_piece_type(Piece_type piece_type) {
+    this->piece_type = piece_type;
+}
+
+Color Piece::get_color() const {
+    return color;
+}
+
+void Piece::set_color(Color color) {
+    this->color = color;
+}
+
+char get_char_representation(Piece_type piece_type) {
     switch (piece_type) {
         case PAWN:
             return 'p';
@@ -27,7 +42,7 @@ char get_char_representation(const Piece_type piece_type) {
     }
 }
 
-Piece_type get_piece_type(const char char_representation) {
+std::optional<Piece_type> get_piece_type(char char_representation) {
     switch (tolower(char_representation)) {
         case 'p': return PAWN;
         case 'n': return KNIGHT;
@@ -35,14 +50,14 @@ Piece_type get_piece_type(const char char_representation) {
         case 'r': return ROOK;
         case 'q': return QUEEN;
         case 'k': return KING;
-        default: return -1;
+        default: return {};
     }
 }
 
-Piece_type get_promotion_piece_type(const char char_representation_lowercase) {
+std::optional<Piece_type> get_promotion_piece_type(char char_representation_lowercase) {
     if (char_representation_lowercase == 'n') return KNIGHT;
     if (char_representation_lowercase == 'b') return BISHOP;
     if (char_representation_lowercase == 'r') return ROOK;
     if (char_representation_lowercase == 'q') return QUEEN;
-    return -1;
+    return {};
 }

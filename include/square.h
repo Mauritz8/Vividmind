@@ -2,19 +2,25 @@
 #define SQUARE_H
 
 #include "piece.h"
+#include <optional>
 
-typedef struct {
-    int x;
-    int y;
-    Piece* piece;
-} Square;
+class Square {
+    public:
+        Square() {}
+        Square(int x, int y);
+        Square(int x, int y, const Piece& piece);
 
-typedef struct {
-    Square** squares;
-    int capacity;
-    int length;
-} SquareArray;
+        int get_x() const;
+        int get_y() const;
+        std::optional<Piece> get_piece() const;
+        void set_piece(const std::optional<Piece>& piece);
 
-void square_array_push(SquareArray* square_array, Square* square);
+        bool operator==(const Square& square) const;
+
+    private:
+        int x;
+        int y;
+        std::optional<Piece> piece;
+};
 
 #endif

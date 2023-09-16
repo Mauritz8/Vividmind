@@ -3,8 +3,9 @@
 
 #include "board.h"
 #include "move.h"
+#include <vector>
 
-bool is_checkmate(Board* board, const MoveArray* move_history);
-bool is_draw(Board* board, const MoveArray* move_history);
+bool is_checkmate(const Board& board, const std::vector<Move>& move_history);
+bool is_draw(const Board& board, const std::vector<Move>& move_history);
 
 #endif

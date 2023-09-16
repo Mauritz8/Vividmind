@@ -4,14 +4,12 @@
 #include "board.h"
 #include "move.h"
 #include "piece.h"
+#include <vector>
 
-SquareArray get_all_threatened_squares(const Color color, Board* board);
-MoveArray get_all_legal_moves(Board* board, const MoveArray* move_history);
-Color get_opposite_color(const Color color);
-bool is_check(Board* board);
-PieceArray get_all_pieces(const Color color, Board* board);
-void deallocate_game_resources(Board* board, MoveArray* move_history);
-MoveArray create_empty_move_history();
-void switch_player_to_move(Board* board);
+std::vector<Square> get_all_threatened_squares(Color color, const Board& board);
+std::vector<Move> get_all_legal_moves(const Board& board, const std::vector<Move>& move_history);
+Color get_opposite_color(Color color);
+bool is_check(const Board& board);
+std::vector<Piece> get_all_pieces(Color color, const Board& board);
 
 #endif
