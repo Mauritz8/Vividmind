@@ -383,16 +383,16 @@ bool Move::is_valid_pawn_move(const Board& board) const {
     const int y_diff = this->get_end_square().get_y() - this->get_start_square().get_y();
 
     const bool end_square_is_empty = this->get_end_square().get_piece() == std::nullopt;
-    const bool is_valid_this_one_square_forward = x_diff == 0 && y_diff == direction && end_square_is_empty;
+    const bool is_valid_move_one_square_forward = x_diff == 0 && y_diff == direction && end_square_is_empty;
 
     const int starting_row = this->get_start_square().get_piece().value().get_color() == BLACK ? 1 : 6;
     const bool is_on_starting_row = this->get_start_square().get_y() == starting_row;
     const bool one_square_forward_is_empty = board.get_square(this->get_start_square().get_x(), this->get_start_square().get_y() + direction).get_piece() == std::nullopt;
-    const bool is_valid_this_two_squares_forward = x_diff == 0 && y_diff == 2 * direction && is_on_starting_row && one_square_forward_is_empty && end_square_is_empty;
+    const bool is_valid_move_two_squares_forward = x_diff == 0 && y_diff == 2 * direction && is_on_starting_row && one_square_forward_is_empty && end_square_is_empty;
 
     const bool is_valid_capture = abs(x_diff) == 1 && y_diff == direction && !end_square_is_empty;
 
-    if (is_valid_this_one_square_forward || is_valid_this_two_squares_forward || is_valid_capture) {
+    if (is_valid_move_one_square_forward || is_valid_move_two_squares_forward || is_valid_capture) {
         return true;
     }
     return false;
