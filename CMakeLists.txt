@@ -23,6 +23,12 @@ set(COMMON_SOURCES
     src/square.cpp
     src/engine/engine.cpp
     src/engine/uci.cpp
+    src/pieces/bishop.cpp
+    src/pieces/king.cpp
+    src/pieces/knight.cpp
+    src/pieces/pawn.cpp
+    src/pieces/queen.cpp
+    src/pieces/rook.cpp
 )
 
 add_executable(chess_engine 
@@ -41,6 +47,7 @@ add_executable(chess_cli_game
 target_include_directories(chess_cli_game PRIVATE
     include
     include/engine
+    include/pieces
 )
 
 
