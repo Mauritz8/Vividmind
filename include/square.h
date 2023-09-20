@@ -17,6 +17,8 @@ class Square {
 
         bool operator==(const Square& square) const;
 
+        bool is_outside_board() const;
+
     private:
         int x;
         int y;

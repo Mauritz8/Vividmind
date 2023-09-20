@@ -87,15 +87,11 @@ void Move::set_en_passant(bool en_passant) {
     this->en_passant = en_passant;
 }
 
-static bool is_outside_board(const Square& square) {
-    return square.get_x() < 0 || square.get_x() > 7 || square.get_y() < 0 || square.get_y() > 7;
-}
-
 bool Move::is_threatened_move(const Board& board) const {
     const Square& start_square = this->get_start_square();
     const Square& end_square = this->get_end_square();
 
-    if (is_outside_board(start_square) || is_outside_board(end_square)) {
+    if (start_square.is_outside_board() || end_square.is_outside_board()) {
         return false;
     }
 
@@ -423,7 +419,7 @@ bool Move::validate_basic(const Board& board) const {
         return false;
     }
 
-    if (is_outside_board(start_square) || is_outside_board(end_square)) {
+    if (start_square.is_outside_board() || end_square.is_outside_board()) {
         return false;
     }
 
