@@ -2,7 +2,6 @@
 #define BOARD_H
 
 #include "square.h"
-#include <optional>
 #include <string>
 #include <vector>
 
@@ -16,7 +15,7 @@ class Board {
         
         const Square& get_square(int x, int y) const;
         Square& get_square(int x, int y);
-        void set_square(int x, int y, const std::optional<Piece>& piece);
+        void set_square(int x, int y, std::unique_ptr<Piece>& piece);
         Color get_player_to_move() const;
         void set_player_to_move(Color player_to_move);
 
@@ -27,8 +26,8 @@ class Board {
         std::vector<std::vector<Square>> squares;
         Color player_to_move;
 
-        void setup_pieces(int row, const std::vector<Piece_type> order, Color color);
-        void setup_pawns(int row, Color color);
+        void setup_pieces(Color color);
+        void setup_pawns(Color color);
         void place_pieces(const std::string& fen_piece_placement_field);
         void set_player_to_move(const std::string& fen_active_color_field);
 };

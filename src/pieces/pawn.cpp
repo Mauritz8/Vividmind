@@ -11,21 +11,21 @@ std::vector<Move> Pawn::get_psuedo_legal_moves(const Board& board) const {
 
 
     const Square& end1 = board.get_square(start.get_x(), start.get_y() + 1);
-    if (!end1.get_piece().has_value()) {
+    if (!end1.get_piece()) {
         moves.push_back(Move(start, end1));
 
         const Square& end2 = board.get_square(start.get_x(), start.get_y() + 2);
-        if (!end2.get_piece().has_value()) {
+        if (!end2.get_piece()) {
             moves.push_back(Move(start, end2));
         }
     }
 
     const Square& end3 = board.get_square(start.get_x() + 1, start.get_y() + 1);
-    if (end3.get_piece().has_value() && end3.get_piece().value().get_color() == this->get_color()) {
+    if (end3.get_piece() && end3.get_piece()->get_color() == this->get_color()) {
         moves.push_back(Move(start, end3));
     }
     const Square& end4 = board.get_square(start.get_x() - 1, start.get_y() + 1);
-    if (end3.get_piece().has_value() && end3.get_piece().value().get_color() == this->get_color()) {
+    if (end3.get_piece() && end3.get_piece()->get_color() == this->get_color()) {
         moves.push_back(Move(start, end4));
     }
 

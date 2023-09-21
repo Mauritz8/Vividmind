@@ -2,18 +2,17 @@
 #define SQUARE_H
 
 #include "piece.h"
-#include <optional>
+#include <memory>
 
 class Square {
     public:
         Square() {}
         Square(int x, int y);
-        Square(int x, int y, const Piece& piece);
 
         int get_x() const;
         int get_y() const;
-        std::optional<Piece> get_piece() const;
-        void set_piece(const std::optional<Piece>& piece);
+        const std::unique_ptr<Piece>& get_piece() const;
+        void set_piece(std::unique_ptr<Piece>& piece);
 
         bool operator==(const Square& square) const;
 
@@ -22,7 +21,7 @@ class Square {
     private:
         int x;
         int y;
-        std::optional<Piece> piece;
+        std::unique_ptr<Piece> piece;
 };
 
 #endif

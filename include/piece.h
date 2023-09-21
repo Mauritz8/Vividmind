@@ -12,10 +12,8 @@ class Board;
 class Square;
 class Piece {
     public:
-        Piece(Piece_type piece_type, Color color, int x, int y);
+        Piece(Color color, int x, int y);
 
-        Piece_type get_piece_type() const;
-        void set_piece_type(Piece_type piece_type);
         Color get_color() const;
         void set_color(Color color);
         int get_x() const;
@@ -30,7 +28,6 @@ class Piece {
         std::vector<Move> get_psuedo_legal_moves_direction(const Square& start, int x_direction, int y_direction, const Board& board) const;
 
     private:
-        Piece_type piece_type;
         Color color;
         int x;
         int y;

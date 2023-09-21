@@ -1,11 +1,8 @@
 #include "square.h"
+#include <algorithm>
+#include <memory>
 
 Square::Square(int x, int y) {
-    this->x = x;
-    this->y = y;
-    this->piece = {};
-}
-Square::Square(int x, int y, const Piece& piece) : piece(piece) {
     this->x = x;
     this->y = y;
 }
@@ -16,11 +13,11 @@ int Square::get_x() const {
 int Square::get_y() const {
     return y;
 }
-std::optional<Piece> Square::get_piece() const {
-    return piece;
+const std::unique_ptr<Piece>& Square::get_piece() const {
+    return std::move(piece);
 }
-void Square::set_piece(const std::optional<Piece>& piece) {
-    this->piece = piece;
+void Square::set_piece(std::unique_ptr<Piece>& piece) {
+    this->piece = std::move(piece);
 }
 
 bool Square::operator==(const Square& square) const {

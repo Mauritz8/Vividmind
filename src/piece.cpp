@@ -1,5 +1,4 @@
 #include <cctype>
-#include <optional>
 #include <vector>
 
 #include "board.h"
@@ -9,19 +8,10 @@
 #include "square.h"
 
 
-Piece::Piece(Piece_type piece_type, Color color, int x, int y) {
-    set_piece_type(piece_type);
+Piece::Piece(Color color, int x, int y) {
     set_color(color);
     set_x(x);
     set_y(y);
-}
-
-Piece_type Piece::get_piece_type() const {
-    return piece_type;
-}
-
-void Piece::set_piece_type(Piece_type piece_type) {
-    this->piece_type = piece_type;
 }
 
 Color Piece::get_color() const {
@@ -53,8 +43,8 @@ std::vector<Move> Piece::get_legal_moves(const Board& board, const std::vector<M
     for (int i = 0; i < legal_moves.size(); i++) {
         Move& move = legal_moves.at(i);
         const bool end_square_has_same_color_piece = 
-            move.get_end_square().get_piece().has_value() &&
-            move.get_end_square().get_piece().value().get_color() == this->get_color();
+            move.get_end_square().get_piece() &&
+            move.get_end_square().get_piece()->get_color() == this->get_color();
 
         move.make_appropriate(board_copy, move_history_copy);
         if (move.get_end_square().is_outside_board() || end_square_has_same_color_piece || is_check(board_copy)) {
@@ -74,8 +64,8 @@ std::vector<Move> Piece::get_psuedo_legal_moves_direction(const Square& start, i
     int y_final = y_direction == 1 ? 7 : 0;
     while (x != x_final && y != y_final) {
         const Square& end = board.get_square(x, y);
-        if (end.get_piece().has_value()) {
-            if (end.get_piece().value().get_color() != this->get_color()) {
+        if (end.get_piece()) {
+            if (end.get_piece()->get_color() != this->get_color()) {
                 moves.push_back(Move(start, end));
             }
             break;

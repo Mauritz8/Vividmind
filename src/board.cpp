@@ -1,11 +1,17 @@
 #include <iostream>
-#include <optional>
+#include <memory>
 #include <cctype>
 #include <string>
 #include <vector>
 
 #include "board.h"
 #include "piece.h"
+#include "pieces/bishop.h"
+#include "pieces/king.h"
+#include "pieces/knight.h"
+#include "pieces/pawn.h"
+#include "pieces/queen.h"
+#include "pieces/rook.h"
 
 
 Board Board::get_empty_board() {
@@ -23,12 +29,11 @@ Board Board::get_empty_board() {
 Board Board::get_starting_position() {
     Board board = get_empty_board();
     board.set_player_to_move(WHITE);
-    std::vector<Piece_type> PIECE_ORDER = 
-        {ROOK, KNIGHT, BISHOP, QUEEN, KING, BISHOP, KNIGHT, ROOK};
-    board.setup_pieces(0, PIECE_ORDER, BLACK);
-    board.setup_pawns(1, BLACK);
-    board.setup_pieces(7, PIECE_ORDER, WHITE);
-    board.setup_pawns(6, WHITE);
+
+    board.setup_pieces(BLACK);
+    board.setup_pawns(BLACK);
+    board.setup_pieces(WHITE);
+    board.setup_pawns(WHITE);
     return board;
 }
 
@@ -68,7 +73,7 @@ Square& Board::get_square(int x, int y) {
     return squares.at(y).at(x); 
 }
 
-void Board::set_square(int x, int y, const std::optional<Piece>& piece) {
+void Board::set_square(int x, int y, std::unique_ptr<Piece>& piece) {
     Square& square = squares.at(y).at(x); 
     square.set_piece(piece);
 }
@@ -85,9 +90,9 @@ void Board::set_player_to_move(Color player_to_move) {
 void Board::show() const {
     for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 8; j++) {
-            const std::optional<Piece>& piece = this->get_square(j, i).get_piece();
-            if (piece.has_value()) {
-                std::cout << " " << get_char_representation(piece.value().get_piece_type());
+            const std::unique_ptr<Piece>& piece = this->get_square(j, i).get_piece();
+            if (piece) {
+                std::cout << " " << get_char_representation(piece->get_piece_type());
             } else {
                 std::cout << " _";
             }
@@ -105,17 +110,32 @@ void Board::switch_player_to_move() {
     }
 }
 
-void Board::setup_pieces(int row, const std::vector<Piece_type> order, Color color) {
-    for (int i = 0; i < order.size(); i++) {
-        const Piece piece = Piece(order.at(i), color);
-        this->set_square(i, row, piece);
-    }
+void Board::setup_pieces(Color color) {
+    const int row = color == WHITE ? 7 : 0;
+
+    std::unique_ptr<Piece> p1 = std::make_unique<Rook>(Rook(color, 0, row));
+    this->set_square(0, row, p1);
+    std::unique_ptr<Piece> p2 = std::make_unique<Knight>(Knight(color, 1, row));
+    this->set_square(1, row, p2);
+    std::unique_ptr<Piece> p3 = std::make_unique<Bishop>(Bishop(color, 2, row));
+    this->set_square(2, row, p3);
+    std::unique_ptr<Piece> p4 = std::make_unique<Queen>(Queen(color, 3, row));
+    this->set_square(3, row, p4);
+    std::unique_ptr<Piece> p5 = std::make_unique<King>(King(color, 4, row));
+    this->set_square(4, row, p5);
+    std::unique_ptr<Piece> p6 = std::make_unique<Bishop>(Bishop(color, 5, row));
+    this->set_square(5, row, p6);
+    std::unique_ptr<Piece> p7 = std::make_unique<Knight>(Knight(color, 6, row));
+    this->set_square(6, row, p7);
+    std::unique_ptr<Piece> p8 = std::make_unique<Rook>(Rook(color, 7, row));
+    this->set_square(7, row, p8);
 }
 
-void Board::setup_pawns(int row, Color color) {
+void Board::setup_pawns(Color color) {
+    const int row = color == WHITE ? 6 : 1;
     for (int i = 0; i < 8; i++) {
-        const Piece piece = Piece(PAWN, color);
-        this->set_square(i, row, piece);
+        std::unique_ptr<Piece> pawn = std::make_unique<Pawn>(Pawn(color, i, row));
+        this->set_square(i, row, pawn);
     }
 }
 
