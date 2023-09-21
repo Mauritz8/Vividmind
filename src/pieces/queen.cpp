@@ -2,6 +2,10 @@
 #include "pieces/queen.h"
 #include <vector>
 
+char Queen::get_char_representation() const {
+    return 'Q';
+}
+
 std::vector<Move> Queen::get_psuedo_legal_moves(const Board& board) const {
     std::vector<Move> moves;
     const Square& start = board.get_square(this->get_x(), this->get_y());

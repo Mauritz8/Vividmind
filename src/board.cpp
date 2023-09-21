@@ -92,7 +92,7 @@ void Board::show() const {
         for (int j = 0; j < 8; j++) {
             const std::unique_ptr<Piece>& piece = this->get_square(j, i).get_piece();
             if (piece) {
-                std::cout << " " << get_char_representation(piece->get_piece_type());
+                std::cout << " " << piece->get_char_representation();
             } else {
                 std::cout << " _";
             }

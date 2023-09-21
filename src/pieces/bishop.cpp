@@ -1,7 +1,13 @@
 #include "move.h"
+#include "piece.h"
 #include "pieces/bishop.h"
 #include <iterator>
 #include <vector>
+
+
+char Bishop::get_char_representation() const {
+    return 'B';
+}
 
 std::vector<Move> Bishop::get_psuedo_legal_moves(const Board& board) const  {
     std::vector<Move> moves;

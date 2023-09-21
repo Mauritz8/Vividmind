@@ -3,6 +3,10 @@
 #include <iterator>
 #include <vector>
 
+char Rook::get_char_representation() const {
+    return 'R';
+}
+
 std::vector<Move> Rook::get_psuedo_legal_moves(const Board& board) const {
     std::vector<Move> moves;
     const Square& start = board.get_square(this->get_x(), this->get_y());

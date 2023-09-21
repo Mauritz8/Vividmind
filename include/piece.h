@@ -22,6 +22,7 @@ class Piece {
         void set_y(int y);
 
         std::vector<Move> get_legal_moves(const Board& board, const std::vector<Move>& move_history) const;
+        virtual char get_char_representation() const;
 
     protected:
         virtual std::vector<Move> get_psuedo_legal_moves(const Board& board) const = 0;
@@ -33,7 +34,6 @@ class Piece {
         int y;
 };
 
-char get_char_representation(Piece_type piece_type);
 std::optional<Piece_type> get_piece_type(char char_representation);
 std::optional<Piece_type> get_promotion_piece_type(char char_representation_lowercase);
 
