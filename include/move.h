@@ -15,12 +15,12 @@ class Move {
         Move(const Square& start_square, const Square& end_square);
         Move(const std::string& uci_notation, Board& board);
 
-        Square get_start_square() const;
+        const Square& get_start_square() const;
         void set_start_square(const Square& start_square);
-        Square get_end_square() const;
+        const Square& get_end_square() const;
         void set_end_square(const Square& end_square);
-        std::optional<Piece> get_captured_piece() const;
-        void set_captured_piece(const std::optional<Piece>& captured_piece);
+        const std::unique_ptr<Piece>& get_captured_piece() const;
+        void set_captured_piece(std::unique_ptr<Piece>& captured_piece);
         bool is_castling_move() const;
         void set_castling_move(bool castling_move);
         bool is_promotion() const;
@@ -42,7 +42,7 @@ class Move {
     private:
         Square start_square;
         Square end_square;
-        std::optional<Piece> captured_piece;
+        std::unique_ptr<Piece> captured_piece;
         bool castling_move;
         bool promotion;
         std::optional<Piece_type> promotion_piece;

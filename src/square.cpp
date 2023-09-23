@@ -28,3 +28,7 @@ bool Square::operator==(const Square& square) const {
 bool Square::is_outside_board() const {
     return this->get_x() < 0 || this->get_x() > 7 || this->get_y() < 0 || this->get_y() > 7;
 }
+
+void Square::move_piece(Square& to) {
+    to.set_piece(this->piece);
+}
