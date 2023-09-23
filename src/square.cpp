@@ -16,7 +16,10 @@ int Square::get_y() const {
 const std::unique_ptr<Piece>& Square::get_piece() const {
     return std::move(piece);
 }
-void Square::set_piece(std::unique_ptr<Piece>& piece) {
+std::unique_ptr<Piece> Square::get_piece() {
+    return std::move(this->piece);
+}
+void Square::set_piece(std::unique_ptr<Piece> piece) {
     this->piece = std::move(piece);
 }
 
@@ -30,5 +33,5 @@ bool Square::is_outside_board() const {
 }
 
 void Square::move_piece(Square& to) {
-    to.set_piece(this->piece);
+    to.set_piece(this->get_piece());
 }

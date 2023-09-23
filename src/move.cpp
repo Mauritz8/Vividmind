@@ -50,11 +50,11 @@ void Move::set_end_square(const Square& end_square) {
     this->end_square = end_square;
 }
 
-const std::unique_ptr<Piece>& Move::get_captured_piece() const {
+std::unique_ptr<Piece> Move::get_captured_piece() {
     return std::move(captured_piece);
 }
 
-void Move::set_captured_piece(std::unique_ptr<Piece>& captured_piece) {
+void Move::set_captured_piece(std::unique_ptr<Piece> captured_piece) {
     this->captured_piece = std::move(captured_piece); 
 }
 
@@ -247,10 +247,7 @@ void Move::make(Board& board) {
     Square& start_square = board.get_square(this->get_start_square().get_x(), this->get_start_square().get_y()); 
     Square& end_square = board.get_square(this->get_end_square().get_x(), this->get_end_square().get_y()); 
     if (end_square.get_piece()) {
-        this->captured_piece = std::move(end_square.get_piece());
         this->set_captured_piece(end_square.get_piece());
-    } else {
-        this->captured_piece = nullptr;
     }
     start_square.move_piece(end_square);
 }
@@ -261,8 +258,6 @@ void Move::undo(Board& board) {
     end_square.move_piece(start_square);
     if (this->get_captured_piece()) {
         end_square.set_piece(this->get_captured_piece());
-    } else {
-        end_square.set_piece({});
     }
 }
 
@@ -597,7 +592,7 @@ void Move::undo_en_passant(Board& board) {
 
     const int x_diff = this->get_end_square().get_x() - this->get_start_square().get_x();
     Square& captured_square = board.get_square(this->get_start_square().get_x() + x_diff, this->get_start_square().get_y());
-    captured_square.set_piece(this->captured_piece);
+    captured_square.set_piece(this->get_captured_piece());
 }
 
 void Move::make_promotion(Board& board) {
