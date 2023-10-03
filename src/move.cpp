@@ -327,7 +327,7 @@ Move Move::get_castling_rook_move(const Board& board) const {
         rook_move.set_start_square(board.get_square(0, row));
         rook_move.set_end_square(board.get_square(3, row));
     }
-    //rook_move.set_captured_piece({});
+    rook_move.set_captured_piece({});
     return rook_move;
 }
 
