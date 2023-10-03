@@ -30,11 +30,9 @@ static std::optional<Square> get_king_square(Color color, const Board& board) {
 static std::vector<Square> get_threatened_squares(const Square& square, const Board& board) {
     std::vector<Square> threatened_squares;
 
-    Move move;
-    move.set_start_square(square);
     for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 8; j++) {
-            move.set_end_square(board.get_square(j, i));
+            Move move = Move(square, board.get_square(j, i));
             if (move.is_threatened_move(board)) {
                 threatened_squares.push_back(move.get_end_square());
             }
