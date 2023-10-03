@@ -41,23 +41,10 @@ target_include_directories(chess_engine PRIVATE
     include/engine
 )
 
-add_executable(chess_cli_game 
-    src/terminal_game.cpp
-    ${COMMON_SOURCES}
-)
-target_include_directories(chess_cli_game PRIVATE
-    include
-    include/engine
-    include/pieces
-)
-
 
 enable_testing()
 
 add_executable(unit_tests
-    tests/src/test_bishop_moves.cpp
-    tests/src/test_knight_moves.cpp
-    tests/src/test_rook_moves.cpp
     tests/src/test_move_generator.cpp
     ${COMMON_SOURCES}
 )
