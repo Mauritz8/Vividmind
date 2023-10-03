@@ -52,7 +52,7 @@ bool Piece::is_legal_move(const Move& psuedo_legal, const Board& board, const st
 }
 
 std::vector<Move> Piece::get_legal_moves(const Board& board, const std::vector<Move>& move_history) const {
-    std::vector<Move> psuedo_legal_moves =  this->get_psuedo_legal_moves(board);
+    std::vector<Move> psuedo_legal_moves =  this->get_psuedo_legal_moves(board, move_history);
     for (int i = 0; i < psuedo_legal_moves.size(); i++) {
         Move& move = psuedo_legal_moves.at(i);
         if (!this->is_legal_move(move, board, move_history)) {
@@ -62,8 +62,8 @@ std::vector<Move> Piece::get_legal_moves(const Board& board, const std::vector<M
     return psuedo_legal_moves;
 }
 
-bool Piece::is_psuedo_legal_move(const Move& move, const Board& board) const {
-    for (const Move& psuedo_legal : this->get_psuedo_legal_moves(board)) {
+bool Piece::is_psuedo_legal_move(const Move& move, const Board& board, const std::vector<Move>& move_history) const {
+    for (const Move& psuedo_legal : this->get_psuedo_legal_moves(board, move_history)) {
         if (move == psuedo_legal) {
             return true;
         }  
