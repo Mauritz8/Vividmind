@@ -14,6 +14,7 @@ class Square;
 class Piece {
     public:
         Piece(Color color, int x, int y);
+        virtual ~Piece() = default;
         virtual std::unique_ptr<Piece> clone() const = 0;
 
         Color get_color() const;

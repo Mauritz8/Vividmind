@@ -16,6 +16,7 @@ FetchContent_MakeAvailable(googletest)
 
 set(COMMON_SOURCES
     src/board.cpp
+    src/board_utils.cpp
     src/game_over_conditions.cpp
     src/game_state.cpp
     src/move.cpp
