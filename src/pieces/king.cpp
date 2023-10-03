@@ -3,6 +3,7 @@
 #include "move.h"
 #include "piece.h"
 #include "pieces/king.h"
+#include <algorithm>
 #include <array>
 #include <vector>
 
@@ -13,7 +14,7 @@ char King::get_char_representation() const {
 std::vector<Move> King::get_psuedo_legal_moves(const Board& board, const std::vector<Move>& move_history) const {
     std::vector<Move> moves;
     const Square& start = board.get_square(this->get_x(), this->get_y());
-    const std::array<Square, 8>& end = {
+    const std::array<Square, 8>& end_squares = {
         board.get_square(start.get_x(), start.get_y() + 1),
         board.get_square(start.get_x() + 1, start.get_y() + 1),
         board.get_square(start.get_x() + 1, start.get_y()),
@@ -23,34 +24,27 @@ std::vector<Move> King::get_psuedo_legal_moves(const Board& board, const std::ve
         board.get_square(start.get_x() - 1, start.get_y()),
         board.get_square(start.get_x() - 1, start.get_y() + 1)
     };
-    for (const Square& square : end) {
-        moves.push_back(Move(start, square));
+    for (const Square& end : end_squares) {
+        moves.push_back(Move(start, end));
     }
 
-    if (is_on_starting_square()) {
-        // TODO
-        // check if castling moves are legal
+    Move kingside_castling = Move(start, board.get_square(start.get_x() + 2, start.get_y()));
+    Move queenside_castling = Move(start, board.get_square(start.get_x() - 2, start.get_y()));
+    std::array<Move, 2> castling_moves = {std::move(kingside_castling), std::move(queenside_castling)};
+    for (Move& castling_move : castling_moves) {
+        if (is_valid_castling(castling_move, board, move_history)) {
+            castling_move.set_castling_move(true);
+            moves.push_back(castling_move);
+        }
     }
 
     return moves;
 }
 
-bool King::is_on_starting_square() const {
-    const int starty = this->get_color() == WHITE ? 7 : 0;
-    if (this->get_x() == 4 && this->get_y() == starty) {
-        return true;
-    }
-    return false;
-}
-
 bool King::is_valid_castling(const Move& move, const Board& board, const std::vector<Move>& move_history) const {
     const int starting_row = this->get_color() == WHITE ? 7 : 0;
-
-    if (move.get_end_square().get_y() != starting_row) {
-        return false;
-    }
     const int king_x = 4;
-    if (move.get_start_square().get_x() != king_x || move.get_start_square().get_y() != starting_row) {
+    if (this->get_x() != king_x || this->get_y() != starting_row) {
         return false;
     }
     int rook_x;
