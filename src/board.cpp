@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <iostream>
 #include <memory>
 #include <cctype>
@@ -147,7 +148,33 @@ void Board::place_pieces(const std::string& fen_piece_placement_field) {
             const std::string pieces = "rnbqkp";
             if (pieces.find(tolower(ch)) != std::string::npos) {
                 const Color color = islower(ch) ? BLACK : WHITE;
-                const Piece piece = Piece(get_piece_type(ch).value(), color);
+                std::unique_ptr<Piece> piece;
+                switch (get_piece_type(ch).value()) {
+                    case PAWN: {
+                        piece = std::make_unique<Pawn>(Pawn(color, j, i));
+                        break;
+                    }
+                    case KNIGHT: {
+                        piece = std::make_unique<Knight>(Knight(color, j, i));
+                        break;
+                    }
+                    case BISHOP: {
+                        piece = std::make_unique<Bishop>(Bishop(color, j, i));
+                        break;
+                    }
+                    case ROOK: {
+                        piece = std::make_unique<Rook>(Rook(color, j, i));
+                        break;
+                    }
+                    case QUEEN: {
+                        piece = std::make_unique<Queen>(Queen(color, j, i));
+                        break;
+                    }
+                    case KING: {
+                        piece = std::make_unique<King>(King(color, j, i));
+                        break;
+                    }
+                }
                 this->set_square(j, i, piece);
             } else if (ch >= '1' && ch <= '8') {
                 const int num = ch - '0';
