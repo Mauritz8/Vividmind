@@ -136,31 +136,6 @@ bool Move::leaves_king_in_check(const Board& board, const std::vector<Move>& mov
     return false;
 }
 
-bool Move::is_promotion_move(const Board& board) const {
-    const std::unique_ptr<Piece>& piece = this->get_start_square().get_piece();
-    const int y_end = this->get_end_square().get_y();
-    const int promotion_row = piece->get_color() == WHITE ? 0 : 7;
-
-    if (dynamic_cast<Pawn*>(piece.get()) != nullptr && y_end == promotion_row) {
-        return true;
-    }
-    return false;
-}
-
-bool Move::is_valid_promotion(const Board& board) const {
-    const bool is_correct_promotion_piece = 
-        this->get_promotion_piece() == KNIGHT ||
-        this->get_promotion_piece() == BISHOP ||
-        this->get_promotion_piece() == ROOK   ||
-        this->get_promotion_piece() == QUEEN;
-
-
-    if (this->is_promotion_move(board) && this->is_valid_pawn_move(board) && is_correct_promotion_piece) {
-        return true;
-    }
-    return false;
-}
-
 bool Move::is_legal(const Board& board, const std::vector<Move>& move_history) const {
     if (!this->validate_basic(board)) {
         return false;

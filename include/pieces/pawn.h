@@ -14,6 +14,7 @@ class Pawn : public Piece {
 
     private:
         bool is_valid_en_passant(const Move& move, const Board& board, const std::vector<Move>& move_history) const; 
+        bool is_promotion_move(const Move& move) const;
 };
 
 #endif

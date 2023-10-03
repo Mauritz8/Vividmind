@@ -57,3 +57,12 @@ bool Pawn::is_valid_en_passant(const Move& pawn_capture, const Board& board, con
            is_adjacent_pawn_opponents_piece &&
            abs(y_diff_previous_move) == 2;
 } 
+
+bool Pawn::is_promotion_move(const Move& move) const {
+    const int y_end = move.get_end_square().get_y();
+    const int promotion_row = this->get_color() == WHITE ? 0 : 7;
+    if (y_end == promotion_row) {
+        return true;
+    }
+    return false;
+}
