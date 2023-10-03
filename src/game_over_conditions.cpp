@@ -1,4 +1,5 @@
 #include <iostream>
+#include <memory>
 #include <vector>
 
 #include "board.h"
@@ -6,6 +7,9 @@
 #include "move.h"
 #include "game_state.h"
 #include "piece.h"
+#include "pieces/pawn.h"
+#include "pieces/queen.h"
+#include "pieces/rook.h"
 
 bool is_checkmate(const Board& board, const std::vector<Move>& move_history) {
    if (!is_check(board)) {
@@ -21,27 +25,25 @@ bool is_checkmate(const Board& board, const std::vector<Move>& move_history) {
    return true;
 }
 
-static bool is_insufficient_material(const Board& board) {
-    const std::vector<Piece> white_pieces = get_all_pieces(WHITE, board);
-    const std::vector<Piece> black_pieces = get_all_pieces(BLACK, board);
+static bool is_insufficient_material(Color color, const Board& board) {
+    const std::vector<std::unique_ptr<Piece>> pieces = get_all_pieces(color, board);
 
-    if (white_pieces.size() > 2 || black_pieces.size() > 2) {
+    if (pieces.size() > 2) {
         return false;
     }
 
-    for (int i = 0; i < white_pieces.size(); i++) {
-        const Piece piece = white_pieces.at(i);
-        if (piece.get_piece_type() == PAWN || piece.get_piece_type() == ROOK || piece.get_piece_type() == QUEEN) {
-            return false;
-        }
-    }
-    for (int i = 0; i < black_pieces.size(); i++) {
-        const Piece piece = black_pieces.at(i);
-        if (piece.get_piece_type() == PAWN || piece.get_piece_type() == ROOK || piece.get_piece_type() == QUEEN) {
+    for (int i = 0; i < pieces.size(); i++) {
+        const std::unique_ptr<Piece>& piece = pieces.at(i);
+        if (dynamic_cast<Pawn*>(piece.get()) != nullptr || dynamic_cast<Rook*>(piece.get()) != nullptr || dynamic_cast<Queen*>(piece.get()) != nullptr) {
             return false;
         }
     }
     return true;
+}
+
+static bool is_insufficient_material(const Board& board) {
+    return is_insufficient_material(WHITE, board) || 
+           is_insufficient_material(BLACK, board);
 }
 
 static bool is_stalemate(const Board& board, const std::vector<Move>& move_history) {
