@@ -38,6 +38,14 @@ Move::Move(const std::string& uci_notation, Board& board) {
     }
 }
 
+Move::Move(const Move& move) {
+    if (move.get_captured_piece_ref()) {
+        this->captured_piece = move.get_captured_piece_ref()->clone();
+    } else {
+        this->captured_piece = nullptr;
+    }
+}
+
 const Square& Move::get_start_square() const {
     return start_square;
 }
@@ -52,6 +60,10 @@ const Square& Move::get_end_square() const {
 
 void Move::set_end_square(const Square& end_square) {
     this->set_end_square(Square(end_square));
+}
+
+const std::unique_ptr<Piece>& Move::get_captured_piece_ref() const {
+    return std::move(captured_piece);
 }
 
 std::unique_ptr<Piece> Move::get_captured_piece() {
