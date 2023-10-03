@@ -17,6 +17,9 @@
 Move::Move(const Square& start_square, const Square& end_square) {
     this->set_start_square(start_square);
     this->set_end_square(end_square);
+    this->set_castling_move(false);
+    this->set_promotion(false);
+    this->set_en_passant(false);
 }
 
 Move::Move(const std::string& uci_notation, Board& board) {
@@ -137,25 +140,13 @@ bool Move::leaves_king_in_check(const Board& board, const std::vector<Move>& mov
 }
 
 void Move::make_appropriate(Board& board, std::vector<Move>& move_history) {
-    if (this->is_valid_castling(board, move_history)) {
-        this->set_castling_move(true);
-        this->set_promotion(false);
-        this->set_en_passant(false);
+    if (this->is_castling_move()) {
         this->make_castling(board);
-    } else if (this->is_valid_en_passant(board, move_history)) {
-        this->set_en_passant(true);
-        this->set_castling_move(false);
-        this->set_promotion(false);
+    } else if (this->is_en_passant()) {
         this->make_en_passant(board);
-    } else if (this->is_valid_promotion(board)) {
-        this->set_promotion(true);
-        this->set_castling_move(false);
-        this->set_en_passant(false);
+    } else if (this->is_promotion()) {
         this->make_promotion(board);
     } else {
-        this->set_castling_move(false);
-        this->set_promotion(false);
-        this->set_en_passant(false);
         this->make(board);
     }
 

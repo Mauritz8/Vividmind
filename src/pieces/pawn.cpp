@@ -26,13 +26,22 @@ std::vector<Move> Pawn::get_psuedo_legal_moves(const Board& board, const std::ve
 
     const Square& end3 = board.get_square(start.get_x() + 1, start.get_y() + direction);
     const Square& end4 = board.get_square(start.get_x() - 1, start.get_y() + direction);
-    const std::array<Move, 2> captures = {Move(start, end3), Move(start, end4)};
-    for (const Move& capture : captures) {
+    std::array<Move, 2> captures = {Move(start, end3), Move(start, end4)};
+    for (Move& capture : captures) {
         const bool is_valid_capture = 
             capture.get_end_square().get_piece() &&
             capture.get_end_square().get_piece()->get_color() != this->get_color();
-        if (is_valid_capture || is_valid_en_passant(capture, board, move_history)) {
+        if (is_valid_capture) {
             moves.push_back(capture);
+        } else if (is_valid_en_passant(capture, board, move_history)) {
+            capture.set_en_passant(true);
+            moves.push_back(capture);
+        }
+    }
+
+    for (Move& move : moves) {
+        if (is_promotion_move(move)) {
+            move.set_promotion(true);
         }
     }
 
