@@ -10,7 +10,10 @@ class Pawn : public Piece {
         char get_char_representation() const override;
 
     protected:
-        std::vector<Move> get_psuedo_legal_moves(const Board& board) const override;
+        std::vector<Move> get_psuedo_legal_moves(const Board& board, const std::vector<Move>& move_history) const override;
+
+    private:
+        bool is_valid_en_passant(const Move& move, const Board& board, const std::vector<Move>& move_history) const; 
 };
 
 #endif

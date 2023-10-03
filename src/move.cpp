@@ -387,23 +387,6 @@ bool Move::validate_basic(const Board& board) const {
     return true;
 }
 
-bool Move::is_valid_piece_movement(const Board& board) const {
-    switch (this->get_start_square().get_piece().get_piece_type()) {
-        case PAWN:
-            return is_valid_pawn_move(board);
-        case KNIGHT:
-            return is_valid_knight_move();
-        case BISHOP:
-            return is_valid_bishop_move(board);
-        case ROOK:
-            return is_valid_rook_move(board);
-        case QUEEN:
-            return is_valid_queen_move(board);
-        case KING:
-            return is_valid_king_move();
-    }
-}
-
 static bool has_castling_pieces_moved(const std::vector<Move>& move_history, int starting_row, int king_x, int rook_x) {
     for (int i = 0; i < move_history.size(); i++) {
         const Move& played_move = move_history.at(i);
@@ -504,31 +487,6 @@ void Move::undo_castling(Board& board) {
     this->undo(board);
     Move rook_move = this->get_castling_rook_move(board);
     rook_move.undo(board);
-}
-
-bool Move::is_valid_en_passant(const Board& board, const std::vector<Move>& move_history) const {
-    if (this->get_start_square().get_piece()->get_piece_type() != PAWN) {
-        return false;
-    }
-    const int direction = this->get_start_square().get_piece()->get_color() == BLACK ? 1 : -1;
-    const int x_diff = this->get_end_square().get_x() - this->get_start_square().get_x();
-    const int y_diff = this->get_end_square().get_y() - this->get_start_square().get_y();
-
-    const bool is_diagonal_pawn_move = abs(x_diff) == 1 && y_diff == direction;
-    const std::unique_ptr<Piece>& adjacent_piece = board.get_square(this->get_start_square().get_x() + x_diff, this->get_start_square().get_y()).get_piece();
-    const bool has_pawn_adjacent = adjacent_piece && adjacent_piece->get_piece_type() == PAWN;
-    const bool is_adjacent_pawn_opponents_piece = adjacent_piece && adjacent_piece->get_color() != this->get_start_square().get_piece()->get_color();
-
-    if (move_history.size() == 0) {
-        return false;
-    }
-    const Move& previous_move = move_history.back();
-    const int y_diff_previous_move = previous_move.get_end_square().get_y() - previous_move.get_start_square().get_y();
-
-    return is_diagonal_pawn_move &&
-           has_pawn_adjacent &&
-           is_adjacent_pawn_opponents_piece &&
-           abs(y_diff_previous_move) == 2;
 }
 
 void Move::make_en_passant(Board& board) {

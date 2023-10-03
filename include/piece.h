@@ -27,7 +27,7 @@ class Piece {
         virtual char get_char_representation() const = 0;
 
     protected:
-        virtual std::vector<Move> get_psuedo_legal_moves(const Board& board) const = 0;
+        virtual std::vector<Move> get_psuedo_legal_moves(const Board& board, const std::vector<Move>& move_history) const = 0;
         std::vector<Move> get_psuedo_legal_moves_direction(const Square& start, int x_direction, int y_direction, const Board& board) const;
 
     private:

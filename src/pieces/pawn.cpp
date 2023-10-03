@@ -9,31 +9,51 @@ char Pawn::get_char_representation() const {
     return 'p';
 }
 
-std::vector<Move> Pawn::get_psuedo_legal_moves(const Board& board) const {
+std::vector<Move> Pawn::get_psuedo_legal_moves(const Board& board, const std::vector<Move>& move_history) const {
     std::vector<Move> moves;
     const Square& start = board.get_square(this->get_x(), this->get_y());
+    const int direction = this->get_color() == BLACK ? 1 : -1;
 
-
-    const Square& end1 = board.get_square(start.get_x(), start.get_y() + 1);
+    const Square& end1 = board.get_square(start.get_x(), start.get_y() + direction);
     if (!end1.get_piece()) {
         moves.push_back(Move(start, end1));
 
-        const Square& end2 = board.get_square(start.get_x(), start.get_y() + 2);
+        const Square& end2 = board.get_square(start.get_x(), start.get_y() + 2*direction);
         if (!end2.get_piece()) {
             moves.push_back(Move(start, end2));
         }
     }
 
-    const Square& end3 = board.get_square(start.get_x() + 1, start.get_y() + 1);
-    if (end3.get_piece() && end3.get_piece()->get_color() != this->get_color()) {
-        moves.push_back(Move(start, end3));
-    }
-    const Square& end4 = board.get_square(start.get_x() - 1, start.get_y() + 1);
-    if (end3.get_piece() && end3.get_piece()->get_color() != this->get_color()) {
-        moves.push_back(Move(start, end4));
+    const Square& end3 = board.get_square(start.get_x() + 1, start.get_y() + direction);
+    const Square& end4 = board.get_square(start.get_x() - 1, start.get_y() + direction);
+    const std::array<Move, 2> captures = {Move(start, end3), Move(start, end4)};
+    for (const Move& capture : captures) {
+        const bool is_valid_capture = 
+            capture.get_end_square().get_piece() &&
+            capture.get_end_square().get_piece()->get_color() != this->get_color();
+        if (is_valid_capture || is_valid_en_passant(capture, board, move_history)) {
+            moves.push_back(capture);
+        }
     }
 
     return moves;
 }
 
+bool Pawn::is_valid_en_passant(const Move& pawn_capture, const Board& board, const std::vector<Move>& move_history) const {
+    const int direction = this->get_color() == BLACK ? 1 : -1;
+    const int x_diff = pawn_capture.get_end_square().get_x() - pawn_capture.get_start_square().get_x();
 
+    const std::unique_ptr<Piece>& adjacent_piece = board.get_square(pawn_capture.get_start_square().get_x() + x_diff, pawn_capture.get_start_square().get_y()).get_piece();
+    const bool has_pawn_adjacent = adjacent_piece && dynamic_cast<Pawn*>(adjacent_piece.get()) != nullptr;
+    const bool is_adjacent_pawn_opponents_piece = adjacent_piece && adjacent_piece->get_color() != pawn_capture.get_start_square().get_piece()->get_color();
+
+    if (move_history.size() == 0) {
+        return false;
+    }
+    const Move& previous_move = move_history.back();
+    const int y_diff_previous_move = previous_move.get_end_square().get_y() - previous_move.get_start_square().get_y();
+
+    return has_pawn_adjacent &&
+           is_adjacent_pawn_opponents_piece &&
+           abs(y_diff_previous_move) == 2;
+} 

@@ -60,13 +60,11 @@ class Move {
         bool is_valid_pawn_move(const Board& board) const;
         bool is_valid_pawn_move_threat(const Board& board) const;
         bool validate_basic(const Board& board) const;
-        bool is_valid_piece_movement(const Board& board) const;
         bool passes_through_check_when_castling(const Board& board, const std::vector<Move>& move_history) const;
         bool is_valid_castling(const Board& board, const std::vector<Move>& move_history) const;
         Move get_castling_rook_move(const Board& board) const;
         void make_castling(Board& board);
         void undo_castling(Board& board);
-        bool is_valid_en_passant(const Board& board, const std::vector<Move>& move_history) const;
         void make_en_passant(Board& board);
         void undo_en_passant(Board& board);
         void make_promotion(Board& board);
