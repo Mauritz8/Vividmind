@@ -136,31 +136,6 @@ bool Move::leaves_king_in_check(const Board& board, const std::vector<Move>& mov
     return false;
 }
 
-bool Move::is_legal(const Board& board, const std::vector<Move>& move_history) const {
-    if (!this->validate_basic(board)) {
-        return false;
-    }
-    if (this->leaves_king_in_check(board, move_history)) {
-        return false;
-    }
-
-    if (this->is_valid_promotion(board)) {
-        return true;
-    }
-    if (this->is_valid_castling(board, move_history)) {
-        return true;
-    }
-    if (this->is_valid_en_passant(board, move_history)) {
-        return true;
-    }
-
-    if (!this->is_valid_piece_movement(board)) {
-        return false;
-    }
-
-    return true;
-}
-
 void Move::make_appropriate(Board& board, std::vector<Move>& move_history) {
     if (this->is_valid_castling(board, move_history)) {
         this->set_castling_move(true);
@@ -334,105 +309,6 @@ bool Move::is_valid_pawn_move_threat(const Board& board) const {
         return true;
     }
     return false;
-}
-
-bool Move::validate_basic(const Board& board) const {
-    const Square& start_square = this->get_start_square();
-    const Square& end_square = this->get_end_square();
-
-    if (!start_square.get_piece()) {
-        return false;
-    }
-
-    if (start_square.get_piece()->get_color() != board.get_player_to_move()) {
-        return false;
-    }
-
-    if (start_square.is_outside_board() || end_square.is_outside_board()) {
-        return false;
-    }
-
-    if (!this->get_start_square().get_piece()) {
-        return false;
-    }
-
-    if (this->get_end_square().get_piece() && this->get_start_square().get_piece()->get_color() == this->get_end_square().get_piece()->get_color()) {
-        return false;
-    }
-    return true;
-}
-
-static bool has_castling_pieces_moved(const std::vector<Move>& move_history, int starting_row, int king_x, int rook_x) {
-    for (int i = 0; i < move_history.size(); i++) {
-        const Move& played_move = move_history.at(i);
-        if (played_move.get_start_square().get_y() == starting_row) {
-            if (played_move.get_start_square().get_x() == king_x || played_move.get_start_square().get_x() == rook_x) {
-                return true;
-            }
-        }
-    }
-    return false;
-}
-
-bool Move::passes_through_check_when_castling(const Board& board, const std::vector<Move>& move_history) const {
-    Board board_copy = board;
-    std::vector<Move> move_history_copy = move_history;
-    const int row = this->get_start_square().get_y();
-    const int start_x = this->get_start_square().get_x();
-    const int end_x = this->get_end_square().get_x();
-    const int direction = end_x - start_x > 0 ? 1 : -1;
-
-    int x = start_x;
-    Move submove;
-    while (x != end_x) {
-        submove.start_square = board_copy.get_square(x, row);
-        submove.end_square = board_copy.get_square(x + direction, row);
-        submove.make_appropriate(board_copy, move_history_copy);
-        if (is_check(board_copy)) {
-            return true;
-        }
-        x += direction;
-    }
-    return false;
-}
-
-bool Move::is_valid_castling(const Board& board, const std::vector<Move>& move_history) const {
-    const Color color = this->get_start_square().get_piece()->get_color();
-    const int starting_row = color == WHITE ? 7 : 0;
-
-    if (this->end_square.get_y() != starting_row) {
-        return false;
-    }
-    const int king_x = 4;
-    if (this->get_start_square().get_x() != king_x || this->get_start_square().get_y() != starting_row) {
-        return false;
-    }
-    int rook_x;
-    if (this->end_square.get_x() == 6) {
-        rook_x = 7;
-    } else if (this->end_square.get_x() == 2) {
-        rook_x = 0;
-    } else {
-        return false;
-    }
-
-    if (has_castling_pieces_moved(move_history, starting_row, king_x, rook_x)) {
-        return false;
-    }
-    
-    const Square& king_square = board.get_square(king_x, starting_row);
-    const Square& rook_square = board.get_square(rook_x, starting_row);
-    if (!is_clear_line(king_square, rook_square, board)) {
-        return false;
-    }
-    if (is_check(board)) {
-        return false;
-    }
-    if (this->passes_through_check_when_castling(board, move_history)) {
-        return false;
-    }
-
-    return true;
 }
 
 Move Move::get_castling_rook_move(const Board& board) const {
