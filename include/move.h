@@ -30,6 +30,8 @@ class Move {
         bool is_en_passant() const;
         void set_en_passant(bool en_passant);
 
+        bool operator==(const Move& move) const;
+
         bool is_threatened_move(const Board& board) const;
         bool leaves_king_in_check(const Board& board, const std::vector<Move>& move_history) const;
         bool is_promotion_move(const Board& board) const;

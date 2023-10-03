@@ -21,8 +21,10 @@ class Piece {
         int get_y() const;
         void set_y(int y);
 
+        bool is_legal_move(const Move& psuedo_legal, const Board& board, const std::vector<Move>& move_history) const;
         std::vector<Move> get_legal_moves(const Board& board, const std::vector<Move>& move_history) const;
-        virtual char get_char_representation() const;
+        bool is_psuedo_legal_move(const Move& move, const Board& board) const;
+        virtual char get_char_representation() const = 0;
 
     protected:
         virtual std::vector<Move> get_psuedo_legal_moves(const Board& board) const = 0;
