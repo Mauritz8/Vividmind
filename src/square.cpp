@@ -7,6 +7,16 @@ Square::Square(int x, int y) {
     this->y = y;
 }
 
+Square::Square(const Square& square) {
+    this->x = square.get_x();
+    this->y = square.get_y();
+    if (square.get_piece()) {
+        this->piece = square.get_piece()->clone();
+    } else {
+        this->piece = nullptr;
+    }
+}
+
 int Square::get_x() const {
     return x;
 }

@@ -7,6 +7,7 @@
 class Knight : public Piece {
     public:
         Knight(Color color, int x, int y) : Piece(color, x, y) {};
+        std::unique_ptr<Piece> clone() const override;
         char get_char_representation() const override;
 
     protected:

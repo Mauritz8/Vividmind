@@ -1,6 +1,7 @@
 #ifndef PIECE_H
 #define PIECE_H
 
+#include <memory>
 #include <optional>
 #include <vector>
 
@@ -13,6 +14,7 @@ class Square;
 class Piece {
     public:
         Piece(Color color, int x, int y);
+        virtual std::unique_ptr<Piece> clone() const = 0;
 
         Color get_color() const;
         void set_color(Color color);

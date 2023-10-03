@@ -5,6 +5,10 @@
 #include <vector>
 
 
+std::unique_ptr<Piece> Bishop::clone() const {
+    return std::make_unique<Bishop>(*this);
+}
+
 char Bishop::get_char_representation() const {
     return 'B';
 }

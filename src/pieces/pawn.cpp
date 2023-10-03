@@ -5,6 +5,11 @@
 #include <array>
 #include <vector>
 
+
+std::unique_ptr<Piece> Pawn::clone() const {
+    return std::make_unique<Pawn>(*this);
+}
+
 char Pawn::get_char_representation() const {
     return 'p';
 }

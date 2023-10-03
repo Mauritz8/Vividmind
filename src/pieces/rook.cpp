@@ -3,6 +3,11 @@
 #include <iterator>
 #include <vector>
 
+
+std::unique_ptr<Piece> Rook::clone() const {
+    return std::make_unique<Rook>(*this);
+}
+
 char Rook::get_char_representation() const {
     return 'R';
 }

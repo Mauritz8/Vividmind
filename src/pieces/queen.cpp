@@ -2,6 +2,11 @@
 #include "pieces/queen.h"
 #include <vector>
 
+
+std::unique_ptr<Piece> Queen::clone() const {
+    return std::make_unique<Queen>(*this);
+}
+
 char Queen::get_char_representation() const {
     return 'Q';
 }

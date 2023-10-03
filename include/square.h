@@ -8,6 +8,7 @@ class Square {
     public:
         Square() {}
         Square(int x, int y);
+        Square(const Square& square);
 
         int get_x() const;
         int get_y() const;

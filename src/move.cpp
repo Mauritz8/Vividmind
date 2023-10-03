@@ -43,7 +43,7 @@ const Square& Move::get_start_square() const {
 }
 
 void Move::set_start_square(const Square& start_square) {
-    this->start_square = start_square;
+    this->set_start_square(Square(start_square));
 }
 
 const Square& Move::get_end_square() const {
@@ -51,7 +51,7 @@ const Square& Move::get_end_square() const {
 }
 
 void Move::set_end_square(const Square& end_square) {
-    this->end_square = end_square;
+    this->set_end_square(Square(end_square));
 }
 
 std::unique_ptr<Piece> Move::get_captured_piece() {

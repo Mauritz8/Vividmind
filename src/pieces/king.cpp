@@ -7,6 +7,11 @@
 #include <array>
 #include <vector>
 
+
+std::unique_ptr<Piece> King::clone() const {
+    return std::make_unique<King>(*this);
+}
+
 char King::get_char_representation() const {
     return 'K';
 }
