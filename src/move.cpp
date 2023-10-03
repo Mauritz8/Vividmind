@@ -14,31 +14,39 @@
 #include "pieces/pawn.h"
 
 
-Move::Move(const Square& start_square, const Square& end_square) {
-    this->set_start_square(start_square);
-    this->set_end_square(end_square);
+Move::Move(const Square& start_square, const Square& end_square) 
+    : start_square(start_square),
+      end_square(end_square) 
+{
     this->set_castling_move(false);
     this->set_promotion(false);
     this->set_en_passant(false);
 }
 
-Move::Move(const std::string& uci_notation, Board& board) {
+Move Move::get_from_uci_notation(const std::string& uci_notation, const Board& board) {
     const int start_x = uci_notation[0] - 'a';
     const int start_y = 8 - (uci_notation[1] - '0');
     const int end_x = uci_notation[2] - 'a';
     const int end_y = 8 - (uci_notation[3] - '0');
     const Square& start = board.get_square(start_x, start_y);
     const Square& end = board.get_square(end_x, end_y);
-    this->set_start_square(start);
-    this->set_end_square(end);
+    Move move = Move(start, end);
 
     if (uci_notation.length() == 5) {
         const char promotion_piece = uci_notation[4];
-        this->set_promotion_piece(get_promotion_piece_type(promotion_piece));
+        move.set_promotion_piece(get_promotion_piece_type(promotion_piece));
     }
+    return move;
 }
 
-Move::Move(const Move& move) {
+Move::Move(const Move& move) 
+    : start_square(move.start_square),
+      end_square(move.end_square)
+{
+    this->castling_move = move.castling_move;
+    this->promotion = move.promotion;
+    this->promotion_piece = move.promotion_piece;
+    this->en_passant = move.en_passant;
     if (move.get_captured_piece_ref()) {
         this->captured_piece = move.get_captured_piece_ref()->clone();
     } else {
@@ -315,18 +323,21 @@ bool Move::is_valid_pawn_move_threat(const Board& board) const {
 }
 
 Move Move::get_castling_rook_move(const Board& board) const {
-    Move rook_move;
     const int row = this->get_start_square().get_y();
     const int move_direction = this->get_end_square().get_x() - this->get_start_square().get_x(); 
+
+    int start_x;
+    int end_x;
     if (move_direction > 0) {
         // kingside castling
-        rook_move.set_start_square(board.get_square(7, row));
-        rook_move.set_end_square(board.get_square(5, row));
+        start_x = 7;
+        end_x = 5;
     } else {
         // queenside castling
-        rook_move.set_start_square(board.get_square(0, row));
-        rook_move.set_end_square(board.get_square(3, row));
+        start_x = 0;
+        end_x = 3;
     }
+    Move rook_move = Move(board.get_square(7, row), board.get_square(5, row));
     rook_move.set_captured_piece({});
     return rook_move;
 }

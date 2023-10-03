@@ -11,10 +11,9 @@
 
 class Move {
     public:
-        Move() {}
         Move(const Square& start_square, const Square& end_square);
-        Move(const std::string& uci_notation, Board& board);
         Move(const Move& move);
+        static Move get_from_uci_notation(const std::string& uci_notation, const Board& board);
 
         const Square& get_start_square() const;
         void set_start_square(const Square& start_square);
@@ -36,14 +35,13 @@ class Move {
 
         bool is_threatened_move(const Board& board) const;
         bool leaves_king_in_check(const Board& board, const std::vector<Move>& move_history) const;
-        bool is_legal(const Board& board, const std::vector<Move>& move_history) const;
         void make_appropriate(Board& board, std::vector<Move>& move_history);
         void undo_appropriate(Board& board, std::vector<Move>& move_history);
         std::string to_uci_notation() const;
 
     private:
-        Square start_square;
-        Square end_square;
+        const Square& start_square;
+        const Square& end_square;
         std::unique_ptr<Piece> captured_piece;
         bool castling_move;
         bool promotion;
