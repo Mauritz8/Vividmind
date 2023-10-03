@@ -9,7 +9,7 @@ char Bishop::get_char_representation() const {
     return 'B';
 }
 
-std::vector<Move> Bishop::get_psuedo_legal_moves(const Board& board) const  {
+std::vector<Move> Bishop::get_psuedo_legal_moves(const Board& board, const std::vector<Move>& move_history) const  {
     std::vector<Move> moves;
     const Square& start = board.get_square(this->get_x(), this->get_y());
 
