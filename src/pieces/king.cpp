@@ -70,7 +70,7 @@ bool King::is_valid_castling(const Move& move, const Board& board, const std::ve
     if (!is_clear_line(king_square, rook_square, board)) {
         return false;
     }
-    if (is_check(board)) {
+    if (is_check(board, move_history)) {
         return false;
     }
     if (passes_through_check_when_castling(move, board, move_history)) {
@@ -106,7 +106,7 @@ bool King::passes_through_check_when_castling(const Move& castling_move, const B
         const Square& end = board_copy.get_square(x + direction, row);
         Move submove = Move(start, end);
         submove.make_appropriate(board_copy, move_history_copy);
-        if (is_check(board_copy)) {
+        if (is_check(board_copy, move_history_copy)) {
             return true;
         }
         x += direction;

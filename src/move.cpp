@@ -139,7 +139,7 @@ bool Move::leaves_king_in_check(const Board& board, const std::vector<Move>& mov
     Board board_copy = board;
     std::vector<Move> move_history_copy = move_history;
     move_copy.make_appropriate(board_copy, move_history_copy);
-    if (is_check(board_copy)) {
+    if (is_check(board_copy, move_history_copy)) {
         return true;
     }
     return false;
