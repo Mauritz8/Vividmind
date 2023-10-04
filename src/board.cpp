@@ -74,9 +74,9 @@ Square& Board::get_square(int x, int y) {
     return squares.at(y).at(x); 
 }
 
-void Board::set_square(int x, int y, std::unique_ptr<Piece>& piece) {
+void Board::set_square(int x, int y, std::unique_ptr<Piece> piece) {
     Square& square = squares.at(y).at(x); 
-    square.set_piece(piece);
+    square.set_piece(std::move(piece));
 }
 
 Color Board::get_player_to_move() const { 
@@ -114,29 +114,28 @@ void Board::switch_player_to_move() {
 void Board::setup_pieces(Color color) {
     const int row = color == WHITE ? 7 : 0;
 
-    std::unique_ptr<Piece> p1 = std::make_unique<Rook>(Rook(color, 0, row));
-    this->set_square(0, row, p1);
-    std::unique_ptr<Piece> p2 = std::make_unique<Knight>(Knight(color, 1, row));
-    this->set_square(1, row, p2);
-    std::unique_ptr<Piece> p3 = std::make_unique<Bishop>(Bishop(color, 2, row));
-    this->set_square(2, row, p3);
-    std::unique_ptr<Piece> p4 = std::make_unique<Queen>(Queen(color, 3, row));
-    this->set_square(3, row, p4);
-    std::unique_ptr<Piece> p5 = std::make_unique<King>(King(color, 4, row));
-    this->set_square(4, row, p5);
-    std::unique_ptr<Piece> p6 = std::make_unique<Bishop>(Bishop(color, 5, row));
-    this->set_square(5, row, p6);
-    std::unique_ptr<Piece> p7 = std::make_unique<Knight>(Knight(color, 6, row));
-    this->set_square(6, row, p7);
-    std::unique_ptr<Piece> p8 = std::make_unique<Rook>(Rook(color, 7, row));
-    this->set_square(7, row, p8);
+    auto p1 = std::make_unique<Rook>(Rook(color, 0, row));
+    this->set_square(0, row, std::move(p1));
+    auto p2 = std::make_unique<Knight>(Knight(color, 1, row));
+    this->set_square(1, row, std::move(p2));
+    auto p3 = std::make_unique<Bishop>(Bishop(color, 2, row));
+    this->set_square(2, row, std::move(p3));
+    auto p4 = std::make_unique<Queen>(Queen(color, 3, row));
+    this->set_square(3, row, std::move(p4));
+    auto p5 = std::make_unique<King>(King(color, 4, row));
+    this->set_square(4, row, std::move(p5));
+    auto p6 = std::make_unique<Bishop>(Bishop(color, 5, row));
+    this->set_square(5, row, std::move(p6));
+    auto p7 = std::make_unique<Knight>(Knight(color, 6, row));
+    this->set_square(6, row, std::move(p7));
+    auto p8 = std::make_unique<Rook>(Rook(color, 7, row));
+    this->set_square(7, row, std::move(p8));
 }
 
 void Board::setup_pawns(Color color) {
     const int row = color == WHITE ? 6 : 1;
     for (int i = 0; i < 8; i++) {
-        std::unique_ptr<Piece> pawn = std::make_unique<Pawn>(Pawn(color, i, row));
-        this->set_square(i, row, pawn);
+        this->set_square(i, row, std::make_unique<Pawn>(Pawn(color, i, row)));
     }
 }
 
@@ -175,7 +174,7 @@ void Board::place_pieces(const std::string& fen_piece_placement_field) {
                         break;
                     }
                 }
-                this->set_square(j, i, piece);
+                this->set_square(j, i, std::move(piece));
             } else if (ch >= '1' && ch <= '8') {
                 const int num = ch - '0';
                 j += num - 1;

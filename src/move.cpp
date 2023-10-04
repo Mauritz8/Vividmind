@@ -348,7 +348,7 @@ void Move::make_en_passant(Board& board) {
     const int x_diff = this->get_end_square().get_x() - this->get_start_square().get_x();
     Square& captured_square = board.get_square(this->get_start_square().get_x() + x_diff, this->get_start_square().get_y());
     this->set_captured_piece(captured_square.get_piece());
-    captured_square.set_piece({});
+    captured_square.get_piece().reset();
 }
 
 void Move::undo_en_passant(Board& board) {

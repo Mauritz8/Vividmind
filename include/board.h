@@ -15,7 +15,7 @@ class Board {
         
         const Square& get_square(int x, int y) const;
         Square& get_square(int x, int y);
-        void set_square(int x, int y, std::unique_ptr<Piece>& piece);
+        void set_square(int x, int y, std::unique_ptr<Piece> piece);
         Color get_player_to_move() const;
         void set_player_to_move(Color player_to_move);
 
