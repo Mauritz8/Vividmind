@@ -35,6 +35,10 @@ void Piece::set_y(int y) {
     this->y = y;
 }
 
+std::vector<Move> Piece::get_threatened_moves(const Board& board, const std::vector<Move>& move_history) const {
+    return this->get_psuedo_legal_moves(board, move_history);
+}
+
 std::vector<Move> Piece::get_psuedo_legal_moves_direction(const Square& start, int x_direction, int y_direction, const Board& board) const {
     std::vector<Move> moves;
 

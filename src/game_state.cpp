@@ -28,12 +28,12 @@ static std::optional<Square> get_king_square(Color color, const Board& board) {
     return {};
 }
 
-static bool is_psuedo_legal(const Move& psuedo_legal) {
+static bool is_valid(const Move& move) {
     const bool end_square_has_same_color_piece = 
-        psuedo_legal.get_end_square().get_piece() &&
-        psuedo_legal.get_end_square().get_piece()->get_color() == psuedo_legal.get_start_square().get_piece()->get_color();
+        move.get_end_square().get_piece() &&
+        move.get_end_square().get_piece()->get_color() == move.get_start_square().get_piece()->get_color();
 
-    if (psuedo_legal.get_end_square().is_outside_board() || end_square_has_same_color_piece) {
+    if (move.get_end_square().is_outside_board() || end_square_has_same_color_piece) {
         return false;
     }
     return true;
@@ -45,18 +45,18 @@ static bool is_legal(const Move& psuedo_legal, const Board& board, const std::ve
     std::vector<Move> move_history_copy = move_history;
 
     psuedo_legal_copy.make_appropriate(board_copy, move_history_copy);
-    if (is_psuedo_legal(psuedo_legal) || is_check(board_copy, move_history_copy)) {
+    if (is_valid(psuedo_legal) || is_check(board_copy, move_history_copy)) {
         return false;
     }
     return true;
 }
 
-static std::vector<Move> get_psuedo_legal_moves(const std::vector<std::reference_wrapper<const std::unique_ptr<Piece>>>& pieces, const Board& board, std::vector<Move> move_history) {
+static std::vector<Move> get_threatened_moves(const std::vector<std::reference_wrapper<const std::unique_ptr<Piece>>>& pieces, const Board& board, std::vector<Move> move_history) {
     std::vector<Move> legal_moves;
     for (const std::unique_ptr<Piece>& piece : pieces) {
-        std::vector<Move> psuedo_legal_moves = piece->get_psuedo_legal_moves(board, move_history); 
+        std::vector<Move> psuedo_legal_moves = piece->get_threatened_moves(board, move_history); 
         for (Move& move : psuedo_legal_moves) {
-            if (is_psuedo_legal(move)) {
+            if (is_valid(move)) {
                 legal_moves.push_back(move);
             }
         }
@@ -64,7 +64,7 @@ static std::vector<Move> get_psuedo_legal_moves(const std::vector<std::reference
     return legal_moves;
 }
 
-std::vector<Move> get_all_psuedo_legal_moves(const Board& board, const std::vector<Move>& move_history) {
+std::vector<Move> get_all_threatened_moves(const Board& board, const std::vector<Move>& move_history) {
     std::vector<std::reference_wrapper<const std::unique_ptr<Piece>>> pieces;
     for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 8; j++) {
@@ -75,8 +75,7 @@ std::vector<Move> get_all_psuedo_legal_moves(const Board& board, const std::vect
             } 
         }
     }
-    std::vector<Move> psuedo_legal_moves = get_psuedo_legal_moves(pieces, board, move_history);
-    return psuedo_legal_moves;
+    return get_threatened_moves(pieces, board, move_history);
 }
 
 static std::vector<Move> get_legal_moves(const std::vector<std::reference_wrapper<const std::unique_ptr<Piece>>>& pieces, const Board& board, std::vector<Move> move_history) {
@@ -118,7 +117,7 @@ bool is_check(const Board& board, const std::vector<Move>& move_history) {
         return false;  
     }
 
-    const std::vector<Move> psuedo_legal_moves = get_all_psuedo_legal_moves(board, move_history);
+    const std::vector<Move> psuedo_legal_moves = get_all_threatened_moves(board, move_history);
     for (const Move& move : psuedo_legal_moves) {
         const Square& threatened_square = move.get_end_square();
         if (threatened_square == opponent_king_square.value()) {

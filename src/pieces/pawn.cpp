@@ -53,6 +53,18 @@ std::vector<Move> Pawn::get_psuedo_legal_moves(const Board& board, const std::ve
     return moves;
 }
 
+std::vector<Move> Piece::get_threatened_moves(const Board& board, const std::vector<Move>& move_history) const {
+    std::vector<Move> moves;
+    const Square& start = board.get_square(this->get_x(), this->get_y());
+    const int direction = this->get_color() == BLACK ? 1 : -1;
+
+    const Square& end1 = board.get_square(this->get_x() + 1, this->get_y() + direction);
+    const Square& end2 = board.get_square(this->get_x() - 1, this->get_y() + direction);
+    moves.push_back(Move(start, end1));
+    moves.push_back(Move(start, end2));
+    return moves;
+}
+
 bool Pawn::is_valid_en_passant(const Move& pawn_capture, const Board& board, const std::vector<Move>& move_history) const {
     const int direction = this->get_color() == BLACK ? 1 : -1;
     const int x_diff = pawn_capture.get_end_square().get_x() - pawn_capture.get_start_square().get_x();
