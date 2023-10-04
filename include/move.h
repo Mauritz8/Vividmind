@@ -33,7 +33,6 @@ class Move {
 
         bool operator==(const Move& move) const;
 
-        bool is_threatened_move(const Board& board) const;
         bool leaves_king_in_check(const Board& board, const std::vector<Move>& move_history) const;
         void make_appropriate(Board& board, std::vector<Move>& move_history);
         void undo_appropriate(Board& board, std::vector<Move>& move_history);

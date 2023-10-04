@@ -8,7 +8,6 @@
 #include <memory>
 #include <vector>
 
-std::vector<Square> get_all_threatened_squares(Color color, const Board& board);
 std::vector<Move> get_all_legal_moves(const Board& board, const std::vector<Move>& move_history);
 Color get_opposite_color(Color color);
 bool is_check(const Board& board);

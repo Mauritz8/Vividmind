@@ -124,34 +124,6 @@ bool Move::operator==(const Move& move) const {
         && this->get_start_square().get_piece() == move.get_start_square().get_piece();
 }
 
-bool Move::is_threatened_move(const Board& board) const {
-    const Square& start_square = this->get_start_square();
-    const Square& end_square = this->get_end_square();
-
-    if (start_square.is_outside_board() || end_square.is_outside_board()) {
-        return false;
-    }
-
-    if (!start_square.get_piece()) {
-        return false;
-    }
-
-    switch (this->get_start_square().get_piece()->get_piece_type()) {
-        case PAWN:
-            return this->is_valid_pawn_move_threat(board);
-        case KNIGHT:
-            return this->is_valid_knight_move();
-        case BISHOP:
-            return this->is_valid_bishop_move(board);
-        case ROOK:
-            return this->is_valid_rook_move(board);
-        case QUEEN:
-            return this->is_valid_queen_move(board);
-        case KING:
-            return this->is_valid_king_move();
-    }
-}
-
 bool Move::leaves_king_in_check(const Board& board, const std::vector<Move>& move_history) const {
     Move move_copy = *this;
     Board board_copy = board;

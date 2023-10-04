@@ -27,10 +27,8 @@ static void handle_ucinewgame_command(Board& board, std::vector<Move>& move_hist
 static void make_moves(std::istringstream& moves, Board& board, std::vector<Move>& move_history) {
     std::string move_uci;
     while (std::getline(moves, move_uci, ' ')) {
-        Move move = Move(move_uci, board);
-        if (move.is_legal(board, move_history)) {
-            move.make_appropriate(board, move_history);
-        }
+        Move move = Move::get_from_uci_notation(move_uci, board);
+        move.make_appropriate(board, move_history);
     }
 }
 
