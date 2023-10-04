@@ -101,10 +101,10 @@ bool King::passes_through_check_when_castling(const Move& castling_move, const B
     const int direction = end_x - start_x > 0 ? 1 : -1;
 
     int x = start_x;
-    Move submove;
     while (x != end_x) {
-        submove.set_start_square(board_copy.get_square(x, row));
-        submove.set_end_square(board_copy.get_square(x + direction, row));
+        const Square& start = board_copy.get_square(x, row); 
+        const Square& end = board_copy.get_square(x + direction, row);
+        Move submove = Move(start, end);
         submove.make_appropriate(board_copy, move_history_copy);
         if (is_check(board_copy)) {
             return true;
