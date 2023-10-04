@@ -11,7 +11,11 @@
 #include "move.h"
 #include "piece.h"
 #include "game_state.h"
+#include "pieces/bishop.h"
+#include "pieces/knight.h"
 #include "pieces/pawn.h"
+#include "pieces/queen.h"
+#include "pieces/rook.h"
 
 
 Move::Move(const Square& start_square, const Square& end_square) 
@@ -378,11 +382,37 @@ void Move::undo_en_passant(Board& board) {
 void Move::make_promotion(Board& board) {
     this->make(board);
     Square& end_square = board.get_square(this->get_end_square().get_x(), this->get_end_square().get_y());
-    end_square.get_piece()->set_piece_type(this->get_promotion_piece().value());
+    if (!this->get_promotion_piece()) {
+        return;
+    }
+    switch (this->get_promotion_piece().value()) {
+        case QUEEN: {
+            std::unique_ptr<Piece> piece = end_square.get_piece();
+            *piece = *dynamic_cast<Queen*>(piece.get());
+            break;
+        }
+        case ROOK: {
+            std::unique_ptr<Piece> piece = end_square.get_piece();
+            *piece = *dynamic_cast<Rook*>(piece.get());
+            break;
+        }
+        case BISHOP: {
+            std::unique_ptr<Piece> piece = end_square.get_piece();
+            *piece = *dynamic_cast<Bishop*>(piece.get());
+            break;
+        }
+        case KNIGHT: {
+            std::unique_ptr<Piece> piece = end_square.get_piece();
+            *piece = *dynamic_cast<Knight*>(piece.get());
+            break;
+        }
+        default: break;
+    }
 }
 
 void Move::undo_promotion(Board& board) {
     this->undo(board);
     Square& start_square = board.get_square(this->get_start_square().get_x(), this->get_start_square().get_y());
-    start_square.get_piece()->set_piece_type(PAWN);
+    std::unique_ptr<Piece> piece = start_square.get_piece();
+    *piece = *dynamic_cast<Pawn*>(piece.get());
 }
