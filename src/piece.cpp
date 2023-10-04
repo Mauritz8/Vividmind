@@ -5,6 +5,7 @@
 #include "game_state.h"
 #include "move.h"
 #include "piece.h"
+#include "pieces/pawn.h"
 #include "square.h"
 
 
@@ -35,7 +36,11 @@ void Piece::set_y(int y) {
     this->y = y;
 }
 
-std::vector<Move> Piece::get_threatened_moves(const Board& board, const std::vector<Move>& move_history) const {
+std::vector<Move> Piece::get_threatened_moves(const Board& board, const std::vector<Move>& move_history) {
+    const Pawn* pawn = dynamic_cast<Pawn*>(this);
+    if (pawn != nullptr) {
+        return pawn->get_threatened_moves(board);
+    }
     return this->get_psuedo_legal_moves(board, move_history);
 }
 

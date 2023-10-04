@@ -53,7 +53,7 @@ std::vector<Move> Pawn::get_psuedo_legal_moves(const Board& board, const std::ve
     return moves;
 }
 
-std::vector<Move> Piece::get_threatened_moves(const Board& board, const std::vector<Move>& move_history) const {
+std::vector<Move> Pawn::get_threatened_moves(const Board& board) const {
     std::vector<Move> moves;
     const Square& start = board.get_square(this->get_x(), this->get_y());
     const int direction = this->get_color() == BLACK ? 1 : -1;

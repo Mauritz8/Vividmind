@@ -25,7 +25,7 @@ class Piece {
         void set_y(int y);
 
         virtual std::vector<Move> get_psuedo_legal_moves(const Board& board, const std::vector<Move>& move_history) const = 0;
-        virtual std::vector<Move> get_threatened_moves(const Board& board, const std::vector<Move>& move_history) const;
+        std::vector<Move> get_threatened_moves(const Board& board, const std::vector<Move>& move_history);
         virtual char get_char_representation() const = 0;
 
     protected:
