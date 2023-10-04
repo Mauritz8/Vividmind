@@ -118,6 +118,16 @@ void Move::set_en_passant(bool en_passant) {
     this->en_passant = en_passant;
 }
 
+Move Move::operator=(const Move& move) {
+    this->set_start_square(move.get_start_square());
+    this->set_end_square(move.get_end_square());
+    this->set_castling_move(move.is_castling_move());
+    this->set_promotion(move.is_promotion());
+    this->set_promotion_piece(move.get_promotion_piece());
+    this->set_en_passant(move.is_en_passant());
+    return *this;
+}
+
 bool Move::operator==(const Move& move) const {
     return this->get_start_square() == move.get_start_square()
         && this->get_end_square() == move.get_end_square()
