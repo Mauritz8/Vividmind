@@ -1,3 +1,4 @@
+#include <functional>
 #include <iostream>
 #include <memory>
 #include <vector>
@@ -26,7 +27,7 @@ bool is_checkmate(const Board& board, const std::vector<Move>& move_history) {
 }
 
 static bool is_insufficient_material(Color color, const Board& board) {
-    const std::vector<std::unique_ptr<Piece>> pieces = get_all_pieces(color, board);
+    const std::vector<std::reference_wrapper<const std::unique_ptr<Piece>>>& pieces = get_all_pieces(color, board);
 
     if (pieces.size() > 2) {
         return false;

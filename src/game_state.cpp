@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <array>
+#include <functional>
 #include <iterator>
 #include <memory>
 #include <optional>
@@ -57,26 +58,25 @@ std::vector<Square> get_all_threatened_squares(Color color, const Board& board) 
     return all_threatened_squares;
 }
 
-static std::vector<Move> get_legal_moves(const std::vector<std::unique_ptr<Piece>>& pieces, const Board& board, std::vector<Move> move_history) {
+static std::vector<Move> get_legal_moves(const std::vector<std::reference_wrapper<const std::unique_ptr<Piece>>>& pieces, const Board& board, std::vector<Move> move_history) {
     std::vector<Move> legal_moves;
     for (const std::unique_ptr<Piece>& piece : pieces) {
-        const std::vector<Move> piece_legal_moves = piece->get_legal_moves(board, move_history); 
-        legal_moves.insert(
-                std::end(legal_moves),
-                std::begin(piece_legal_moves),
-                std::end(piece_legal_moves)
-                );
+        std::vector<Move> piece_legal_moves = piece->get_legal_moves(board, move_history); 
+        for (Move& move : piece_legal_moves) {
+            legal_moves.push_back(move);
+        }
     }
     return legal_moves;
 }
 
 std::vector<Move> get_all_legal_moves(const Board& board, const std::vector<Move>& move_history) {
-    std::vector<std::unique_ptr<Piece>> pieces;
+    std::vector<std::reference_wrapper<const std::unique_ptr<Piece>>> pieces;
     for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 8; j++) {
             const Square& square = board.get_square(j, i);
             if (square.get_piece() && square.get_piece()->get_color() == board.get_player_to_move()) {
-                pieces.push_back(square.get_piece());
+                std::reference_wrapper<const std::unique_ptr<Piece>> piece = cref(square.get_piece());
+                pieces.push_back(piece);
             } 
         }
     }
@@ -105,8 +105,8 @@ bool is_check(const Board& board) {
     return false;
 }
 
-std::vector<std::unique_ptr<Piece>> get_all_pieces(Color color, const Board& board) {
-    std::vector<std::unique_ptr<Piece>> pieces;
+std::vector<std::reference_wrapper<const std::unique_ptr<Piece>>> get_all_pieces(Color color, const Board& board) {
+    std::vector<std::reference_wrapper<const std::unique_ptr<Piece>>> pieces;
     for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 8; j++) {
             const std::unique_ptr<Piece>& piece = board.get_square(j, i).get_piece();
