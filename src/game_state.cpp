@@ -45,7 +45,7 @@ static bool is_legal(const Move& psuedo_legal, const Board& board, const std::ve
     std::vector<Move> move_history_copy = move_history;
 
     psuedo_legal_copy.make_appropriate(board_copy, move_history_copy);
-    if (is_valid(psuedo_legal) || is_check(board_copy, move_history_copy)) {
+    if (!is_valid(psuedo_legal) || is_check(board_copy, move_history_copy)) {
         return false;
     }
     return true;
