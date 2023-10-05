@@ -2,6 +2,7 @@
 #include <iostream>
 #include <memory>
 #include <cctype>
+#include <stdexcept>
 #include <string>
 #include <vector>
 
@@ -67,14 +68,23 @@ Board Board::get_position_from_fen(std::string fen) {
 
 
 const Square& Board::get_square(int x, int y) const { 
+    if (x < 0 || x > 7 || y < 0 || y > 7) {
+        throw std::invalid_argument("Square (" + std::to_string(x) + ", " + std::to_string(y) + ") is outside board");
+    }
     return squares.at(y).at(x); 
 }
 
 Square& Board::get_square(int x, int y) { 
+    if (x < 0 || x > 7 || y < 0 || y > 7) {
+        throw std::invalid_argument("Square (" + std::to_string(x) + ", " + std::to_string(y) + ") is outside board");
+    }
     return squares.at(y).at(x); 
 }
 
 void Board::set_square(int x, int y, std::unique_ptr<Piece> piece) {
+    if (x < 0 || x > 7 || y < 0 || y > 7) {
+        throw std::invalid_argument("Square (" + std::to_string(x) + ", " + std::to_string(y) + ") is outside board");
+    }
     Square& square = squares.at(y).at(x); 
     square.set_piece(std::move(piece));
 }
