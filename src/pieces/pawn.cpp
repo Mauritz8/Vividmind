@@ -31,7 +31,8 @@ std::vector<Move> Pawn::get_psuedo_legal_moves(const Board& board, const std::ve
             const Square& end2 = board.get_square(
                     start.get_x(),
                     start.get_y() + 2 * direction);
-            if (!end2.get_piece()) {
+            const int starting_row = this->get_color() == BLACK ? 1 : 6;
+            if (start.get_y() == starting_row && !end2.get_piece()) {
                 moves.push_back(Move(start, end2));
             }
         }
