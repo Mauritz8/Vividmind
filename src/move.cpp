@@ -200,8 +200,9 @@ std::string Move::to_uci_notation() const {
 void Move::make(Board& board) {
     Square& start_square = board.get_square(this->get_start_square().get_x(), this->get_start_square().get_y()); 
     Square& end_square = board.get_square(this->get_end_square().get_x(), this->get_end_square().get_y()); 
-    if (end_square.get_piece()) {
-        this->set_captured_piece(end_square.get_piece());
+    std::unique_ptr<Piece> piece = std::move(end_square.get_piece());
+    if (piece) {
+        this->set_captured_piece(std::move(piece));
     }
     start_square.move_piece(end_square);
 }
@@ -210,8 +211,9 @@ void Move::undo(Board& board) {
     Square& start_square = board.get_square(this->get_start_square().get_x(), this->get_start_square().get_y()); 
     Square& end_square = board.get_square(this->get_end_square().get_x(), this->get_end_square().get_y()); 
     end_square.move_piece(start_square);
-    if (this->get_captured_piece()) {
-        end_square.set_piece(this->get_captured_piece());
+    std::unique_ptr<Piece> captured_piece = std::move(this->get_captured_piece());
+    if (captured_piece) {
+        end_square.set_piece(std::move(captured_piece));
     }
 }
 
