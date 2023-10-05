@@ -86,7 +86,7 @@ Move get_best_move(int depth, const Board& board, const std::vector<Move>& move_
     std::vector<Move> move_history_copy = move_history;
 
     int max = INT_MIN;
-    std::unique_ptr<Move> best_move;
+    Move* best_move;
     const std::vector<Move> legal_moves = get_all_legal_moves(board_copy, move_history_copy);
     for (int i = 0; i < legal_moves.size(); i++) {
         Move move = legal_moves.at(i);
@@ -95,7 +95,7 @@ Move get_best_move(int depth, const Board& board, const std::vector<Move>& move_
         move.undo_appropriate(board_copy, move_history_copy);
         if (score > max) {
             max = score;
-            *best_move = legal_moves.at(i);
+            best_move = &move;
         }
     }
     return *best_move;

@@ -43,5 +43,8 @@ bool Square::is_outside_board() const {
 }
 
 void Square::move_piece(Square& to) {
-    to.set_piece(this->get_piece());
+    std::unique_ptr<Piece> piece = std::move(this->get_piece());
+    piece->set_x(to.get_x());
+    piece->set_y(to.get_y());
+    to.set_piece(std::move(piece));
 }

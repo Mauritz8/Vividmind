@@ -40,12 +40,16 @@ static bool is_valid(const Move& move) {
 }
 
 static bool is_legal(const Move& psuedo_legal, const Board& board, const std::vector<Move>& move_history) {
+    if (!is_valid(psuedo_legal)) {
+        return false;
+    }
+
     Move psuedo_legal_copy = psuedo_legal;
     Board board_copy = board;
     std::vector<Move> move_history_copy = move_history;
 
     psuedo_legal_copy.make_appropriate(board_copy, move_history_copy);
-    if (!is_valid(psuedo_legal) || is_check(board_copy, move_history_copy)) {
+    if (is_check(board_copy, move_history_copy)) {
         return false;
     }
     return true;
