@@ -3,6 +3,8 @@
 #include "piece.h"
 #include "pieces/pawn.h"
 #include <array>
+#include <stdexcept>
+#include <utility>
 #include <vector>
 
 
@@ -19,19 +21,33 @@ std::vector<Move> Pawn::get_psuedo_legal_moves(const Board& board, const std::ve
     const Square& start = board.get_square(this->get_x(), this->get_y());
     const int direction = this->get_color() == BLACK ? 1 : -1;
 
-    const Square& end1 = board.get_square(start.get_x(), start.get_y() + direction);
-    if (!end1.get_piece()) {
-        moves.push_back(Move(start, end1));
+    try {
+        const Square& end1 = board.get_square(
+                start.get_x(),
+                start.get_y() + direction);
+        if (!end1.get_piece()) {
+            moves.push_back(Move(start, end1));
 
-        const Square& end2 = board.get_square(start.get_x(), start.get_y() + 2*direction);
-        if (!end2.get_piece()) {
-            moves.push_back(Move(start, end2));
+            const Square& end2 = board.get_square(
+                    start.get_x(),
+                    start.get_y() + 2 * direction);
+            if (!end2.get_piece()) {
+                moves.push_back(Move(start, end2));
+            }
         }
-    }
+    } catch (const std::invalid_argument& e) {}
 
-    const Square& end3 = board.get_square(start.get_x() + 1, start.get_y() + direction);
-    const Square& end4 = board.get_square(start.get_x() - 1, start.get_y() + direction);
-    std::array<Move, 2> captures = {Move(start, end3), Move(start, end4)};
+
+    std::vector<Move> captures;
+    try {
+        const Square& end3 = board.get_square(start.get_x() + 1, start.get_y() + direction);
+        captures.push_back(Move(start, end3));
+    } catch (const std::invalid_argument& e) {}
+    try {
+        const Square& end4 = board.get_square(start.get_x() - 1, start.get_y() + direction);
+        captures.push_back(Move(start, end4));
+    } catch (const std::invalid_argument& e) {}
+
     for (Move& capture : captures) {
         const bool is_valid_capture = 
             capture.get_end_square().get_piece() &&
@@ -58,10 +74,15 @@ std::vector<Move> Pawn::get_threatened_moves(const Board& board) const {
     const Square& start = board.get_square(this->get_x(), this->get_y());
     const int direction = this->get_color() == BLACK ? 1 : -1;
 
-    const Square& end1 = board.get_square(this->get_x() + 1, this->get_y() + direction);
-    const Square& end2 = board.get_square(this->get_x() - 1, this->get_y() + direction);
-    moves.push_back(Move(start, end1));
-    moves.push_back(Move(start, end2));
+    try {
+        const Square& end1 = board.get_square(this->get_x() + 1, this->get_y() + direction);
+        moves.push_back(Move(start, end1));
+    } catch (const std::invalid_argument& e) {}
+    try {
+        const Square& end2 = board.get_square(this->get_x() - 1, this->get_y() + direction);
+        moves.push_back(Move(start, end2));
+    } catch (const std::invalid_argument& e) {}
+
     return moves;
 }
 

@@ -5,6 +5,8 @@
 #include "pieces/king.h"
 #include <algorithm>
 #include <array>
+#include <stdexcept>
+#include <utility>
 #include <vector>
 
 
@@ -19,28 +21,43 @@ char King::get_char_representation() const {
 std::vector<Move> King::get_psuedo_legal_moves(const Board& board, const std::vector<Move>& move_history) const {
     std::vector<Move> moves;
     const Square& start = board.get_square(this->get_x(), this->get_y());
-    const std::array<Square, 8>& end_squares = {
-        board.get_square(start.get_x(), start.get_y() + 1),
-        board.get_square(start.get_x() + 1, start.get_y() + 1),
-        board.get_square(start.get_x() + 1, start.get_y()),
-        board.get_square(start.get_x() + 1, start.get_y() - 1),
-        board.get_square(start.get_x(), start.get_y() - 1),
-        board.get_square(start.get_x() - 1, start.get_y() - 1),
-        board.get_square(start.get_x() - 1, start.get_y()),
-        board.get_square(start.get_x() - 1, start.get_y() + 1)
+
+    const std::array<std::pair<int, int>, 8> end_coordinates = {
+        std::make_pair(start.get_x(), start.get_y() + 1),
+        std::make_pair(start.get_x() + 1, start.get_y() + 1),
+        std::make_pair(start.get_x() + 1, start.get_y()),
+        std::make_pair(start.get_x() + 1, start.get_y() - 1),
+        std::make_pair(start.get_x(), start.get_y() - 1),
+        std::make_pair(start.get_x() - 1, start.get_y() - 1),
+        std::make_pair(start.get_x() - 1, start.get_y()),
+        std::make_pair(start.get_x() - 1, start.get_y() + 1)
     };
-    for (const Square& end : end_squares) {
-        moves.push_back(Move(start, end));
+    for (std::pair<int, int> end_coordinate : end_coordinates) {
+        try {
+            const Square& end = board.get_square(
+                    end_coordinate.first,
+                    end_coordinate.second);
+            moves.push_back(Move(start, end));
+        } catch (const std::invalid_argument& e) {}
     }
 
-    Move kingside_castling = Move(start, board.get_square(start.get_x() + 2, start.get_y()));
-    Move queenside_castling = Move(start, board.get_square(start.get_x() - 2, start.get_y()));
-    std::array<Move, 2> castling_moves = {std::move(kingside_castling), std::move(queenside_castling)};
-    for (Move& castling_move : castling_moves) {
-        if (is_valid_castling(castling_move, board, move_history)) {
-            castling_move.set_castling_move(true);
-            moves.push_back(castling_move);
-        }
+    const std::array<std::pair<int, int>, 2> castling_end_coordinates = {
+        // kingside castling
+        std::make_pair(start.get_x() + 2, start.get_y()),
+        // queenside castling
+        std::make_pair(start.get_x() - 2, start.get_y())
+    };
+    for (std::pair<int, int> end_coordinate : castling_end_coordinates) {
+        try {
+            const Square& end = board.get_square(
+                    end_coordinate.first,
+                    end_coordinate.second);
+            Move castling_move = Move(start, end);
+            if (is_valid_castling(castling_move, board, move_history)) {
+                castling_move.set_castling_move(true);
+                moves.push_back(castling_move);
+            }
+        } catch (const std::invalid_argument& e) {}
     }
 
     return moves;

@@ -33,7 +33,7 @@ static bool is_valid(const Move& move) {
         move.get_end_square().get_piece() &&
         move.get_end_square().get_piece()->get_color() == move.get_start_square().get_piece()->get_color();
 
-    if (move.get_end_square().is_outside_board() || end_square_has_same_color_piece) {
+    if (end_square_has_same_color_piece) {
         return false;
     }
     return true;
