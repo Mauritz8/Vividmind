@@ -52,7 +52,7 @@ Move::Move(const Move& move)
     this->promotion_piece = move.promotion_piece;
     this->en_passant = move.en_passant;
     if (move.get_captured_piece_ref()) {
-        this->captured_piece = move.get_captured_piece_ref()->clone();
+        this->captured_piece = std::move(move.get_captured_piece_ref()->clone());
     } else {
         this->captured_piece = nullptr;
     }
@@ -122,6 +122,11 @@ Move Move::operator=(const Move& move) {
     this->set_start_square(move.get_start_square());
     this->set_end_square(move.get_end_square());
     this->set_castling_move(move.is_castling_move());
+    if (move.get_captured_piece_ref()) {
+        this->captured_piece = std::move(move.get_captured_piece_ref()->clone());
+    } else {
+        this->captured_piece = nullptr;
+    }
     this->set_promotion(move.is_promotion());
     this->set_promotion_piece(move.get_promotion_piece());
     this->set_en_passant(move.is_en_passant());
