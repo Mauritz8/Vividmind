@@ -11,16 +11,17 @@
 
 class Move {
     public:
-        Move() {}
         Move(const Square& start_square, const Square& end_square);
-        Move(const std::string& uci_notation, Board& board);
+        static Move get_from_uci_notation(const std::string& uci_notation, const Board& board);
+        Move(const Move& move);
 
-        Square get_start_square() const;
+        const Square& get_start_square() const;
         void set_start_square(const Square& start_square);
-        Square get_end_square() const;
+        const Square& get_end_square() const;
         void set_end_square(const Square& end_square);
-        std::optional<Piece> get_captured_piece() const;
-        void set_captured_piece(const std::optional<Piece>& captured_piece);
+        const std::shared_ptr<Piece>& get_captured_piece_ref() const;
+        std::shared_ptr<Piece> get_captured_piece();
+        void set_captured_piece(std::shared_ptr<Piece> captured_piece);
         bool is_castling_move() const;
         void set_castling_move(bool castling_move);
         bool is_promotion() const;
@@ -30,19 +31,18 @@ class Move {
         bool is_en_passant() const;
         void set_en_passant(bool en_passant);
 
-        bool is_threatened_move(const Board& board) const;
+        Move operator=(const Move& move);
+        bool operator==(const Move& move) const;
+
         bool leaves_king_in_check(const Board& board, const std::vector<Move>& move_history) const;
-        bool is_promotion_move(const Board& board) const;
-        bool is_valid_promotion(const Board& board) const;
-        bool is_legal(const Board& board, const std::vector<Move>& move_history) const;
         void make_appropriate(Board& board, std::vector<Move>& move_history);
         void undo_appropriate(Board& board, std::vector<Move>& move_history);
         std::string to_uci_notation() const;
 
     private:
-        Square start_square;
-        Square end_square;
-        std::optional<Piece> captured_piece;
+        const Square start_square;
+        const Square end_square;
+        std::shared_ptr<Piece> captured_piece;
         bool castling_move;
         bool promotion;
         std::optional<Piece_type> promotion_piece;
@@ -57,14 +57,9 @@ class Move {
         bool is_valid_king_move() const;
         bool is_valid_pawn_move(const Board& board) const;
         bool is_valid_pawn_move_threat(const Board& board) const;
-        bool validate_basic(const Board& board) const;
-        bool is_valid_piece_movement(const Board& board) const;
-        bool passes_through_check_when_castling(const Board& board, const std::vector<Move>& move_history) const;
-        bool is_valid_castling(const Board& board, const std::vector<Move>& move_history) const;
         Move get_castling_rook_move(const Board& board) const;
         void make_castling(Board& board);
         void undo_castling(Board& board);
-        bool is_valid_en_passant(const Board& board, const std::vector<Move>& move_history) const;
         void make_en_passant(Board& board);
         void undo_en_passant(Board& board);
         void make_promotion(Board& board);

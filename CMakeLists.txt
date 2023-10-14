@@ -16,6 +16,7 @@ FetchContent_MakeAvailable(googletest)
 
 set(COMMON_SOURCES
     src/board.cpp
+    src/board_utils.cpp
     src/game_over_conditions.cpp
     src/game_state.cpp
     src/move.cpp
@@ -23,6 +24,12 @@ set(COMMON_SOURCES
     src/square.cpp
     src/engine/engine.cpp
     src/engine/uci.cpp
+    src/pieces/bishop.cpp
+    src/pieces/king.cpp
+    src/pieces/knight.cpp
+    src/pieces/pawn.cpp
+    src/pieces/queen.cpp
+    src/pieces/rook.cpp
 )
 
 add_executable(chess_engine 
@@ -34,22 +41,10 @@ target_include_directories(chess_engine PRIVATE
     include/engine
 )
 
-add_executable(chess_cli_game 
-    src/terminal_game.cpp
-    ${COMMON_SOURCES}
-)
-target_include_directories(chess_cli_game PRIVATE
-    include
-    include/engine
-)
-
 
 enable_testing()
 
 add_executable(unit_tests
-    tests/src/test_bishop_moves.cpp
-    tests/src/test_knight_moves.cpp
-    tests/src/test_rook_moves.cpp
     tests/src/test_move_generator.cpp
     ${COMMON_SOURCES}
 )

@@ -1,4 +1,5 @@
 #include <limits.h>
+#include <memory>
 #include <optional>
 #include <vector>
 
@@ -7,35 +8,35 @@
 #include "game_state.h"
 #include "move.h"
 #include "piece.h"
+#include "pieces/bishop.h"
+#include "pieces/king.h"
+#include "pieces/knight.h"
+#include "pieces/pawn.h"
+#include "pieces/queen.h"
+#include "pieces/rook.h"
 
 
 static PieceCounts get_piece_counts(const Board& board, Color color) {
     PieceCounts piece_counts = {0, 0, 0, 0, 0, 0};
     for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 8; j++) {
-            const std::optional<Piece>& piece = board.get_square(j, i).get_piece();
-            if (!piece.has_value() || piece.value().get_color() != color) {
+            const std::shared_ptr<Piece>& piece = board.get_square(j, i).get_piece();
+            if (!piece || piece->get_color() != color) {
                 continue;
             }
-            switch (piece->get_piece_type()) {
-                case KING:
-                    piece_counts.kings++;
-                    break;
-                case QUEEN:
-                    piece_counts.queens++;
-                    break;
-                case ROOK:
-                    piece_counts.rooks++;
-                    break;
-                case BISHOP:
-                    piece_counts.bishops++;
-                    break;
-                case KNIGHT:
-                    piece_counts.knights++;
-                    break;
-                case PAWN:
-                    piece_counts.pawns++;
-                    break;
+
+            if (dynamic_cast<King*>(piece.get()) != nullptr) {
+                piece_counts.kings++; 
+            }  else if (dynamic_cast<Queen*>(piece.get()) != nullptr) {
+                piece_counts.queens++;
+            }  else if (dynamic_cast<Rook*>(piece.get()) != nullptr) {
+                piece_counts.rooks++;
+            }  else if (dynamic_cast<Bishop*>(piece.get()) != nullptr) {
+                piece_counts.bishops++;
+            }  else if (dynamic_cast<Knight*>(piece.get()) != nullptr) {
+                piece_counts.knights++;
+            }  else if (dynamic_cast<Pawn*>(piece.get()) != nullptr) {
+                piece_counts.pawns++;
             }
         }
     }
@@ -85,8 +86,8 @@ Move get_best_move(int depth, const Board& board, const std::vector<Move>& move_
     std::vector<Move> move_history_copy = move_history;
 
     int max = INT_MIN;
-    Move best_move;
     const std::vector<Move> legal_moves = get_all_legal_moves(board_copy, move_history_copy);
+    const Move* best_move = nullptr;
     for (int i = 0; i < legal_moves.size(); i++) {
         Move move = legal_moves.at(i);
         move.make_appropriate(board_copy, move_history_copy);
@@ -94,8 +95,8 @@ Move get_best_move(int depth, const Board& board, const std::vector<Move>& move_
         move.undo_appropriate(board_copy, move_history_copy);
         if (score > max) {
             max = score;
-            best_move = legal_moves.at(i);
+            best_move = &legal_moves.at(i);
         }
     }
-    return best_move;
+    return *best_move;
 }
