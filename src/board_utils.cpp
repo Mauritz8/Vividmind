@@ -3,6 +3,11 @@
 #include "board.h"
 #include "board_utils.h"
 
+
+bool is_outside_board(int x, int y) {
+    return x > 7 || x < 0 || y > 7 || y < 0;
+}
+
 bool is_same_line(const Square& square1, const Square& square2) {
     return square1.get_x() == square2.get_x() || square1.get_y() == square2.get_y();
 }

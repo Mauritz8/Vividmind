@@ -2,6 +2,7 @@
 #include <vector>
 
 #include "board.h"
+#include "board_utils.h"
 #include "game_state.h"
 #include "move.h"
 #include "piece.h"
@@ -52,15 +53,9 @@ std::vector<Move> Piece::get_threatened_moves(const Board& board, const std::vec
 std::vector<Move> Piece::get_psuedo_legal_moves_direction(const Square& start, int x_direction, int y_direction, const Board& board) const {
     std::vector<Move> moves;
 
-    int x_final = x_direction == 1 ? 7 : 0;
-    int y_final = y_direction == 1 ? 7 : 0;
-    if (start.get_x() == x_final || start.get_y() == y_final) {
-        return moves;
-    }
-
     int x = start.get_x() + x_direction;
     int y = start.get_y() + y_direction;
-    while (x != x_final && y != y_final) {
+    while (!is_outside_board(x, y)) {
         const Square& end = board.get_square(x, y);
         if (end.get_piece()) {
             if (end.get_piece()->get_color() != this->get_color()) {
