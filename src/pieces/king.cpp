@@ -19,6 +19,13 @@ char King::get_char_representation() const {
 }
 
 std::vector<Move> King::get_psuedo_legal_moves(const Board& board, const std::vector<Move>& move_history) const {
+    std::vector<Move> moves = this->get_threatened_moves(board);
+    std::vector<Move> castling_moves = this->get_castling_moves(board, move_history);
+    moves.insert(moves.end(), castling_moves.begin(), castling_moves.end());
+    return moves;
+}
+
+std::vector<Move> King::get_threatened_moves(const Board& board) const {
     std::vector<Move> moves;
     const Square& start = board.get_square(this->get_x(), this->get_y());
 
@@ -40,6 +47,13 @@ std::vector<Move> King::get_psuedo_legal_moves(const Board& board, const std::ve
             moves.push_back(Move(start, end));
         } catch (const std::invalid_argument& e) {}
     }
+
+    return moves;
+}
+
+std::vector<Move> King::get_castling_moves(const Board& board, const std::vector<Move>& move_history) const {
+    std::vector<Move> moves;
+    const Square& start = board.get_square(this->get_x(), this->get_y());
 
     const std::array<std::pair<int, int>, 2> castling_end_coordinates = {
         // kingside castling

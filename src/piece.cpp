@@ -5,6 +5,7 @@
 #include "game_state.h"
 #include "move.h"
 #include "piece.h"
+#include "pieces/king.h"
 #include "pieces/pawn.h"
 #include "square.h"
 
@@ -40,6 +41,10 @@ std::vector<Move> Piece::get_threatened_moves(const Board& board, const std::vec
     const Pawn* pawn = dynamic_cast<Pawn*>(this);
     if (pawn != nullptr) {
         return pawn->get_threatened_moves(board);
+    }
+    const King* king = dynamic_cast<King*>(this);
+    if (king != nullptr) {
+        return king->get_threatened_moves(board);
     }
     return this->get_psuedo_legal_moves(board, move_history);
 }
