@@ -26,8 +26,6 @@ class Board {
         std::vector<std::vector<Square>> squares;
         Color player_to_move;
 
-        void setup_pieces(Color color);
-        void setup_pawns(Color color);
         void place_pieces(const std::string& fen_piece_placement_field);
         void set_player_to_move(const std::string& fen_active_color_field);
 };

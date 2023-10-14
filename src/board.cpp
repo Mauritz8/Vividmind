@@ -29,14 +29,7 @@ Board Board::get_empty_board() {
 }
 
 Board Board::get_starting_position() {
-    Board board = get_empty_board();
-    board.set_player_to_move(WHITE);
-
-    board.setup_pieces(BLACK);
-    board.setup_pawns(BLACK);
-    board.setup_pieces(WHITE);
-    board.setup_pawns(WHITE);
-    return board;
+    return get_position_from_fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
 }
 
 Board Board::get_position_from_fen(std::string fen) {
@@ -118,34 +111,6 @@ void Board::switch_player_to_move() {
         this->set_player_to_move(BLACK);
     } else {
         this->set_player_to_move(WHITE);
-    }
-}
-
-void Board::setup_pieces(Color color) {
-    const int row = color == WHITE ? 7 : 0;
-
-    auto p1 = std::make_unique<Rook>(Rook(color, 0, row));
-    this->set_square(0, row, std::move(p1));
-    auto p2 = std::make_unique<Knight>(Knight(color, 1, row));
-    this->set_square(1, row, std::move(p2));
-    auto p3 = std::make_unique<Bishop>(Bishop(color, 2, row));
-    this->set_square(2, row, std::move(p3));
-    auto p4 = std::make_unique<Queen>(Queen(color, 3, row));
-    this->set_square(3, row, std::move(p4));
-    auto p5 = std::make_unique<King>(King(color, 4, row));
-    this->set_square(4, row, std::move(p5));
-    auto p6 = std::make_unique<Bishop>(Bishop(color, 5, row));
-    this->set_square(5, row, std::move(p6));
-    auto p7 = std::make_unique<Knight>(Knight(color, 6, row));
-    this->set_square(6, row, std::move(p7));
-    auto p8 = std::make_unique<Rook>(Rook(color, 7, row));
-    this->set_square(7, row, std::move(p8));
-}
-
-void Board::setup_pawns(Color color) {
-    const int row = color == WHITE ? 6 : 1;
-    for (int i = 0; i < 8; i++) {
-        this->set_square(i, row, std::make_unique<Pawn>(Pawn(color, i, row)));
     }
 }
 
