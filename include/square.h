@@ -12,9 +12,9 @@ class Square {
 
         int get_x() const;
         int get_y() const;
-        const std::unique_ptr<Piece>& get_piece() const;
-        std::unique_ptr<Piece> get_piece();
-        void set_piece(std::unique_ptr<Piece> piece);
+        const std::shared_ptr<Piece>& get_piece() const;
+        std::shared_ptr<Piece> get_piece();
+        void set_piece(std::shared_ptr<Piece> piece);
 
         bool operator==(const Square& square) const;
 
@@ -24,7 +24,7 @@ class Square {
     private:
         int x;
         int y;
-        std::unique_ptr<Piece> piece;
+        std::shared_ptr<Piece> piece;
 };
 
 #endif

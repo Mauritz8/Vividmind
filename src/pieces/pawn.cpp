@@ -91,7 +91,7 @@ bool Pawn::is_valid_en_passant(const Move& pawn_capture, const Board& board, con
     const int direction = this->get_color() == BLACK ? 1 : -1;
     const int x_diff = pawn_capture.get_end_square().get_x() - pawn_capture.get_start_square().get_x();
 
-    const std::unique_ptr<Piece>& adjacent_piece = board.get_square(pawn_capture.get_start_square().get_x() + x_diff, pawn_capture.get_start_square().get_y()).get_piece();
+    const std::shared_ptr<Piece>& adjacent_piece = board.get_square(pawn_capture.get_start_square().get_x() + x_diff, pawn_capture.get_start_square().get_y()).get_piece();
     const bool has_pawn_adjacent = adjacent_piece && dynamic_cast<Pawn*>(adjacent_piece.get()) != nullptr;
     const bool is_adjacent_pawn_opponents_piece = adjacent_piece && adjacent_piece->get_color() != pawn_capture.get_start_square().get_piece()->get_color();
 

@@ -52,7 +52,7 @@ Move::Move(const Move& move)
     this->promotion_piece = move.promotion_piece;
     this->en_passant = move.en_passant;
     if (move.get_captured_piece_ref()) {
-        this->captured_piece = std::move(move.get_captured_piece_ref()->clone());
+        this->captured_piece = move.captured_piece;
     } else {
         this->captured_piece = nullptr;
     }
@@ -74,16 +74,16 @@ void Move::set_end_square(const Square& end_square) {
     this->set_end_square(Square(end_square));
 }
 
-const std::unique_ptr<Piece>& Move::get_captured_piece_ref() const {
-    return std::move(captured_piece);
+const std::shared_ptr<Piece>& Move::get_captured_piece_ref() const {
+    return captured_piece;
 }
 
-std::unique_ptr<Piece> Move::get_captured_piece() {
-    return std::move(captured_piece);
+std::shared_ptr<Piece> Move::get_captured_piece() {
+    return captured_piece;
 }
 
-void Move::set_captured_piece(std::unique_ptr<Piece> captured_piece) {
-    this->captured_piece = std::move(captured_piece); 
+void Move::set_captured_piece(std::shared_ptr<Piece> captured_piece) {
+    this->captured_piece = captured_piece; 
 }
 
 bool Move::is_castling_move() const {
@@ -123,7 +123,7 @@ Move Move::operator=(const Move& move) {
     this->set_end_square(move.get_end_square());
     this->set_castling_move(move.is_castling_move());
     if (move.get_captured_piece_ref()) {
-        this->captured_piece = std::move(move.get_captured_piece_ref()->clone());
+        this->captured_piece = move.captured_piece;
     } else {
         this->captured_piece = nullptr;
     }
@@ -205,7 +205,7 @@ std::string Move::to_uci_notation() const {
 void Move::make(Board& board) {
     Square& start_square = board.get_square(this->get_start_square().get_x(), this->get_start_square().get_y()); 
     Square& end_square = board.get_square(this->get_end_square().get_x(), this->get_end_square().get_y()); 
-    std::unique_ptr<Piece> piece = std::move(end_square.get_piece());
+    std::shared_ptr<Piece> piece = std::move(end_square.get_piece());
     if (piece) {
         this->set_captured_piece(std::move(piece));
     }
@@ -216,7 +216,7 @@ void Move::undo(Board& board) {
     Square& start_square = board.get_square(this->get_start_square().get_x(), this->get_start_square().get_y()); 
     Square& end_square = board.get_square(this->get_end_square().get_x(), this->get_end_square().get_y()); 
     end_square.move_piece(start_square);
-    std::unique_ptr<Piece> captured_piece = std::move(this->get_captured_piece());
+    std::shared_ptr<Piece> captured_piece = std::move(this->get_captured_piece());
     if (captured_piece) {
         end_square.set_piece(std::move(captured_piece));
     }
@@ -376,22 +376,22 @@ void Move::make_promotion(Board& board) {
     }
     switch (this->get_promotion_piece().value()) {
         case QUEEN: {
-            std::unique_ptr<Piece> piece = end_square.get_piece();
+            std::shared_ptr<Piece> piece = end_square.get_piece();
             *piece = *dynamic_cast<Queen*>(piece.get());
             break;
         }
         case ROOK: {
-            std::unique_ptr<Piece> piece = end_square.get_piece();
+            std::shared_ptr<Piece> piece = end_square.get_piece();
             *piece = *dynamic_cast<Rook*>(piece.get());
             break;
         }
         case BISHOP: {
-            std::unique_ptr<Piece> piece = end_square.get_piece();
+            std::shared_ptr<Piece> piece = end_square.get_piece();
             *piece = *dynamic_cast<Bishop*>(piece.get());
             break;
         }
         case KNIGHT: {
-            std::unique_ptr<Piece> piece = end_square.get_piece();
+            std::shared_ptr<Piece> piece = end_square.get_piece();
             *piece = *dynamic_cast<Knight*>(piece.get());
             break;
         }
@@ -402,6 +402,6 @@ void Move::make_promotion(Board& board) {
 void Move::undo_promotion(Board& board) {
     this->undo(board);
     Square& start_square = board.get_square(this->get_start_square().get_x(), this->get_start_square().get_y());
-    std::unique_ptr<Piece> piece = start_square.get_piece();
+    std::shared_ptr<Piece> piece = start_square.get_piece();
     *piece = *dynamic_cast<Pawn*>(piece.get());
 }

@@ -19,9 +19,9 @@ class Move {
         void set_start_square(const Square& start_square);
         const Square& get_end_square() const;
         void set_end_square(const Square& end_square);
-        const std::unique_ptr<Piece>& get_captured_piece_ref() const;
-        std::unique_ptr<Piece> get_captured_piece();
-        void set_captured_piece(std::unique_ptr<Piece> captured_piece);
+        const std::shared_ptr<Piece>& get_captured_piece_ref() const;
+        std::shared_ptr<Piece> get_captured_piece();
+        void set_captured_piece(std::shared_ptr<Piece> captured_piece);
         bool is_castling_move() const;
         void set_castling_move(bool castling_move);
         bool is_promotion() const;
@@ -42,7 +42,7 @@ class Move {
     private:
         const Square start_square;
         const Square end_square;
-        std::unique_ptr<Piece> captured_piece;
+        std::shared_ptr<Piece> captured_piece;
         bool castling_move;
         bool promotion;
         std::optional<Piece_type> promotion_piece;

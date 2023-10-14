@@ -27,14 +27,14 @@ bool is_checkmate(const Board& board, const std::vector<Move>& move_history) {
 }
 
 static bool is_insufficient_material(Color color, const Board& board) {
-    const std::vector<std::reference_wrapper<const std::unique_ptr<Piece>>>& pieces = get_all_pieces(color, board);
+    const std::vector<std::reference_wrapper<const std::shared_ptr<Piece>>>& pieces = get_all_pieces(color, board);
 
     if (pieces.size() > 2) {
         return false;
     }
 
     for (int i = 0; i < pieces.size(); i++) {
-        const std::unique_ptr<Piece>& piece = pieces.at(i);
+        const std::shared_ptr<Piece>& piece = pieces.at(i);
         if (dynamic_cast<Pawn*>(piece.get()) != nullptr || dynamic_cast<Rook*>(piece.get()) != nullptr || dynamic_cast<Queen*>(piece.get()) != nullptr) {
             return false;
         }

@@ -20,7 +20,7 @@ static PieceCounts get_piece_counts(const Board& board, Color color) {
     PieceCounts piece_counts = {0, 0, 0, 0, 0, 0};
     for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 8; j++) {
-            const std::unique_ptr<Piece>& piece = board.get_square(j, i).get_piece();
+            const std::shared_ptr<Piece>& piece = board.get_square(j, i).get_piece();
             if (!piece || piece->get_color() != color) {
                 continue;
             }

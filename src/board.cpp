@@ -81,12 +81,12 @@ Square& Board::get_square(int x, int y) {
     return squares.at(y).at(x); 
 }
 
-void Board::set_square(int x, int y, std::unique_ptr<Piece> piece) {
+void Board::set_square(int x, int y, std::shared_ptr<Piece> piece) {
     if (x < 0 || x > 7 || y < 0 || y > 7) {
         throw std::invalid_argument("Square (" + std::to_string(x) + ", " + std::to_string(y) + ") is outside board");
     }
     Square& square = squares.at(y).at(x); 
-    square.set_piece(std::move(piece));
+    square.set_piece(piece);
 }
 
 Color Board::get_player_to_move() const { 
@@ -101,7 +101,7 @@ void Board::set_player_to_move(Color player_to_move) {
 void Board::show() const {
     for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 8; j++) {
-            const std::unique_ptr<Piece>& piece = this->get_square(j, i).get_piece();
+            const std::shared_ptr<Piece>& piece = this->get_square(j, i).get_piece();
             if (piece) {
                 std::cout << " " << piece->get_char_representation();
             } else {
