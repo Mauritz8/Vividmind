@@ -1,5 +1,6 @@
 #include <iostream>
 #include <sstream>
+#include <stdexcept>
 #include <string>
 #include <vector>
 
@@ -45,6 +46,13 @@ static void handle_position_command(const std::string& position, Board& board, s
     }
 }
 
+static void handle_go_perft_command(const std::string& depth_argument, const Board& board, const std::vector<Move>& move_history) {
+    try {
+        const int depth = std::stoi(depth_argument);
+        divide(depth, board, move_history);
+    } catch (const std::invalid_argument& e) {}
+}
+
 static void handle_go_command(Board& board, std::vector<Move>& move_history) {
     const int depth = 1;
     const Move best_move = get_best_move(depth, board, move_history);
@@ -60,6 +68,8 @@ void process_uci_command(const std::string& command, Board& board, std::vector<M
         handle_ucinewgame_command(board, move_history);
     } else if (command.substr(0, 8) == "position") {
         handle_position_command(command.substr(9, std::string::npos), board, move_history);
+    } else if (command.substr(0, 8) == "go perft") {
+        handle_go_perft_command(command.substr(9, std::string::npos), board, move_history);
     } else if (command.substr(0, 2) == "go") {
         handle_go_command(board, move_history);
     } else if (command == "quit") {

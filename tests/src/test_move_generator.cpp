@@ -1,44 +1,13 @@
 #include <gtest/gtest.h>
-#include <iostream>
 #include <string>
 #include <vector>
 
 #include "board.h"
+#include "engine/engine.h"
 #include "game_state.h"
 #include "piece.h"
 #include "move.h"
 
-
-static int perft(int depth, Board& board, std::vector<Move>& move_history) {
-    if (depth == 0) {
-        return 1;
-    }
-
-    int nodes = 0;
-    const std::vector<Move> move_list = get_all_legal_moves(board, move_history);
-    for (int i = 0; i < move_list.size(); i++) {
-        Move move = move_list.at(i);
-        move.make_appropriate(board, move_history);
-        nodes += perft(depth - 1, board, move_history);    
-        move.undo_appropriate(board, move_history);
-    }
-    return nodes;
-}
-
-static void divide(int depth, Board& board, std::vector<Move>& move_history) {
-    std::cout << "";
-    int nodes_searched = 0;
-    const std::vector<Move> move_list = get_all_legal_moves(board, move_history);
-    for (int i = 0; i < move_list.size(); i++) {
-        Move move = move_list.at(i);
-        move.make_appropriate(board, move_history);
-        const int nodes = perft(depth - 1, board, move_history);
-        nodes_searched += nodes;
-        std::cout << move.to_uci_notation() << ": " << nodes << "\n";
-        move.undo_appropriate(board, move_history);
-    }
-    std::cout << "\nNodes searched: " << nodes_searched << "\n";
-}
 
 TEST(test_move_generation, test_move_generation_on_initial_position) {
     const std::string fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"; 
