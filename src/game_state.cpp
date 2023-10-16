@@ -48,8 +48,9 @@ static bool is_legal(const Move& psuedo_legal, const Board& board, const std::ve
     Board board_copy = board;
     std::vector<Move> move_history_copy = move_history;
 
+    const Color player_to_move = board.get_player_to_move();
     psuedo_legal_copy.make_appropriate(board_copy, move_history_copy);
-    if (is_check(board_copy, move_history_copy)) {
+    if (is_in_check(player_to_move, board_copy, move_history_copy)) {
         return false;
     }
     return true;
@@ -68,12 +69,12 @@ static std::vector<Move> get_threatened_moves(const std::vector<std::reference_w
     return legal_moves;
 }
 
-std::vector<Move> get_all_threatened_moves(const Board& board, const std::vector<Move>& move_history) {
+std::vector<Move> get_all_threatened_moves(Color color, const Board& board, const std::vector<Move>& move_history) {
     std::vector<std::reference_wrapper<const std::shared_ptr<Piece>>> pieces;
     for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 8; j++) {
             const Square& square = board.get_square(j, i);
-            if (square.get_piece() && square.get_piece()->get_color() == board.get_player_to_move()) {
+            if (square.get_piece() && square.get_piece()->get_color() == color) {
                 std::reference_wrapper<const std::shared_ptr<Piece>> piece = cref(square.get_piece());
                 pieces.push_back(piece);
             } 
@@ -114,17 +115,17 @@ Color get_opposite_color(Color color) {
     return color == WHITE ? BLACK : WHITE;
 }
 
-bool is_check(const Board& board, const std::vector<Move>& move_history) {
-    const Color opponent_color = get_opposite_color(board.get_player_to_move());
-    const std::optional<Square> opponent_king_square = get_king_square(opponent_color, board);
-    if (!opponent_king_square.has_value()) {
+bool is_in_check(Color color, const Board& board, const std::vector<Move>& move_history) {
+    const std::optional<Square> king_square = get_king_square(color, board);
+    if (!king_square.has_value()) {
         return false;  
     }
 
-    const std::vector<Move> psuedo_legal_moves = get_all_threatened_moves(board, move_history);
+    const Color opponent = get_opposite_color(color);
+    const std::vector<Move> psuedo_legal_moves = get_all_threatened_moves(opponent, board, move_history);
     for (const Move& move : psuedo_legal_moves) {
         const Square& threatened_square = move.get_end_square();
-        if (threatened_square == opponent_king_square.value()) {
+        if (threatened_square == king_square.value()) {
             return true;
         }
     }
