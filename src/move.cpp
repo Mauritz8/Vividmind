@@ -330,8 +330,7 @@ Move Move::get_castling_rook_move(const Board& board) const {
         start_x = 0;
         end_x = 3;
     }
-    Move rook_move = Move(board.get_square(7, row), board.get_square(5, row));
-    rook_move.set_captured_piece({});
+    Move rook_move = Move(board.get_square(start_x, row), board.get_square(end_x, row));
     return rook_move;
 }
 
