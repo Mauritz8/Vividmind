@@ -1,5 +1,6 @@
 #include <cctype>
 #include <memory>
+#include <stdexcept>
 #include <vector>
 
 #include "board.h"
@@ -86,6 +87,7 @@ char get_char_representation(Piece_type piece_type) {
         case QUEEN: return 'Q';
         case KING: return 'K';
     }
+    throw std::invalid_argument("invalid piece type");
 }
 
 std::optional<Piece_type> get_piece_type(char char_representation) {
@@ -129,4 +131,5 @@ std::shared_ptr<Piece> create_piece(Piece_type piece_type, Color color, int x, i
             return std::make_shared<Pawn>(Pawn(color, x, y));
         }
     } 
+    throw std::invalid_argument("invalid piece type");
 }
