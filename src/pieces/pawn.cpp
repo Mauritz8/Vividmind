@@ -113,9 +113,12 @@ bool Pawn::is_valid_en_passant(const Move& pawn_capture, const Board& board, con
     const Move& previous_move = move_history.back();
     const int y_diff_previous_move = previous_move.get_end_square().get_y() - previous_move.get_start_square().get_y();
 
+    const std::shared_ptr<Piece>& last_move_piece = board.get_square(previous_move.get_end_square().get_x(), previous_move.get_end_square().get_y()).get_piece();
+
     return has_pawn_adjacent &&
            is_adjacent_pawn_opponents_piece &&
-           abs(y_diff_previous_move) == 2;
+           abs(y_diff_previous_move) == 2 &&
+           adjacent_piece.get() == last_move_piece.get();
 } 
 
 bool Pawn::is_promotion_move(const Move& move) const {
