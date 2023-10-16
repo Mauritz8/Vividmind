@@ -40,5 +40,6 @@ class Piece {
 char get_char_representation(Piece_type piece_type);
 std::optional<Piece_type> get_piece_type(char char_representation);
 std::optional<Piece_type> get_promotion_piece_type(char char_representation_lowercase);
+std::shared_ptr<Piece> create_piece(Piece_type piece_type, Color color, int x, int y);
 
 #endif

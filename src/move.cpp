@@ -374,34 +374,16 @@ void Move::make_promotion(Board& board) {
     if (!this->get_promotion_piece()) {
         return;
     }
-    switch (this->get_promotion_piece().value()) {
-        case QUEEN: {
-            std::shared_ptr<Piece> piece = end_square.get_piece();
-            piece.reset(dynamic_cast<Queen*>(piece.get()));
-            break;
-        }
-        case ROOK: {
-            std::shared_ptr<Piece> piece = end_square.get_piece();
-            piece.reset(dynamic_cast<Rook*>(piece.get()));
-            break;
-        }
-        case BISHOP: {
-            std::shared_ptr<Piece> piece = end_square.get_piece();
-            piece.reset(dynamic_cast<Bishop*>(piece.get()));
-            break;
-        }
-        case KNIGHT: {
-            std::shared_ptr<Piece> piece = end_square.get_piece();
-            piece.reset(dynamic_cast<Knight*>(piece.get()));
-            break;
-        }
-        default: break;
-    }
+    std::shared_ptr<Piece> piece = end_square.get_piece();
+    std::shared_ptr<Piece> promotion_piece = 
+        create_piece(this->get_promotion_piece().value(), piece->get_color(), piece->get_x(), piece->get_y());
+    end_square.set_piece(std::move(promotion_piece));
 }
 
 void Move::undo_promotion(Board& board) {
     this->undo(board);
     Square& start_square = board.get_square(this->get_start_square().get_x(), this->get_start_square().get_y());
     std::shared_ptr<Piece> piece = start_square.get_piece();
-    *piece = *dynamic_cast<Pawn*>(piece.get());
+    std::shared_ptr<Piece> pawn = std::make_shared<Pawn>(Pawn(piece->get_color(), piece->get_x(), piece->get_y()));
+    start_square.set_piece(std::move(pawn));
 }

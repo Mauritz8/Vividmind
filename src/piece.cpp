@@ -1,4 +1,5 @@
 #include <cctype>
+#include <memory>
 #include <vector>
 
 #include "board.h"
@@ -6,8 +7,12 @@
 #include "game_state.h"
 #include "move.h"
 #include "piece.h"
+#include "pieces/bishop.h"
 #include "pieces/king.h"
+#include "pieces/knight.h"
 #include "pieces/pawn.h"
+#include "pieces/queen.h"
+#include "pieces/rook.h"
 #include "square.h"
 
 
@@ -101,4 +106,27 @@ std::optional<Piece_type> get_promotion_piece_type(char char_representation_lowe
     if (char_representation_lowercase == 'r') return ROOK;
     if (char_representation_lowercase == 'q') return QUEEN;
     return {};
+}
+
+std::shared_ptr<Piece> create_piece(Piece_type piece_type, Color color, int x, int y) {
+    switch (piece_type) {
+        case KING: {
+            return std::make_shared<King>(King(color, x, y));
+        }
+        case QUEEN: {
+            return std::make_shared<Queen>(Queen(color, x, y));
+        }
+        case ROOK: {
+            return std::make_shared<Rook>(Rook(color, x, y));
+        }
+        case BISHOP: {
+            return std::make_shared<Bishop>(Bishop(color, x, y));
+        }
+        case KNIGHT: {
+            return std::make_shared<Knight>(Knight(color, x, y));
+        }
+        case PAWN: {
+            return std::make_shared<Pawn>(Pawn(color, x, y));
+        }
+    } 
 }
