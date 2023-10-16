@@ -143,8 +143,10 @@ bool Move::leaves_king_in_check(const Board& board, const std::vector<Move>& mov
     Move move_copy = *this;
     Board board_copy = board;
     std::vector<Move> move_history_copy = move_history;
+
+    const Color player_to_move = board.get_player_to_move();
     move_copy.make_appropriate(board_copy, move_history_copy);
-    if (is_check(board_copy, move_history_copy)) {
+    if (is_in_check(player_to_move, board_copy, move_history_copy)) {
         return true;
     }
     return false;
@@ -330,8 +332,7 @@ Move Move::get_castling_rook_move(const Board& board) const {
         start_x = 0;
         end_x = 3;
     }
-    Move rook_move = Move(board.get_square(7, row), board.get_square(5, row));
-    rook_move.set_captured_piece({});
+    Move rook_move = Move(board.get_square(start_x, row), board.get_square(end_x, row));
     return rook_move;
 }
 

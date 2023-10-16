@@ -92,7 +92,7 @@ bool King::is_valid_castling(const Move& move, const Board& board, const std::ve
         return false;
     }
 
-    if (has_castling_pieces_moved(move_history, starting_row, king_x, rook_x)) {
+    if (!are_castling_pieces_on_initial_squares(move_history, starting_row, king_x, rook_x)) {
         return false;
     }
     
@@ -101,7 +101,7 @@ bool King::is_valid_castling(const Move& move, const Board& board, const std::ve
     if (!is_clear_line(king_square, rook_square, board)) {
         return false;
     }
-    if (is_check(board, move_history)) {
+    if (is_in_check(board.get_player_to_move(), board, move_history)) {
         return false;
     }
     if (passes_through_check_when_castling(move, board, move_history)) {
@@ -111,16 +111,20 @@ bool King::is_valid_castling(const Move& move, const Board& board, const std::ve
     return true;
 }
 
-bool King::has_castling_pieces_moved(const std::vector<Move>& move_history, int starting_row, int king_x, int rook_x) const {
+bool King::are_castling_pieces_on_initial_squares(const std::vector<Move>& move_history, int starting_row, int king_x, int rook_x) const {
     for (int i = 0; i < move_history.size(); i++) {
         const Move& played_move = move_history.at(i);
         if (played_move.get_start_square().get_y() == starting_row) {
             if (played_move.get_start_square().get_x() == king_x || played_move.get_start_square().get_x() == rook_x) {
-                return true;
+                return false;
             }
         }
+        // check if rook has been captured while still on initial square
+        if (played_move.get_end_square().get_x() == rook_x && played_move.get_end_square().get_y() == starting_row) {
+            return false; 
+        }
     }
-    return false;
+    return true;
 }
 
 bool King::passes_through_check_when_castling(const Move& castling_move, const Board& board, const std::vector<Move>& move_history) const {
@@ -130,6 +134,7 @@ bool King::passes_through_check_when_castling(const Move& castling_move, const B
     const int start_x = castling_move.get_start_square().get_x();
     const int end_x = castling_move.get_end_square().get_x();
     const int direction = end_x - start_x > 0 ? 1 : -1;
+    const Color player_to_move = board.get_player_to_move();
 
     int x = start_x;
     while (x != end_x) {
@@ -137,7 +142,7 @@ bool King::passes_through_check_when_castling(const Move& castling_move, const B
         const Square& end = board_copy.get_square(x + direction, row);
         Move submove = Move(start, end);
         submove.make_appropriate(board_copy, move_history_copy);
-        if (is_check(board_copy, move_history_copy)) {
+        if (is_in_check(player_to_move, board_copy, move_history_copy)) {
             return true;
         }
         x += direction;
