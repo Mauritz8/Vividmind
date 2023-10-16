@@ -13,7 +13,7 @@ class Square {
         int get_x() const;
         int get_y() const;
         const std::shared_ptr<Piece>& get_piece() const;
-        std::shared_ptr<Piece> get_piece();
+        std::shared_ptr<Piece>& get_piece();
         void set_piece(std::shared_ptr<Piece> piece);
 
         bool operator==(const Square& square) const;

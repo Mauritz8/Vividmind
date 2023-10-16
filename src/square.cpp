@@ -26,7 +26,7 @@ int Square::get_y() const {
 const std::shared_ptr<Piece>& Square::get_piece() const {
     return piece;
 }
-std::shared_ptr<Piece> Square::get_piece() {
+std::shared_ptr<Piece>& Square::get_piece() {
     return this->piece;
 }
 void Square::set_piece(std::shared_ptr<Piece> piece) {
