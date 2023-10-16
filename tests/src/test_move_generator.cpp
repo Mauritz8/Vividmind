@@ -16,6 +16,7 @@ TEST(test_move_generation, test_move_generation_on_initial_position) {
 
     EXPECT_EQ(perft(1, board, move_history), 20);
     EXPECT_EQ(perft(2, board, move_history), 400);
+    EXPECT_EQ(perft(3, board, move_history), 8902);
 }
 
 TEST(test_move_generation, test_move_generation_on_position_2) {
@@ -25,6 +26,7 @@ TEST(test_move_generation, test_move_generation_on_position_2) {
 
     EXPECT_EQ(perft(1, board, move_history), 48);
     EXPECT_EQ(perft(2, board, move_history), 2039);
+    EXPECT_EQ(perft(3, board, move_history), 97862);
 }
 
 TEST(test_move_generation, test_move_generation_on_position_3) {
@@ -34,6 +36,7 @@ TEST(test_move_generation, test_move_generation_on_position_3) {
 
     EXPECT_EQ(perft(1, board, move_history), 14);
     EXPECT_EQ(perft(2, board, move_history), 191);
+    EXPECT_EQ(perft(3, board, move_history), 2812);
 }
 
 TEST(test_move_generation, test_move_generation_on_position_4) {
@@ -43,6 +46,7 @@ TEST(test_move_generation, test_move_generation_on_position_4) {
 
     EXPECT_EQ(perft(1, board, move_history), 6);
     EXPECT_EQ(perft(2, board, move_history), 264);
+    EXPECT_EQ(perft(3, board, move_history), 9467);
 }
 
 TEST(test_move_generation, test_move_generation_on_position_5) {
@@ -62,4 +66,5 @@ TEST(test_move_generation, test_move_generation_on_position_6) {
 
     EXPECT_EQ(perft(1, board, move_history), 46);
     EXPECT_EQ(perft(2, board, move_history), 2079);
+    EXPECT_EQ(perft(3, board, move_history), 89890);
 }
