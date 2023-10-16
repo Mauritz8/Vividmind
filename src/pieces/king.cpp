@@ -92,7 +92,7 @@ bool King::is_valid_castling(const Move& move, const Board& board, const std::ve
         return false;
     }
 
-    if (has_castling_pieces_moved(move_history, starting_row, king_x, rook_x)) {
+    if (!are_castling_pieces_on_initial_squares(move_history, starting_row, king_x, rook_x)) {
         return false;
     }
     
@@ -111,16 +111,20 @@ bool King::is_valid_castling(const Move& move, const Board& board, const std::ve
     return true;
 }
 
-bool King::has_castling_pieces_moved(const std::vector<Move>& move_history, int starting_row, int king_x, int rook_x) const {
+bool King::are_castling_pieces_on_initial_squares(const std::vector<Move>& move_history, int starting_row, int king_x, int rook_x) const {
     for (int i = 0; i < move_history.size(); i++) {
         const Move& played_move = move_history.at(i);
         if (played_move.get_start_square().get_y() == starting_row) {
             if (played_move.get_start_square().get_x() == king_x || played_move.get_start_square().get_x() == rook_x) {
-                return true;
+                return false;
             }
         }
+        // check if rook has been captured while still on initial square
+        if (played_move.get_end_square().get_x() == rook_x && played_move.get_end_square().get_y() == starting_row) {
+            return false; 
+        }
     }
-    return false;
+    return true;
 }
 
 bool King::passes_through_check_when_castling(const Move& castling_move, const Board& board, const std::vector<Move>& move_history) const {
