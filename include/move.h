@@ -12,7 +12,7 @@
 class Move {
     public:
         Move(const Square& start_square, const Square& end_square);
-        static Move get_from_uci_notation(const std::string& uci_notation, const Board& board);
+        static Move get_from_uci_notation(const std::string& uci_notation, const Board& board, const std::vector<Move>& move_history);
         Move(const Move& move);
 
         const Square& get_start_square() const;

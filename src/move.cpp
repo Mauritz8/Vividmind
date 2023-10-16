@@ -12,6 +12,7 @@
 #include "piece.h"
 #include "game_state.h"
 #include "pieces/bishop.h"
+#include "pieces/king.h"
 #include "pieces/knight.h"
 #include "pieces/pawn.h"
 #include "pieces/queen.h"
@@ -27,7 +28,7 @@ Move::Move(const Square& start_square, const Square& end_square)
     this->set_en_passant(false);
 }
 
-Move Move::get_from_uci_notation(const std::string& uci_notation, const Board& board) {
+Move Move::get_from_uci_notation(const std::string& uci_notation, const Board& board, const std::vector<Move>& move_history) {
     const int start_x = uci_notation[0] - 'a';
     const int start_y = 8 - (uci_notation[1] - '0');
     const int end_x = uci_notation[2] - 'a';
@@ -36,9 +37,18 @@ Move Move::get_from_uci_notation(const std::string& uci_notation, const Board& b
     const Square& end = board.get_square(end_x, end_y);
     Move move = Move(start, end);
 
-    if (uci_notation.length() == 5) {
-        const char promotion_piece = uci_notation[4];
-        move.set_promotion_piece(get_promotion_piece_type(promotion_piece));
+    King* king = dynamic_cast<King*>(start.get_piece().get());
+    Pawn* pawn = dynamic_cast<Pawn*>(start.get_piece().get());
+    if (king && king->is_valid_castling(move, board, move_history)) {
+        move.set_castling_move(true);
+    } else if (pawn) {
+        if (pawn->is_valid_en_passant(move, board, move_history)) {
+            move.set_en_passant(true);
+        } else if (pawn->is_promotion_move(move)) {
+            move.set_promotion(true);
+            const char promotion_piece = uci_notation[4];
+            move.set_promotion_piece(get_promotion_piece_type(promotion_piece));
+        }
     }
     return move;
 }
