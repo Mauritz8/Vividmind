@@ -61,11 +61,24 @@ std::vector<Move> Pawn::get_psuedo_legal_moves(const Board& board, const std::ve
         }
     }
 
+    std::vector<Move> other_promotion_moves;
+    const std::array<Piece_type, 3> other_promotion_piece_types = {
+        ROOK,
+        BISHOP,
+        KNIGHT
+    };
     for (Move& move : moves) {
         if (is_promotion_move(move)) {
             move.set_promotion(true);
+            move.set_promotion_piece(QUEEN);
+            for (Piece_type piece_type : other_promotion_piece_types) {
+                Move promotion_move = move;
+                promotion_move.set_promotion_piece(piece_type);
+                other_promotion_moves.push_back(promotion_move);
+            }
         }
     }
+    moves.insert(moves.end(), other_promotion_moves.begin(), other_promotion_moves.end());
 
     return moves;
 }

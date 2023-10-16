@@ -40,8 +40,8 @@ class Move {
         std::string to_uci_notation() const;
 
     private:
-        const Square start_square;
-        const Square end_square;
+        Square start_square;
+        Square end_square;
         std::shared_ptr<Piece> captured_piece;
         bool castling_move;
         bool promotion;

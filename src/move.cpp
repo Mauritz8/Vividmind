@@ -63,7 +63,7 @@ const Square& Move::get_start_square() const {
 }
 
 void Move::set_start_square(const Square& start_square) {
-    this->set_start_square(Square(start_square));
+    this->start_square = start_square;
 }
 
 const Square& Move::get_end_square() const {
@@ -71,7 +71,7 @@ const Square& Move::get_end_square() const {
 }
 
 void Move::set_end_square(const Square& end_square) {
-    this->set_end_square(Square(end_square));
+    this->end_square = end_square;
 }
 
 const std::shared_ptr<Piece>& Move::get_captured_piece_ref() const {
@@ -377,22 +377,22 @@ void Move::make_promotion(Board& board) {
     switch (this->get_promotion_piece().value()) {
         case QUEEN: {
             std::shared_ptr<Piece> piece = end_square.get_piece();
-            *piece = *dynamic_cast<Queen*>(piece.get());
+            piece.reset(dynamic_cast<Queen*>(piece.get()));
             break;
         }
         case ROOK: {
             std::shared_ptr<Piece> piece = end_square.get_piece();
-            *piece = *dynamic_cast<Rook*>(piece.get());
+            piece.reset(dynamic_cast<Rook*>(piece.get()));
             break;
         }
         case BISHOP: {
             std::shared_ptr<Piece> piece = end_square.get_piece();
-            *piece = *dynamic_cast<Bishop*>(piece.get());
+            piece.reset(dynamic_cast<Bishop*>(piece.get()));
             break;
         }
         case KNIGHT: {
             std::shared_ptr<Piece> piece = end_square.get_piece();
-            *piece = *dynamic_cast<Knight*>(piece.get());
+            piece.reset(dynamic_cast<Knight*>(piece.get()));
             break;
         }
         default: break;
