@@ -51,32 +51,6 @@ std::vector<Move> King::get_threatened_moves(const Board& board) const {
     return moves;
 }
 
-std::vector<Move> King::get_castling_moves(const Board& board, const std::vector<Move>& move_history) const {
-    std::vector<Move> moves;
-    const Square& start = board.get_square(this->get_x(), this->get_y());
-
-    const std::array<std::pair<int, int>, 2> castling_end_coordinates = {
-        // kingside castling
-        std::make_pair(start.get_x() + 2, start.get_y()),
-        // queenside castling
-        std::make_pair(start.get_x() - 2, start.get_y())
-    };
-    for (std::pair<int, int> end_coordinate : castling_end_coordinates) {
-        try {
-            const Square& end = board.get_square(
-                    end_coordinate.first,
-                    end_coordinate.second);
-            Move castling_move = Move(start, end);
-            if (is_valid_castling(castling_move, board, move_history)) {
-                castling_move.set_castling_move(true);
-                moves.push_back(castling_move);
-            }
-        } catch (const std::invalid_argument& e) {}
-    }
-
-    return moves;
-}
-
 bool King::is_valid_castling(const Move& move, const Board& board, const std::vector<Move>& move_history) const {
     const int starting_row = this->get_color() == WHITE ? 7 : 0;
     const int king_x = 4;
@@ -109,6 +83,32 @@ bool King::is_valid_castling(const Move& move, const Board& board, const std::ve
     }
 
     return true;
+}
+
+std::vector<Move> King::get_castling_moves(const Board& board, const std::vector<Move>& move_history) const {
+    std::vector<Move> moves;
+    const Square& start = board.get_square(this->get_x(), this->get_y());
+
+    const std::array<std::pair<int, int>, 2> castling_end_coordinates = {
+        // kingside castling
+        std::make_pair(start.get_x() + 2, start.get_y()),
+        // queenside castling
+        std::make_pair(start.get_x() - 2, start.get_y())
+    };
+    for (std::pair<int, int> end_coordinate : castling_end_coordinates) {
+        try {
+            const Square& end = board.get_square(
+                    end_coordinate.first,
+                    end_coordinate.second);
+            Move castling_move = Move(start, end);
+            if (is_valid_castling(castling_move, board, move_history)) {
+                castling_move.set_castling_move(true);
+                moves.push_back(castling_move);
+            }
+        } catch (const std::invalid_argument& e) {}
+    }
+
+    return moves;
 }
 
 bool King::are_castling_pieces_on_initial_squares(const std::vector<Move>& move_history, int starting_row, int king_x, int rook_x) const {
