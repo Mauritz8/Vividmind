@@ -31,6 +31,10 @@ std::vector<std::vector<int>> King::get_piece_square_table() const {
     };
 }
 
+int King::get_value() const {
+    return 200;
+}
+
 std::vector<Move> King::get_psuedo_legal_moves(const Board& board, const std::vector<Move>& move_history) const {
     std::vector<Move> moves = this->get_threatened_moves(board);
     std::vector<Move> castling_moves = this->get_castling_moves(board, move_history);

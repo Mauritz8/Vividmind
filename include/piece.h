@@ -28,6 +28,7 @@ class Piece {
         std::vector<Move> get_threatened_moves(const Board& board, const std::vector<Move>& move_history);
         virtual char get_char_representation() const = 0;
         virtual std::vector<std::vector<int>> get_piece_square_table() const = 0;
+        virtual int get_value() const = 0;
 
     protected:
         std::vector<Move> get_psuedo_legal_moves_direction(const Square& start, int x_direction, int y_direction, const Board& board) const;

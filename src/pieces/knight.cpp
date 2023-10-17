@@ -29,6 +29,10 @@ std::vector<std::vector<int>> Knight::get_piece_square_table() const {
     };
 }
 
+int Knight::get_value() const {
+    return 3;
+}
+
 std::vector<Move> Knight::get_psuedo_legal_moves(const Board& board, const std::vector<Move>& move_history) const {
     std::vector<Move> moves;
     const Square& start = board.get_square(this->get_x(), this->get_y());

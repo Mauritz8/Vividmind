@@ -18,45 +18,17 @@
 #include "pieces/rook.h"
 
 
-static PieceCounts get_piece_counts(const Board& board, Color color) {
-    PieceCounts piece_counts = {0, 0, 0, 0, 0, 0};
+static int get_material_score(Color color, const Board& board) {
+    int material = 0;
     for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 8; j++) {
             const std::shared_ptr<Piece>& piece = board.get_square(j, i).get_piece();
-            if (!piece || piece->get_color() != color) {
-                continue;
-            }
-
-            if (dynamic_cast<King*>(piece.get()) != nullptr) {
-                piece_counts.kings++; 
-            }  else if (dynamic_cast<Queen*>(piece.get()) != nullptr) {
-                piece_counts.queens++;
-            }  else if (dynamic_cast<Rook*>(piece.get()) != nullptr) {
-                piece_counts.rooks++;
-            }  else if (dynamic_cast<Bishop*>(piece.get()) != nullptr) {
-                piece_counts.bishops++;
-            }  else if (dynamic_cast<Knight*>(piece.get()) != nullptr) {
-                piece_counts.knights++;
-            }  else if (dynamic_cast<Pawn*>(piece.get()) != nullptr) {
-                piece_counts.pawns++;
+            if (piece && piece->get_color() == color) {
+                material += piece->get_value();
             }
         }
     }
-    return piece_counts;
-}
-
-static int get_material_score(const Board& board) {
-    const PieceCounts player_piece_counts = get_piece_counts(board, board.get_player_to_move());
-
-    const Color opponent_color = get_opposite_color(board.get_player_to_move());
-    const PieceCounts opponent_piece_counts = get_piece_counts(board, opponent_color);
-
-    return KING_SCORE * (player_piece_counts.kings - opponent_piece_counts.kings) +
-           QUEEN_SCORE * (player_piece_counts.queens - opponent_piece_counts.queens) +
-           ROOK_SCORE * (player_piece_counts.rooks - opponent_piece_counts.rooks) +
-           BISHOP_SCORE * (player_piece_counts.bishops - opponent_piece_counts.bishops) +
-           KNIGHT_SCORE * (player_piece_counts.knights - opponent_piece_counts.knights) +
-           PAWN_SCORE * (player_piece_counts.pawns - opponent_piece_counts.pawns);
+    return material;
 }
 
 static int get_piece_square_tables_values(const Board& board) {
@@ -76,16 +48,21 @@ static int get_piece_square_tables_values(const Board& board) {
         black_score += value;
     }
 
-    if (board.get_player_to_move() == WHITE) {
-        return white_score - black_score;
-    }
-    return black_score - white_score;
+    return white_score - black_score;
 }
 
 static double evaluate(const Board& board) {
-    const int material_score = get_material_score(board);
+    double score = 0;
+    const int white_material = get_material_score(WHITE, board);
+    const int black_material = get_material_score(BLACK, board);
+    score += white_material - black_material;
+
     const double piece_square_tables_score = 0.01 * get_piece_square_tables_values(board);
-    const double score = material_score + piece_square_tables_score;
+    score += piece_square_tables_score;
+
+    if (board.get_player_to_move() == BLACK) {
+        return -score;
+    }
     return score;
 }
 

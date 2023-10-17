@@ -13,6 +13,7 @@ class Pawn : public Piece {
         bool is_valid_en_passant(const Move& move, const Board& board, const std::vector<Move>& move_history) const; 
         bool is_promotion_move(const Move& move) const;
         std::vector<std::vector<int>> get_piece_square_table() const override;
+        int get_value() const override;
 
     protected:
         std::vector<Move> get_psuedo_legal_moves(const Board& board, const std::vector<Move>& move_history) const override;
