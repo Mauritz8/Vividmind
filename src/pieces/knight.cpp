@@ -16,6 +16,23 @@ char Knight::get_char_representation() const {
     return 'N';
 }
 
+std::vector<std::vector<int>> Knight::get_piece_square_table() const {
+    return {
+        {-50,-40,-30,-30,-30,-30,-40,-50},
+        {-40,-20,  0,  0,  0,  0,-20,-40},
+        {-30,  0, 10, 15, 15, 10,  0,-30},
+        {-30,  5, 15, 20, 20, 15,  5,-30},
+        {-30,  0, 15, 20, 20, 15,  0,-30},
+        {-30,  5, 10, 15, 15, 10,  5,-30},
+        {-40,-20,  0,  5,  5,  0,-20,-40},
+        {-50,-40,-30,-30,-30,-30,-40,-50},
+    };
+}
+
+int Knight::get_value() const {
+    return 3;
+}
+
 std::vector<Move> Knight::get_psuedo_legal_moves(const Board& board, const std::vector<Move>& move_history) const {
     std::vector<Move> moves;
     const Square& start = board.get_square(this->get_x(), this->get_y());
