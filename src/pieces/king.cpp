@@ -18,6 +18,19 @@ char King::get_char_representation() const {
     return 'K';
 }
 
+std::vector<std::vector<int>> King::get_piece_square_table() const {
+    return {
+        {-30,-40,-40,-50,-50,-40,-40,-30},
+        {-30,-40,-40,-50,-50,-40,-40,-30},
+        {-30,-40,-40,-50,-50,-40,-40,-30},
+        {-30,-40,-40,-50,-50,-40,-40,-30},
+        {-20,-30,-30,-40,-40, 10,-30,-20},
+        {-10,-20,-20,-20,-20, 10,-20,-10},
+        { 20, 20,  0,  0,  0,  0,  5, 20},
+        { 20, 30, 10,  0,  0, 10, 30, 20},
+    };
+}
+
 std::vector<Move> King::get_psuedo_legal_moves(const Board& board, const std::vector<Move>& move_history) const {
     std::vector<Move> moves = this->get_threatened_moves(board);
     std::vector<Move> castling_moves = this->get_castling_moves(board, move_history);

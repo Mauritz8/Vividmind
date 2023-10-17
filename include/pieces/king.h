@@ -11,6 +11,7 @@ class King : public Piece {
         char get_char_representation() const override;
         std::vector<Move> get_threatened_moves(const Board& board) const;
         bool is_valid_castling(const Move& move, const Board& board, const std::vector<Move>& move_history) const;
+        std::vector<std::vector<int>> get_piece_square_table() const override;
 
     protected:
         std::vector<Move> get_psuedo_legal_moves(const Board& board, const std::vector<Move>& move_history) const override;

@@ -1,3 +1,4 @@
+#include <functional>
 #include <iostream>
 #include <limits.h>
 #include <memory>
@@ -58,22 +59,46 @@ static int get_material_score(const Board& board) {
            PAWN_SCORE * (player_piece_counts.pawns - opponent_piece_counts.pawns);
 }
 
-static int evaluate(const Board& board) {
+static int get_piece_square_tables_values(const Board& board) {
+    const Color player_to_move = board.get_player_to_move();
+    const Color opponent = get_opposite_color(board.get_player_to_move());
+    const auto white_pieces = get_all_pieces(WHITE, board);
+    const auto black_pieces = get_all_pieces(BLACK, board);
+
+    int white_score = 0;
+    for (const std::shared_ptr<Piece> piece : white_pieces) {
+        int value = piece->get_piece_square_table().at(piece->get_y()).at(piece->get_x()); 
+        white_score += value;
+    }
+    int black_score = 0;
+    for (const std::shared_ptr<Piece> piece : black_pieces) {
+        int value = piece->get_piece_square_table().at(7 - piece->get_y()).at(piece->get_x()); 
+        black_score += value;
+    }
+
+    if (board.get_player_to_move() == WHITE) {
+        return white_score - black_score;
+    }
+    return black_score - white_score;
+}
+
+static double evaluate(const Board& board) {
     const int material_score = get_material_score(board);
-    const int score = material_score;
+    const double piece_square_tables_score = 0.01 * get_piece_square_tables_values(board);
+    const double score = material_score + piece_square_tables_score;
     return score;
 }
 
-static int nega_max(int depth, Board& board, std::vector<Move>& move_history) {
+static double nega_max(int depth, Board& board, std::vector<Move>& move_history) {
     if (depth == 0) {
         return evaluate(board);
     }
-    int max = INT_MIN;
+    double max = INT_MIN;
     std::vector<Move> legal_moves = get_all_legal_moves(board, move_history);
     for (int i = 0; i < legal_moves.size(); i++) {
         Move move = legal_moves.at(i);
         move.make_appropriate(board, move_history);
-        const int score = -nega_max(depth - 1, board, move_history);
+        const double score = -nega_max(depth - 1, board, move_history);
         move.undo_appropriate(board, move_history);
         if (score > max) {
             max = score;
@@ -86,13 +111,13 @@ Move get_best_move(int depth, const Board& board, const std::vector<Move>& move_
     Board board_copy = board;
     std::vector<Move> move_history_copy = move_history;
 
-    int max = INT_MIN;
+    double max = INT_MIN;
     const std::vector<Move> legal_moves = get_all_legal_moves(board_copy, move_history_copy);
     const Move* best_move = nullptr;
     for (int i = 0; i < legal_moves.size(); i++) {
         Move move = legal_moves.at(i);
         move.make_appropriate(board_copy, move_history_copy);
-        const int score = -nega_max(depth, board_copy, move_history_copy);
+        const double score = -nega_max(depth - 1, board_copy, move_history_copy);
         move.undo_appropriate(board_copy, move_history_copy);
         if (score > max) {
             max = score;

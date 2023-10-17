@@ -16,6 +16,19 @@ char Pawn::get_char_representation() const {
     return 'p';
 }
 
+std::vector<std::vector<int>> Pawn::get_piece_square_table() const {
+    return {
+        {  0,  0,  0,  0,  0,  0,  0,  0},
+        { 50, 50, 50, 50, 50, 50, 50, 50},
+        { 10, 10, 20, 30, 30, 20, 10, 10},
+        {  5,  5, 10, 25, 25, 10,  5,  5},
+        {  0,  0,  0, 20, 20,  0,  0,  0},
+        {  5, -5,-10,  0,  0,-10, -5,  5},
+        {  5, 10, 10,-20,-20, 10, 10,  5},
+        {  0,  0,  0,  0,  0,  0,  0,  0},
+    };
+}
+
 std::vector<Move> Pawn::get_psuedo_legal_moves(const Board& board, const std::vector<Move>& move_history) const {
     std::vector<Move> moves;
     const Square& start = board.get_square(this->get_x(), this->get_y());

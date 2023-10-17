@@ -54,7 +54,7 @@ static void handle_go_perft_command(const std::string& depth_argument, const Boa
 }
 
 static void handle_go_command(Board& board, std::vector<Move>& move_history) {
-    const int depth = 1;
+    const int depth = 2;
     const Move best_move = get_best_move(depth, board, move_history);
     std::cout << "bestmove " << best_move.to_uci_notation() << "\n";
 }
