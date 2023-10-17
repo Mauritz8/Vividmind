@@ -31,24 +31,22 @@ static int get_material_score(Color color, const Board& board) {
     return material;
 }
 
-static int get_piece_square_tables_values(const Board& board) {
-    const Color player_to_move = board.get_player_to_move();
-    const Color opponent = get_opposite_color(board.get_player_to_move());
-    const auto white_pieces = get_all_pieces(WHITE, board);
-    const auto black_pieces = get_all_pieces(BLACK, board);
+static int get_piece_square_table_score(Color color, const Board& board) {
+    const auto pieces = get_all_pieces(color, board);
+    const bool is_black = color == BLACK;
 
-    int white_score = 0;
-    for (const std::shared_ptr<Piece> piece : white_pieces) {
-        int value = piece->get_piece_square_table().at(piece->get_y()).at(piece->get_x()); 
-        white_score += value;
-    }
-    int black_score = 0;
-    for (const std::shared_ptr<Piece> piece : black_pieces) {
-        int value = piece->get_piece_square_table().at(7 - piece->get_y()).at(piece->get_x()); 
-        black_score += value;
+    int score = 0;
+    for (const std::shared_ptr<Piece> piece : pieces) {
+        int value;
+        if (is_black) {
+            value = piece->get_piece_square_table().at(7 - piece->get_y()).at(piece->get_x()); 
+        } else {
+            value = piece->get_piece_square_table().at(piece->get_y()).at(piece->get_x()); 
+        }
+        score += value;
     }
 
-    return white_score - black_score;
+    return score;
 }
 
 static double evaluate(const Board& board) {
@@ -57,8 +55,9 @@ static double evaluate(const Board& board) {
     const int black_material = get_material_score(BLACK, board);
     score += white_material - black_material;
 
-    const double piece_square_tables_score = 0.01 * get_piece_square_tables_values(board);
-    score += piece_square_tables_score;
+    const double white_piece_square_table_score = get_piece_square_table_score(WHITE, board);
+    const double black_piece_square_table_score = get_piece_square_table_score(BLACK, board);
+    score += 0.01 * (white_piece_square_table_score - black_piece_square_table_score);
 
     if (board.get_player_to_move() == BLACK) {
         return -score;
