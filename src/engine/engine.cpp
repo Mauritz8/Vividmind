@@ -59,7 +59,7 @@ static double evaluate(const Board& board) {
     const double black_piece_square_table_score = get_piece_square_table_score(BLACK, board);
     score += 0.01 * (white_piece_square_table_score - black_piece_square_table_score);
 
-    if (board.get_player_to_move() == BLACK) {
+    if (board.player_to_move == BLACK) {
         return -score;
     }
     return score;

@@ -50,7 +50,7 @@ static bool is_legal(const Move& psuedo_legal, const Board& board, const std::ve
     Board board_copy = board;
     std::vector<Move> move_history_copy = move_history;
 
-    const Color player_to_move = board.get_player_to_move();
+    const Color player_to_move = board.player_to_move;
     psuedo_legal_copy.make_appropriate(board_copy, move_history_copy);
     if (is_in_check(player_to_move, board_copy, move_history_copy)) {
         return false;
@@ -103,7 +103,7 @@ std::vector<Move> get_all_legal_moves(const Board& board, const std::vector<Move
     for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 8; j++) {
             const Square& square = board.get_square(j, i);
-            if (square.get_piece() && square.get_piece()->get_color() == board.get_player_to_move()) {
+            if (square.get_piece() && square.get_piece()->get_color() == board.player_to_move) {
                 const std::shared_ptr<Piece>& piece = square.get_piece();
                 pieces.push_back(piece);
             } 

@@ -82,14 +82,6 @@ void Board::set_square(int x, int y, std::shared_ptr<Piece> piece) {
     square.set_piece(piece);
 }
 
-Color Board::get_player_to_move() const { 
-    return player_to_move; 
-}
-
-void Board::set_player_to_move(Color player_to_move) { 
-    this->player_to_move = player_to_move; 
-}
-
 
 void Board::show() const {
     for (int i = 0; i < 8; i++) {
@@ -107,10 +99,10 @@ void Board::show() const {
 }
 
 void Board::switch_player_to_move() {
-    if (this->get_player_to_move() == WHITE) {
-        this->set_player_to_move(BLACK);
+    if (this->player_to_move == WHITE) {
+        this->player_to_move = BLACK;
     } else {
-        this->set_player_to_move(WHITE);
+        this->player_to_move = WHITE;
     }
 }
 
@@ -136,8 +128,8 @@ void Board::place_pieces(const std::string& fen_piece_placement_field) {
 
 void Board::set_player_to_move(const std::string& fen_active_color_field) {
     if (fen_active_color_field.at(0) == 'w') {
-        this->set_player_to_move(WHITE);
+        this->player_to_move = WHITE;
     } else if (fen_active_color_field.at(0) == 'b') {
-        this->set_player_to_move(BLACK);
+        this->player_to_move = BLACK;
     } 
 }

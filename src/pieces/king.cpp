@@ -92,7 +92,7 @@ bool King::is_valid_castling(const Move& move, const Board& board, const std::ve
     if (!is_clear_line(king_pos, rook_pos, board)) {
         return false;
     }
-    if (is_in_check(board.get_player_to_move(), board, move_history)) {
+    if (is_in_check(board.player_to_move, board, move_history)) {
         return false;
     }
     if (passes_through_check_when_castling(move, board, move_history)) {
@@ -151,7 +151,7 @@ bool King::passes_through_check_when_castling(const Move& castling_move, const B
     const int start_x = castling_move.start.x;
     const int end_x = castling_move.end.x;
     const int direction = end_x - start_x > 0 ? 1 : -1;
-    const Color player_to_move = board.get_player_to_move();
+    const Color player_to_move = board.player_to_move;
 
     int x = start_x;
     while (x != end_x) {

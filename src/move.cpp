@@ -87,7 +87,7 @@ bool Move::leaves_king_in_check(const Board& board, const std::vector<Move>& mov
     Board board_copy = board;
     std::vector<Move> move_history_copy = move_history;
 
-    const Color player_to_move = board.get_player_to_move();
+    const Color player_to_move = board.player_to_move;
     move_copy.make_appropriate(board_copy, move_history_copy);
     if (is_in_check(player_to_move, board_copy, move_history_copy)) {
         return true;
