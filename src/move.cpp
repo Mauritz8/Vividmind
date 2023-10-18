@@ -37,7 +37,7 @@ Move::Move(const Square& start, const Square& end) {
     this->is_pawn_two_squares_forward = false;
 }
 
-Move Move::get_from_uci_notation(const std::string& uci_notation, const Board& board, const std::vector<Move>& move_history) {
+Move Move::get_from_uci_notation(const std::string& uci_notation, const Board& board) {
     const int start_x = uci_notation[0] - 'a';
     const int start_y = 8 - (uci_notation[1] - '0');
     const int end_x = uci_notation[2] - 'a';
@@ -48,7 +48,7 @@ Move Move::get_from_uci_notation(const std::string& uci_notation, const Board& b
     const Square& end = board.get_square(end_x, end_y);
     King* king = dynamic_cast<King*>(start.get_piece().get());
     Pawn* pawn = dynamic_cast<Pawn*>(start.get_piece().get());
-    if (king && king->is_valid_castling(move, board, move_history)) {
+    if (king && king->is_valid_castling(move, board)) {
         move.is_castling_move = true;
     } else if (pawn) {
         if (pawn->is_valid_en_passant(move, board)) {
@@ -88,20 +88,19 @@ Move Move::operator=(const Move& move) {
     return *this;
 }
 
-bool Move::leaves_king_in_check(const Board& board, const std::vector<Move>& move_history) const {
+bool Move::leaves_king_in_check(const Board& board) const {
     Move move_copy = *this;
     Board board_copy = board;
-    std::vector<Move> move_history_copy = move_history;
 
     const Color player_to_move = board.player_to_move;
-    move_copy.make_appropriate(board_copy, move_history_copy);
-    if (is_in_check(player_to_move, board_copy, move_history_copy)) {
+    move_copy.make_appropriate(board_copy);
+    if (is_in_check(player_to_move, board_copy)) {
         return true;
     }
     return false;
 }
 
-void Move::make_appropriate(Board& board, std::vector<Move>& move_history) {
+void Move::make_appropriate(Board& board) {
     if (this->is_castling_move) {
         this->make_castling(board);
     } else if (this->is_en_passant) {
@@ -114,11 +113,11 @@ void Move::make_appropriate(Board& board, std::vector<Move>& move_history) {
         this->make(board);
     }
 
-    move_history.push_back(*this);
+    board.history.push_back(*this);
     board.switch_player_to_move();
 }
 
-void Move::undo_appropriate(Board& board, std::vector<Move>& move_history) {
+void Move::undo_appropriate(Board& board) {
     const Square& end_square = board.get_square(this->end.x, this->end.y);
     if (!end_square.get_piece()) {
         std::cout << "Can't undo move\n"; 
@@ -137,7 +136,7 @@ void Move::undo_appropriate(Board& board, std::vector<Move>& move_history) {
         this->undo(board);
     }
 
-    move_history.pop_back();
+    board.history.pop_back();
     board.switch_player_to_move();
 }
 

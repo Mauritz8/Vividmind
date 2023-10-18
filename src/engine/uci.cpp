@@ -20,58 +20,57 @@ static void handle_isready_command() {
     std::cout << "readyok\n\n";
 }
 
-static void handle_ucinewgame_command(Board& board, std::vector<Move>& move_history) {
+static void handle_ucinewgame_command(Board& board) {
     board = Board::get_starting_position();
-    move_history = {};
 }
 
-static void make_moves(std::istringstream& moves, Board& board, std::vector<Move>& move_history) {
+static void make_moves(std::istringstream& moves, Board& board) {
     std::string move_uci;
     while (std::getline(moves, move_uci, ' ')) {
-        Move move = Move::get_from_uci_notation(move_uci, board, move_history);
-        move.make_appropriate(board, move_history);
+        Move move = Move::get_from_uci_notation(move_uci, board);
+        move.make_appropriate(board);
     }
 }
 
-static void handle_position_command(const std::string& position, Board& board, std::vector<Move>& move_history) {
+static void handle_position_command(const std::string& position, Board& board) {
     std::istringstream ss(position);
     std::string token;
     while (std::getline(ss, token, ' ')) {
         if (token == "startpos") {
-            handle_ucinewgame_command(board, move_history);
+            handle_ucinewgame_command(board);
         } else if (token == "moves") {
-            make_moves(ss, board, move_history);
+            make_moves(ss, board);
             break;
         }
     }
 }
 
-static void handle_go_perft_command(const std::string& depth_argument, const Board& board, const std::vector<Move>& move_history) {
+static void handle_go_perft_command(const std::string& depth_argument, const Board& board) {
     try {
         const int depth = std::stoi(depth_argument);
-        divide(depth, board, move_history);
+        divide(depth, board);
     } catch (const std::invalid_argument& e) {}
 }
 
-static void handle_go_command(Board& board, std::vector<Move>& move_history) {
+static void handle_go_command(Board& board) {
     const int depth = 2;
-    const Move best_move = get_best_move(depth, board, move_history);
+    const Move best_move = get_best_move(depth, board);
     std::cout << "bestmove " << best_move.to_uci_notation() << "\n";
 }
 
-void process_uci_command(const std::string& command, Board& board, std::vector<Move>& move_history) {
+void process_uci_command(const std::string& command, Board& board) {
     if (command == "uci") {
         handle_uci_command();
     } else if (command == "isready") {
         handle_isready_command();
     } else if (command == "ucinewgame") {
-        handle_ucinewgame_command(board, move_history);
+        handle_ucinewgame_command(board);
     } else if (command.substr(0, 8) == "position") {
-        handle_position_command(command.substr(9, std::string::npos), board, move_history);
+        handle_position_command(command.substr(9, std::string::npos), board);
     } else if (command.substr(0, 8) == "go perft") {
-        handle_go_perft_command(command.substr(9, std::string::npos), board, move_history);
+        handle_go_perft_command(command.substr(9, std::string::npos), board);
     } else if (command.substr(0, 2) == "go") {
-        handle_go_command(board, move_history);
+        handle_go_command(board);
     } else if (command == "quit") {
         exit(0);
     }

@@ -35,9 +35,9 @@ int King::get_value() const {
     return 200;
 }
 
-std::vector<Move> King::get_psuedo_legal_moves(const Board& board, const std::vector<Move>& move_history) const {
+std::vector<Move> King::get_psuedo_legal_moves(const Board& board) const {
     std::vector<Move> moves = this->get_threatened_moves(board);
-    std::vector<Move> castling_moves = this->get_castling_moves(board, move_history);
+    std::vector<Move> castling_moves = this->get_castling_moves(board);
     moves.insert(moves.end(), castling_moves.begin(), castling_moves.end());
     return moves;
 }
@@ -68,7 +68,7 @@ std::vector<Move> King::get_threatened_moves(const Board& board) const {
     return moves;
 }
 
-bool King::is_valid_castling(const Move& move, const Board& board, const std::vector<Move>& move_history) const {
+bool King::is_valid_castling(const Move& move, const Board& board) const {
     int rook_x;
     if (move.end.x == 6) {
         rook_x = 7;
@@ -81,20 +81,20 @@ bool King::is_valid_castling(const Move& move, const Board& board, const std::ve
     if (!is_clear_line(king_pos, rook_pos, board)) {
         return false;
     }
-    if (is_in_check(board.player_to_move, board, move_history)) {
+    if (is_in_check(board.player_to_move, board)) {
         return false;
     }
-    if (passes_through_check_when_castling(move, board, move_history)) {
+    if (passes_through_check_when_castling(move, board)) {
         return false;
     }
 
     return true;
 }
 
-std::vector<Move> King::get_castling_moves(const Board& board, const std::vector<Move>& move_history) const {
+std::vector<Move> King::get_castling_moves(const Board& board) const {
     std::vector<Move> castling_moves = get_potential_castling_moves(board);
     for (auto it = castling_moves.begin(); it != castling_moves.end();) {
-        if (!is_valid_castling(*it, board, move_history)) {
+        if (!is_valid_castling(*it, board)) {
             it = castling_moves.erase(it);
         } else {
             it->is_castling_move = true;
@@ -125,9 +125,8 @@ std::vector<Move> King::get_potential_castling_moves(const Board& board) const {
     return potential_castling_moves;
 }
 
-bool King::passes_through_check_when_castling(const Move& castling_move, const Board& board, const std::vector<Move>& move_history) const {
+bool King::passes_through_check_when_castling(const Move& castling_move, const Board& board) const {
     Board board_copy = board;
-    std::vector<Move> move_history_copy = move_history;
     const int row = castling_move.start.y;
     const int start_x = castling_move.start.x;
     const int end_x = castling_move.end.x;
@@ -137,8 +136,8 @@ bool King::passes_through_check_when_castling(const Move& castling_move, const B
     int x = start_x;
     while (x != end_x) {
         Move submove = Move(x, row, x + direction, row);
-        submove.make_appropriate(board_copy, move_history_copy);
-        if (is_in_check(player_to_move, board_copy, move_history_copy)) {
+        submove.make_appropriate(board_copy);
+        if (is_in_check(player_to_move, board_copy)) {
             return true;
         }
         x += direction;

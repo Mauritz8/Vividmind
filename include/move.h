@@ -23,15 +23,15 @@ class Move {
 
         Move(int start_x, int start_y, int end_x, int end_y);
         Move(const Square& start, const Square& end);
-        static Move get_from_uci_notation(const std::string& uci_notation, const Board& board, const std::vector<Move>& move_history);
+        static Move get_from_uci_notation(const std::string& uci_notation, const Board& board);
         Move(const Move& move);
 
         Move operator=(const Move& move);
         bool operator==(const Move& move) const;
 
-        bool leaves_king_in_check(const Board& board, const std::vector<Move>& move_history) const;
-        void make_appropriate(Board& board, std::vector<Move>& move_history);
-        void undo_appropriate(Board& board, std::vector<Move>& move_history);
+        bool leaves_king_in_check(const Board& board) const;
+        void make_appropriate(Board& board);
+        void undo_appropriate(Board& board);
         std::string to_uci_notation() const;
 
     private:

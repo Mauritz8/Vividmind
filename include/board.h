@@ -23,6 +23,7 @@ class Board {
         Color player_to_move;
         std::optional<Pos> en_passant_square;
         Castling castling_rights;
+        std::vector<Move> history;
 
         Board() {}
 

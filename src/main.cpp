@@ -8,12 +8,11 @@
 
 int main(void) {
     Board board = Board::get_starting_position();
-    std::vector<Move> move_history;
 
     std::string input;
     while (true) {
         std::getline(std::cin, input);
-        process_uci_command(input, board, move_history);
+        process_uci_command(input, board);
     }
 
     return 0;

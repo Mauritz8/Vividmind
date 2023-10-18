@@ -12,14 +12,14 @@
 #include "pieces/queen.h"
 #include "pieces/rook.h"
 
-bool is_checkmate(const Board& board, const std::vector<Move>& move_history) {
-   if (!is_in_check(board.player_to_move, board, move_history)) {
+bool is_checkmate(const Board& board) {
+   if (!is_in_check(board.player_to_move, board)) {
        return false;
    }
 
-   const std::vector<Move> moves = get_all_legal_moves(board, move_history);
+   const std::vector<Move> moves = get_all_legal_moves(board);
    for (int i = 0; i < moves.size(); i++) {
-       if (!moves.at(i).leaves_king_in_check(board, move_history)) {
+       if (!moves.at(i).leaves_king_in_check(board)) {
            return false;
        }
    }
@@ -47,14 +47,14 @@ static bool is_insufficient_material(const Board& board) {
            is_insufficient_material(BLACK, board);
 }
 
-static bool is_stalemate(const Board& board, const std::vector<Move>& move_history) {
-    const std::vector<Move> legal_moves = get_all_legal_moves(board, move_history);
-    if (!is_in_check(board.player_to_move, board, move_history) && legal_moves.size() == 0) {
+static bool is_stalemate(const Board& board) {
+    const std::vector<Move> legal_moves = get_all_legal_moves(board);
+    if (!is_in_check(board.player_to_move, board) && legal_moves.size() == 0) {
         return true;
     }
     return false;
 }
 
-bool is_draw(const Board& board, const std::vector<Move>& move_history) {
-    return is_insufficient_material(board) || is_stalemate(board, move_history);
+bool is_draw(const Board& board) {
+    return is_insufficient_material(board) || is_stalemate(board);
 }

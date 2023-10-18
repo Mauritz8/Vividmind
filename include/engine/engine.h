@@ -5,8 +5,8 @@
 #include "board.h"
 #include <vector>
 
-Move get_best_move(int depth, const Board& board, const std::vector<Move>& move_history);
-int perft(int depth, Board board, std::vector<Move> move_history);
-void divide(int depth, Board board, std::vector<Move> move_history);
+Move get_best_move(int depth, const Board& board);
+int perft(int depth, Board board);
+void divide(int depth, Board board);
 
 #endif
