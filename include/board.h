@@ -2,6 +2,7 @@
 #define BOARD_H
 
 #include "square.h"
+#include <array>
 #include <optional>
 #include <string>
 #include <vector>
@@ -12,17 +13,15 @@ struct Pos {
 };
 
 struct Castling {
-    bool white_kingside;
-    bool white_queenside;
-    bool black_kingside;
-    bool black_queenside;
+    bool kingside;
+    bool queenside;
 };
 
 class Board {
     public:
         Color player_to_move;
         std::optional<Pos> en_passant_square;
-        Castling castling_rights;
+        std::array<Castling, 2> castling_rights;
         std::vector<Move> history;
 
         Board() {}

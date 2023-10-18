@@ -164,7 +164,9 @@ void Move::make(Board& board) {
         this->captured_piece = std::move(piece);
     }
     start_square.move_piece(end_square);
+
     board.en_passant_square = {};
+    this->update_castling_rights(board, end_square.get_piece());
 }
 
 void Move::undo(Board& board) {
@@ -262,6 +264,29 @@ bool Move::is_valid_pawn_move_threat(const Board& board) const {
         return true;
     }
     return false;
+}
+
+void Move::update_castling_rights(Board& board, const std::shared_ptr<Piece>& moved_piece) const {
+    Color color = board.player_to_move;
+    const bool has_castling_rights = 
+        board.castling_rights[color].kingside ||
+        board.castling_rights[color].queenside;
+    if (!has_castling_rights) {
+        return;
+    }
+
+    King* king = dynamic_cast<King*>(moved_piece.get());
+    Rook* rook = dynamic_cast<Rook*>(moved_piece.get());
+    if (king) {
+        board.castling_rights[color].kingside = false; 
+        board.castling_rights[color].queenside = false; 
+    } else if (rook) {
+        if (this->start.x == 0) {
+            board.castling_rights[color].queenside = false;
+        } else if (this->start.x == 7) {
+            board.castling_rights[color].kingside = false;
+        }
+    }
 }
 
 Move Move::get_castling_rook_move(const Board& board) const {

@@ -45,6 +45,7 @@ class Move {
         bool is_valid_king_move() const;
         bool is_valid_pawn_move(const Board& board) const;
         bool is_valid_pawn_move_threat(const Board& board) const;
+        void update_castling_rights(Board& board, const std::shared_ptr<Piece>& moved_piece) const;
         Move get_castling_rook_move(const Board& board) const;
         void make_castling(Board& board);
         void undo_castling(Board& board);

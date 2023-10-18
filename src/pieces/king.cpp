@@ -112,15 +112,13 @@ std::vector<Move> King::get_potential_castling_moves(const Board& board) const {
     const int queenside_end_x = 2;
 
     std::vector<Move> potential_castling_moves;
-    if (color == WHITE && board.castling_rights.white_kingside ||
-        color == BLACK && board.castling_rights.black_kingside) {
+    if (board.castling_rights[color].kingside) {
         potential_castling_moves.push_back(Move(king_x, row, kingside_end_x, row));
     } 
 
-    if (color == WHITE && board.castling_rights.white_queenside ||
-        color == BLACK && board.castling_rights.black_queenside) {
+    if (board.castling_rights[color].queenside) {
         potential_castling_moves.push_back(Move(king_x, row, queenside_end_x, row));
-    }
+    } 
 
     return potential_castling_moves;
 }

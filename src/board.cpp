@@ -137,26 +137,26 @@ void Board::set_player_to_move(const std::string& fen_active_color_field) {
 
 void Board::set_castling_rights(const std::string& fen_castling_field) {
     if (fen_castling_field.at(0) == '-') {
-        this->castling_rights.white_kingside = false;
-        this->castling_rights.white_queenside = false;
-        this->castling_rights.black_kingside = false;
-        this->castling_rights.black_queenside = false;
+        this->castling_rights[WHITE].kingside = false;
+        this->castling_rights[WHITE].queenside = false;
+        this->castling_rights[BLACK].kingside = false;
+        this->castling_rights[BLACK].queenside = false;
         return;
     }
 
     for (char ch : fen_castling_field) {
         switch (ch) {
             case 'K':
-                this->castling_rights.white_kingside = true;
+                this->castling_rights[WHITE].kingside = true;
                 break;
             case 'Q':
-                this->castling_rights.white_queenside = true;
+                this->castling_rights[WHITE].queenside = true;
                 break;
             case 'k':
-                this->castling_rights.black_kingside = true;
+                this->castling_rights[BLACK].kingside = true;
                 break;
             case 'q':
-                this->castling_rights.black_queenside = true;
+                this->castling_rights[BLACK].queenside = true;
                 break;
         }
     }
