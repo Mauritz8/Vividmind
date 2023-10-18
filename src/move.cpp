@@ -92,7 +92,7 @@ bool Move::leaves_king_in_check(const Board& board) const {
     Move move_copy = *this;
     Board board_copy = board;
 
-    const Color player_to_move = board.player_to_move;
+    const Color player_to_move = board.game_state.player_to_move;
     move_copy.make_appropriate(board_copy);
     if (is_in_check(player_to_move, board_copy)) {
         return true;
@@ -101,6 +101,7 @@ bool Move::leaves_king_in_check(const Board& board) const {
 }
 
 void Move::make_appropriate(Board& board) {
+    board.history.push_back(board.game_state);
     if (this->is_castling_move) {
         this->make_castling(board);
     } else if (this->is_en_passant) {
@@ -113,7 +114,6 @@ void Move::make_appropriate(Board& board) {
         this->make(board);
     }
 
-    board.history.push_back(*this);
     board.switch_player_to_move();
 }
 
@@ -136,8 +136,8 @@ void Move::undo_appropriate(Board& board) {
         this->undo(board);
     }
 
+    board.game_state = board.history.at(board.history.size() - 1);
     board.history.pop_back();
-    board.switch_player_to_move();
 }
 
 std::string Move::to_uci_notation() const {
@@ -165,8 +165,8 @@ void Move::make(Board& board) {
     }
     start_square.move_piece(end_square);
 
-    board.en_passant_square = {};
-    this->update_castling_rights(board, end_square.get_piece());
+    board.game_state.en_passant_square = {};
+    this->update_castling_rights(board);
 }
 
 void Move::undo(Board& board) {
@@ -266,26 +266,27 @@ bool Move::is_valid_pawn_move_threat(const Board& board) const {
     return false;
 }
 
-void Move::update_castling_rights(Board& board, const std::shared_ptr<Piece>& moved_piece) const {
-    Color color = board.player_to_move;
-    const bool has_castling_rights = 
-        board.castling_rights[color].kingside ||
-        board.castling_rights[color].queenside;
-    if (!has_castling_rights) {
-        return;
-    }
+void Move::update_castling_rights(Board& board) const {
+    const Color color = board.game_state.player_to_move;
+    const int player_starting_row = color == WHITE ? 7 : 0; 
+    const int opponent_starting_row = color == WHITE ? 0 : 7;
+    const Pos player_king = Pos{4, player_starting_row};
+    const Pos player_rook1 = Pos{0, player_starting_row};
+    const Pos player_rook2 = Pos{7, player_starting_row};
+    const Pos opponent_rook1 = Pos{0, opponent_starting_row};
+    const Pos opponent_rook2 = Pos{7, opponent_starting_row};
 
-    King* king = dynamic_cast<King*>(moved_piece.get());
-    Rook* rook = dynamic_cast<Rook*>(moved_piece.get());
-    if (king) {
-        board.castling_rights[color].kingside = false; 
-        board.castling_rights[color].queenside = false; 
-    } else if (rook) {
-        if (this->start.x == 0) {
-            board.castling_rights[color].queenside = false;
-        } else if (this->start.x == 7) {
-            board.castling_rights[color].kingside = false;
-        }
+    if (start.x == player_king.x && start.y == player_king.y) {
+        board.game_state.castling_rights[color].kingside = false; 
+        board.game_state.castling_rights[color].queenside = false; 
+    } else if (start.x == player_rook1.x && start.y == player_rook1.y) {
+        board.game_state.castling_rights[color].queenside = false; 
+    } else if (start.x == player_rook2.x && start.y == player_rook2.y) {
+        board.game_state.castling_rights[color].kingside = false; 
+    } else if (end.x == opponent_rook1.x && end.y == opponent_rook1.y) {
+        board.game_state.castling_rights[get_opposite_color(color)].queenside = false; 
+    } else if (end.x == opponent_rook2.x && end.y == opponent_rook2.y) {
+        board.game_state.castling_rights[get_opposite_color(color)].kingside = false; 
     }
 }
 
@@ -363,10 +364,10 @@ void Move::undo_promotion(Board& board) {
 
 void Move::make_pawn_two_squares_forward(Board& board) {
     this->make(board);
-    board.en_passant_square = Pos{start.x, (end.y + start.y) / 2};
+    board.game_state.en_passant_square = Pos{start.x, (end.y + start.y) / 2};
 }
 
 void Move::undo_pawn_two_squares_forward(Board& board) {
     this->undo(board);
-    board.en_passant_square = {};
+    board.game_state.en_passant_square = {};
 }

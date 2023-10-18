@@ -121,12 +121,12 @@ std::vector<Move> Pawn::get_threatened_moves(const Board& board) const {
 }
 
 bool Pawn::is_valid_en_passant(const Move& pawn_capture, const Board& board) const {
-    if (!board.en_passant_square.has_value()) {
+    if (!board.game_state.en_passant_square.has_value()) {
         return false;
     }
 
     const Pos end = pawn_capture.end;
-    const Pos en_passant = board.en_passant_square.value();
+    const Pos en_passant = board.game_state.en_passant_square.value();
     return end.x == en_passant.x && end.y == en_passant.y;
 }
 

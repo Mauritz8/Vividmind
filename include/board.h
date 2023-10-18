@@ -17,12 +17,16 @@ struct Castling {
     bool queenside;
 };
 
+struct GameState {
+    Color player_to_move;
+    std::optional<Pos> en_passant_square;
+    std::array<Castling, 2> castling_rights;
+};
+
 class Board {
     public:
-        Color player_to_move;
-        std::optional<Pos> en_passant_square;
-        std::array<Castling, 2> castling_rights;
-        std::vector<Move> history;
+        GameState game_state;
+        std::vector<GameState> history;
 
         Board() {}
 

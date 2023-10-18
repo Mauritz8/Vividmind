@@ -100,10 +100,10 @@ void Board::show() const {
 }
 
 void Board::switch_player_to_move() {
-    if (this->player_to_move == WHITE) {
-        this->player_to_move = BLACK;
+    if (this->game_state.player_to_move == WHITE) {
+        this->game_state.player_to_move = BLACK;
     } else {
-        this->player_to_move = WHITE;
+        this->game_state.player_to_move = WHITE;
     }
 }
 
@@ -129,34 +129,34 @@ void Board::place_pieces(const std::string& fen_piece_placement_field) {
 
 void Board::set_player_to_move(const std::string& fen_active_color_field) {
     if (fen_active_color_field.at(0) == 'w') {
-        this->player_to_move = WHITE;
+        this->game_state.player_to_move = WHITE;
     } else if (fen_active_color_field.at(0) == 'b') {
-        this->player_to_move = BLACK;
+        this->game_state.player_to_move = BLACK;
     } 
 }
 
 void Board::set_castling_rights(const std::string& fen_castling_field) {
     if (fen_castling_field.at(0) == '-') {
-        this->castling_rights[WHITE].kingside = false;
-        this->castling_rights[WHITE].queenside = false;
-        this->castling_rights[BLACK].kingside = false;
-        this->castling_rights[BLACK].queenside = false;
+        this->game_state.castling_rights[WHITE].kingside = false;
+        this->game_state.castling_rights[WHITE].queenside = false;
+        this->game_state.castling_rights[BLACK].kingside = false;
+        this->game_state.castling_rights[BLACK].queenside = false;
         return;
     }
 
     for (char ch : fen_castling_field) {
         switch (ch) {
             case 'K':
-                this->castling_rights[WHITE].kingside = true;
+                this->game_state.castling_rights[WHITE].kingside = true;
                 break;
             case 'Q':
-                this->castling_rights[WHITE].queenside = true;
+                this->game_state.castling_rights[WHITE].queenside = true;
                 break;
             case 'k':
-                this->castling_rights[BLACK].kingside = true;
+                this->game_state.castling_rights[BLACK].kingside = true;
                 break;
             case 'q':
-                this->castling_rights[BLACK].queenside = true;
+                this->game_state.castling_rights[BLACK].queenside = true;
                 break;
         }
     }

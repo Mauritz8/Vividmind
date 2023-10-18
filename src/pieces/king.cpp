@@ -81,7 +81,7 @@ bool King::is_valid_castling(const Move& move, const Board& board) const {
     if (!is_clear_line(king_pos, rook_pos, board)) {
         return false;
     }
-    if (is_in_check(board.player_to_move, board)) {
+    if (is_in_check(board.game_state.player_to_move, board)) {
         return false;
     }
     if (passes_through_check_when_castling(move, board)) {
@@ -112,11 +112,11 @@ std::vector<Move> King::get_potential_castling_moves(const Board& board) const {
     const int queenside_end_x = 2;
 
     std::vector<Move> potential_castling_moves;
-    if (board.castling_rights[color].kingside) {
+    if (board.game_state.castling_rights[color].kingside) {
         potential_castling_moves.push_back(Move(king_x, row, kingside_end_x, row));
     } 
 
-    if (board.castling_rights[color].queenside) {
+    if (board.game_state.castling_rights[color].queenside) {
         potential_castling_moves.push_back(Move(king_x, row, queenside_end_x, row));
     } 
 
@@ -129,7 +129,7 @@ bool King::passes_through_check_when_castling(const Move& castling_move, const B
     const int start_x = castling_move.start.x;
     const int end_x = castling_move.end.x;
     const int direction = end_x - start_x > 0 ? 1 : -1;
-    const Color player_to_move = board.player_to_move;
+    const Color player_to_move = board.game_state.player_to_move;
 
     int x = start_x;
     while (x != end_x) {
