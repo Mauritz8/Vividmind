@@ -2,12 +2,19 @@
 #define BOARD_H
 
 #include "square.h"
+#include <optional>
 #include <string>
 #include <vector>
+
+struct Pos {
+    int x;
+    int y;
+};
 
 class Board {
     public:
         Color player_to_move;
+        std::optional<Pos> en_passant_square;
 
         Board() {}
 
