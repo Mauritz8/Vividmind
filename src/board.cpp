@@ -1,7 +1,9 @@
 #include <algorithm>
+#include <array>
 #include <iostream>
 #include <memory>
 #include <cctype>
+#include <sstream>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -34,30 +36,17 @@ Board Board::get_starting_position() {
 
 Board Board::get_position_from_fen(std::string fen) {
     Board board = Board::get_empty_board();
+    
+    std::istringstream ss(fen);
+    std::array<std::string, 6> fen_parts;
+    for (int i = 0; i < 6; i++) {
+        std::getline(ss, fen_parts[i], ' ');
+    }
 
-    const std::string pieces_field = fen.substr(0, fen.find(" "));
-    fen.erase(0, pieces_field.length() + 1);
-
-    const std::string active_color_field = fen.substr(0, fen.find(" "));
-    fen.erase(0, active_color_field.length() + 1);
-
-    const std::string castling_field = fen.substr(0, fen.find(" "));
-    fen.erase(0, castling_field.length() + 1);
-
-    const std::string en_passant_field = fen.substr(0, fen.find(" "));
-    fen.erase(0, en_passant_field.length() + 1);
-
-    const std::string halfmove_clock_field = fen.substr(0, fen.find(" "));
-    fen.erase(0, halfmove_clock_field.length() + 1);
-
-    const std::string fullmove_number_field = fen.substr(0, fen.find(" "));
-    fen.erase(0, fullmove_number_field.length() + 1);
-
-    board.place_pieces(pieces_field);
-    board.set_player_to_move(active_color_field);
-    board.set_castling_rights(castling_field);
-    board.set_en_passant_square(en_passant_field);
-
+    board.place_pieces(fen_parts[0]);
+    board.set_player_to_move(fen_parts[1]);
+    board.set_castling_rights(fen_parts[2]);
+    board.set_en_passant_square(fen_parts[3]);
     return board;
 }
 
