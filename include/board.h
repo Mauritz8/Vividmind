@@ -48,6 +48,7 @@ class Board {
         void place_pieces(const std::string& fen_piece_placement_field);
         void set_player_to_move(const std::string& fen_active_color_field);
         void set_castling_rights(const std::string& fen_castling_field);
+        void set_en_passant_square(const std::string& fen_en_passant_field);
 };
 
 #endif

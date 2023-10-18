@@ -56,6 +56,7 @@ Board Board::get_position_from_fen(std::string fen) {
     board.place_pieces(pieces_field);
     board.set_player_to_move(active_color_field);
     board.set_castling_rights(castling_field);
+    board.set_en_passant_square(en_passant_field);
 
     return board;
 }
@@ -162,6 +163,14 @@ void Board::set_castling_rights(const std::string& fen_castling_field) {
     }
 }
 
+void Board::set_en_passant_square(const std::string& fen_en_passant_field) {
+    if (fen_en_passant_field.size() != 2) {
+        return;
+    } 
+    const int x = fen_en_passant_field[0] - 'a';
+    const int y = 8 - (fen_en_passant_field[1] - '0');
+    this->game_state.en_passant_square = Pos{x, y};
+}
 
 bool operator==(const Pos& pos1, const Pos& pos2) {
     return pos1.x == pos2.x && pos1.y == pos2.y;
