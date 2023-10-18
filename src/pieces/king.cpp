@@ -69,26 +69,15 @@ std::vector<Move> King::get_threatened_moves(const Board& board) const {
 }
 
 bool King::is_valid_castling(const Move& move, const Board& board, const std::vector<Move>& move_history) const {
-    const int starting_row = this->get_color() == WHITE ? 7 : 0;
-    const int king_x = 4;
-    if (this->get_x() != king_x || this->get_y() != starting_row) {
-        return false;
-    }
     int rook_x;
     if (move.end.x == 6) {
         rook_x = 7;
     } else if (move.end.x == 2) {
         rook_x = 0;
-    } else {
-        return false;
-    }
-
-    if (!are_castling_pieces_on_initial_squares(move_history, starting_row, king_x, rook_x)) {
-        return false;
-    }
+    } 
     
-    const Pos king_pos = Pos{king_x, starting_row};
-    const Pos rook_pos = Pos{rook_x, starting_row};
+    const Pos king_pos = Pos{move.start.x, move.start.y};
+    const Pos rook_pos = Pos{rook_x, move.start.y};
     if (!is_clear_line(king_pos, rook_pos, board)) {
         return false;
     }
@@ -103,45 +92,37 @@ bool King::is_valid_castling(const Move& move, const Board& board, const std::ve
 }
 
 std::vector<Move> King::get_castling_moves(const Board& board, const std::vector<Move>& move_history) const {
-    std::vector<Move> moves;
-    const Square& start = board.get_square(this->get_x(), this->get_y());
-
-    const std::array<std::pair<int, int>, 2> castling_end_coordinates = {
-        // kingside castling
-        std::make_pair(start.get_x() + 2, start.get_y()),
-        // queenside castling
-        std::make_pair(start.get_x() - 2, start.get_y())
-    };
-    for (std::pair<int, int> end_coordinate : castling_end_coordinates) {
-        try {
-            const Square& end = board.get_square(
-                    end_coordinate.first,
-                    end_coordinate.second);
-            Move castling_move = Move(start, end);
-            if (is_valid_castling(castling_move, board, move_history)) {
-                castling_move.is_castling_move = true;
-                moves.push_back(castling_move);
-            }
-        } catch (const std::invalid_argument& e) {}
+    std::vector<Move> castling_moves = get_potential_castling_moves(board);
+    for (auto it = castling_moves.begin(); it != castling_moves.end();) {
+        if (!is_valid_castling(*it, board, move_history)) {
+            it = castling_moves.erase(it);
+        } else {
+            it->is_castling_move = true;
+            ++it;
+        }
     }
-
-    return moves;
+    return castling_moves;
 }
 
-bool King::are_castling_pieces_on_initial_squares(const std::vector<Move>& move_history, int starting_row, int king_x, int rook_x) const {
-    for (int i = 0; i < move_history.size(); i++) {
-        const Move& played_move = move_history.at(i);
-        if (played_move.start.y == starting_row) {
-            if (played_move.start.x == king_x || played_move.start.x == rook_x) {
-                return false;
-            }
-        }
-        // check if rook has been captured while still on initial square
-        if (played_move.end.x == rook_x && played_move.end.y == starting_row) {
-            return false; 
-        }
+std::vector<Move> King::get_potential_castling_moves(const Board& board) const {
+    const Color color = this->get_color();
+    const int king_x = 4;
+    const int row = this->get_color() == WHITE ? 7 : 0;
+    const int kingside_end_x = 6;
+    const int queenside_end_x = 2;
+
+    std::vector<Move> potential_castling_moves;
+    if (color == WHITE && board.castling_rights.white_kingside ||
+        color == BLACK && board.castling_rights.black_kingside) {
+        potential_castling_moves.push_back(Move(king_x, row, kingside_end_x, row));
+    } 
+
+    if (color == WHITE && board.castling_rights.white_queenside ||
+        color == BLACK && board.castling_rights.black_queenside) {
+        potential_castling_moves.push_back(Move(king_x, row, queenside_end_x, row));
     }
-    return true;
+
+    return potential_castling_moves;
 }
 
 bool King::passes_through_check_when_castling(const Move& castling_move, const Board& board, const std::vector<Move>& move_history) const {

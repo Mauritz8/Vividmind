@@ -19,8 +19,8 @@ class King : public Piece {
 
     private:
         std::vector<Move> get_castling_moves(const Board& board, const std::vector<Move>& move_history) const;
-        bool are_castling_pieces_on_initial_squares(const std::vector<Move>& move_history, int starting_row, int king_x, int rook_x) const;
         bool passes_through_check_when_castling(const Move& castling_move, const Board& board, const std::vector<Move>& move_history) const;
+        std::vector<Move> get_potential_castling_moves(const Board& board) const;
 };
 
 #endif

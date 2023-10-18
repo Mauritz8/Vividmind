@@ -11,10 +11,18 @@ struct Pos {
     int y;
 };
 
+struct Castling {
+    bool white_kingside;
+    bool white_queenside;
+    bool black_kingside;
+    bool black_queenside;
+};
+
 class Board {
     public:
         Color player_to_move;
         std::optional<Pos> en_passant_square;
+        Castling castling_rights;
 
         Board() {}
 
