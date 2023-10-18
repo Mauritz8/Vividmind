@@ -7,6 +7,7 @@
 
 #include "board.h"
 #include "engine/engine.h"
+#include "game_over_conditions.h"
 #include "game_state.h"
 #include "move.h"
 #include "piece.h"
@@ -66,6 +67,12 @@ static double evaluate(const Board& board) {
 }
 
 static double nega_max(int depth, Board& board) {
+    if (is_checkmate(board)) {
+        return -200;
+    }
+    if (is_draw(board)) {
+        return 0;
+    }
     if (depth == 0) {
         return evaluate(board);
     }
@@ -99,6 +106,7 @@ Move get_best_move(int depth, const Board& board) {
             best_move = &legal_moves.at(i);
         }
     }
+    std::cout << "eval = " << max << "\n";
     return *best_move;
 }
 
