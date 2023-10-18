@@ -19,13 +19,20 @@
 #include "pieces/rook.h"
 
 
-Move::Move(const Square& start_square, const Square& end_square) 
-    : start_square(start_square),
-      end_square(end_square) 
-{
-    this->set_castling_move(false);
-    this->set_promotion(false);
-    this->set_en_passant(false);
+Move::Move(int start_x, int start_y, int end_x, int end_y) {
+    this->start = {start_x, start_y};
+    this->end = {end_x, end_y};
+    this->is_castling_move = false;
+    this->is_promotion = false;
+    this->is_en_passant = false;
+}
+
+Move::Move(const Square& start, const Square& end) {
+    this->start = {start.get_x(), start.get_y()};
+    this->end = {end.get_x(), end.get_y()};
+    this->is_castling_move = false;
+    this->is_promotion = false;
+    this->is_en_passant = false;
 }
 
 Move Move::get_from_uci_notation(const std::string& uci_notation, const Board& board, const std::vector<Move>& move_history) {
@@ -33,120 +40,46 @@ Move Move::get_from_uci_notation(const std::string& uci_notation, const Board& b
     const int start_y = 8 - (uci_notation[1] - '0');
     const int end_x = uci_notation[2] - 'a';
     const int end_y = 8 - (uci_notation[3] - '0');
+    Move move = Move(start_x, start_y, end_x, end_y);
+
     const Square& start = board.get_square(start_x, start_y);
     const Square& end = board.get_square(end_x, end_y);
-    Move move = Move(start, end);
-
     King* king = dynamic_cast<King*>(start.get_piece().get());
     Pawn* pawn = dynamic_cast<Pawn*>(start.get_piece().get());
     if (king && king->is_valid_castling(move, board, move_history)) {
-        move.set_castling_move(true);
+        move.is_castling_move = true;
     } else if (pawn) {
         if (pawn->is_valid_en_passant(move, board, move_history)) {
-            move.set_en_passant(true);
+            move.is_en_passant = true;
         } else if (pawn->is_promotion_move(move)) {
-            move.set_promotion(true);
+            move.is_promotion = true;
             const char promotion_piece = uci_notation[4];
-            move.set_promotion_piece(get_promotion_piece_type(promotion_piece));
+            move.promotion_piece = get_promotion_piece_type(promotion_piece);
         }
     }
     return move;
 }
 
-Move::Move(const Move& move) 
-    : start_square(move.start_square),
-      end_square(move.end_square)
-{
-    this->castling_move = move.castling_move;
-    this->promotion = move.promotion;
+Move::Move(const Move& move) {
+    this->start = move.start;
+    this->end = move.end;
+    this->is_castling_move = move.is_castling_move;
+    this->is_promotion = move.is_promotion;
     this->promotion_piece = move.promotion_piece;
-    this->en_passant = move.en_passant;
-    if (move.get_captured_piece_ref()) {
-        this->captured_piece = move.captured_piece;
-    } else {
-        this->captured_piece = nullptr;
-    }
+    this->is_en_passant = move.is_en_passant;
+    this->captured_piece = move.captured_piece;
 }
 
-const Square& Move::get_start_square() const {
-    return start_square;
-}
-
-void Move::set_start_square(const Square& start_square) {
-    this->start_square = start_square;
-}
-
-const Square& Move::get_end_square() const {
-    return end_square;
-}
-
-void Move::set_end_square(const Square& end_square) {
-    this->end_square = end_square;
-}
-
-const std::shared_ptr<Piece>& Move::get_captured_piece_ref() const {
-    return captured_piece;
-}
-
-std::shared_ptr<Piece> Move::get_captured_piece() {
-    return captured_piece;
-}
-
-void Move::set_captured_piece(std::shared_ptr<Piece> captured_piece) {
-    this->captured_piece = captured_piece; 
-}
-
-bool Move::is_castling_move() const {
-    return castling_move;
-}
-
-void Move::set_castling_move(bool castling_move) {
-    this->castling_move = castling_move;
-}
-
-bool Move::is_promotion() const {
-    return promotion;
-}
-
-void Move::set_promotion(bool promotion) {
-    this->promotion = promotion;
-}
-
-std::optional<Piece_type> Move::get_promotion_piece() const {
-    return promotion_piece;
-}
-
-void Move::set_promotion_piece(const std::optional<Piece_type> promotion_piece) {
-    this->promotion_piece = promotion_piece;
-}
-
-bool Move::is_en_passant() const {
-    return en_passant;
-}
-
-void Move::set_en_passant(bool en_passant) {
-    this->en_passant = en_passant;
-}
 
 Move Move::operator=(const Move& move) {
-    this->set_start_square(move.get_start_square());
-    this->set_end_square(move.get_end_square());
-    this->set_castling_move(move.is_castling_move());
-    if (move.get_captured_piece_ref()) {
-        this->captured_piece = move.captured_piece;
-    } else {
-        this->captured_piece = nullptr;
-    }
-    this->set_promotion(move.is_promotion());
-    this->set_promotion_piece(move.get_promotion_piece());
-    this->set_en_passant(move.is_en_passant());
+    this->start = move.start;
+    this->end = move.end;
+    this->is_castling_move = move.is_castling_move;
+    this->captured_piece = move.captured_piece;
+    this->is_promotion = move.is_promotion;
+    this->promotion_piece = move.promotion_piece;
+    this->is_en_passant = move.is_en_passant;
     return *this;
-}
-
-bool Move::operator==(const Move& move) const {
-    return this->get_start_square() == move.get_start_square()
-        && this->get_end_square() == move.get_end_square()
-        && this->get_start_square().get_piece() == move.get_start_square().get_piece();
 }
 
 bool Move::leaves_king_in_check(const Board& board, const std::vector<Move>& move_history) const {
@@ -163,11 +96,11 @@ bool Move::leaves_king_in_check(const Board& board, const std::vector<Move>& mov
 }
 
 void Move::make_appropriate(Board& board, std::vector<Move>& move_history) {
-    if (this->is_castling_move()) {
+    if (this->is_castling_move) {
         this->make_castling(board);
-    } else if (this->is_en_passant()) {
+    } else if (this->is_en_passant) {
         this->make_en_passant(board);
-    } else if (this->is_promotion()) {
+    } else if (this->is_promotion) {
         this->make_promotion(board);
     } else {
         this->make(board);
@@ -178,17 +111,17 @@ void Move::make_appropriate(Board& board, std::vector<Move>& move_history) {
 }
 
 void Move::undo_appropriate(Board& board, std::vector<Move>& move_history) {
-    const Square& end_square = board.get_square(this->get_end_square().get_x(), this->get_end_square().get_y());
+    const Square& end_square = board.get_square(this->end.x, this->end.y);
     if (!end_square.get_piece()) {
         std::cout << "Can't undo move\n"; 
         return;
     }
 
-    if (this->is_castling_move()) {
+    if (this->is_castling_move) {
         this->undo_castling(board);
-    } else if (this->is_en_passant()) {
+    } else if (this->is_en_passant) {
         this->undo_en_passant(board);
-    } else if (this->is_promotion()) {
+    } else if (this->is_promotion) {
         this->undo_promotion(board);
     } else {
         this->undo(board);
@@ -203,56 +136,52 @@ std::string Move::to_uci_notation() const {
     const std::string ranks = "87654321";
 
     std::string uci_notation;
-    uci_notation += files[this->get_start_square().get_x()];
-    uci_notation += ranks[this->get_start_square().get_y()];
-    uci_notation += files[this->get_end_square().get_x()];
-    uci_notation += ranks[this->get_end_square().get_y()];
+    uci_notation += files[this->start.x];
+    uci_notation += ranks[this->start.y];
+    uci_notation += files[this->end.x];
+    uci_notation += ranks[this->end.y];
 
-    if (this->get_promotion_piece().has_value()) {
-        uci_notation += tolower(get_char_representation(this->get_promotion_piece().value()));
+    if (this->promotion_piece.has_value()) {
+        uci_notation += tolower(get_char_representation(this->promotion_piece.value()));
     }
     return uci_notation;
 }
 
 void Move::make(Board& board) {
-    Square& start_square = board.get_square(this->get_start_square().get_x(), this->get_start_square().get_y()); 
-    Square& end_square = board.get_square(this->get_end_square().get_x(), this->get_end_square().get_y()); 
+    Square& start_square = board.get_square(this->start.x, this->start.y); 
+    Square& end_square = board.get_square(this->end.x, this->end.y); 
     std::shared_ptr<Piece> piece = std::move(end_square.get_piece());
     if (piece) {
-        this->set_captured_piece(std::move(piece));
+        this->captured_piece = std::move(piece);
     }
     start_square.move_piece(end_square);
 }
 
 void Move::undo(Board& board) {
-    Square& start_square = board.get_square(this->get_start_square().get_x(), this->get_start_square().get_y()); 
-    Square& end_square = board.get_square(this->get_end_square().get_x(), this->get_end_square().get_y()); 
+    Square& start_square = board.get_square(this->start.x, this->start.y); 
+    Square& end_square = board.get_square(this->end.x, this->end.y); 
     end_square.move_piece(start_square);
-    std::shared_ptr<Piece> captured_piece = std::move(this->get_captured_piece());
+    std::shared_ptr<Piece> captured_piece = std::move(this->captured_piece);
     if (captured_piece) {
         end_square.set_piece(std::move(captured_piece));
     }
 }
 
 bool Move::is_valid_rook_move(const Board& board) const {
-    const Square& start_square = this->get_start_square();
-    const Square& end_square = this->get_end_square();
-    if (!is_same_line(start_square, end_square)) {
+    if (!is_same_line(this->start, this->end)) {
         return false;
     }
-    if (!is_clear_line(start_square, end_square, board)) {
+    if (!is_clear_line(this->start, this->end, board)) {
         return false;
     }
     return true;
 }
 
 bool Move::is_valid_bishop_move(const Board& board) const {
-    const Square& start_square = this->get_start_square();
-    const Square& end_square = this->get_end_square();
-    if (!is_same_diagonal(start_square, end_square)) {
+    if (!is_same_diagonal(this->start, this->end)) {
         return false;
     }
-    if (!is_clear_diagonal(start_square, end_square, board)) {
+    if (!is_clear_diagonal(this->start, this->end, board)) {
         return false;
     }
     return true;
@@ -269,23 +198,18 @@ bool Move::is_valid_queen_move(const Board& board) const {
 }
 
 bool Move::is_valid_knight_move() const {
-    const int start_x = this->get_start_square().get_x();
-    const int start_y = this->get_start_square().get_y();
-    const int end_x = this->get_end_square().get_x();
-    const int end_y = this->get_end_square().get_y();
-
-    if (abs(end_x - start_x) == 1 && abs(end_y - start_y) == 2) {
+    if (abs(end.x - start.x) == 1 && abs(end.y - start.y) == 2) {
         return true;
     }
-    if (abs(end_x - start_x) == 2 && abs(end_y - start_y) == 1) {
+    if (abs(end.x - start.x) == 2 && abs(end.y - start.y) == 1) {
         return true;
     }
     return false;
 }
 
 bool Move::is_valid_king_move() const {
-    const int x_diff = abs(this->get_start_square().get_x() - this->get_end_square().get_x());
-    const int y_diff = abs(this->get_start_square().get_y() - this->get_end_square().get_y());
+    const int x_diff = abs(start.x - end.x);
+    const int y_diff = abs(start.y - end.y);
     if (x_diff > 1 || y_diff > 1) {
         return false;
     }
@@ -293,17 +217,20 @@ bool Move::is_valid_king_move() const {
 }
 
 bool Move::is_valid_pawn_move(const Board& board) const {
-    const int direction = this->get_start_square().get_piece()->get_color() == BLACK ? 1 : -1;
+    const Square& start_square = board.get_square(start.x, start.y);
+    const Square& end_square = board.get_square(end.x, end.y);
+    
+    const int direction = start_square.get_piece()->get_color() == BLACK ? 1 : -1;
 
-    const int x_diff = this->get_end_square().get_x() - this->get_start_square().get_x();
-    const int y_diff = this->get_end_square().get_y() - this->get_start_square().get_y();
+    const int x_diff = end.x - start.x;
+    const int y_diff = end.y - start.y;
 
-    const bool end_square_is_empty = this->get_end_square().get_piece() == nullptr;
+    const bool end_square_is_empty = end_square.get_piece() == nullptr;
     const bool is_valid_move_one_square_forward = x_diff == 0 && y_diff == direction && end_square_is_empty;
 
-    const int starting_row = this->get_start_square().get_piece()->get_color() == BLACK ? 1 : 6;
-    const bool is_on_starting_row = this->get_start_square().get_y() == starting_row;
-    const bool one_square_forward_is_empty = board.get_square(this->get_start_square().get_x(), this->get_start_square().get_y() + direction).get_piece() == nullptr;
+    const int starting_row = start_square.get_piece()->get_color() == BLACK ? 1 : 6;
+    const bool is_on_starting_row = start_square.get_y() == starting_row;
+    const bool one_square_forward_is_empty = board.get_square(start.x, start.y + direction).get_piece() == nullptr;
     const bool is_valid_move_two_squares_forward = x_diff == 0 && y_diff == 2 * direction && is_on_starting_row && one_square_forward_is_empty && end_square_is_empty;
 
     const bool is_valid_capture = abs(x_diff) == 1 && y_diff == direction && !end_square_is_empty;
@@ -315,9 +242,9 @@ bool Move::is_valid_pawn_move(const Board& board) const {
 }
 
 bool Move::is_valid_pawn_move_threat(const Board& board) const {
-    const int direction = this->get_start_square().get_piece()->get_color() == BLACK ? 1 : -1;
-    const int x_diff = this->get_end_square().get_x() - this->get_start_square().get_x();
-    const int y_diff = this->get_end_square().get_y() - this->get_start_square().get_y();
+    const int direction = board.get_square(start.x, start.y).get_piece()->get_color() == BLACK ? 1 : -1;
+    const int x_diff = end.x - start.x;
+    const int y_diff = end.y - start.y;
 
     const bool is_threatening_diagonally = abs(x_diff) == 1 && y_diff == direction;
 
@@ -328,8 +255,8 @@ bool Move::is_valid_pawn_move_threat(const Board& board) const {
 }
 
 Move Move::get_castling_rook_move(const Board& board) const {
-    const int row = this->get_start_square().get_y();
-    const int move_direction = this->get_end_square().get_x() - this->get_start_square().get_x(); 
+    const int row = start.y;
+    const int move_direction = end.x - start.x; 
 
     int start_x;
     int end_x;
@@ -342,7 +269,7 @@ Move Move::get_castling_rook_move(const Board& board) const {
         start_x = 0;
         end_x = 3;
     }
-    Move rook_move = Move(board.get_square(start_x, row), board.get_square(end_x, row));
+    Move rook_move = Move(start_x, row, end_x, row);
     return rook_move;
 }
 
@@ -359,41 +286,41 @@ void Move::undo_castling(Board& board) {
 }
 
 void Move::make_en_passant(Board& board) {
-    Square& start_square = board.get_square(this->get_start_square().get_x(), this->get_start_square().get_y());
-    Square& end_square = board.get_square(this->get_end_square().get_x(), this->get_end_square().get_y());
+    Square& start_square = board.get_square(start.x, start.y);
+    Square& end_square = board.get_square(end.x, end.y);
     start_square.move_piece(end_square);
 
-    const int x_diff = this->get_end_square().get_x() - this->get_start_square().get_x();
-    Square& captured_square = board.get_square(this->get_start_square().get_x() + x_diff, this->get_start_square().get_y());
-    this->set_captured_piece(captured_square.get_piece());
+    const int x_diff = end.x - start.x;
+    Square& captured_square = board.get_square(start.x + x_diff, start.y);
+    this->captured_piece = captured_square.get_piece();
     captured_square.get_piece().reset();
 }
 
 void Move::undo_en_passant(Board& board) {
-    Square& start_square = board.get_square(this->get_start_square().get_x(), this->get_start_square().get_y());
-    Square& end_square = board.get_square(this->get_end_square().get_x(), this->get_end_square().get_y());
+    Square& start_square = board.get_square(start.x, start.y);
+    Square& end_square = board.get_square(end.x, end.y);
     end_square.move_piece(start_square);
 
-    const int x_diff = this->get_end_square().get_x() - this->get_start_square().get_x();
-    Square& captured_square = board.get_square(this->get_start_square().get_x() + x_diff, this->get_start_square().get_y());
-    captured_square.set_piece(this->get_captured_piece());
+    const int x_diff = end.x - start.x;
+    Square& captured_square = board.get_square(start.x + x_diff, start.y);
+    captured_square.set_piece(this->captured_piece);
 }
 
 void Move::make_promotion(Board& board) {
     this->make(board);
-    Square& end_square = board.get_square(this->get_end_square().get_x(), this->get_end_square().get_y());
-    if (!this->get_promotion_piece()) {
+    Square& end_square = board.get_square(end.x, end.y);
+    if (!this->promotion_piece) {
         return;
     }
     std::shared_ptr<Piece> piece = end_square.get_piece();
     std::shared_ptr<Piece> promotion_piece = 
-        create_piece(this->get_promotion_piece().value(), piece->get_color(), piece->get_x(), piece->get_y());
+        create_piece(this->promotion_piece.value(), piece->get_color(), piece->get_x(), piece->get_y());
     end_square.set_piece(std::move(promotion_piece));
 }
 
 void Move::undo_promotion(Board& board) {
     this->undo(board);
-    Square& start_square = board.get_square(this->get_start_square().get_x(), this->get_start_square().get_y());
+    Square& start_square = board.get_square(start.x, start.y);
     std::shared_ptr<Piece> piece = start_square.get_piece();
     std::shared_ptr<Piece> pawn = std::make_shared<Pawn>(Pawn(piece->get_color(), piece->get_x(), piece->get_y()));
     start_square.set_piece(std::move(pawn));

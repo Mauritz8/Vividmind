@@ -28,10 +28,12 @@ static std::optional<Square> get_king_square(Color color, const Board& board) {
     return {};
 }
 
-static bool is_valid(const Move& move) {
+static bool is_valid(const Move& move, const Board& board) {
+    const Square& start = board.get_square(move.start.x, move.start.y);
+    const Square& end = board.get_square(move.end.x, move.end.y);
     const bool end_square_has_same_color_piece = 
-        move.get_end_square().get_piece() &&
-        move.get_end_square().get_piece()->get_color() == move.get_start_square().get_piece()->get_color();
+        end.get_piece() &&
+        end.get_piece()->get_color() == start.get_piece()->get_color();
 
     if (end_square_has_same_color_piece) {
         return false;
@@ -40,7 +42,7 @@ static bool is_valid(const Move& move) {
 }
 
 static bool is_legal(const Move& psuedo_legal, const Board& board, const std::vector<Move>& move_history) {
-    if (!is_valid(psuedo_legal)) {
+    if (!is_valid(psuedo_legal, board)) {
         return false;
     }
 
@@ -61,7 +63,7 @@ static std::vector<Move> get_threatened_moves(const std::vector<std::shared_ptr<
     for (const std::shared_ptr<Piece>& piece : pieces) {
         std::vector<Move> psuedo_legal_moves = piece->get_threatened_moves(board, move_history); 
         for (Move& move : psuedo_legal_moves) {
-            if (is_valid(move)) {
+            if (is_valid(move, board)) {
                 legal_moves.push_back(move);
             }
         }
@@ -124,7 +126,7 @@ bool is_in_check(Color color, const Board& board, const std::vector<Move>& move_
     const Color opponent = get_opposite_color(color);
     const std::vector<Move> psuedo_legal_moves = get_all_threatened_moves(opponent, board, move_history);
     for (const Move& move : psuedo_legal_moves) {
-        const Square& threatened_square = move.get_end_square();
+        const Square& threatened_square = board.get_square(move.end.x, move.end.y);
         if (threatened_square == king_square.value()) {
             return true;
         }

@@ -67,13 +67,14 @@ std::vector<Move> Pawn::get_psuedo_legal_moves(const Board& board, const std::ve
     } catch (const std::invalid_argument& e) {}
 
     for (Move& capture : captures) {
+        const Square& end = board.get_square(capture.end.x, capture.end.y);
         const bool is_valid_capture = 
-            capture.get_end_square().get_piece() &&
-            capture.get_end_square().get_piece()->get_color() != this->get_color();
+            end.get_piece() &&
+            end.get_piece()->get_color() != this->get_color();
         if (is_valid_capture) {
             moves.push_back(capture);
         } else if (is_valid_en_passant(capture, board, move_history)) {
-            capture.set_en_passant(true);
+            capture.is_en_passant = true;
             moves.push_back(capture);
         }
     }
@@ -86,11 +87,11 @@ std::vector<Move> Pawn::get_psuedo_legal_moves(const Board& board, const std::ve
     };
     for (Move& move : moves) {
         if (is_promotion_move(move)) {
-            move.set_promotion(true);
-            move.set_promotion_piece(QUEEN);
+            move.is_promotion = true;
+            move.promotion_piece = QUEEN;
             for (Piece_type piece_type : other_promotion_piece_types) {
                 Move promotion_move = move;
-                promotion_move.set_promotion_piece(piece_type);
+                promotion_move.promotion_piece = piece_type;
                 other_promotion_moves.push_back(promotion_move);
             }
         }
@@ -120,17 +121,18 @@ std::vector<Move> Pawn::get_threatened_moves(const Board& board) const {
 bool Pawn::is_valid_en_passant(const Move& pawn_capture, const Board& board, const std::vector<Move>& move_history) const {
     const int direction = this->get_color() == BLACK ? 1 : -1;
 
-    const std::shared_ptr<Piece>& adjacent_piece = board.get_square(pawn_capture.get_end_square().get_x(), pawn_capture.get_start_square().get_y()).get_piece();
+    const std::shared_ptr<Piece>& adjacent_piece = board.get_square(pawn_capture.end.x, pawn_capture.start.y).get_piece();
     const bool has_pawn_adjacent = adjacent_piece && dynamic_cast<Pawn*>(adjacent_piece.get()) != nullptr;
-    const bool is_adjacent_pawn_opponents_piece = adjacent_piece && adjacent_piece->get_color() != pawn_capture.get_start_square().get_piece()->get_color();
+    const Square& start = board.get_square(pawn_capture.start.x, pawn_capture.start.y);
+    const bool is_adjacent_pawn_opponents_piece = adjacent_piece && adjacent_piece->get_color() != start.get_piece()->get_color();
 
     if (move_history.size() == 0) {
         return false;
     }
     const Move& previous_move = move_history.back();
-    const int y_diff_previous_move = previous_move.get_end_square().get_y() - previous_move.get_start_square().get_y();
+    const int y_diff_previous_move = previous_move.end.y - previous_move.start.y;
 
-    const std::shared_ptr<Piece>& last_move_piece = board.get_square(previous_move.get_end_square().get_x(), previous_move.get_end_square().get_y()).get_piece();
+    const std::shared_ptr<Piece>& last_move_piece = board.get_square(previous_move.end.x, previous_move.end.y).get_piece();
 
     return has_pawn_adjacent &&
            is_adjacent_pawn_opponents_piece &&
@@ -139,9 +141,8 @@ bool Pawn::is_valid_en_passant(const Move& pawn_capture, const Board& board, con
 } 
 
 bool Pawn::is_promotion_move(const Move& move) const {
-    const int y_end = move.get_end_square().get_y();
     const int promotion_row = this->get_color() == WHITE ? 0 : 7;
-    if (y_end == promotion_row) {
+    if (move.end.y == promotion_row) {
         return true;
     }
     return false;

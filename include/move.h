@@ -9,27 +9,25 @@
 #include "square.h"
 #include "board.h"
 
+typedef struct {
+    int x;
+    int y;
+} Pos;
+
 class Move {
     public:
-        Move(const Square& start_square, const Square& end_square);
+        Pos start;
+        Pos end;
+        std::shared_ptr<Piece> captured_piece;
+        bool is_castling_move;
+        bool is_promotion;
+        std::optional<Piece_type> promotion_piece;
+        bool is_en_passant;
+
+        Move(int start_x, int start_y, int end_x, int end_y);
+        Move(const Square& start, const Square& end);
         static Move get_from_uci_notation(const std::string& uci_notation, const Board& board, const std::vector<Move>& move_history);
         Move(const Move& move);
-
-        const Square& get_start_square() const;
-        void set_start_square(const Square& start_square);
-        const Square& get_end_square() const;
-        void set_end_square(const Square& end_square);
-        const std::shared_ptr<Piece>& get_captured_piece_ref() const;
-        std::shared_ptr<Piece> get_captured_piece();
-        void set_captured_piece(std::shared_ptr<Piece> captured_piece);
-        bool is_castling_move() const;
-        void set_castling_move(bool castling_move);
-        bool is_promotion() const;
-        void set_promotion(bool promotion);
-        std::optional<Piece_type> get_promotion_piece() const;
-        void set_promotion_piece(const std::optional<Piece_type> promotion_piece);
-        bool is_en_passant() const;
-        void set_en_passant(bool en_passant);
 
         Move operator=(const Move& move);
         bool operator==(const Move& move) const;
@@ -40,13 +38,6 @@ class Move {
         std::string to_uci_notation() const;
 
     private:
-        Square start_square;
-        Square end_square;
-        std::shared_ptr<Piece> captured_piece;
-        bool castling_move;
-        bool promotion;
-        std::optional<Piece_type> promotion_piece;
-        bool en_passant;
 
         void make(Board& board);
         void undo(Board& board);
