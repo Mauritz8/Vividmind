@@ -40,7 +40,7 @@ bool is_clear_line(Pos pos1, Pos pos2, const Board& board) {
 }
 
 bool is_clear_diagonal(Pos pos1, Pos pos2, const Board& board) {
-    if (pos1.x == pos2.x && pos1.y == pos2.y) {
+    if (pos1 == pos2) {
         return true;
     }
 

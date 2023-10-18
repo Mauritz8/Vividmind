@@ -276,16 +276,16 @@ void Move::update_castling_rights(Board& board) const {
     const Pos opponent_rook1 = Pos{0, opponent_starting_row};
     const Pos opponent_rook2 = Pos{7, opponent_starting_row};
 
-    if (start.x == player_king.x && start.y == player_king.y) {
+    if (start == player_king) {
         board.game_state.castling_rights[color].kingside = false; 
         board.game_state.castling_rights[color].queenside = false; 
-    } else if (start.x == player_rook1.x && start.y == player_rook1.y) {
+    } else if (start == player_rook1) {
         board.game_state.castling_rights[color].queenside = false; 
-    } else if (start.x == player_rook2.x && start.y == player_rook2.y) {
+    } else if (start == player_rook2) {
         board.game_state.castling_rights[color].kingside = false; 
-    } else if (end.x == opponent_rook1.x && end.y == opponent_rook1.y) {
+    } else if (end == opponent_rook1) {
         board.game_state.castling_rights[get_opposite_color(color)].queenside = false; 
-    } else if (end.x == opponent_rook2.x && end.y == opponent_rook2.y) {
+    } else if (end == opponent_rook2) {
         board.game_state.castling_rights[get_opposite_color(color)].kingside = false; 
     }
 }

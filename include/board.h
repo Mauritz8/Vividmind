@@ -11,6 +11,7 @@ struct Pos {
     int x;
     int y;
 };
+bool operator==(const Pos& pos1, const Pos& pos2);
 
 struct Castling {
     bool kingside;

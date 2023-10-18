@@ -161,3 +161,8 @@ void Board::set_castling_rights(const std::string& fen_castling_field) {
         }
     }
 }
+
+
+bool operator==(const Pos& pos1, const Pos& pos2) {
+    return pos1.x == pos2.x && pos1.y == pos2.y;
+}
