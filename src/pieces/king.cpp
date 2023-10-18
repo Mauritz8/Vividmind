@@ -46,21 +46,21 @@ std::vector<Move> King::get_threatened_moves(const Board& board) const {
     std::vector<Move> moves;
     const Square& start = board.get_square(this->get_x(), this->get_y());
 
-    const std::array<std::pair<int, int>, 8> end_coordinates = {
-        std::make_pair(start.get_x(), start.get_y() + 1),
-        std::make_pair(start.get_x() + 1, start.get_y() + 1),
-        std::make_pair(start.get_x() + 1, start.get_y()),
-        std::make_pair(start.get_x() + 1, start.get_y() - 1),
-        std::make_pair(start.get_x(), start.get_y() - 1),
-        std::make_pair(start.get_x() - 1, start.get_y() - 1),
-        std::make_pair(start.get_x() - 1, start.get_y()),
-        std::make_pair(start.get_x() - 1, start.get_y() + 1)
+    const std::array<Pos, 8> end_squares = {
+        Pos{start.get_x(), start.get_y() + 1},
+        Pos{start.get_x() + 1, start.get_y() + 1},
+        Pos{start.get_x() + 1, start.get_y()},
+        Pos{start.get_x() + 1, start.get_y() - 1},
+        Pos{start.get_x(), start.get_y() - 1},
+        Pos{start.get_x() - 1, start.get_y() - 1},
+        Pos{start.get_x() - 1, start.get_y()},
+        Pos{start.get_x() - 1, start.get_y() + 1}
     };
-    for (std::pair<int, int> end_coordinate : end_coordinates) {
+    for (Pos end_pos : end_squares) {
         try {
             const Square& end = board.get_square(
-                    end_coordinate.first,
-                    end_coordinate.second);
+                    end_pos.x,
+                    end_pos.y);
             moves.push_back(Move(start, end));
         } catch (const std::invalid_argument& e) {}
     }
