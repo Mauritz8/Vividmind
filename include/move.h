@@ -43,6 +43,7 @@ class Move {
         bool is_valid_queen_move(const Board& board) const;
         bool is_valid_knight_move() const;
         bool is_valid_king_move() const;
+        bool is_valid_castling_move() const;
         bool is_valid_pawn_move(const Board& board) const;
         bool is_valid_pawn_move_threat(const Board& board) const;
         void update_castling_rights(Board& board) const;

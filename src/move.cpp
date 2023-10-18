@@ -48,7 +48,7 @@ Move Move::get_from_uci_notation(const std::string& uci_notation, const Board& b
     const Square& end = board.get_square(end_x, end_y);
     King* king = dynamic_cast<King*>(start.get_piece().get());
     Pawn* pawn = dynamic_cast<Pawn*>(start.get_piece().get());
-    if (king && king->is_valid_castling(move, board)) {
+    if (king && move.is_valid_castling_move()) {
         move.is_castling_move = true;
     } else if (pawn) {
         if (pawn->is_valid_en_passant(move, board)) {
@@ -225,6 +225,18 @@ bool Move::is_valid_king_move() const {
     if (x_diff > 1 || y_diff > 1) {
         return false;
     }
+    return true;
+}
+
+bool Move::is_valid_castling_move() const {
+    const int king_x = 4;
+    if (start.x != king_x) {
+        return false;
+    }
+    if (end.x != 2 && end.x != 6) {
+        return false;
+    }
+
     return true;
 }
 
