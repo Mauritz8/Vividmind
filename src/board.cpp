@@ -35,17 +35,17 @@ Board Board::get_starting_position() {
 Board Board::get_position_from_fen(std::string fen) {
     Board board = Board::get_empty_board();
 
-    const std::string piece_placement_field = fen.substr(0, fen.find(" "));
-    fen.erase(0, piece_placement_field.length() + 1);
+    const std::string pieces_field = fen.substr(0, fen.find(" "));
+    fen.erase(0, pieces_field.length() + 1);
 
     const std::string active_color_field = fen.substr(0, fen.find(" "));
     fen.erase(0, active_color_field.length() + 1);
 
-    const std::string castling_availability_field = fen.substr(0, fen.find(" "));
-    fen.erase(0, castling_availability_field.length() + 1);
+    const std::string castling_field = fen.substr(0, fen.find(" "));
+    fen.erase(0, castling_field.length() + 1);
 
-    const std::string en_passant_target_square_field = fen.substr(0, fen.find(" "));
-    fen.erase(0, en_passant_target_square_field.length() + 1);
+    const std::string en_passant_field = fen.substr(0, fen.find(" "));
+    fen.erase(0, en_passant_field.length() + 1);
 
     const std::string halfmove_clock_field = fen.substr(0, fen.find(" "));
     fen.erase(0, halfmove_clock_field.length() + 1);
@@ -53,8 +53,9 @@ Board Board::get_position_from_fen(std::string fen) {
     const std::string fullmove_number_field = fen.substr(0, fen.find(" "));
     fen.erase(0, fullmove_number_field.length() + 1);
 
-    board.place_pieces(piece_placement_field);
+    board.place_pieces(pieces_field);
     board.set_player_to_move(active_color_field);
+    board.set_castling_rights(castling_field);
 
     return board;
 }
@@ -132,4 +133,31 @@ void Board::set_player_to_move(const std::string& fen_active_color_field) {
     } else if (fen_active_color_field.at(0) == 'b') {
         this->player_to_move = BLACK;
     } 
+}
+
+void Board::set_castling_rights(const std::string& fen_castling_field) {
+    if (fen_castling_field.at(0) == '-') {
+        this->castling_rights.white_kingside = false;
+        this->castling_rights.white_queenside = false;
+        this->castling_rights.black_kingside = false;
+        this->castling_rights.black_queenside = false;
+        return;
+    }
+
+    for (char ch : fen_castling_field) {
+        switch (ch) {
+            case 'K':
+                this->castling_rights.white_kingside = true;
+                break;
+            case 'Q':
+                this->castling_rights.white_queenside = true;
+                break;
+            case 'k':
+                this->castling_rights.black_kingside = true;
+                break;
+            case 'q':
+                this->castling_rights.black_queenside = true;
+                break;
+        }
+    }
 }
