@@ -56,7 +56,7 @@ static bool is_legal(const Move& psuedo_legal, const Board& board, const std::ve
     return true;
 }
 
-static std::vector<Move> get_threatened_moves(const std::vector<std::reference_wrapper<const std::shared_ptr<Piece>>>& pieces, const Board& board, std::vector<Move> move_history) {
+static std::vector<Move> get_threatened_moves(const std::vector<std::shared_ptr<Piece>>& pieces, const Board& board, std::vector<Move> move_history) {
     std::vector<Move> legal_moves;
     for (const std::shared_ptr<Piece>& piece : pieces) {
         std::vector<Move> psuedo_legal_moves = piece->get_threatened_moves(board, move_history); 
@@ -70,12 +70,12 @@ static std::vector<Move> get_threatened_moves(const std::vector<std::reference_w
 }
 
 std::vector<Move> get_all_threatened_moves(Color color, const Board& board, const std::vector<Move>& move_history) {
-    std::vector<std::reference_wrapper<const std::shared_ptr<Piece>>> pieces;
+    std::vector<std::shared_ptr<Piece>> pieces;
     for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 8; j++) {
             const Square& square = board.get_square(j, i);
             if (square.get_piece() && square.get_piece()->get_color() == color) {
-                std::reference_wrapper<const std::shared_ptr<Piece>> piece = cref(square.get_piece());
+                const std::shared_ptr<Piece>& piece = square.get_piece();
                 pieces.push_back(piece);
             } 
         }
@@ -83,7 +83,7 @@ std::vector<Move> get_all_threatened_moves(Color color, const Board& board, cons
     return get_threatened_moves(pieces, board, move_history);
 }
 
-static std::vector<Move> get_legal_moves(const std::vector<std::reference_wrapper<const std::shared_ptr<Piece>>>& pieces, const Board& board, std::vector<Move> move_history) {
+static std::vector<Move> get_legal_moves(const std::vector<std::shared_ptr<Piece>>& pieces, const Board& board, std::vector<Move> move_history) {
     std::vector<Move> legal_moves;
     for (const std::shared_ptr<Piece>& piece : pieces) {
         std::vector<Move> psuedo_legal_moves = piece->get_psuedo_legal_moves(board, move_history); 
@@ -97,12 +97,12 @@ static std::vector<Move> get_legal_moves(const std::vector<std::reference_wrappe
 }
 
 std::vector<Move> get_all_legal_moves(const Board& board, const std::vector<Move>& move_history) {
-    std::vector<std::reference_wrapper<const std::shared_ptr<Piece>>> pieces;
+    std::vector<std::shared_ptr<Piece>> pieces;
     for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 8; j++) {
             const Square& square = board.get_square(j, i);
             if (square.get_piece() && square.get_piece()->get_color() == board.get_player_to_move()) {
-                std::reference_wrapper<const std::shared_ptr<Piece>> piece = cref(square.get_piece());
+                const std::shared_ptr<Piece>& piece = square.get_piece();
                 pieces.push_back(piece);
             } 
         }
@@ -132,8 +132,8 @@ bool is_in_check(Color color, const Board& board, const std::vector<Move>& move_
     return false;
 }
 
-std::vector<std::reference_wrapper<const std::shared_ptr<Piece>>> get_all_pieces(Color color, const Board& board) {
-    std::vector<std::reference_wrapper<const std::shared_ptr<Piece>>> pieces;
+std::vector<std::shared_ptr<Piece>> get_all_pieces(Color color, const Board& board) {
+    std::vector<std::shared_ptr<Piece>> pieces;
     for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 8; j++) {
             const std::shared_ptr<Piece>& piece = board.get_square(j, i).get_piece();

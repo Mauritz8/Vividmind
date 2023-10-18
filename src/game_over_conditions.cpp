@@ -27,7 +27,7 @@ bool is_checkmate(const Board& board, const std::vector<Move>& move_history) {
 }
 
 static bool is_insufficient_material(Color color, const Board& board) {
-    const std::vector<std::reference_wrapper<const std::shared_ptr<Piece>>>& pieces = get_all_pieces(color, board);
+    auto pieces = get_all_pieces(color, board);
 
     if (pieces.size() > 2) {
         return false;

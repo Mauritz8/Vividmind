@@ -36,7 +36,7 @@ static int get_piece_square_table_score(Color color, const Board& board) {
     const bool is_black = color == BLACK;
 
     int score = 0;
-    for (const std::shared_ptr<Piece> piece : pieces) {
+    for (const std::shared_ptr<Piece>& piece : pieces) {
         int value;
         if (is_black) {
             value = piece->get_piece_square_table().at(7 - piece->get_y()).at(piece->get_x()); 
