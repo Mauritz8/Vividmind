@@ -24,8 +24,8 @@ class Piece {
         int get_y() const;
         void set_y(int y);
 
-        virtual std::vector<Move> get_psuedo_legal_moves(const Board& board, const std::vector<Move>& move_history) const = 0;
-        std::vector<Move> get_threatened_moves(const Board& board, const std::vector<Move>& move_history);
+        virtual std::vector<Move> get_psuedo_legal_moves(const Board& board) const = 0;
+        std::vector<Move> get_threatened_moves(const Board& board);
         virtual char get_char_representation() const = 0;
         virtual std::vector<std::vector<int>> get_piece_square_table() const = 0;
         virtual int get_value() const = 0;

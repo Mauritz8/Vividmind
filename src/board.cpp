@@ -1,7 +1,9 @@
 #include <algorithm>
+#include <array>
 #include <iostream>
 #include <memory>
 #include <cctype>
+#include <sstream>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -34,28 +36,17 @@ Board Board::get_starting_position() {
 
 Board Board::get_position_from_fen(std::string fen) {
     Board board = Board::get_empty_board();
+    
+    std::istringstream ss(fen);
+    std::array<std::string, 6> fen_parts;
+    for (int i = 0; i < 6; i++) {
+        std::getline(ss, fen_parts[i], ' ');
+    }
 
-    const std::string piece_placement_field = fen.substr(0, fen.find(" "));
-    fen.erase(0, piece_placement_field.length() + 1);
-
-    const std::string active_color_field = fen.substr(0, fen.find(" "));
-    fen.erase(0, active_color_field.length() + 1);
-
-    const std::string castling_availability_field = fen.substr(0, fen.find(" "));
-    fen.erase(0, castling_availability_field.length() + 1);
-
-    const std::string en_passant_target_square_field = fen.substr(0, fen.find(" "));
-    fen.erase(0, en_passant_target_square_field.length() + 1);
-
-    const std::string halfmove_clock_field = fen.substr(0, fen.find(" "));
-    fen.erase(0, halfmove_clock_field.length() + 1);
-
-    const std::string fullmove_number_field = fen.substr(0, fen.find(" "));
-    fen.erase(0, fullmove_number_field.length() + 1);
-
-    board.place_pieces(piece_placement_field);
-    board.set_player_to_move(active_color_field);
-
+    board.place_pieces(fen_parts[0]);
+    board.set_player_to_move(fen_parts[1]);
+    board.set_castling_rights(fen_parts[2]);
+    board.set_en_passant_square(fen_parts[3]);
     return board;
 }
 
@@ -99,10 +90,10 @@ void Board::show() const {
 }
 
 void Board::switch_player_to_move() {
-    if (this->player_to_move == WHITE) {
-        this->player_to_move = BLACK;
+    if (this->game_state.player_to_move == WHITE) {
+        this->game_state.player_to_move = BLACK;
     } else {
-        this->player_to_move = WHITE;
+        this->game_state.player_to_move = WHITE;
     }
 }
 
@@ -128,8 +119,48 @@ void Board::place_pieces(const std::string& fen_piece_placement_field) {
 
 void Board::set_player_to_move(const std::string& fen_active_color_field) {
     if (fen_active_color_field.at(0) == 'w') {
-        this->player_to_move = WHITE;
+        this->game_state.player_to_move = WHITE;
     } else if (fen_active_color_field.at(0) == 'b') {
-        this->player_to_move = BLACK;
+        this->game_state.player_to_move = BLACK;
     } 
+}
+
+void Board::set_castling_rights(const std::string& fen_castling_field) {
+    if (fen_castling_field.at(0) == '-') {
+        this->game_state.castling_rights[WHITE].kingside = false;
+        this->game_state.castling_rights[WHITE].queenside = false;
+        this->game_state.castling_rights[BLACK].kingside = false;
+        this->game_state.castling_rights[BLACK].queenside = false;
+        return;
+    }
+
+    for (char ch : fen_castling_field) {
+        switch (ch) {
+            case 'K':
+                this->game_state.castling_rights[WHITE].kingside = true;
+                break;
+            case 'Q':
+                this->game_state.castling_rights[WHITE].queenside = true;
+                break;
+            case 'k':
+                this->game_state.castling_rights[BLACK].kingside = true;
+                break;
+            case 'q':
+                this->game_state.castling_rights[BLACK].queenside = true;
+                break;
+        }
+    }
+}
+
+void Board::set_en_passant_square(const std::string& fen_en_passant_field) {
+    if (fen_en_passant_field.size() != 2) {
+        return;
+    } 
+    const int x = fen_en_passant_field[0] - 'a';
+    const int y = 8 - (fen_en_passant_field[1] - '0');
+    this->game_state.en_passant_square = Pos{x, y};
+}
+
+bool operator==(const Pos& pos1, const Pos& pos2) {
+    return pos1.x == pos2.x && pos1.y == pos2.y;
 }

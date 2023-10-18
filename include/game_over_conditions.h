@@ -5,7 +5,7 @@
 #include "move.h"
 #include <vector>
 
-bool is_checkmate(const Board& board, const std::vector<Move>& move_history);
-bool is_draw(const Board& board, const std::vector<Move>& move_history);
+bool is_checkmate(const Board& board);
+bool is_draw(const Board& board);
 
 #endif

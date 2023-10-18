@@ -59,23 +59,23 @@ static double evaluate(const Board& board) {
     const double black_piece_square_table_score = get_piece_square_table_score(BLACK, board);
     score += 0.01 * (white_piece_square_table_score - black_piece_square_table_score);
 
-    if (board.player_to_move == BLACK) {
+    if (board.game_state.player_to_move == BLACK) {
         return -score;
     }
     return score;
 }
 
-static double nega_max(int depth, Board& board, std::vector<Move>& move_history) {
+static double nega_max(int depth, Board& board) {
     if (depth == 0) {
         return evaluate(board);
     }
     double max = INT_MIN;
-    std::vector<Move> legal_moves = get_all_legal_moves(board, move_history);
+    std::vector<Move> legal_moves = get_all_legal_moves(board);
     for (int i = 0; i < legal_moves.size(); i++) {
         Move move = legal_moves.at(i);
-        move.make_appropriate(board, move_history);
-        const double score = -nega_max(depth - 1, board, move_history);
-        move.undo_appropriate(board, move_history);
+        move.make_appropriate(board);
+        const double score = -nega_max(depth - 1, board);
+        move.undo_appropriate(board);
         if (score > max) {
             max = score;
         }
@@ -83,18 +83,17 @@ static double nega_max(int depth, Board& board, std::vector<Move>& move_history)
     return max;
 }
 
-Move get_best_move(int depth, const Board& board, const std::vector<Move>& move_history) {
+Move get_best_move(int depth, const Board& board) {
     Board board_copy = board;
-    std::vector<Move> move_history_copy = move_history;
 
     double max = INT_MIN;
-    const std::vector<Move> legal_moves = get_all_legal_moves(board_copy, move_history_copy);
+    const std::vector<Move> legal_moves = get_all_legal_moves(board_copy);
     const Move* best_move = nullptr;
     for (int i = 0; i < legal_moves.size(); i++) {
         Move move = legal_moves.at(i);
-        move.make_appropriate(board_copy, move_history_copy);
-        const double score = -nega_max(depth - 1, board_copy, move_history_copy);
-        move.undo_appropriate(board_copy, move_history_copy);
+        move.make_appropriate(board_copy);
+        const double score = -nega_max(depth - 1, board_copy);
+        move.undo_appropriate(board_copy);
         if (score > max) {
             max = score;
             best_move = &legal_moves.at(i);
@@ -104,33 +103,33 @@ Move get_best_move(int depth, const Board& board, const std::vector<Move>& move_
 }
 
 
-int perft(int depth, Board board, std::vector<Move> move_history) {
+int perft(int depth, Board board) {
     if (depth == 0) {
         return 1;
     }
 
     int nodes = 0;
-    const std::vector<Move> move_list = get_all_legal_moves(board, move_history);
+    const std::vector<Move> move_list = get_all_legal_moves(board);
     for (int i = 0; i < move_list.size(); i++) {
         Move move = move_list.at(i);
-        move.make_appropriate(board, move_history);
-        nodes += perft(depth - 1, board, move_history);    
-        move.undo_appropriate(board, move_history);
+        move.make_appropriate(board);
+        nodes += perft(depth - 1, board);    
+        move.undo_appropriate(board);
     }
     return nodes;
 }
 
-void divide(int depth, Board board, std::vector<Move> move_history) {
+void divide(int depth, Board board) {
     std::cout << "";
     int nodes_searched = 0;
-    const std::vector<Move> move_list = get_all_legal_moves(board, move_history);
+    const std::vector<Move> move_list = get_all_legal_moves(board);
     for (int i = 0; i < move_list.size(); i++) {
         Move move = move_list.at(i);
-        move.make_appropriate(board, move_history);
-        const int nodes = perft(depth - 1, board, move_history);
+        move.make_appropriate(board);
+        const int nodes = perft(depth - 1, board);
         nodes_searched += nodes;
         std::cout << move.to_uci_notation() << ": " << nodes << "\n";
-        move.undo_appropriate(board, move_history);
+        move.undo_appropriate(board);
     }
     std::cout << "\nNodes searched: " << nodes_searched << "\n";
 }
