@@ -9,10 +9,6 @@
 #include "square.h"
 #include "board.h"
 
-typedef struct {
-    int x;
-    int y;
-} Pos;
 
 class Move {
     public:
@@ -23,6 +19,7 @@ class Move {
         bool is_promotion;
         std::optional<Piece_type> promotion_piece;
         bool is_en_passant;
+        bool is_pawn_two_squares_forward;
 
         Move(int start_x, int start_y, int end_x, int end_y);
         Move(const Square& start, const Square& end);
@@ -55,6 +52,8 @@ class Move {
         void undo_en_passant(Board& board);
         void make_promotion(Board& board);
         void undo_promotion(Board& board);
+        void make_pawn_two_squares_forward(Board& board);
+        void undo_pawn_two_squares_forward(Board& board);
 };
 
 #endif

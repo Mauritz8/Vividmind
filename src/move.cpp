@@ -25,6 +25,7 @@ Move::Move(int start_x, int start_y, int end_x, int end_y) {
     this->is_castling_move = false;
     this->is_promotion = false;
     this->is_en_passant = false;
+    this->is_pawn_two_squares_forward = false;
 }
 
 Move::Move(const Square& start, const Square& end) {
@@ -33,6 +34,7 @@ Move::Move(const Square& start, const Square& end) {
     this->is_castling_move = false;
     this->is_promotion = false;
     this->is_en_passant = false;
+    this->is_pawn_two_squares_forward = false;
 }
 
 Move Move::get_from_uci_notation(const std::string& uci_notation, const Board& board, const std::vector<Move>& move_history) {
@@ -49,12 +51,14 @@ Move Move::get_from_uci_notation(const std::string& uci_notation, const Board& b
     if (king && king->is_valid_castling(move, board, move_history)) {
         move.is_castling_move = true;
     } else if (pawn) {
-        if (pawn->is_valid_en_passant(move, board, move_history)) {
+        if (pawn->is_valid_en_passant(move, board)) {
             move.is_en_passant = true;
         } else if (pawn->is_promotion_move(move)) {
             move.is_promotion = true;
             const char promotion_piece = uci_notation[4];
             move.promotion_piece = get_promotion_piece_type(promotion_piece);
+        } else if (abs(move.end.y - move.start.y) == 2) {
+            move.is_pawn_two_squares_forward = true;
         }
     }
     return move;
@@ -68,17 +72,19 @@ Move::Move(const Move& move) {
     this->promotion_piece = move.promotion_piece;
     this->is_en_passant = move.is_en_passant;
     this->captured_piece = move.captured_piece;
+    this->is_pawn_two_squares_forward = move.is_pawn_two_squares_forward;
 }
 
 
 Move Move::operator=(const Move& move) {
     this->start = move.start;
     this->end = move.end;
-    this->is_castling_move = move.is_castling_move;
     this->captured_piece = move.captured_piece;
+    this->is_castling_move = move.is_castling_move;
     this->is_promotion = move.is_promotion;
     this->promotion_piece = move.promotion_piece;
     this->is_en_passant = move.is_en_passant;
+    this->is_pawn_two_squares_forward = move.is_pawn_two_squares_forward;
     return *this;
 }
 
@@ -87,7 +93,7 @@ bool Move::leaves_king_in_check(const Board& board, const std::vector<Move>& mov
     Board board_copy = board;
     std::vector<Move> move_history_copy = move_history;
 
-    const Color player_to_move = board.get_player_to_move();
+    const Color player_to_move = board.player_to_move;
     move_copy.make_appropriate(board_copy, move_history_copy);
     if (is_in_check(player_to_move, board_copy, move_history_copy)) {
         return true;
@@ -102,6 +108,8 @@ void Move::make_appropriate(Board& board, std::vector<Move>& move_history) {
         this->make_en_passant(board);
     } else if (this->is_promotion) {
         this->make_promotion(board);
+    } else if (this->is_pawn_two_squares_forward) {
+        this->make_pawn_two_squares_forward(board);
     } else {
         this->make(board);
     }
@@ -123,6 +131,8 @@ void Move::undo_appropriate(Board& board, std::vector<Move>& move_history) {
         this->undo_en_passant(board);
     } else if (this->is_promotion) {
         this->undo_promotion(board);
+    } else if (this->is_pawn_two_squares_forward) {
+        this->undo_pawn_two_squares_forward(board);
     } else {
         this->undo(board);
     }
@@ -155,6 +165,7 @@ void Move::make(Board& board) {
         this->captured_piece = std::move(piece);
     }
     start_square.move_piece(end_square);
+    board.en_passant_square = {};
 }
 
 void Move::undo(Board& board) {
@@ -324,4 +335,14 @@ void Move::undo_promotion(Board& board) {
     std::shared_ptr<Piece> piece = start_square.get_piece();
     std::shared_ptr<Piece> pawn = std::make_shared<Pawn>(Pawn(piece->get_color(), piece->get_x(), piece->get_y()));
     start_square.set_piece(std::move(pawn));
+}
+
+void Move::make_pawn_two_squares_forward(Board& board) {
+    this->make(board);
+    board.en_passant_square = Pos{start.x, (end.y + start.y) / 2};
+}
+
+void Move::undo_pawn_two_squares_forward(Board& board) {
+    this->undo(board);
+    board.en_passant_square = {};
 }

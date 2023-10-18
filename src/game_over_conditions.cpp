@@ -13,7 +13,7 @@
 #include "pieces/rook.h"
 
 bool is_checkmate(const Board& board, const std::vector<Move>& move_history) {
-   if (!is_in_check(board.get_player_to_move(), board, move_history)) {
+   if (!is_in_check(board.player_to_move, board, move_history)) {
        return false;
    }
 
@@ -49,7 +49,7 @@ static bool is_insufficient_material(const Board& board) {
 
 static bool is_stalemate(const Board& board, const std::vector<Move>& move_history) {
     const std::vector<Move> legal_moves = get_all_legal_moves(board, move_history);
-    if (!is_in_check(board.get_player_to_move(), board, move_history) && legal_moves.size() == 0) {
+    if (!is_in_check(board.player_to_move, board, move_history) && legal_moves.size() == 0) {
         return true;
     }
     return false;
