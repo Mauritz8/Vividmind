@@ -35,13 +35,23 @@ static void make_moves(std::istringstream& moves, Board& board) {
 static void handle_position_command(const std::string& position, Board& board) {
     std::istringstream ss(position);
     std::string token;
-    while (std::getline(ss, token, ' ')) {
-        if (token == "startpos") {
-            handle_ucinewgame_command(board);
-        } else if (token == "moves") {
-            make_moves(ss, board);
-            break;
+
+    std::getline(ss, token, ' ');
+    if (token == "startpos") {
+        handle_ucinewgame_command(board);
+    } else if (token == "fen") {
+        std::string fen;
+        std::string fen_part;
+        for (int i = 0; i < 6; i++) {
+            std::getline(ss, fen_part, ' ');
+            fen += fen_part + ' ';
         }
+        board = Board::get_position_from_fen(fen);
+    } 
+
+    std::getline(ss, token, ' ');
+    if (token == "moves") {
+        make_moves(ss, board);
     }
 }
 
