@@ -3,6 +3,7 @@
 
 #include "square.h"
 #include <array>
+#include <memory>
 #include <optional>
 #include <string>
 #include <vector>
@@ -43,6 +44,7 @@ class Board {
 
         void show() const;
         void switch_player_to_move();
+        void remove_piece(std::shared_ptr<Piece> piece);
 
     private:
         std::vector<std::vector<Square>> squares;

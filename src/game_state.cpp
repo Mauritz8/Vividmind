@@ -58,7 +58,8 @@ static bool is_legal(const Move& psuedo_legal, Board& board) {
     return true;
 }
 
-static std::vector<Move> get_threatened_moves(const std::vector<std::shared_ptr<Piece>>& pieces, Board& board) {
+std::vector<Move> get_threatened_moves(Color color, Board& board) {
+    auto pieces = board.game_state.pieces[color];
     std::vector<Move> legal_moves;
     for (const std::shared_ptr<Piece>& piece : pieces) {
         std::vector<Move> psuedo_legal_moves = piece->get_threatened_moves(board); 
@@ -69,20 +70,6 @@ static std::vector<Move> get_threatened_moves(const std::vector<std::shared_ptr<
         }
     }
     return legal_moves;
-}
-
-std::vector<Move> get_all_threatened_moves(Color color, Board& board) {
-    std::vector<std::shared_ptr<Piece>> pieces;
-    for (int i = 0; i < 8; i++) {
-        for (int j = 0; j < 8; j++) {
-            const Square& square = board.get_square(j, i);
-            if (square.get_piece() && square.get_piece()->get_color() == color) {
-                const std::shared_ptr<Piece>& piece = square.get_piece();
-                pieces.push_back(piece);
-            } 
-        }
-    }
-    return get_threatened_moves(pieces, board);
 }
 
 std::vector<Move> get_legal_moves(Board& board) {
@@ -110,7 +97,7 @@ bool is_in_check(Color color, Board& board) {
     }
 
     const Color opponent = get_opposite_color(color);
-    const std::vector<Move> psuedo_legal_moves = get_all_threatened_moves(opponent, board);
+    const std::vector<Move> psuedo_legal_moves = get_threatened_moves(opponent, board);
     for (const Move& move : psuedo_legal_moves) {
         const Square& threatened_square = board.get_square(move.end.x, move.end.y);
         if (threatened_square == king_square.value()) {

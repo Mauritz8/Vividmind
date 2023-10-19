@@ -106,6 +106,16 @@ void Board::switch_player_to_move() {
     }
 }
 
+void Board::remove_piece(std::shared_ptr<Piece> piece) {
+    std::vector<std::shared_ptr<Piece>>& pieces = this->game_state.pieces[piece->get_color()];
+    for (auto it = pieces.begin(); it != pieces.end(); ++it) {
+        if (it->get() == piece.get()) {
+            pieces.erase(it); 
+            return;
+        }
+    }
+}
+
 void Board::place_pieces(const std::string& fen_piece_placement_field) {
     int index = 0;
     for (int i = 0; i < 8; i++) {
