@@ -15,14 +15,11 @@
 #include "pieces/king.h"
 #include "square.h"
 
-static std::optional<Square> get_king_square(Color color, const Board& board) {
-    for (int i = 0; i < 8; i++) {
-        for (int j = 0; j < 8; j++) {
-            const Square& square = board.get_square(j, i);
-            const std::shared_ptr<Piece>& piece = square.get_piece();
-            if (piece && dynamic_cast<King*>(piece.get()) != nullptr && piece->get_color() == color) {
-                return square;
-            }
+static std::optional<Pos> get_king_square(Color color, const Board& board) {
+    auto pieces = board.game_state.pieces[color];
+    for (auto piece : pieces) {
+        if (dynamic_cast<King*>(piece.get())) {
+            return Pos{piece->get_x(), piece->get_y()};
         }
     }
     return {};
@@ -91,7 +88,7 @@ Color get_opposite_color(Color color) {
 }
 
 bool is_in_check(Color color, Board& board) {
-    const std::optional<Square> king_square = get_king_square(color, board);
+    const std::optional<Pos> king_square = get_king_square(color, board);
     if (!king_square.has_value()) {
         return false;  
     }
@@ -99,8 +96,7 @@ bool is_in_check(Color color, Board& board) {
     const Color opponent = get_opposite_color(color);
     const std::vector<Move> psuedo_legal_moves = get_threatened_moves(opponent, board);
     for (const Move& move : psuedo_legal_moves) {
-        const Square& threatened_square = board.get_square(move.end.x, move.end.y);
-        if (threatened_square == king_square.value()) {
+        if (move.end == king_square.value()) {
             return true;
         }
     }
