@@ -22,6 +22,7 @@ struct GameState {
     Color player_to_move;
     std::optional<Pos> en_passant_square;
     std::array<Castling, 2> castling_rights;
+    std::array<std::vector<std::shared_ptr<Piece>>, 2> pieces;
 };
 
 class Board {
@@ -30,6 +31,7 @@ class Board {
         std::vector<GameState> history;
 
         Board() {}
+        Board(const Board& board);
 
         static Board get_empty_board();
         static Board get_starting_position();

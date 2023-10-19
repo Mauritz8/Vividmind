@@ -17,7 +17,7 @@ bool is_checkmate(const Board& board) {
        return false;
    }
 
-   const std::vector<Move> moves = get_all_legal_moves(board);
+   const std::vector<Move> moves = get_legal_moves(board);
    for (int i = 0; i < moves.size(); i++) {
        if (!moves.at(i).leaves_king_in_check(board)) {
            return false;
@@ -26,9 +26,7 @@ bool is_checkmate(const Board& board) {
    return true;
 }
 
-static bool is_insufficient_material(Color color, const Board& board) {
-    auto pieces = get_all_pieces(color, board);
-
+static bool is_insufficient_material(const std::vector<std::shared_ptr<Piece>>& pieces) {
     if (pieces.size() > 2) {
         return false;
     }
@@ -43,12 +41,12 @@ static bool is_insufficient_material(Color color, const Board& board) {
 }
 
 static bool is_insufficient_material(const Board& board) {
-    return is_insufficient_material(WHITE, board) || 
-           is_insufficient_material(BLACK, board);
+    return is_insufficient_material(board.game_state.pieces[WHITE]) || 
+           is_insufficient_material(board.game_state.pieces[BLACK]);
 }
 
 static bool is_stalemate(const Board& board) {
-    const std::vector<Move> legal_moves = get_all_legal_moves(board);
+    const std::vector<Move> legal_moves = get_legal_moves(board);
     if (!is_in_check(board.game_state.player_to_move, board) && legal_moves.size() == 0) {
         return true;
     }

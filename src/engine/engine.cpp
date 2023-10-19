@@ -32,8 +32,7 @@ static int get_material_score(Color color, const Board& board) {
     return material;
 }
 
-static int get_piece_square_table_score(Color color, const Board& board) {
-    const auto pieces = get_all_pieces(color, board);
+static int get_piece_square_table_score(Color color, const std::vector<std::shared_ptr<Piece>>& pieces) {
     const bool is_black = color == BLACK;
 
     int score = 0;
@@ -56,8 +55,8 @@ static double evaluate(const Board& board) {
     const int black_material = get_material_score(BLACK, board);
     score += white_material - black_material;
 
-    const double white_piece_square_table_score = get_piece_square_table_score(WHITE, board);
-    const double black_piece_square_table_score = get_piece_square_table_score(BLACK, board);
+    const double white_piece_square_table_score = get_piece_square_table_score(WHITE, board.game_state.pieces[WHITE]);
+    const double black_piece_square_table_score = get_piece_square_table_score(BLACK, board.game_state.pieces[BLACK]);
     score += 0.01 * (white_piece_square_table_score - black_piece_square_table_score);
 
     if (board.game_state.player_to_move == BLACK) {
@@ -77,7 +76,7 @@ static double nega_max(int depth, Board& board) {
         return evaluate(board);
     }
     double max = INT_MIN;
-    std::vector<Move> legal_moves = get_all_legal_moves(board);
+    std::vector<Move> legal_moves = get_legal_moves(board);
     for (int i = 0; i < legal_moves.size(); i++) {
         Move move = legal_moves.at(i);
         move.make_appropriate(board);
@@ -94,7 +93,7 @@ Move get_best_move(int depth, const Board& board) {
     Board board_copy = board;
 
     double max = INT_MIN;
-    const std::vector<Move> legal_moves = get_all_legal_moves(board_copy);
+    const std::vector<Move> legal_moves = get_legal_moves(board_copy);
     const Move* best_move = nullptr;
     for (int i = 0; i < legal_moves.size(); i++) {
         Move move = legal_moves.at(i);
@@ -117,7 +116,7 @@ int perft(int depth, Board board) {
     }
 
     int nodes = 0;
-    const std::vector<Move> move_list = get_all_legal_moves(board);
+    const std::vector<Move> move_list = get_legal_moves(board);
     for (int i = 0; i < move_list.size(); i++) {
         Move move = move_list.at(i);
         move.make_appropriate(board);
@@ -130,7 +129,7 @@ int perft(int depth, Board board) {
 void divide(int depth, Board board) {
     std::cout << "";
     int nodes_searched = 0;
-    const std::vector<Move> move_list = get_all_legal_moves(board);
+    const std::vector<Move> move_list = get_legal_moves(board);
     for (int i = 0; i < move_list.size(); i++) {
         Move move = move_list.at(i);
         move.make_appropriate(board);
