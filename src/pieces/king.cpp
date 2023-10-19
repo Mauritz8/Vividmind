@@ -123,22 +123,22 @@ std::vector<Move> King::get_potential_castling_moves(const Board& board) const {
     return potential_castling_moves;
 }
 
-bool King::passes_through_check_when_castling(const Move& castling_move, const Board& board) const {
-    Board board_copy = board;
+bool King::passes_through_check_when_castling(const Move& castling_move, Board& board) const {
     const int row = castling_move.start.y;
     const int start_x = castling_move.start.x;
     const int end_x = castling_move.end.x;
     const int direction = end_x - start_x > 0 ? 1 : -1;
-    const Color player_to_move = board.game_state.player_to_move;
+    const Color opponent = get_opposite_color(board.game_state.player_to_move);
 
-    int x = start_x;
-    while (x != end_x) {
-        Move submove = Move(x, row, x + direction, row);
-        submove.make_appropriate(board_copy);
-        if (is_in_check(player_to_move, board_copy)) {
-            return true;
+    std::vector<Move> threatened_moves = ::get_threatened_moves(opponent, board);
+    for (Move& move : threatened_moves) {
+        int x = start_x;
+        while (x != end_x) {
+            if (move.end == Pos{x + direction, row}) {
+                return true;
+            }
+            x += direction;
         }
-        x += direction;
     }
     return false;
 }

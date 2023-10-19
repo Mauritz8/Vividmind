@@ -8,6 +8,7 @@
 #include <memory>
 #include <vector>
 
+std::vector<Move> get_threatened_moves(Color color, Board& board);
 std::vector<Move> get_legal_moves(Board& board);
 Color get_opposite_color(Color color);
 bool is_in_check(Color color, Board& board);

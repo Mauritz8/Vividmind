@@ -19,7 +19,7 @@ class King : public Piece {
 
     private:
         std::vector<Move> get_castling_moves(Board& board) const;
-        bool passes_through_check_when_castling(const Move& castling_move, const Board& board) const;
+        bool passes_through_check_when_castling(const Move& castling_move, Board& board) const;
         std::vector<Move> get_potential_castling_moves(const Board& board) const;
 };
 
