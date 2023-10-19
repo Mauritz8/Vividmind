@@ -16,7 +16,7 @@ class Pawn : public Piece {
         int get_value() const override;
 
     protected:
-        std::vector<Move> get_psuedo_legal_moves(const Board& board) const override;
+        std::vector<Move> get_psuedo_legal_moves(Board& board) const override;
 };
 
 #endif

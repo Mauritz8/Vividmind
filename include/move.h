@@ -29,7 +29,7 @@ class Move {
         Move operator=(const Move& move);
         bool operator==(const Move& move) const;
 
-        bool leaves_king_in_check(const Board& board) const;
+        bool leaves_king_in_check(Board& board) const;
         void make_appropriate(Board& board);
         void undo_appropriate(Board& board);
         std::string to_uci_notation() const;

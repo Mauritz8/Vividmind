@@ -89,17 +89,16 @@ static double nega_max(int depth, Board& board) {
     return max;
 }
 
-Move get_best_move(int depth, const Board& board) {
-    Board board_copy = board;
+Move get_best_move(int depth, Board& board) {
 
     double max = INT_MIN;
-    const std::vector<Move> legal_moves = get_legal_moves(board_copy);
+    const std::vector<Move> legal_moves = get_legal_moves(board);
     const Move* best_move = nullptr;
     for (int i = 0; i < legal_moves.size(); i++) {
         Move move = legal_moves.at(i);
-        move.make_appropriate(board_copy);
-        const double score = -nega_max(depth - 1, board_copy);
-        move.undo_appropriate(board_copy);
+        move.make_appropriate(board);
+        const double score = -nega_max(depth - 1, board);
+        move.undo_appropriate(board);
         if (score > max) {
             max = score;
             best_move = &legal_moves.at(i);

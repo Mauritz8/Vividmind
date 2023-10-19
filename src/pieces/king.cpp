@@ -35,7 +35,7 @@ int King::get_value() const {
     return 200;
 }
 
-std::vector<Move> King::get_psuedo_legal_moves(const Board& board) const {
+std::vector<Move> King::get_psuedo_legal_moves(Board& board) const {
     std::vector<Move> moves = this->get_threatened_moves(board);
     std::vector<Move> castling_moves = this->get_castling_moves(board);
     moves.insert(moves.end(), castling_moves.begin(), castling_moves.end());
@@ -68,7 +68,7 @@ std::vector<Move> King::get_threatened_moves(const Board& board) const {
     return moves;
 }
 
-bool King::is_valid_castling(const Move& move, const Board& board) const {
+bool King::is_valid_castling(const Move& move, Board& board) const {
     int rook_x;
     if (move.end.x == 6) {
         rook_x = 7;
@@ -91,7 +91,7 @@ bool King::is_valid_castling(const Move& move, const Board& board) const {
     return true;
 }
 
-std::vector<Move> King::get_castling_moves(const Board& board) const {
+std::vector<Move> King::get_castling_moves(Board& board) const {
     std::vector<Move> castling_moves = get_potential_castling_moves(board);
     for (auto it = castling_moves.begin(); it != castling_moves.end();) {
         if (!is_valid_castling(*it, board)) {

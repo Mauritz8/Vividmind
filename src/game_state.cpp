@@ -41,23 +41,24 @@ static bool is_valid(const Move& move, const Board& board) {
     return true;
 }
 
-static bool is_legal(const Move& psuedo_legal, const Board& board) {
+static bool is_legal(const Move& psuedo_legal, Board& board) {
     if (!is_valid(psuedo_legal, board)) {
         return false;
     }
 
     Move psuedo_legal_copy = psuedo_legal;
-    Board board_copy = board;
 
     const Color player_to_move = board.game_state.player_to_move;
-    psuedo_legal_copy.make_appropriate(board_copy);
-    if (is_in_check(player_to_move, board_copy)) {
+    psuedo_legal_copy.make_appropriate(board);
+    if (is_in_check(player_to_move, board)) {
+        psuedo_legal_copy.undo_appropriate(board);
         return false;
     }
+    psuedo_legal_copy.undo_appropriate(board);
     return true;
 }
 
-static std::vector<Move> get_threatened_moves(const std::vector<std::shared_ptr<Piece>>& pieces, const Board& board) {
+static std::vector<Move> get_threatened_moves(const std::vector<std::shared_ptr<Piece>>& pieces, Board& board) {
     std::vector<Move> legal_moves;
     for (const std::shared_ptr<Piece>& piece : pieces) {
         std::vector<Move> psuedo_legal_moves = piece->get_threatened_moves(board); 
@@ -70,7 +71,7 @@ static std::vector<Move> get_threatened_moves(const std::vector<std::shared_ptr<
     return legal_moves;
 }
 
-std::vector<Move> get_all_threatened_moves(Color color, const Board& board) {
+std::vector<Move> get_all_threatened_moves(Color color, Board& board) {
     std::vector<std::shared_ptr<Piece>> pieces;
     for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 8; j++) {
@@ -84,7 +85,7 @@ std::vector<Move> get_all_threatened_moves(Color color, const Board& board) {
     return get_threatened_moves(pieces, board);
 }
 
-std::vector<Move> get_legal_moves(const Board& board) {
+std::vector<Move> get_legal_moves(Board& board) {
     auto pieces = board.game_state.pieces[board.game_state.player_to_move];
     std::vector<Move> legal_moves;
     for (const std::shared_ptr<Piece>& piece : pieces) {
@@ -102,7 +103,7 @@ Color get_opposite_color(Color color) {
     return color == WHITE ? BLACK : WHITE;
 }
 
-bool is_in_check(Color color, const Board& board) {
+bool is_in_check(Color color, Board& board) {
     const std::optional<Square> king_square = get_king_square(color, board);
     if (!king_square.has_value()) {
         return false;  

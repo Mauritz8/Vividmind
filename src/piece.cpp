@@ -44,7 +44,7 @@ void Piece::set_y(int y) {
     this->y = y;
 }
 
-std::vector<Move> Piece::get_threatened_moves(const Board& board) {
+std::vector<Move> Piece::get_threatened_moves(Board& board) {
     const Pawn* pawn = dynamic_cast<Pawn*>(this);
     if (pawn != nullptr) {
         return pawn->get_threatened_moves(board);

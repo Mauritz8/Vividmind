@@ -12,7 +12,7 @@
 #include "pieces/queen.h"
 #include "pieces/rook.h"
 
-bool is_checkmate(const Board& board) {
+bool is_checkmate(Board& board) {
    if (!is_in_check(board.game_state.player_to_move, board)) {
        return false;
    }
@@ -45,7 +45,7 @@ static bool is_insufficient_material(const Board& board) {
            is_insufficient_material(board.game_state.pieces[BLACK]);
 }
 
-static bool is_stalemate(const Board& board) {
+static bool is_stalemate(Board& board) {
     const std::vector<Move> legal_moves = get_legal_moves(board);
     if (!is_in_check(board.game_state.player_to_move, board) && legal_moves.size() == 0) {
         return true;
@@ -53,6 +53,6 @@ static bool is_stalemate(const Board& board) {
     return false;
 }
 
-bool is_draw(const Board& board) {
+bool is_draw(Board& board) {
     return is_insufficient_material(board) || is_stalemate(board);
 }

@@ -88,15 +88,15 @@ Move Move::operator=(const Move& move) {
     return *this;
 }
 
-bool Move::leaves_king_in_check(const Board& board) const {
+bool Move::leaves_king_in_check(Board& board) const {
     Move move_copy = *this;
-    Board board_copy = board;
-
     const Color player_to_move = board.game_state.player_to_move;
-    move_copy.make_appropriate(board_copy);
-    if (is_in_check(player_to_move, board_copy)) {
+    move_copy.make_appropriate(board);
+    if (is_in_check(player_to_move, board)) {
+        move_copy.undo_appropriate(board);
         return true;
     }
+    move_copy.undo_appropriate(board);
     return false;
 }
 
