@@ -21,13 +21,8 @@
 
 static int get_material_score(Color color, const Board& board) {
     int material = 0;
-    for (int i = 0; i < 8; i++) {
-        for (int j = 0; j < 8; j++) {
-            const std::shared_ptr<Piece>& piece = board.get_square(j, i).get_piece();
-            if (piece && piece->get_color() == color) {
-                material += piece->get_value();
-            }
-        }
+    for (auto piece : board.game_state.pieces[color]) {
+        material += piece->get_value();
     }
     return material;
 }
