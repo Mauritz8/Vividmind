@@ -170,9 +170,15 @@ void Move::make(Board& board) {
     std::shared_ptr<Piece> captured_piece = std::move(end_square.piece);
     if (captured_piece) {
         board.remove_piece(captured_piece);
+        board.game_state.material[captured_piece->color] -= captured_piece->get_value();
+        board.game_state.psqt[captured_piece->color] -= captured_piece->get_psqt_score();
         this->captured_piece = std::move(captured_piece);
     }
+    std::shared_ptr<Piece> piece = start_square.piece;
+    const int psqt_old = piece->get_psqt_score();
     start_square.move_piece(end_square);
+    const int psqt_new = piece->get_psqt_score();
+    board.game_state.psqt[piece->color] += psqt_new - psqt_old;
 
     board.game_state.en_passant_square = {};
     this->update_castling_rights(board);
@@ -181,9 +187,9 @@ void Move::make(Board& board) {
 void Move::undo(Board& board) {
     Square& start_square = board.get_square(this->start.x, this->start.y); 
     Square& end_square = board.get_square(this->end.x, this->end.y); 
+    std::shared_ptr<Piece> piece = start_square.piece;
     end_square.move_piece(start_square);
     if (captured_piece) {
-        board.game_state.pieces[captured_piece->color].push_back(captured_piece);
         end_square.piece = captured_piece;
     }
 }
@@ -350,6 +356,8 @@ void Move::make_en_passant(Board& board) {
     Square& captured_square = board.get_square(start.x + x_diff, start.y);
     board.remove_piece(captured_square.piece);
     this->captured_piece = captured_square.piece;
+    board.game_state.material[captured_piece->color] -= captured_piece->get_value();
+    board.game_state.psqt[captured_piece->color] -= captured_piece->get_psqt_score();
     captured_square.piece.reset();
 }
 
@@ -361,6 +369,7 @@ void Move::undo_en_passant(Board& board) {
     const int x_diff = end.x - start.x;
     Square& captured_square = board.get_square(start.x + x_diff, start.y);
     board.game_state.pieces[captured_piece->color].push_back(captured_piece);
+    board.game_state.material[captured_piece->color] += captured_piece->get_value();
     captured_square.piece = captured_piece;
 }
 

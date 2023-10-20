@@ -25,6 +25,10 @@ Board Board::get_empty_board() {
         }
         board.squares[i] = row;
     }
+    board.game_state.material[WHITE] = 0;
+    board.game_state.material[BLACK] = 0;
+    board.game_state.psqt[WHITE] = 0;
+    board.game_state.psqt[BLACK] = 0;
     return board;
 }
 
@@ -132,9 +136,12 @@ void Board::place_pieces(const std::string& fen_piece_placement_field) {
             const std::string pieces = "rnbqkp";
             if (pieces.find(tolower(ch)) != std::string::npos) {
                 const Color color = islower(ch) ? BLACK : WHITE;
-                std::shared_ptr<Piece> piece = std::make_shared<Piece>(Piece(get_piece_type(ch).value(), color, Pos{j, i}));
-                this->game_state.pieces[color].push_back(piece);
-                this->set_square(j, i, piece);
+                Piece_type piece_type = *get_piece_type(ch);
+                std::shared_ptr<Piece> piece = std::make_shared<Piece>(Piece(piece_type, color, Pos{j, i}));
+                game_state.pieces[color].push_back(piece);
+                set_square(j, i, piece);
+                game_state.material[color] += piece->get_value();                
+                game_state.psqt[color] += piece->get_psqt_score();
             } else if (ch >= '1' && ch <= '8') {
                 const int num = ch - '0';
                 j += num - 1;
