@@ -24,9 +24,11 @@ set(COMMON_SOURCES
     src/game_state.cpp
     src/move.cpp
     src/piece.cpp
+    src/pos.cpp
     src/square.cpp
     src/engine/engine.cpp
     src/engine/uci.cpp
+    src/engine/psqt.cpp
     src/pieces/bishop.cpp
     src/pieces/king.cpp
     src/pieces/knight.cpp

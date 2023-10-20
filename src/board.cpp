@@ -3,6 +3,7 @@
 #include <iostream>
 #include <memory>
 #include <cctype>
+#include <optional>
 #include <sstream>
 #include <stdexcept>
 #include <string>
@@ -79,14 +80,14 @@ void Board::set_square(int x, int y, std::shared_ptr<Piece> piece) {
         throw std::invalid_argument("Square (" + std::to_string(x) + ", " + std::to_string(y) + ") is outside board");
     }
     Square& square = squares.at(y).at(x); 
-    square.set_piece(piece);
+    square.piece = piece;
 }
 
 
 void Board::show() const {
     for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 8; j++) {
-            const std::shared_ptr<Piece>& piece = this->get_square(j, i).get_piece();
+            const std::shared_ptr<Piece>& piece = this->get_square(j, i).piece;
             if (piece) {
                 std::cout << " " << piece->get_char_representation();
             } else {
@@ -106,8 +107,27 @@ void Board::switch_player_to_move() {
     }
 }
 
+
+std::vector<Move> Board::get_psuedo_legal_moves() {
+    std::vector<Move> moves;
+    for (auto piece : game_state.pieces[game_state.player_to_move]) {
+        std::vector<Move> piece_moves = piece->get_psuedo_legal_moves(*this);
+        moves.insert(std::end(moves), std::begin(piece_moves), std::end(piece_moves));
+    } 
+    return moves;
+}
+
+std::vector<Move> Board::get_threatened_moves(Color color) {
+    std::vector<Move> moves;
+    for (auto piece : game_state.pieces[color]) {
+        std::vector<Move> piece_moves = piece->get_threatened_moves(*this);
+        moves.insert(std::end(moves), std::begin(piece_moves), std::end(piece_moves));
+    } 
+    return moves;
+}
+
 void Board::remove_piece(std::shared_ptr<Piece> piece) {
-    std::vector<std::shared_ptr<Piece>>& pieces = this->game_state.pieces[piece->get_color()];
+    std::vector<std::shared_ptr<Piece>>& pieces = this->game_state.pieces[piece->color];
     for (auto it = pieces.begin(); it != pieces.end(); ++it) {
         if (it->get() == piece.get()) {
             pieces.erase(it); 
@@ -124,7 +144,7 @@ void Board::place_pieces(const std::string& fen_piece_placement_field) {
             const std::string pieces = "rnbqkp";
             if (pieces.find(tolower(ch)) != std::string::npos) {
                 const Color color = islower(ch) ? BLACK : WHITE;
-                std::shared_ptr<Piece> piece = create_piece(get_piece_type(ch).value(), color, j, i);
+                std::shared_ptr<Piece> piece = std::make_shared<Piece>(Piece(get_piece_type(ch).value(), color, j, i));
                 this->game_state.pieces[color].push_back(piece);
                 this->set_square(j, i, piece);
             } else if (ch >= '1' && ch <= '8') {
@@ -179,12 +199,4 @@ void Board::set_en_passant_square(const std::string& fen_en_passant_field) {
     const int x = fen_en_passant_field[0] - 'a';
     const int y = 8 - (fen_en_passant_field[1] - '0');
     this->game_state.en_passant_square = Pos{x, y};
-}
-
-bool operator==(const Pos& pos1, const Pos& pos2) {
-    return pos1.x == pos2.x && pos1.y == pos2.y;
-}
-
-bool is_outside_board(const Pos& pos) {
-    return pos.x < 0 || pos.x > 7 || pos.y < 0 || pos.y > 7;
 }

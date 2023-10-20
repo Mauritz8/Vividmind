@@ -4,16 +4,6 @@
 #include <vector>
 #include "../move.h"
 
-class Queen : public Piece {
-    public:
-        Queen(Color color, int x, int y) : Piece(color, x, y) {};
-        std::unique_ptr<Piece> clone() const override;
-        char get_char_representation() const override;
-        std::vector<std::vector<int>> get_piece_square_table() const override;
-        int get_value() const override;
-
-    protected:
-        std::vector<Move> get_psuedo_legal_moves(Board& board) const override;
-};
+std::vector<Move> get_queen_psuedo_legal_moves(const Square& start, Board& board);
 
 #endif

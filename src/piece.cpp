@@ -14,57 +14,99 @@
 #include "pieces/pawn.h"
 #include "pieces/queen.h"
 #include "pieces/rook.h"
+#include "engine/psqt.h"
 #include "square.h"
 
 
-Piece::Piece(Color color, int x, int y) {
-    set_color(color);
-    set_x(x);
-    set_y(y);
-}
-
-Color Piece::get_color() const {
-    return color;
-}
-
-void Piece::set_color(Color color) {
+Piece::Piece(Piece_type piece_type, Color color, int x, int y) {
+    this->piece_type = piece_type;
     this->color = color;
-}
-
-int Piece::get_x() const {
-    return x;
-}
-void Piece::set_x(int x) {
     this->x = x;
-}
-int Piece::get_y() const {
-    return y;
-}
-void Piece::set_y(int y) {
     this->y = y;
 }
 
+bool Piece::operator==(Piece piece) const {
+    return piece.x == x && piece.y == y && piece.color == color;
+}
+
+std::vector<Move> Piece::get_psuedo_legal_moves(Board& board) const {
+    const Square& start = board.get_square(x, y);
+    switch (piece_type) {
+        case KING: {
+            return get_king_psuedo_legal_moves(start, board);
+        }
+        case QUEEN: {
+            return get_queen_psuedo_legal_moves(start, board);
+        }
+        case ROOK: {
+            return get_rook_psuedo_legal_moves(start, board);
+        }
+        case BISHOP: {
+            return get_bishop_psuedo_legal_moves(start, board);
+        }
+        case KNIGHT: {
+            return get_knight_psuedo_legal_moves(start, board);
+        }
+        case PAWN: {
+            return get_pawn_psuedo_legal_moves(*this, board);
+        }
+    }    
+    return {};
+}
+
 std::vector<Move> Piece::get_threatened_moves(Board& board) {
-    const Pawn* pawn = dynamic_cast<Pawn*>(this);
-    if (pawn != nullptr) {
-        return pawn->get_captures(board);
+    const Square& start = board.get_square(x, y);
+    if (piece_type == PAWN) {
+        return get_pawn_captures(*this, board);
     }
-    const King* king = dynamic_cast<King*>(this);
-    if (king != nullptr) {
-        return king->get_threatened_moves(board);
+    if (piece_type == KING) {
+        return get_king_threatened_moves(start, board);
     }
     return this->get_psuedo_legal_moves(board);
 }
 
-std::vector<Move> Piece::get_psuedo_legal_moves_direction(const Square& start, int x_direction, int y_direction, const Board& board) const {
+char Piece::get_char_representation() const {
+    switch (piece_type) {
+        case KING: return 'K';
+        case QUEEN: return 'Q';
+        case ROOK: return 'R';
+        case BISHOP: return 'B';
+        case KNIGHT: return 'N';
+        case PAWN: return 'p';
+    }
+}
+
+int Piece::get_value() const {
+    switch (piece_type) {
+        case KING: return 200;
+        case QUEEN: return 9;
+        case ROOK: return 5;
+        case BISHOP: return 3;
+        case KNIGHT: return 3;
+        case PAWN: return 1;
+    }
+}
+
+std::array<std::array<int, 8>, 8> Piece::get_psqt() const {
+    switch (piece_type) {
+        case KING: return KING_PSQT;
+        case QUEEN: return QUEEN_PSQT;
+        case ROOK: return ROOK_PSQT;
+        case BISHOP: return BISHOP_PSQT;
+        case KNIGHT: return KNIGHT_PSQT;
+        case PAWN: return PAWN_PSQT;
+    }
+}
+
+std::vector<Move> get_psuedo_legal_moves_direction(const Square& start, int x_direction, int y_direction, Board& board) {
     std::vector<Move> moves;
 
-    int x = start.get_x() + x_direction;
-    int y = start.get_y() + y_direction;
+    int x = start.x + x_direction;
+    int y = start.y + y_direction;
     while (!is_outside_board(x, y)) {
         const Square& end = board.get_square(x, y);
-        if (end.get_piece()) {
-            if (end.get_piece()->get_color() != this->get_color()) {
+        if (end.piece) {
+            if (end.piece->color != start.piece->color) {
                 moves.push_back(Move(start, end));
             }
             break;
@@ -108,28 +150,4 @@ std::optional<Piece_type> get_promotion_piece_type(char char_representation_lowe
     if (char_representation_lowercase == 'r') return ROOK;
     if (char_representation_lowercase == 'q') return QUEEN;
     return {};
-}
-
-std::shared_ptr<Piece> create_piece(Piece_type piece_type, Color color, int x, int y) {
-    switch (piece_type) {
-        case KING: {
-            return std::make_shared<King>(King(color, x, y));
-        }
-        case QUEEN: {
-            return std::make_shared<Queen>(Queen(color, x, y));
-        }
-        case ROOK: {
-            return std::make_shared<Rook>(Rook(color, x, y));
-        }
-        case BISHOP: {
-            return std::make_shared<Bishop>(Bishop(color, x, y));
-        }
-        case KNIGHT: {
-            return std::make_shared<Knight>(Knight(color, x, y));
-        }
-        case PAWN: {
-            return std::make_shared<Pawn>(Pawn(color, x, y));
-        }
-    } 
-    throw std::invalid_argument("invalid piece type");
 }

@@ -31,9 +31,8 @@ static bool is_insufficient_material(const std::vector<std::shared_ptr<Piece>>& 
         return false;
     }
 
-    for (int i = 0; i < pieces.size(); i++) {
-        const std::shared_ptr<Piece>& piece = pieces.at(i);
-        if (dynamic_cast<Pawn*>(piece.get()) != nullptr || dynamic_cast<Rook*>(piece.get()) != nullptr || dynamic_cast<Queen*>(piece.get()) != nullptr) {
+    for (auto piece : pieces) {
+        if (piece->piece_type == PAWN || piece->piece_type == ROOK || piece->piece_type == QUEEN) {
             return false;
         }
     }

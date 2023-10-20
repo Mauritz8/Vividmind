@@ -30,7 +30,7 @@ bool is_clear_line(Pos pos1, Pos pos2, const Board& board) {
     int x = pos1.x + x_direction;
     int y = pos1.y + y_direction;
     while (x != pos2.x || y != pos2.y) {
-        if (board.get_square(x, y).get_piece()) {
+        if (board.get_square(x, y).piece) {
             return false;
         }
         x += x_direction;
@@ -50,7 +50,7 @@ bool is_clear_diagonal(Pos pos1, Pos pos2, const Board& board) {
     int x = pos1.x + x_direction;
     int y = pos1.y + y_direction;
     while (x != pos2.x && y != pos2.y) {
-        if (board.get_square(x, y).get_piece()) {
+        if (board.get_square(x, y).piece) {
             return false;
         }
         x += x_direction;

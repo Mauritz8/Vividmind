@@ -18,8 +18,8 @@
 static std::optional<Pos> get_king_square(Color color, const Board& board) {
     auto pieces = board.game_state.pieces[color];
     for (auto piece : pieces) {
-        if (dynamic_cast<King*>(piece.get())) {
-            return Pos{piece->get_x(), piece->get_y()};
+        if (piece->piece_type == KING) {
+            return Pos{piece->x, piece->y};
         }
     }
     return {};
@@ -29,8 +29,8 @@ static bool is_valid(const Move& move, const Board& board) {
     const Square& start = board.get_square(move.start.x, move.start.y);
     const Square& end = board.get_square(move.end.x, move.end.y);
     const bool end_square_has_same_color_piece = 
-        end.get_piece() &&
-        end.get_piece()->get_color() == start.get_piece()->get_color();
+        end.piece &&
+        end.piece->color == start.piece->color;
 
     if (end_square_has_same_color_piece) {
         return false;
@@ -56,28 +56,24 @@ static bool is_legal(const Move& psuedo_legal, Board& board) {
 }
 
 std::vector<Move> get_threatened_moves(Color color, Board& board) {
-    auto pieces = board.game_state.pieces[color];
-    std::vector<Move> legal_moves;
-    for (const std::shared_ptr<Piece>& piece : pieces) {
-        std::vector<Move> psuedo_legal_moves = piece->get_threatened_moves(board); 
-        for (Move& move : psuedo_legal_moves) {
-            if (is_valid(move, board)) {
-                legal_moves.push_back(move);
-            }
+    std::vector<Move> legal_moves = board.get_threatened_moves(color);
+    for (auto it = legal_moves.begin(); it != legal_moves.end();) {
+        if (!is_valid(*it, board)) {
+            it = legal_moves.erase(it);
+        } else {
+            ++it;
         }
     }
     return legal_moves;
 }
 
 std::vector<Move> get_legal_moves(Board& board) {
-    auto pieces = board.game_state.pieces[board.game_state.player_to_move];
-    std::vector<Move> legal_moves;
-    for (const std::shared_ptr<Piece>& piece : pieces) {
-        std::vector<Move> psuedo_legal_moves = piece->get_psuedo_legal_moves(board); 
-        for (Move& move : psuedo_legal_moves) {
-            if (is_legal(move, board)) {
-                legal_moves.push_back(move);
-            }
+    std::vector<Move> legal_moves = board.get_psuedo_legal_moves();
+    for (auto it = legal_moves.begin(); it != legal_moves.end();) {
+        if (!is_legal(*it, board)) {
+            it = legal_moves.erase(it);
+        } else {
+            ++it;
         }
     }
     return legal_moves;
@@ -107,8 +103,8 @@ std::vector<std::shared_ptr<Piece>> get_all_pieces(Color color, const Board& boa
     std::vector<std::shared_ptr<Piece>> pieces;
     for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 8; j++) {
-            const std::shared_ptr<Piece>& piece = board.get_square(j, i).get_piece();
-            if (piece && piece->get_color() == color) {
+            const std::shared_ptr<Piece> piece = board.get_square(j, i).piece;
+            if (piece && piece->color == color) {
                 pieces.push_back(piece);
             }
         }
