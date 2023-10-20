@@ -184,3 +184,7 @@ void Board::set_en_passant_square(const std::string& fen_en_passant_field) {
 bool operator==(const Pos& pos1, const Pos& pos2) {
     return pos1.x == pos2.x && pos1.y == pos2.y;
 }
+
+bool is_outside_board(const Pos& pos) {
+    return pos.x < 0 || pos.x > 7 || pos.y < 0 || pos.y > 7;
+}
