@@ -13,6 +13,7 @@ struct Pos {
     int y;
 };
 bool operator==(const Pos& pos1, const Pos& pos2);
+bool is_outside_board(const Pos& pos);
 
 struct Castling {
     bool kingside;

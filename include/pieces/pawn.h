@@ -9,7 +9,7 @@ class Pawn : public Piece {
         Pawn(Color color, int x, int y) : Piece(color, x, y) {};
         std::unique_ptr<Piece> clone() const override;
         char get_char_representation() const override;
-        std::vector<Move> get_threatened_moves(const Board& board) const;
+        std::vector<Move> get_captures(const Board& board) const;
         bool is_valid_en_passant(const Move& pawn_capture, const Board& board) const; 
         bool is_promotion_move(const Move& move) const;
         std::vector<std::vector<int>> get_piece_square_table() const override;

@@ -28,6 +28,15 @@ Move::Move(int start_x, int start_y, int end_x, int end_y) {
     this->is_pawn_two_squares_forward = false;
 }
 
+Move::Move(const Pos& start, const Pos& end) {
+    this->start = start;
+    this->end = end;
+    this->is_castling_move = false;
+    this->is_promotion = false;
+    this->is_en_passant = false;
+    this->is_pawn_two_squares_forward = false;
+}
+
 Move::Move(const Square& start, const Square& end) {
     this->start = {start.get_x(), start.get_y()};
     this->end = {end.get_x(), end.get_y()};

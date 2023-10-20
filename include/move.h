@@ -22,6 +22,7 @@ class Move {
         bool is_pawn_two_squares_forward;
 
         Move(int start_x, int start_y, int end_x, int end_y);
+        Move(const Pos& start, const Pos& end);
         Move(const Square& start, const Square& end);
         static Move get_from_uci_notation(const std::string& uci_notation, const Board& board);
         Move(const Move& move);

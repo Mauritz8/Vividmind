@@ -1,3 +1,4 @@
+#include "board.h"
 #include "board_utils.h"
 #include "game_state.h"
 #include "move.h"
@@ -43,28 +44,24 @@ std::vector<Move> King::get_psuedo_legal_moves(Board& board) const {
 }
 
 std::vector<Move> King::get_threatened_moves(const Board& board) const {
-    std::vector<Move> moves;
-    const Square& start = board.get_square(this->get_x(), this->get_y());
-
+    const Pos start = Pos{this->get_x(), this->get_y()};
     const std::array<Pos, 8> end_squares = {
-        Pos{start.get_x(), start.get_y() + 1},
-        Pos{start.get_x() + 1, start.get_y() + 1},
-        Pos{start.get_x() + 1, start.get_y()},
-        Pos{start.get_x() + 1, start.get_y() - 1},
-        Pos{start.get_x(), start.get_y() - 1},
-        Pos{start.get_x() - 1, start.get_y() - 1},
-        Pos{start.get_x() - 1, start.get_y()},
-        Pos{start.get_x() - 1, start.get_y() + 1}
+        Pos{start.x, start.y + 1},
+        Pos{start.x + 1, start.y + 1},
+        Pos{start.x + 1, start.y},
+        Pos{start.x + 1, start.y - 1},
+        Pos{start.x, start.y - 1},
+        Pos{start.x - 1, start.y - 1},
+        Pos{start.x - 1, start.y},
+        Pos{start.x - 1, start.y + 1}
     };
-    for (Pos end_pos : end_squares) {
-        try {
-            const Square& end = board.get_square(
-                    end_pos.x,
-                    end_pos.y);
-            moves.push_back(Move(start, end));
-        } catch (const std::invalid_argument& e) {}
-    }
 
+    std::vector<Move> moves;
+    for (Pos end: end_squares) {
+        if (!is_outside_board(end)) {
+            moves.push_back(Move(start, end));
+        }
+    }
     return moves;
 }
 

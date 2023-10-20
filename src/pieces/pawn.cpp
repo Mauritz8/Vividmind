@@ -1,3 +1,4 @@
+#include "board.h"
 #include "game_state.h"
 #include "move.h"
 #include "piece.h"
@@ -58,22 +59,10 @@ std::vector<Move> Pawn::get_psuedo_legal_moves(Board& board) const {
     } catch (const std::invalid_argument& e) {}
 
 
-    std::vector<Move> captures;
-    try {
-        const Square& end3 = board.get_square(start.get_x() + 1, start.get_y() + direction);
-        captures.push_back(Move(start, end3));
-    } catch (const std::invalid_argument& e) {}
-    try {
-        const Square& end4 = board.get_square(start.get_x() - 1, start.get_y() + direction);
-        captures.push_back(Move(start, end4));
-    } catch (const std::invalid_argument& e) {}
-
+    std::vector<Move> captures = this->get_captures(board);
     for (Move& capture : captures) {
         const Square& end = board.get_square(capture.end.x, capture.end.y);
-        const bool is_valid_capture = 
-            end.get_piece() &&
-            end.get_piece()->get_color() != this->get_color();
-        if (is_valid_capture) {
+        if (end.get_piece()) {
             moves.push_back(capture);
         } else if (is_valid_en_passant(capture, board)) {
             capture.is_en_passant = true;
@@ -103,20 +92,20 @@ std::vector<Move> Pawn::get_psuedo_legal_moves(Board& board) const {
     return moves;
 }
 
-std::vector<Move> Pawn::get_threatened_moves(const Board& board) const {
-    std::vector<Move> moves;
-    const Square& start = board.get_square(this->get_x(), this->get_y());
+std::vector<Move> Pawn::get_captures(const Board& board) const {
     const int direction = this->get_color() == BLACK ? 1 : -1;
 
-    try {
-        const Square& end1 = board.get_square(this->get_x() + 1, this->get_y() + direction);
-        moves.push_back(Move(start, end1));
-    } catch (const std::invalid_argument& e) {}
-    try {
-        const Square& end2 = board.get_square(this->get_x() - 1, this->get_y() + direction);
-        moves.push_back(Move(start, end2));
-    } catch (const std::invalid_argument& e) {}
+    const Pos start = Pos{this->get_x(), this->get_y()};
+    const Pos end1 = Pos{this->get_x() + 1, this->get_y() + direction};
+    const Pos end2 = Pos{this->get_x() - 1, this->get_y() + direction};
 
+    std::vector<Move> moves;
+    if (!is_outside_board(end1)) {
+        moves.push_back(Move(start, end1));
+    }
+    if (!is_outside_board(end2)) {
+        moves.push_back(Move(start, end2));
+    }
     return moves;
 }
 
