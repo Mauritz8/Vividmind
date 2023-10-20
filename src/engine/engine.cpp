@@ -15,14 +15,6 @@
 #include "pieces/pawn.h"
 
 
-static int get_material_score(Color color, const Board& board) {
-    int material = 0;
-    for (auto piece : board.game_state.pieces[color]) {
-        material += piece->get_value();
-    }
-    return material;
-}
-
 static int get_psqt_score_white(const std::vector<std::shared_ptr<Piece>>& pieces) {
     int score = 0;
     for (auto piece : pieces) {
@@ -40,9 +32,10 @@ static int get_psqt_score_black(const std::vector<std::shared_ptr<Piece>>& piece
 }
 
 static double evaluate(const Board& board) {
+    auto start = std::chrono::high_resolution_clock::now();
     double score = 0;
-    const int white_material = get_material_score(WHITE, board);
-    const int black_material = get_material_score(BLACK, board);
+    const int white_material = board.game_state.material[WHITE];
+    const int black_material = board.game_state.material[BLACK];
     score += white_material - black_material;
 
     const double white_piece_square_table_score = get_psqt_score_white(board.game_state.pieces[WHITE]);
