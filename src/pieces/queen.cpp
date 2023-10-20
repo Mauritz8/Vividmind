@@ -28,7 +28,7 @@ int Queen::get_value() const {
     return 9;
 }
 
-std::vector<Move> Queen::get_psuedo_legal_moves(const Board& board) const {
+std::vector<Move> Queen::get_psuedo_legal_moves(Board& board) const {
     std::vector<Move> moves;
     const Square& start = board.get_square(this->get_x(), this->get_y());
 

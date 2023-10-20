@@ -3,6 +3,7 @@
 
 #include "square.h"
 #include <array>
+#include <memory>
 #include <optional>
 #include <string>
 #include <vector>
@@ -22,6 +23,7 @@ struct GameState {
     Color player_to_move;
     std::optional<Pos> en_passant_square;
     std::array<Castling, 2> castling_rights;
+    std::array<std::vector<std::shared_ptr<Piece>>, 2> pieces;
 };
 
 class Board {
@@ -30,6 +32,7 @@ class Board {
         std::vector<GameState> history;
 
         Board() {}
+        Board(const Board& board);
 
         static Board get_empty_board();
         static Board get_starting_position();
@@ -41,6 +44,7 @@ class Board {
 
         void show() const;
         void switch_player_to_move();
+        void remove_piece(std::shared_ptr<Piece> piece);
 
     private:
         std::vector<std::vector<Square>> squares;

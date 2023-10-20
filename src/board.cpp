@@ -9,6 +9,7 @@
 #include <vector>
 
 #include "board.h"
+#include "game_state.h"
 #include "piece.h"
 #include "pieces/bishop.h"
 #include "pieces/king.h"
@@ -17,6 +18,14 @@
 #include "pieces/queen.h"
 #include "pieces/rook.h"
 
+
+Board::Board(const Board& board) {
+    this->squares = board.squares;
+    this->game_state = board.game_state;
+    this->game_state.pieces[WHITE] = get_all_pieces(WHITE, *this);
+    this->game_state.pieces[BLACK] = get_all_pieces(BLACK, *this);
+    this->history = {};
+}
 
 Board Board::get_empty_board() {
     Board board;
@@ -97,6 +106,16 @@ void Board::switch_player_to_move() {
     }
 }
 
+void Board::remove_piece(std::shared_ptr<Piece> piece) {
+    std::vector<std::shared_ptr<Piece>>& pieces = this->game_state.pieces[piece->get_color()];
+    for (auto it = pieces.begin(); it != pieces.end(); ++it) {
+        if (it->get() == piece.get()) {
+            pieces.erase(it); 
+            return;
+        }
+    }
+}
+
 void Board::place_pieces(const std::string& fen_piece_placement_field) {
     int index = 0;
     for (int i = 0; i < 8; i++) {
@@ -106,7 +125,8 @@ void Board::place_pieces(const std::string& fen_piece_placement_field) {
             if (pieces.find(tolower(ch)) != std::string::npos) {
                 const Color color = islower(ch) ? BLACK : WHITE;
                 std::shared_ptr<Piece> piece = create_piece(get_piece_type(ch).value(), color, j, i);
-                this->set_square(j, i, std::move(piece));
+                this->game_state.pieces[color].push_back(piece);
+                this->set_square(j, i, piece);
             } else if (ch >= '1' && ch <= '8') {
                 const int num = ch - '0';
                 j += num - 1;

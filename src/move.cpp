@@ -88,15 +88,15 @@ Move Move::operator=(const Move& move) {
     return *this;
 }
 
-bool Move::leaves_king_in_check(const Board& board) const {
+bool Move::leaves_king_in_check(Board& board) const {
     Move move_copy = *this;
-    Board board_copy = board;
-
     const Color player_to_move = board.game_state.player_to_move;
-    move_copy.make_appropriate(board_copy);
-    if (is_in_check(player_to_move, board_copy)) {
+    move_copy.make_appropriate(board);
+    if (is_in_check(player_to_move, board)) {
+        move_copy.undo_appropriate(board);
         return true;
     }
+    move_copy.undo_appropriate(board);
     return false;
 }
 
@@ -159,9 +159,10 @@ std::string Move::to_uci_notation() const {
 void Move::make(Board& board) {
     Square& start_square = board.get_square(this->start.x, this->start.y); 
     Square& end_square = board.get_square(this->end.x, this->end.y); 
-    std::shared_ptr<Piece> piece = std::move(end_square.get_piece());
-    if (piece) {
-        this->captured_piece = std::move(piece);
+    std::shared_ptr<Piece> captured_piece = std::move(end_square.get_piece());
+    if (captured_piece) {
+        board.remove_piece(captured_piece);
+        this->captured_piece = std::move(captured_piece);
     }
     start_square.move_piece(end_square);
 
@@ -175,6 +176,7 @@ void Move::undo(Board& board) {
     end_square.move_piece(start_square);
     std::shared_ptr<Piece> captured_piece = std::move(this->captured_piece);
     if (captured_piece) {
+        board.game_state.pieces[captured_piece->get_color()].push_back(captured_piece);
         end_square.set_piece(std::move(captured_piece));
     }
 }
@@ -340,6 +342,7 @@ void Move::make_en_passant(Board& board) {
 
     const int x_diff = end.x - start.x;
     Square& captured_square = board.get_square(start.x + x_diff, start.y);
+    board.remove_piece(captured_square.get_piece());
     this->captured_piece = captured_square.get_piece();
     captured_square.get_piece().reset();
 }
@@ -351,6 +354,7 @@ void Move::undo_en_passant(Board& board) {
 
     const int x_diff = end.x - start.x;
     Square& captured_square = board.get_square(start.x + x_diff, start.y);
+    board.game_state.pieces[captured_piece->get_color()].push_back(captured_piece);
     captured_square.set_piece(this->captured_piece);
 }
 
