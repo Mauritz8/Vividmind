@@ -11,8 +11,8 @@
 #include "move.h"
 
 static void handle_uci_command() {
-    std::cout << "id name Stockfish 2.0\n";
-    std::cout << "id author DemonicBag\n"; 
+    std::cout << "id name Vividmind\n";
+    std::cout << "id author Mauritz Sjödin\n"; 
     std::cout << "uciok\n\n";
 }
 

@@ -33,11 +33,11 @@ set(COMMON_SOURCES
     src/pieces/pawn.cpp
 )
 
-add_executable(chess_engine 
+add_executable(vividmind 
     src/main.cpp
     ${COMMON_SOURCES}
 )
-target_include_directories(chess_engine PRIVATE
+target_include_directories(vividmind PRIVATE
     include
     include/engine
 )
@@ -45,17 +45,17 @@ target_include_directories(chess_engine PRIVATE
 
 enable_testing()
 
-add_executable(unit_tests
+add_executable(tests
     tests/src/test_move_generator.cpp
     ${COMMON_SOURCES}
 )
-target_include_directories(unit_tests PRIVATE
+target_include_directories(tests PRIVATE
     include
 )
 target_link_libraries(
-    unit_tests
+    tests
     GTest::gtest_main
 )
 
 include(GoogleTest)
-gtest_discover_tests(unit_tests)
+gtest_discover_tests(tests)
