@@ -22,7 +22,7 @@ class Move {
         bool is_pawn_two_squares_forward;
 
         Move(int start_x, int start_y, int end_x, int end_y);
-        Move(const Pos& start, const Pos& end);
+        Move(Pos start, Pos end);
         Move(const Square& start, const Square& end);
         static Move get_from_uci_notation(const std::string& uci_notation, const Board& board);
         Move(const Move& move);
@@ -30,7 +30,7 @@ class Move {
         Move operator=(const Move& move);
         bool operator==(const Move& move) const;
 
-        bool leaves_king_in_check(Board& board) const;
+        bool leaves_king_in_check(Board& board);
         void make_appropriate(Board& board);
         void undo_appropriate(Board& board);
         std::string to_uci_notation() const;

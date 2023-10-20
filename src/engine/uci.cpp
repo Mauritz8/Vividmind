@@ -55,7 +55,7 @@ static void handle_position_command(const std::string& position, Board& board) {
     }
 }
 
-static void handle_go_perft_command(const std::string& depth_argument, const Board& board) {
+static void handle_go_perft_command(const std::string& depth_argument, Board& board) {
     try {
         const int depth = std::stoi(depth_argument);
         divide(depth, board);

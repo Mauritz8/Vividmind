@@ -1,6 +1,8 @@
 #ifndef PIECE_H
 #define PIECE_H
 
+#include "pos.h"
+#include <array>
 #include <memory>
 #include <optional>
 #include <vector>
@@ -13,35 +15,31 @@ class Board;
 class Square;
 class Piece {
     public:
-        Piece(Color color, int x, int y);
-        virtual ~Piece() = default;
-        virtual std::unique_ptr<Piece> clone() const = 0;
+        Piece_type piece_type;
+        Color color;
+        Pos pos;
 
-        Color get_color() const;
-        void set_color(Color color);
-        int get_x() const;
-        void set_x(int x);
-        int get_y() const;
-        void set_y(int y);
+        Piece(Piece_type piece_type, Color color, Pos pos);
 
-        virtual std::vector<Move> get_psuedo_legal_moves(Board& board) const = 0;
+        bool operator==(Piece piece) const;
+
+        std::vector<Move> get_psuedo_legal_moves(Board& board) const;
         std::vector<Move> get_threatened_moves(Board& board);
-        virtual char get_char_representation() const = 0;
-        virtual std::vector<std::vector<int>> get_piece_square_table() const = 0;
-        virtual int get_value() const = 0;
-
-    protected:
-        std::vector<Move> get_psuedo_legal_moves_direction(const Square& start, int x_direction, int y_direction, const Board& board) const;
+        char get_char_representation() const;
+        int get_value() const;
+        std::array<std::array<int, 8>, 8> get_psqt() const;
 
     private:
-        Color color;
-        int x;
-        int y;
+        std::vector<Move> get_bishop_psuedo_legal_moves(Board& board) const;
+        std::vector<Move> get_rook_psuedo_legal_moves(Board& board) const;
+        std::vector<Move> get_queen_psuedo_legal_moves(Board& board) const;
+        std::vector<Move> get_knight_psuedo_legal_moves(Board& board) const;
+        std::vector<Move> get_king_psuedo_legal_moves(Board& board) const;
+        std::vector<Move> get_psuedo_legal_moves_direction(int x_direction, int y_direction, Board& board) const;
 };
 
 char get_char_representation(Piece_type piece_type);
 std::optional<Piece_type> get_piece_type(char char_representation);
 std::optional<Piece_type> get_promotion_piece_type(char char_representation_lowercase);
-std::shared_ptr<Piece> create_piece(Piece_type piece_type, Color color, int x, int y);
 
 #endif

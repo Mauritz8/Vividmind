@@ -24,15 +24,13 @@ set(COMMON_SOURCES
     src/game_state.cpp
     src/move.cpp
     src/piece.cpp
+    src/pos.cpp
     src/square.cpp
     src/engine/engine.cpp
     src/engine/uci.cpp
-    src/pieces/bishop.cpp
+    src/engine/psqt.cpp
     src/pieces/king.cpp
-    src/pieces/knight.cpp
     src/pieces/pawn.cpp
-    src/pieces/queen.cpp
-    src/pieces/rook.cpp
 )
 
 add_executable(chess_engine 

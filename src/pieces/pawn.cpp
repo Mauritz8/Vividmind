@@ -9,49 +9,24 @@
 #include <vector>
 
 
-std::unique_ptr<Piece> Pawn::clone() const {
-    return std::make_unique<Pawn>(*this);
-}
-
-char Pawn::get_char_representation() const {
-    return 'p';
-}
-
-std::vector<std::vector<int>> Pawn::get_piece_square_table() const {
-    return {
-        {  0,  0,  0,  0,  0,  0,  0,  0},
-        { 50, 50, 50, 50, 50, 50, 50, 50},
-        { 10, 10, 20, 30, 30, 20, 10, 10},
-        {  5,  5, 10, 25, 25, 10,  5,  5},
-        {  0,  0,  0, 20, 20,  0,  0,  0},
-        {  5, -5,-10,  0,  0,-10, -5,  5},
-        {  5, 10, 10,-20,-20, 10, 10,  5},
-        {  0,  0,  0,  0,  0,  0,  0,  0},
-    };
-}
-
-int Pawn::get_value() const {
-    return 1;
-}
-
-std::vector<Move> Pawn::get_psuedo_legal_moves(Board& board) const {
+std::vector<Move> get_pawn_psuedo_legal_moves(Piece pawn, Board& board) {
     std::vector<Move> moves;
-    const Square& start = board.get_square(this->get_x(), this->get_y());
-    const int direction = this->get_color() == BLACK ? 1 : -1;
+    const int direction = board.game_state.player_to_move == BLACK ? 1 : -1;
 
+    Pos start = pawn.pos;
     try {
         const Square& end1 = board.get_square(
-                start.get_x(),
-                start.get_y() + direction);
-        if (!end1.get_piece()) {
-            moves.push_back(Move(start, end1));
+                start.x,
+                start.y + direction);
+        if (!end1.piece) {
+            moves.push_back(Move(start.x, start.y, end1.x, end1.y));
 
             const Square& end2 = board.get_square(
-                    start.get_x(),
-                    start.get_y() + 2 * direction);
-            const int starting_row = this->get_color() == BLACK ? 1 : 6;
-            if (start.get_y() == starting_row && !end2.get_piece()) {
-                Move move = Move(start, end2);
+                    start.x,
+                    start.y + 2 * direction);
+            const int starting_row = pawn.color == BLACK ? 1 : 6;
+            if (start.y == starting_row && !end2.piece) {
+                Move move = Move(start.x, start.y, end2.x, end2.y);
                 move.is_pawn_two_squares_forward = true;
                 moves.push_back(move);
             }
@@ -59,10 +34,10 @@ std::vector<Move> Pawn::get_psuedo_legal_moves(Board& board) const {
     } catch (const std::invalid_argument& e) {}
 
 
-    std::vector<Move> captures = this->get_captures(board);
+    std::vector<Move> captures = get_pawn_captures(pawn, board);
     for (Move& capture : captures) {
         const Square& end = board.get_square(capture.end.x, capture.end.y);
-        if (end.get_piece()) {
+        if (end.piece) {
             moves.push_back(capture);
         } else if (is_valid_en_passant(capture, board)) {
             capture.is_en_passant = true;
@@ -92,12 +67,12 @@ std::vector<Move> Pawn::get_psuedo_legal_moves(Board& board) const {
     return moves;
 }
 
-std::vector<Move> Pawn::get_captures(const Board& board) const {
-    const int direction = this->get_color() == BLACK ? 1 : -1;
+std::vector<Move> get_pawn_captures(Piece pawn, const Board& board) {
+    const int direction = pawn.color == BLACK ? 1 : -1;
 
-    const Pos start = Pos{this->get_x(), this->get_y()};
-    const Pos end1 = Pos{this->get_x() + 1, this->get_y() + direction};
-    const Pos end2 = Pos{this->get_x() - 1, this->get_y() + direction};
+    const Pos start = pawn.pos;
+    const Pos end1 = Pos{pawn.pos.x + 1, pawn.pos.y + direction};
+    const Pos end2 = Pos{pawn.pos.x - 1, pawn.pos.y + direction};
 
     std::vector<Move> moves;
     if (!is_outside_board(end1)) {
@@ -109,16 +84,15 @@ std::vector<Move> Pawn::get_captures(const Board& board) const {
     return moves;
 }
 
-bool Pawn::is_valid_en_passant(const Move& pawn_capture, const Board& board) const {
+bool is_valid_en_passant(const Move& pawn_capture, const Board& board) {
     if (!board.game_state.en_passant_square.has_value()) {
         return false;
     }
     return pawn_capture.end == board.game_state.en_passant_square.value();
 }
 
-bool Pawn::is_promotion_move(const Move& move) const {
-    const int promotion_row = this->get_color() == WHITE ? 0 : 7;
-    if (move.end.y == promotion_row) {
+bool is_promotion_move(const Move& pawn_move) {
+    if (pawn_move.end.y == 0 || pawn_move.end.y == 7) {
         return true;
     }
     return false;

@@ -8,12 +8,6 @@
 #include <string>
 #include <vector>
 
-struct Pos {
-    int x;
-    int y;
-};
-bool operator==(const Pos& pos1, const Pos& pos2);
-bool is_outside_board(const Pos& pos);
 
 struct Castling {
     bool kingside;
@@ -33,7 +27,6 @@ class Board {
         std::vector<GameState> history;
 
         Board() {}
-        Board(const Board& board);
 
         static Board get_empty_board();
         static Board get_starting_position();
@@ -45,6 +38,8 @@ class Board {
 
         void show() const;
         void switch_player_to_move();
+        std::vector<Move> get_psuedo_legal_moves();
+        std::vector<Move> get_threatened_moves(Color color);
         void remove_piece(std::shared_ptr<Piece> piece);
 
     private:
