@@ -19,11 +19,11 @@
 Board Board::get_empty_board() {
     Board board;
     for (int i = 0; i < 8; i++) {
-        std::vector<Square> row;
+        std::array<Square, 8> row;
         for (int j = 0; j < 8; j++) {
-            row.push_back(Square(j, i));
+            row[j] = Square(j, i);
         }
-        board.squares.push_back(row);
+        board.squares[i] = row;
     }
     return board;
 }

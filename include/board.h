@@ -43,7 +43,7 @@ class Board {
         void remove_piece(std::shared_ptr<Piece> piece);
 
     private:
-        std::vector<std::vector<Square>> squares;
+        std::array<std::array<Square, 8>, 8> squares;
 
         void place_pieces(const std::string& fen_piece_placement_field);
         void set_player_to_move(const std::string& fen_active_color_field);
