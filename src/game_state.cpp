@@ -18,7 +18,7 @@
 static Pos get_king_square(Color color, const Board& board) {
     for (auto& piece : board.game_state.pieces[color]) {
         if (piece->piece_type == KING) {
-            return Pos{piece->x, piece->y};
+            return piece->pos;
         }
     }
     std::string color_str = color == WHITE ? "white" : "black";

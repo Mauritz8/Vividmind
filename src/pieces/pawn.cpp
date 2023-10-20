@@ -13,20 +13,20 @@ std::vector<Move> get_pawn_psuedo_legal_moves(Piece pawn, Board& board) {
     std::vector<Move> moves;
     const int direction = board.game_state.player_to_move == BLACK ? 1 : -1;
 
-    Square start = Square(pawn.x, pawn.y);
+    Pos start = pawn.pos;
     try {
         const Square& end1 = board.get_square(
                 start.x,
                 start.y + direction);
         if (!end1.piece) {
-            moves.push_back(Move(start, end1));
+            moves.push_back(Move(start.x, start.y, end1.x, end1.y));
 
             const Square& end2 = board.get_square(
                     start.x,
                     start.y + 2 * direction);
             const int starting_row = pawn.color == BLACK ? 1 : 6;
             if (start.y == starting_row && !end2.piece) {
-                Move move = Move(start, end2);
+                Move move = Move(start.x, start.y, end2.x, end2.y);
                 move.is_pawn_two_squares_forward = true;
                 moves.push_back(move);
             }
@@ -70,9 +70,9 @@ std::vector<Move> get_pawn_psuedo_legal_moves(Piece pawn, Board& board) {
 std::vector<Move> get_pawn_captures(Piece pawn, const Board& board) {
     const int direction = pawn.color == BLACK ? 1 : -1;
 
-    const Pos start = Pos{pawn.x, pawn.y};
-    const Pos end1 = Pos{pawn.x + 1, pawn.y + direction};
-    const Pos end2 = Pos{pawn.x - 1, pawn.y + direction};
+    const Pos start = pawn.pos;
+    const Pos end1 = Pos{pawn.pos.x + 1, pawn.pos.y + direction};
+    const Pos end2 = Pos{pawn.pos.x - 1, pawn.pos.y + direction};
 
     std::vector<Move> moves;
     if (!is_outside_board(end1)) {

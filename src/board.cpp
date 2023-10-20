@@ -132,7 +132,7 @@ void Board::place_pieces(const std::string& fen_piece_placement_field) {
             const std::string pieces = "rnbqkp";
             if (pieces.find(tolower(ch)) != std::string::npos) {
                 const Color color = islower(ch) ? BLACK : WHITE;
-                std::shared_ptr<Piece> piece = std::make_shared<Piece>(Piece(get_piece_type(ch).value(), color, j, i));
+                std::shared_ptr<Piece> piece = std::make_shared<Piece>(Piece(get_piece_type(ch).value(), color, Pos{j, i}));
                 this->game_state.pieces[color].push_back(piece);
                 this->set_square(j, i, piece);
             } else if (ch >= '1' && ch <= '8') {

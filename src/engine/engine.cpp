@@ -26,7 +26,7 @@ static int get_material_score(Color color, const Board& board) {
 static int get_psqt_score_white(const std::vector<std::shared_ptr<Piece>>& pieces) {
     int score = 0;
     for (auto piece : pieces) {
-        score += piece->get_psqt().at(piece->y).at(piece->x); 
+        score += piece->get_psqt().at(piece->pos.y).at(piece->pos.x); 
     }
     return score;
 }
@@ -34,7 +34,7 @@ static int get_psqt_score_white(const std::vector<std::shared_ptr<Piece>>& piece
 static int get_psqt_score_black(const std::vector<std::shared_ptr<Piece>>& pieces) {
     int score = 0;
     for (auto piece : pieces) {
-        score += piece->get_psqt().at(7 - piece->y).at(piece->x); 
+        score += piece->get_psqt().at(7 - piece->pos.y).at(piece->pos.x); 
     }
     return score;
 }

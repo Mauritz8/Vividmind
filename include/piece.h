@@ -17,10 +17,9 @@ class Piece {
     public:
         Piece_type piece_type;
         Color color;
-        int x;
-        int y;
+        Pos pos;
 
-        Piece(Piece_type piece_type, Color color, int x, int y);
+        Piece(Piece_type piece_type, Color color, Pos pos);
 
         bool operator==(Piece piece) const;
 

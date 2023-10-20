@@ -14,19 +14,19 @@
 #include "square.h"
 
 
-Piece::Piece(Piece_type piece_type, Color color, int x, int y) {
+Piece::Piece(Piece_type piece_type, Color color, Pos pos) {
     this->piece_type = piece_type;
     this->color = color;
-    this->x = x;
-    this->y = y;
+    this->pos.x = pos.x;
+    this->pos.y = pos.y;
 }
 
 bool Piece::operator==(Piece piece) const {
-    return piece.x == x && piece.y == y && piece.color == color;
+    return piece.pos.x == pos.x && piece.pos.y == pos.y && piece.color == color;
 }
 
 std::vector<Move> Piece::get_psuedo_legal_moves(Board& board) const {
-    const Square& start = board.get_square(x, y);
+    const Square& start = board.get_square(pos.x, pos.y);
     switch (piece_type) {
         case KING: {
             return get_king_psuedo_legal_moves(board);
@@ -51,7 +51,7 @@ std::vector<Move> Piece::get_psuedo_legal_moves(Board& board) const {
 }
 
 std::vector<Move> Piece::get_threatened_moves(Board& board) {
-    const Square& start = board.get_square(x, y);
+    const Square& start = board.get_square(pos.x, pos.y);
     if (piece_type == PAWN) {
         return get_pawn_captures(*this, board);
     }
@@ -154,20 +154,20 @@ std::vector<Move> Piece::get_queen_psuedo_legal_moves(Board& board) const {
 
 std::vector<Move> Piece::get_knight_psuedo_legal_moves(Board& board) const {
     const std::array<Pos, 8> end_squares = {
-        Pos{x + 1, y + 2},
-        Pos{x + 1, y - 2},
-        Pos{x - 1, y + 2},
-        Pos{x - 1, y - 2},
-        Pos{x + 2, y + 1},
-        Pos{x + 2, y - 1},
-        Pos{x - 2, y + 1},
-        Pos{x - 2, y - 1}
+        Pos{pos.x + 1, pos.y + 2},
+        Pos{pos.x + 1, pos.y - 2},
+        Pos{pos.x - 1, pos.y + 2},
+        Pos{pos.x - 1, pos.y - 2},
+        Pos{pos.x + 2, pos.y + 1},
+        Pos{pos.x + 2, pos.y - 1},
+        Pos{pos.x - 2, pos.y + 1},
+        Pos{pos.x - 2, pos.y - 1}
     };
 
     std::vector<Move> moves;
     for (Pos end : end_squares) {
         if (!is_outside_board(end)) {
-            moves.push_back(Move(x, y, end.x, end.y));
+            moves.push_back(Move(pos, end));
         }
     }
     return moves;
@@ -183,18 +183,18 @@ std::vector<Move> Piece::get_king_psuedo_legal_moves(Board& board) const {
 std::vector<Move> Piece::get_psuedo_legal_moves_direction(int x_direction, int y_direction, Board& board) const {
     std::vector<Move> moves;
 
-    int x = this->x + x_direction;
-    int y = this->y + y_direction;
+    int x = this->pos.x + x_direction;
+    int y = this->pos.y + y_direction;
     while (!is_outside_board(x, y)) {
         const Square& end = board.get_square(x, y);
         if (end.piece) {
             if (end.piece->color != this->color) {
-                moves.push_back(Move(this->x, this->y, end.x, end.y));
+                moves.push_back(Move(this->pos, Pos{x, y}));
             }
             break;
         }
 
-        moves.push_back(Move(this->x, this->y, end.x, end.y));
+        moves.push_back(Move(this->pos, Pos{x, y}));
         x+= x_direction;
         y+= y_direction;
     }

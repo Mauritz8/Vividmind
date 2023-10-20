@@ -19,8 +19,7 @@ bool Square::operator==(const Square& square) const {
 
 
 void Square::move_piece(Square& to) {
-    piece->x = to.x;
-    piece->y = to.y;
+    piece->pos = Pos{to.x, to.y};
     to.piece = std::move(piece);
     piece = nullptr;
 }

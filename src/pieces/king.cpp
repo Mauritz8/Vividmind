@@ -67,20 +67,20 @@ static bool passes_through_check_when_castling(const Move& castling_move, Board&
 
 std::vector<Move> get_king_threatened_moves(Piece king, const Board& board) {
     const std::array<Pos, 8> end_squares = {
-        Pos{king.x, king.y + 1},
-        Pos{king.x + 1, king.y + 1},
-        Pos{king.x + 1, king.y},
-        Pos{king.x + 1, king.y - 1},
-        Pos{king.x, king.y - 1},
-        Pos{king.x - 1, king.y - 1},
-        Pos{king.x - 1, king.y},
-        Pos{king.x - 1, king.y + 1}
+        Pos{king.pos.x, king.pos.y + 1},
+        Pos{king.pos.x + 1, king.pos.y + 1},
+        Pos{king.pos.x + 1, king.pos.y},
+        Pos{king.pos.x + 1, king.pos.y - 1},
+        Pos{king.pos.x, king.pos.y - 1},
+        Pos{king.pos.x - 1, king.pos.y - 1},
+        Pos{king.pos.x - 1, king.pos.y},
+        Pos{king.pos.x - 1, king.pos.y + 1}
     };
 
     std::vector<Move> moves;
     for (Pos end : end_squares) {
         if (!is_outside_board(end)) {
-            moves.push_back(Move(king.x, king.y, end.x, end.y));
+            moves.push_back(Move(king.pos, end));
         }
     }
     return moves;
