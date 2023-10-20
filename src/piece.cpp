@@ -8,12 +8,8 @@
 #include "game_state.h"
 #include "move.h"
 #include "piece.h"
-#include "pieces/bishop.h"
 #include "pieces/king.h"
-#include "pieces/knight.h"
 #include "pieces/pawn.h"
-#include "pieces/queen.h"
-#include "pieces/rook.h"
 #include "engine/psqt.h"
 #include "square.h"
 
@@ -33,19 +29,19 @@ std::vector<Move> Piece::get_psuedo_legal_moves(Board& board) const {
     const Square& start = board.get_square(x, y);
     switch (piece_type) {
         case KING: {
-            return get_king_psuedo_legal_moves(start, board);
+            return get_king_psuedo_legal_moves(board);
         }
         case QUEEN: {
-            return get_queen_psuedo_legal_moves(start, board);
+            return get_queen_psuedo_legal_moves(board);
         }
         case ROOK: {
-            return get_rook_psuedo_legal_moves(start, board);
+            return get_rook_psuedo_legal_moves(board);
         }
         case BISHOP: {
-            return get_bishop_psuedo_legal_moves(start, board);
+            return get_bishop_psuedo_legal_moves(board);
         }
         case KNIGHT: {
-            return get_knight_psuedo_legal_moves(start, board);
+            return get_knight_psuedo_legal_moves(board);
         }
         case PAWN: {
             return get_pawn_psuedo_legal_moves(*this, board);
@@ -60,7 +56,7 @@ std::vector<Move> Piece::get_threatened_moves(Board& board) {
         return get_pawn_captures(*this, board);
     }
     if (piece_type == KING) {
-        return get_king_threatened_moves(start, board);
+        return get_king_threatened_moves(*this, board);
     }
     return this->get_psuedo_legal_moves(board);
 }
@@ -98,21 +94,107 @@ std::array<std::array<int, 8>, 8> Piece::get_psqt() const {
     }
 }
 
-std::vector<Move> get_psuedo_legal_moves_direction(const Square& start, int x_direction, int y_direction, Board& board) {
+
+std::vector<Move> Piece::get_bishop_psuedo_legal_moves(Board& board) const {
     std::vector<Move> moves;
 
-    int x = start.x + x_direction;
-    int y = start.y + y_direction;
+    std::vector<Move> up_right = get_psuedo_legal_moves_direction(1, 1, board);
+    std::vector<Move> down_right = get_psuedo_legal_moves_direction(1, -1, board);
+    std::vector<Move> down_left = get_psuedo_legal_moves_direction(-1, -1, board);
+    std::vector<Move> up_left = get_psuedo_legal_moves_direction(-1, 1, board);
+
+    moves.insert(std::end(moves), std::begin(up_right), std::end(up_right));
+    moves.insert(std::end(moves), std::begin(down_right), std::end(down_right));
+    moves.insert(std::end(moves), std::begin(down_left), std::end(down_left));
+    moves.insert(std::end(moves), std::begin(up_left), std::end(up_left));
+
+    return moves;
+}
+
+std::vector<Move> Piece::get_rook_psuedo_legal_moves(Board& board) const {
+    std::vector<Move> moves;
+
+    std::vector<Move> up = get_psuedo_legal_moves_direction(0, 1, board);
+    std::vector<Move> right = get_psuedo_legal_moves_direction(1, 0, board);
+    std::vector<Move> down = get_psuedo_legal_moves_direction(0, -1, board);
+    std::vector<Move> left = get_psuedo_legal_moves_direction(-1, 0, board);
+
+    moves.insert(std::end(moves), std::begin(up), std::end(up));
+    moves.insert(std::end(moves), std::begin(right), std::end(right));
+    moves.insert(std::end(moves), std::begin(down), std::end(down));
+    moves.insert(std::end(moves), std::begin(left), std::end(left));
+
+    return moves;
+}
+
+std::vector<Move> Piece::get_queen_psuedo_legal_moves(Board& board) const {
+    std::vector<Move> moves;
+
+    std::vector<Move> up = get_psuedo_legal_moves_direction(0, 1, board);
+    std::vector<Move> up_right = get_psuedo_legal_moves_direction(1, 1, board);
+    std::vector<Move> right = get_psuedo_legal_moves_direction(1, 0, board);
+    std::vector<Move> down_right = get_psuedo_legal_moves_direction(1, -1, board);
+    std::vector<Move> down = get_psuedo_legal_moves_direction(0, -1, board);
+    std::vector<Move> down_left = get_psuedo_legal_moves_direction(-1, -1, board);
+    std::vector<Move> left = get_psuedo_legal_moves_direction(-1, 0, board);
+    std::vector<Move> up_left = get_psuedo_legal_moves_direction(-1, 1, board);
+
+    moves.insert(std::end(moves), std::begin(up), std::end(up));
+    moves.insert(std::end(moves), std::begin(up_right), std::end(up_right));
+    moves.insert(std::end(moves), std::begin(right), std::end(right));
+    moves.insert(std::end(moves), std::begin(down_right), std::end(down_right));
+    moves.insert(std::end(moves), std::begin(down), std::end(down));
+    moves.insert(std::end(moves), std::begin(down_left), std::end(down_left));
+    moves.insert(std::end(moves), std::begin(left), std::end(left));
+    moves.insert(std::end(moves), std::begin(up_left), std::end(up_left));
+
+
+    return moves;
+}
+
+std::vector<Move> Piece::get_knight_psuedo_legal_moves(Board& board) const {
+    const std::array<Pos, 8> end_squares = {
+        Pos{x + 1, y + 2},
+        Pos{x + 1, y - 2},
+        Pos{x - 1, y + 2},
+        Pos{x - 1, y - 2},
+        Pos{x + 2, y + 1},
+        Pos{x + 2, y - 1},
+        Pos{x - 2, y + 1},
+        Pos{x - 2, y - 1}
+    };
+
+    std::vector<Move> moves;
+    for (Pos end : end_squares) {
+        if (!is_outside_board(end)) {
+            moves.push_back(Move(x, y, end.x, end.y));
+        }
+    }
+    return moves;
+}
+
+std::vector<Move> Piece::get_king_psuedo_legal_moves(Board& board) const {
+    std::vector<Move> moves = get_king_threatened_moves(*this, board);
+    std::vector<Move> castling_moves = get_castling_moves(board);
+    moves.insert(moves.end(), castling_moves.begin(), castling_moves.end());
+    return moves;
+}
+
+std::vector<Move> Piece::get_psuedo_legal_moves_direction(int x_direction, int y_direction, Board& board) const {
+    std::vector<Move> moves;
+
+    int x = this->x + x_direction;
+    int y = this->y + y_direction;
     while (!is_outside_board(x, y)) {
         const Square& end = board.get_square(x, y);
         if (end.piece) {
-            if (end.piece->color != start.piece->color) {
-                moves.push_back(Move(start, end));
+            if (end.piece->color != this->color) {
+                moves.push_back(Move(this->x, this->y, end.x, end.y));
             }
             break;
         }
 
-        moves.push_back(Move(start, end));
+        moves.push_back(Move(this->x, this->y, end.x, end.y));
         x+= x_direction;
         y+= y_direction;
     }

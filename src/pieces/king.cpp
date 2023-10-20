@@ -30,7 +30,7 @@ static std::vector<Move> get_potential_castling_moves(const Board& board) {
     return potential_castling_moves;
 }
 
-static std::vector<Move> get_castling_moves(Board& board) {
+std::vector<Move> get_castling_moves(Board& board) {
     std::vector<Move> castling_moves = get_potential_castling_moves(board);
     for (auto it = castling_moves.begin(); it != castling_moves.end();) {
         if (!is_valid_castling(*it, board)) {
@@ -65,29 +65,22 @@ static bool passes_through_check_when_castling(const Move& castling_move, Board&
 }
 
 
-std::vector<Move> get_king_psuedo_legal_moves(const Square& start, Board& board) {
-    std::vector<Move> moves = get_king_threatened_moves(start, board);
-    std::vector<Move> castling_moves = get_castling_moves(board);
-    moves.insert(moves.end(), castling_moves.begin(), castling_moves.end());
-    return moves;
-}
-
-std::vector<Move> get_king_threatened_moves(const Square& start, const Board& board) {
+std::vector<Move> get_king_threatened_moves(Piece king, const Board& board) {
     const std::array<Pos, 8> end_squares = {
-        Pos{start.x, start.y + 1},
-        Pos{start.x + 1, start.y + 1},
-        Pos{start.x + 1, start.y},
-        Pos{start.x + 1, start.y - 1},
-        Pos{start.x, start.y - 1},
-        Pos{start.x - 1, start.y - 1},
-        Pos{start.x - 1, start.y},
-        Pos{start.x - 1, start.y + 1}
+        Pos{king.x, king.y + 1},
+        Pos{king.x + 1, king.y + 1},
+        Pos{king.x + 1, king.y},
+        Pos{king.x + 1, king.y - 1},
+        Pos{king.x, king.y - 1},
+        Pos{king.x - 1, king.y - 1},
+        Pos{king.x - 1, king.y},
+        Pos{king.x - 1, king.y + 1}
     };
 
     std::vector<Move> moves;
-    for (Pos end: end_squares) {
+    for (Pos end : end_squares) {
         if (!is_outside_board(end)) {
-            moves.push_back(Move(start.x, start.y, end.x, end.y));
+            moves.push_back(Move(king.x, king.y, end.x, end.y));
         }
     }
     return moves;

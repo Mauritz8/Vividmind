@@ -9,17 +9,14 @@
 #include "game_state.h"
 #include "piece.h"
 #include "pieces/pawn.h"
-#include "pieces/queen.h"
-#include "pieces/rook.h"
 
-bool is_checkmate(Board& board) {
+bool is_checkmate(Board& board, std::vector<Move>& legal_moves) {
    if (!is_in_check(board.game_state.player_to_move, board)) {
        return false;
    }
 
-   const std::vector<Move> moves = get_legal_moves(board);
-   for (int i = 0; i < moves.size(); i++) {
-       if (!moves.at(i).leaves_king_in_check(board)) {
+   for (Move& move : legal_moves) {
+       if (!move.leaves_king_in_check(board)) {
            return false;
        }
    }
@@ -44,14 +41,13 @@ static bool is_insufficient_material(const Board& board) {
            is_insufficient_material(board.game_state.pieces[BLACK]);
 }
 
-static bool is_stalemate(Board& board) {
-    const std::vector<Move> legal_moves = get_legal_moves(board);
+static bool is_stalemate(Board& board, const std::vector<Move>& legal_moves) {
     if (!is_in_check(board.game_state.player_to_move, board) && legal_moves.size() == 0) {
         return true;
     }
     return false;
 }
 
-bool is_draw(Board& board) {
-    return is_insufficient_material(board) || is_stalemate(board);
+bool is_draw(Board& board, std::vector<Move>& legal_moves) {
+    return is_insufficient_material(board) || is_stalemate(board, legal_moves);
 }

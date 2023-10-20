@@ -11,12 +11,8 @@
 #include "move.h"
 #include "piece.h"
 #include "game_state.h"
-#include "pieces/bishop.h"
 #include "pieces/king.h"
-#include "pieces/knight.h"
 #include "pieces/pawn.h"
-#include "pieces/queen.h"
-#include "pieces/rook.h"
 
 
 Move::Move(int start_x, int start_y, int end_x, int end_y) {
@@ -98,15 +94,14 @@ Move Move::operator=(const Move& move) {
     return *this;
 }
 
-bool Move::leaves_king_in_check(Board& board) const {
-    Move move_copy = *this;
+bool Move::leaves_king_in_check(Board& board) {
     const Color player_to_move = board.game_state.player_to_move;
-    move_copy.make_appropriate(board);
+    this->make_appropriate(board);
     if (is_in_check(player_to_move, board)) {
-        move_copy.undo_appropriate(board);
+        this->undo_appropriate(board);
         return true;
     }
-    move_copy.undo_appropriate(board);
+    this->undo_appropriate(board);
     return false;
 }
 

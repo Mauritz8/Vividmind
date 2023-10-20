@@ -27,7 +27,6 @@ class Board {
         std::vector<GameState> history;
 
         Board() {}
-        Board(const Board& board);
 
         static Board get_empty_board();
         static Board get_starting_position();

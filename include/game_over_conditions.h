@@ -5,7 +5,7 @@
 #include "move.h"
 #include <vector>
 
-bool is_checkmate(Board& board);
-bool is_draw(Board& board);
+bool is_checkmate(Board& board, std::vector<Move>& legal_moves);
+bool is_draw(Board& board, std::vector<Move>& legal_moves);
 
 #endif

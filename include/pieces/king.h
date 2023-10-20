@@ -4,8 +4,8 @@
 #include <vector>
 #include "../move.h"
 
-std::vector<Move> get_king_psuedo_legal_moves(const Square& start, Board& board);
-std::vector<Move> get_king_threatened_moves(const Square& start, const Board& board);
+std::vector<Move> get_king_threatened_moves(Piece king, const Board& board);
+std::vector<Move> get_castling_moves(Board& board);
 bool is_valid_castling(const Move& move, Board& board);
 
 #endif

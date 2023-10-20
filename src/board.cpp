@@ -12,21 +12,9 @@
 #include "board.h"
 #include "game_state.h"
 #include "piece.h"
-#include "pieces/bishop.h"
 #include "pieces/king.h"
-#include "pieces/knight.h"
 #include "pieces/pawn.h"
-#include "pieces/queen.h"
-#include "pieces/rook.h"
 
-
-Board::Board(const Board& board) {
-    this->squares = board.squares;
-    this->game_state = board.game_state;
-    this->game_state.pieces[WHITE] = get_all_pieces(WHITE, *this);
-    this->game_state.pieces[BLACK] = get_all_pieces(BLACK, *this);
-    this->history = {};
-}
 
 Board Board::get_empty_board() {
     Board board;

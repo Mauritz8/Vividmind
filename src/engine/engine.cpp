@@ -11,12 +11,8 @@
 #include "game_state.h"
 #include "move.h"
 #include "piece.h"
-#include "pieces/bishop.h"
 #include "pieces/king.h"
-#include "pieces/knight.h"
 #include "pieces/pawn.h"
-#include "pieces/queen.h"
-#include "pieces/rook.h"
 
 
 static int get_material_score(Color color, const Board& board) {
@@ -60,17 +56,19 @@ static double evaluate(const Board& board) {
 }
 
 static double nega_max(int depth, Board& board) {
-    if (is_checkmate(board)) {
-        return -200;
-    }
-    if (is_draw(board)) {
-        return 0;
-    }
     if (depth == 0) {
         return evaluate(board);
     }
-    double max = INT_MIN;
+
     std::vector<Move> legal_moves = get_legal_moves(board);
+    if (is_checkmate(board, legal_moves)) {
+        return -200;
+    }
+    if (is_draw(board, legal_moves)) {
+        return 0;
+    }
+
+    double max = INT_MIN;
     for (int i = 0; i < legal_moves.size(); i++) {
         Move move = legal_moves.at(i);
         move.make_appropriate(board);
@@ -84,7 +82,6 @@ static double nega_max(int depth, Board& board) {
 }
 
 Move get_best_move(int depth, Board& board) {
-
     double max = INT_MIN;
     const std::vector<Move> legal_moves = get_legal_moves(board);
     const Move* best_move = nullptr;

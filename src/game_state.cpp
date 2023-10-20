@@ -15,14 +15,14 @@
 #include "pieces/king.h"
 #include "square.h"
 
-static std::optional<Pos> get_king_square(Color color, const Board& board) {
-    auto pieces = board.game_state.pieces[color];
-    for (auto piece : pieces) {
+static Pos get_king_square(Color color, const Board& board) {
+    for (auto& piece : board.game_state.pieces[color]) {
         if (piece->piece_type == KING) {
             return Pos{piece->x, piece->y};
         }
     }
-    return {};
+    std::string color_str = color == WHITE ? "white" : "black";
+    throw std::invalid_argument("No " + color_str + " king on the board");
 }
 
 static bool is_valid(const Move& move, const Board& board) {
@@ -38,20 +38,18 @@ static bool is_valid(const Move& move, const Board& board) {
     return true;
 }
 
-static bool is_legal(const Move& psuedo_legal, Board& board) {
+static bool is_legal(Move& psuedo_legal, Board& board) {
     if (!is_valid(psuedo_legal, board)) {
         return false;
     }
 
-    Move psuedo_legal_copy = psuedo_legal;
-
     const Color player_to_move = board.game_state.player_to_move;
-    psuedo_legal_copy.make_appropriate(board);
+    psuedo_legal.make_appropriate(board);
     if (is_in_check(player_to_move, board)) {
-        psuedo_legal_copy.undo_appropriate(board);
+        psuedo_legal.undo_appropriate(board);
         return false;
     }
-    psuedo_legal_copy.undo_appropriate(board);
+    psuedo_legal.undo_appropriate(board);
     return true;
 }
 
@@ -84,30 +82,13 @@ Color get_opposite_color(Color color) {
 }
 
 bool is_in_check(Color color, Board& board) {
-    const std::optional<Pos> king_square = get_king_square(color, board);
-    if (!king_square.has_value()) {
-        return false;  
-    }
-
+    const Pos king_square = get_king_square(color, board);
     const Color opponent = get_opposite_color(color);
     const std::vector<Move> psuedo_legal_moves = get_threatened_moves(opponent, board);
     for (const Move& move : psuedo_legal_moves) {
-        if (move.end == king_square.value()) {
+        if (move.end == king_square) {
             return true;
         }
     }
     return false;
-}
-
-std::vector<std::shared_ptr<Piece>> get_all_pieces(Color color, const Board& board) {
-    std::vector<std::shared_ptr<Piece>> pieces;
-    for (int i = 0; i < 8; i++) {
-        for (int j = 0; j < 8; j++) {
-            const std::shared_ptr<Piece> piece = board.get_square(j, i).piece;
-            if (piece && piece->color == color) {
-                pieces.push_back(piece);
-            }
-        }
-    }
-    return pieces;
 }
