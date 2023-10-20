@@ -83,6 +83,18 @@ int Piece::get_value() const {
     }
 }
 
+int Piece::get_psqt_score() const {
+    int y = color == WHITE ? pos.y : 7 - pos.y;
+    switch (piece_type) {
+        case KING: return KING_PSQT[y][pos.x];
+        case QUEEN: return QUEEN_PSQT[y][pos.x];
+        case ROOK: return ROOK_PSQT[y][pos.x];
+        case BISHOP: return BISHOP_PSQT[y][pos.x];
+        case KNIGHT: return KNIGHT_PSQT[y][pos.x];
+        case PAWN: return PAWN_PSQT[y][pos.x];
+    }
+}
+
 std::array<std::array<int, 8>, 8> Piece::get_psqt() const {
     switch (piece_type) {
         case KING: return KING_PSQT;

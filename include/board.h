@@ -20,6 +20,7 @@ struct GameState {
     std::array<Castling, 2> castling_rights;
     std::array<std::vector<std::shared_ptr<Piece>>, 2> pieces;
     std::array<int, 2> material;
+    std::array<int, 2> psqt;
 };
 
 class Board {

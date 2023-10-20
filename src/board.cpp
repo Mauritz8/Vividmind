@@ -27,6 +27,8 @@ Board Board::get_empty_board() {
     }
     board.game_state.material[WHITE] = 0;
     board.game_state.material[BLACK] = 0;
+    board.game_state.psqt[WHITE] = 0;
+    board.game_state.psqt[BLACK] = 0;
     return board;
 }
 
@@ -139,6 +141,7 @@ void Board::place_pieces(const std::string& fen_piece_placement_field) {
                 game_state.pieces[color].push_back(piece);
                 set_square(j, i, piece);
                 game_state.material[color] += piece->get_value();                
+                game_state.psqt[color] += piece->get_psqt_score();
             } else if (ch >= '1' && ch <= '8') {
                 const int num = ch - '0';
                 j += num - 1;
