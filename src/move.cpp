@@ -379,7 +379,12 @@ void Move::make_promotion(Board& board) {
     }
     this->make(board);
     Square& end_square = board.get_square(end);
+    const int old_psqt = end_square.piece->get_psqt_score();
     end_square.piece->piece_type = promotion_piece.value();
+    const int new_value = end_square.piece->get_value();
+    const int new_psqt = end_square.piece->get_psqt_score();
+    board.game_state.material[end_square.piece->color] += new_value - PAWN_VALUE;
+    board.game_state.psqt[end_square.piece->color] += new_psqt - old_psqt;
 }
 
 void Move::undo_promotion(Board& board) {

@@ -72,12 +72,12 @@ char Piece::get_char_representation() const {
 
 int Piece::get_value() const {
     switch (piece_type) {
-        case KING: return 100000;
-        case QUEEN: return 900;
-        case ROOK: return 500;
-        case BISHOP: return 300;
-        case KNIGHT: return 300;
-        case PAWN: return 100;
+        case KING: return KING_VALUE;
+        case QUEEN: return QUEEN_VALUE;
+        case ROOK: return ROOK_VALUE;
+        case BISHOP: return BISHOP_VALUE;
+        case KNIGHT: return KNIGHT_VALUE;
+        case PAWN: return PAWN_VALUE;
     }
 }
 
