@@ -9,6 +9,7 @@
 #include <vector>
 
 #include "board.h"
+#include "board_utils.h"
 #include "game_state.h"
 #include "move.h"
 #include "piece.h"
@@ -48,10 +49,6 @@ std::vector<Move> get_legal_moves(Board& board) {
         }
     }
     return legal_moves;
-}
-
-Color get_opposite_color(Color color) {
-    return color == WHITE ? BLACK : WHITE;
 }
 
 bool is_in_check(Color color, Board& board) {

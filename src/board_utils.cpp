@@ -14,6 +14,10 @@ bool is_occupied_by_color(Pos pos, Color color, const Board& board) {
     return end.piece && end.piece->color == color;
 }
 
+Color get_opposite_color(Color color) {
+    return color == WHITE ? BLACK : WHITE;
+}
+
 bool is_same_line(Pos pos1, Pos pos2) {
     return pos1.x == pos2.x || pos1.y == pos2.y;
 }
