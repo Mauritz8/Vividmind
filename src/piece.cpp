@@ -93,17 +93,6 @@ int Piece::get_psqt_score() const {
     }
 }
 
-std::array<std::array<int, 8>, 8> Piece::get_psqt() const {
-    switch (piece_type) {
-        case KING: return KING_PSQT;
-        case QUEEN: return QUEEN_PSQT;
-        case ROOK: return ROOK_PSQT;
-        case BISHOP: return BISHOP_PSQT;
-        case KNIGHT: return KNIGHT_PSQT;
-        case PAWN: return PAWN_PSQT;
-    }
-}
-
 
 std::vector<Move> Piece::get_bishop_psuedo_legal_moves(Board& board) const {
     std::vector<Move> moves;

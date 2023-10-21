@@ -28,7 +28,6 @@ class Piece {
         char get_char_representation() const;
         int get_value() const;
         int get_psqt_score() const;
-        std::array<std::array<int, 8>, 8> get_psqt() const;
 
     private:
         std::vector<Move> get_bishop_psuedo_legal_moves(Board& board) const;
