@@ -4,6 +4,7 @@
 #include "piece.h"
 #include <memory>
 
+
 class Square {
     public:
         int x;

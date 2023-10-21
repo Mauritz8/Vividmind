@@ -1,6 +1,7 @@
 #include <array>
 #include "engine/psqt.h"
 
+
 std::array<std::array<int, 8>, 8> KING_PSQT = {{
     {-30,-40,-40,-50,-50,-40,-40,-30},
     {-30,-40,-40,-50,-50,-40,-40,-30},

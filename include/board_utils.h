@@ -4,6 +4,7 @@
 #include "move.h"
 #include "square.h"
 
+
 bool is_outside_board(int x, int y);
 bool is_occupied_by_color(Pos pos, Color color, const Board& board);
 Color get_opposite_color(Color color);

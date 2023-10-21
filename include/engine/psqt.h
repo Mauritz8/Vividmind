@@ -3,6 +3,7 @@
 
 #include <array>
 
+
 extern std::array<std::array<int, 8>, 8> PAWN_PSQT; 
 extern std::array<std::array<int, 8>, 8> KNIGHT_PSQT; 
 extern std::array<std::array<int, 8>, 8> BISHOP_PSQT; 

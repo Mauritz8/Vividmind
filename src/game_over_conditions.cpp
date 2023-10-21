@@ -10,6 +10,7 @@
 #include "piece.h"
 #include "pieces/pawn.h"
 
+
 bool is_checkmate(Board& board, std::vector<Move>& legal_moves) {
    if (!is_in_check(board.game_state.player_to_move, board)) {
        return false;

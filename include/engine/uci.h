@@ -6,6 +6,7 @@
 #include <string>
 #include <vector>
 
+
 void process_uci_command(const std::string& command, Board& board);
 
 #endif

@@ -6,6 +6,7 @@
 #include "engine/uci.h"
 #include "game_state.h"
 
+
 int main(void) {
     Board board = Board::get_starting_position();
 

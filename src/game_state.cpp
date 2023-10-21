@@ -16,6 +16,7 @@
 #include "pieces/king.h"
 #include "square.h"
 
+
 static Pos get_king_square(Color color, const Board& board) {
     for (auto& piece : board.game_state.pieces[color]) {
         if (piece->piece_type == KING) {

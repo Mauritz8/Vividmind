@@ -10,6 +10,7 @@
 #include "game_state.h"
 #include "move.h"
 
+
 static void handle_uci_command() {
     std::cout << "id name Vividmind\n";
     std::cout << "id author Mauritz Sjödin\n"; 
