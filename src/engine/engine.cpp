@@ -31,7 +31,7 @@ static double evaluate(const Board& board) {
     return score;
 }
 
-static double nega_max(int depth, Board& board) {
+static double nega_max(int depth, double alpha, double beta, Board& board) {
     if (depth == 0) {
         return evaluate(board);
     }
@@ -44,16 +44,18 @@ static double nega_max(int depth, Board& board) {
         return 0;
     }
 
-    double max = INT_MIN;
     for (Move& move : legal_moves) {
         move.make_appropriate(board);
-        const double score = -nega_max(depth - 1, board);
+        const double score = -nega_max(depth - 1, -beta, -alpha, board);
         move.undo_appropriate(board);
-        if (score > max) {
-            max = score;
+        if (score >= beta) {
+            return beta;
+        }
+        if (score > alpha) {
+            alpha = score;
         }
     }
-    return max;
+    return alpha;
 }
 
 Move get_best_move(int depth, Board& board) {
@@ -62,7 +64,7 @@ Move get_best_move(int depth, Board& board) {
     Move* best_move = nullptr;
     for (Move& move : legal_moves) {
         move.make_appropriate(board);
-        const double score = -nega_max(depth - 1, board);
+        const double score = -nega_max(depth - 1, INT_MIN, INT_MAX, board);
         move.undo_appropriate(board);
         if (score > max) {
             max = score;
