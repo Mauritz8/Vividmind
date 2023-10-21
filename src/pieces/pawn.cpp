@@ -37,7 +37,7 @@ std::vector<Move> get_pawn_psuedo_legal_moves(Piece pawn, Board& board) {
     std::vector<Move> captures = get_pawn_captures(pawn, board);
     for (Move& capture : captures) {
         const Square& end = board.get_square(capture.end.x, capture.end.y);
-        if (end.piece) {
+        if (end.piece && end.piece->color != pawn.color) {
             moves.push_back(capture);
         } else if (is_valid_en_passant(capture, board)) {
             capture.is_en_passant = true;

@@ -9,6 +9,11 @@ bool is_outside_board(int x, int y) {
     return x > 7 || x < 0 || y > 7 || y < 0;
 }
 
+bool is_occupied_by_color(Pos pos, Color color, const Board& board) {
+    const Square& end = board.get_square(pos.x, pos.y);
+    return end.piece && end.piece->color == color;
+}
+
 bool is_same_line(Pos pos1, Pos pos2) {
     return pos1.x == pos2.x || pos1.y == pos2.y;
 }

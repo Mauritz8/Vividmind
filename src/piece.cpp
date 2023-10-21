@@ -178,7 +178,7 @@ std::vector<Move> Piece::get_knight_psuedo_legal_moves(Board& board) const {
 
     std::vector<Move> moves;
     for (Pos end : end_squares) {
-        if (!is_outside_board(end)) {
+        if (!is_outside_board(end) && !is_occupied_by_color(end, color, board)) {
             moves.push_back(Move(pos, end));
         }
     }

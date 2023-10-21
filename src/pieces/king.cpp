@@ -51,7 +51,7 @@ static bool passes_through_check_when_castling(const Move& castling_move, Board&
     const int direction = end_x - start_x > 0 ? 1 : -1;
     const Color opponent = get_opposite_color(board.game_state.player_to_move);
 
-    std::vector<Move> threatened_moves = ::get_threatened_moves(opponent, board);
+    std::vector<Move> threatened_moves = board.get_threatened_moves(opponent);
     for (Move& move : threatened_moves) {
         int x = start_x;
         while (x != end_x) {
@@ -79,7 +79,7 @@ std::vector<Move> get_king_threatened_moves(Piece king, const Board& board) {
 
     std::vector<Move> moves;
     for (Pos end : end_squares) {
-        if (!is_outside_board(end)) {
+        if (!is_outside_board(end) && !is_occupied_by_color(end, king.color, board)) {
             moves.push_back(Move(king.pos, end));
         }
     }
