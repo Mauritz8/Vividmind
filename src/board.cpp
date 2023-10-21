@@ -17,35 +17,22 @@
 #include "pieces/pawn.h"
 
 
-Board Board::get_empty_board() {
-    Board board;
-    for (int i = 0; i < 8; i++) {
-        std::array<Square, 8> row;
-        for (int j = 0; j < 8; j++) {
-            row[j] = Square(j, i);
-        }
-        board.squares[i] = row;
-    }
-    board.game_state.material[WHITE] = 0;
-    board.game_state.material[BLACK] = 0;
-    board.game_state.psqt[WHITE] = 0;
-    board.game_state.psqt[BLACK] = 0;
-    return board;
-}
-
 Board Board::get_starting_position() {
     return get_position_from_fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
 }
 
 Board Board::get_position_from_fen(std::string fen) {
-    Board board = Board::get_empty_board();
-    
     std::istringstream ss(fen);
     std::array<std::string, 6> fen_parts;
     for (int i = 0; i < 6; i++) {
         std::getline(ss, fen_parts[i], ' ');
     }
 
+    Board board;
+    board.game_state.material[WHITE] = 0;
+    board.game_state.material[BLACK] = 0;
+    board.game_state.psqt[WHITE] = 0;
+    board.game_state.psqt[BLACK] = 0;
     board.place_pieces(fen_parts[0]);
     board.set_player_to_move(fen_parts[1]);
     board.set_castling_rights(fen_parts[2]);
@@ -74,14 +61,6 @@ const Square& Board::get_square(Pos pos) const {
 
 Square& Board::get_square(Pos pos) {
     return get_square(pos.x, pos.y);
-}
-
-void Board::set_square(int x, int y, std::shared_ptr<Piece> piece) {
-    if (is_outside_board(x, y)) {
-        throw std::invalid_argument("Square (" + std::to_string(x) + ", " + std::to_string(y) + ") is outside board");
-    }
-    Square& square = squares.at(y).at(x); 
-    square.piece = piece;
 }
 
 
@@ -137,45 +116,52 @@ void Board::remove_piece(std::shared_ptr<Piece> piece) {
     }
 }
 
-void Board::place_pieces(const std::string& fen_piece_placement_field) {
-    int index = 0;
-    for (int i = 0; i < 8; i++) {
-        for (int j = 0; j < 8; j++) {
-            const char ch = fen_piece_placement_field.at(index++);
-            const std::string pieces = "rnbqkp";
-            if (pieces.find(tolower(ch)) != std::string::npos) {
-                const Color color = islower(ch) ? BLACK : WHITE;
-                Piece_type piece_type = *get_piece_type(ch);
-                std::shared_ptr<Piece> piece = std::make_shared<Piece>(Piece(piece_type, color, Pos{j, i}));
-                game_state.pieces[color].push_back(piece);
-                set_square(j, i, piece);
-                game_state.material[color] += piece->get_value();                
-                game_state.psqt[color] += piece->get_psqt_score();
-            } else if (ch >= '1' && ch <= '8') {
-                const int num = ch - '0';
-                j += num - 1;
-            } else if (ch == '/') {
-                j--;
+void Board::place_pieces(const std::string& pieces) {
+    int x = 0;
+    int y = 0;
+    for (const char ch : pieces) {
+        if (isdigit(ch)) {
+            const int n = (int) ch - '0';
+            for (int i = 0; i < n; i++) {
+                Square& square = get_square(x, y);
+                square.x = x;
+                square.y = y;
+                x++;
             }
+        } else if (ch == '/') {
+            y++;        
+            x = 0;
+        } else {
+            Color color = islower(ch) ? BLACK : WHITE;
+            Piece_type piece_type = *get_piece_type(ch);
+            std::shared_ptr<Piece> piece = std::make_shared<Piece>(Piece(piece_type, color, Pos{x, y}));
+            Square& square = get_square(x, y);
+            square.x = x;
+            square.y = y;
+            square.piece = piece;
+            game_state.pieces[color].push_back(piece);
+            game_state.material[color] += piece->get_value();                
+            game_state.psqt[color] += piece->get_psqt_score();
+            x++;
         }
     }
 }
 
-void Board::set_player_to_move(const std::string& fen_active_color_field) {
-    if (fen_active_color_field.at(0) == 'w') {
+void Board::set_player_to_move(const std::string& player_to_move) {
+    if (player_to_move == "w") {
         this->game_state.player_to_move = WHITE;
-    } else if (fen_active_color_field.at(0) == 'b') {
+    } else if (player_to_move == "b") {
         this->game_state.player_to_move = BLACK;
     } 
 }
 
-void Board::set_castling_rights(const std::string& fen_castling_field) {
+void Board::set_castling_rights(const std::string& castling_rights) {
     this->game_state.castling_rights[WHITE].kingside = false;
     this->game_state.castling_rights[WHITE].queenside = false;
     this->game_state.castling_rights[BLACK].kingside = false;
     this->game_state.castling_rights[BLACK].queenside = false;
 
-    for (char ch : fen_castling_field) {
+    for (char ch : castling_rights) {
         switch (ch) {
             case 'K':
                 this->game_state.castling_rights[WHITE].kingside = true;
@@ -193,11 +179,11 @@ void Board::set_castling_rights(const std::string& fen_castling_field) {
     }
 }
 
-void Board::set_en_passant_square(const std::string& fen_en_passant_field) {
-    if (fen_en_passant_field.size() != 2) {
+void Board::set_en_passant_square(const std::string& en_passant_square) {
+    if (en_passant_square.size() != 2) {
         return;
     } 
-    const int x = fen_en_passant_field[0] - 'a';
-    const int y = 8 - (fen_en_passant_field[1] - '0');
+    const int x = en_passant_square[0] - 'a';
+    const int y = 8 - (en_passant_square[1] - '0');
     this->game_state.en_passant_square = Pos{x, y};
 }

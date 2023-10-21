@@ -1,5 +1,4 @@
 #include "square.h"
-#include <algorithm>
 #include <memory>
 
 Square::Square(int x, int y) {
@@ -7,16 +6,11 @@ Square::Square(int x, int y) {
     this->y = y;
 }
 
-Square::Square(const Square& square) {
-    x = square.x;
-    y = square.y;
-    piece = square.piece;
+Square::Square(int x, int y, std::shared_ptr<Piece> piece) {
+    this->x = x;
+    this->y = y;
+    this->piece = piece;
 }
-
-bool Square::operator==(const Square& square) const {
-    return x == square.x && y == square.y;
-}
-
 
 void Square::move_piece(Square& to) {
     piece->pos = Pos{to.x, to.y};

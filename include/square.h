@@ -3,7 +3,6 @@
 
 #include "piece.h"
 #include <memory>
-#include <optional>
 
 class Square {
     public:
@@ -13,9 +12,7 @@ class Square {
 
         Square() {}
         Square(int x, int y);
-        Square(const Square& square);
-
-        bool operator==(const Square& square) const;
+        Square(int x, int y, std::shared_ptr<Piece> piece);
 
         void move_piece(Square& to);
 };
