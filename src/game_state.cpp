@@ -26,23 +26,10 @@ static Pos get_king_square(Color color, const Board& board) {
     throw std::invalid_argument("No " + color_str + " king on the board");
 }
 
-
-static bool is_legal(Move& psuedo_legal, Board& board) {
-    const Color player_to_move = board.game_state.player_to_move;
-    psuedo_legal.make_appropriate(board);
-    if (is_in_check(player_to_move, board)) {
-        psuedo_legal.undo_appropriate(board);
-        return false;
-    }
-    psuedo_legal.undo_appropriate(board);
-    return true;
-}
-
-
 std::vector<Move> get_legal_moves(Board& board) {
     std::vector<Move> legal_moves = board.get_psuedo_legal_moves();
     for (auto it = legal_moves.begin(); it != legal_moves.end();) {
-        if (!is_legal(*it, board)) {
+        if (it->leaves_king_in_check(board)) {
             it = legal_moves.erase(it);
         } else {
             ++it;
