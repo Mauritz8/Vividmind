@@ -36,6 +36,8 @@ class Board {
         
         const Square& get_square(int x, int y) const;
         Square& get_square(int x, int y);
+        const Square& get_square(Pos pos) const;
+        Square& get_square(Pos pos);
         void set_square(int x, int y, std::shared_ptr<Piece> piece);
 
         void show() const;

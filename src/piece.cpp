@@ -26,7 +26,6 @@ bool Piece::operator==(Piece piece) const {
 }
 
 std::vector<Move> Piece::get_psuedo_legal_moves(Board& board) const {
-    const Square& start = board.get_square(pos.x, pos.y);
     switch (piece_type) {
         case KING: {
             return get_king_psuedo_legal_moves(board);
@@ -51,7 +50,6 @@ std::vector<Move> Piece::get_psuedo_legal_moves(Board& board) const {
 }
 
 std::vector<Move> Piece::get_threatened_moves(Board& board) {
-    const Square& start = board.get_square(pos.x, pos.y);
     if (piece_type == PAWN) {
         return get_pawn_captures(*this, board);
     }

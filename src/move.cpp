@@ -126,7 +126,7 @@ void Move::make_appropriate(Board& board) {
 }
 
 void Move::undo_appropriate(Board& board) {
-    const Square& end_square = board.get_square(this->end.x, this->end.y);
+    const Square& end_square = board.get_square(end);
     if (!end_square.piece) {
         std::cout << "Can't undo move\n"; 
         return;
@@ -165,8 +165,8 @@ std::string Move::to_uci_notation() const {
 }
 
 void Move::make(Board& board) {
-    Square& start_square = board.get_square(this->start.x, this->start.y); 
-    Square& end_square = board.get_square(this->end.x, this->end.y); 
+    Square& start_square = board.get_square(start); 
+    Square& end_square = board.get_square(end); 
     std::shared_ptr<Piece> captured_piece = std::move(end_square.piece);
     if (captured_piece) {
         board.remove_piece(captured_piece);
@@ -185,8 +185,8 @@ void Move::make(Board& board) {
 }
 
 void Move::undo(Board& board) {
-    Square& start_square = board.get_square(this->start.x, this->start.y); 
-    Square& end_square = board.get_square(this->end.x, this->end.y); 
+    Square& start_square = board.get_square(start); 
+    Square& end_square = board.get_square(end); 
     std::shared_ptr<Piece> piece = start_square.piece;
     end_square.move_piece(start_square);
     if (captured_piece) {
@@ -256,8 +256,8 @@ bool Move::is_valid_castling_move() const {
 }
 
 bool Move::is_valid_pawn_move(const Board& board) const {
-    const Square& start_square = board.get_square(start.x, start.y);
-    const Square& end_square = board.get_square(end.x, end.y);
+    const Square& start_square = board.get_square(start);
+    const Square& end_square = board.get_square(end);
     
     const int direction = start_square.piece->color == BLACK ? 1 : -1;
 
@@ -280,7 +280,7 @@ bool Move::is_valid_pawn_move(const Board& board) const {
 }
 
 bool Move::is_valid_pawn_move_threat(const Board& board) const {
-    const int direction = board.get_square(start.x, start.y).piece->color == BLACK ? 1 : -1;
+    const int direction = board.get_square(start).piece->color == BLACK ? 1 : -1;
     const int x_diff = end.x - start.x;
     const int y_diff = end.y - start.y;
 
@@ -348,8 +348,8 @@ void Move::undo_castling(Board& board) {
 }
 
 void Move::make_en_passant(Board& board) {
-    Square& start_square = board.get_square(start.x, start.y);
-    Square& end_square = board.get_square(end.x, end.y);
+    Square& start_square = board.get_square(start);
+    Square& end_square = board.get_square(end);
     start_square.move_piece(end_square);
 
     const int x_diff = end.x - start.x;
@@ -362,8 +362,8 @@ void Move::make_en_passant(Board& board) {
 }
 
 void Move::undo_en_passant(Board& board) {
-    Square& start_square = board.get_square(start.x, start.y);
-    Square& end_square = board.get_square(end.x, end.y);
+    Square& start_square = board.get_square(start);
+    Square& end_square = board.get_square(end);
     end_square.move_piece(start_square);
 
     const int x_diff = end.x - start.x;
@@ -378,13 +378,13 @@ void Move::make_promotion(Board& board) {
         return;
     }
     this->make(board);
-    Square& end_square = board.get_square(end.x, end.y);
+    Square& end_square = board.get_square(end);
     end_square.piece->piece_type = promotion_piece.value();
 }
 
 void Move::undo_promotion(Board& board) {
     this->undo(board);
-    Square& start_square = board.get_square(start.x, start.y);
+    Square& start_square = board.get_square(start);
     start_square.piece->piece_type = PAWN;
 }
 

@@ -10,6 +10,7 @@
 #include <vector>
 
 #include "board.h"
+#include "board_utils.h"
 #include "game_state.h"
 #include "piece.h"
 #include "pieces/king.h"
@@ -54,21 +55,29 @@ Board Board::get_position_from_fen(std::string fen) {
 
 
 const Square& Board::get_square(int x, int y) const { 
-    if (x < 0 || x > 7 || y < 0 || y > 7) {
+    if (is_outside_board(x, y)) {
         throw std::invalid_argument("Square (" + std::to_string(x) + ", " + std::to_string(y) + ") is outside board");
     }
     return squares.at(y).at(x); 
 }
 
 Square& Board::get_square(int x, int y) { 
-    if (x < 0 || x > 7 || y < 0 || y > 7) {
+    if (is_outside_board(x, y)) {
         throw std::invalid_argument("Square (" + std::to_string(x) + ", " + std::to_string(y) + ") is outside board");
     }
     return squares.at(y).at(x); 
 }
 
+const Square& Board::get_square(Pos pos) const {
+    return get_square(pos.x, pos.y);
+}
+
+Square& Board::get_square(Pos pos) {
+    return get_square(pos.x, pos.y);
+}
+
 void Board::set_square(int x, int y, std::shared_ptr<Piece> piece) {
-    if (x < 0 || x > 7 || y < 0 || y > 7) {
+    if (is_outside_board(x, y)) {
         throw std::invalid_argument("Square (" + std::to_string(x) + ", " + std::to_string(y) + ") is outside board");
     }
     Square& square = squares.at(y).at(x); 
