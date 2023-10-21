@@ -45,8 +45,7 @@ static double nega_max(int depth, Board& board) {
     }
 
     double max = INT_MIN;
-    for (int i = 0; i < legal_moves.size(); i++) {
-        Move move = legal_moves.at(i);
+    for (Move& move : legal_moves) {
         move.make_appropriate(board);
         const double score = -nega_max(depth - 1, board);
         move.undo_appropriate(board);
@@ -59,16 +58,15 @@ static double nega_max(int depth, Board& board) {
 
 Move get_best_move(int depth, Board& board) {
     double max = INT_MIN;
-    const std::vector<Move> legal_moves = get_legal_moves(board);
-    const Move* best_move = nullptr;
-    for (int i = 0; i < legal_moves.size(); i++) {
-        Move move = legal_moves.at(i);
+    std::vector<Move> legal_moves = get_legal_moves(board);
+    Move* best_move = nullptr;
+    for (Move& move : legal_moves) {
         move.make_appropriate(board);
         const double score = -nega_max(depth - 1, board);
         move.undo_appropriate(board);
         if (score > max) {
             max = score;
-            best_move = &legal_moves.at(i);
+            best_move = &move;
         }
     }
     std::cout << "eval = " << max << "\n";
@@ -82,9 +80,8 @@ int perft(int depth, Board& board) {
     }
 
     int nodes = 0;
-    const std::vector<Move> move_list = get_legal_moves(board);
-    for (int i = 0; i < move_list.size(); i++) {
-        Move move = move_list.at(i);
+    std::vector<Move> move_list = get_legal_moves(board);
+    for (Move& move : move_list) {
         move.make_appropriate(board);
         nodes += perft(depth - 1, board);    
         move.undo_appropriate(board);
@@ -95,9 +92,8 @@ int perft(int depth, Board& board) {
 void divide(int depth, Board& board) {
     std::cout << "";
     int nodes_searched = 0;
-    const std::vector<Move> move_list = get_legal_moves(board);
-    for (int i = 0; i < move_list.size(); i++) {
-        Move move = move_list.at(i);
+    std::vector<Move> move_list = get_legal_moves(board);
+    for (Move& move : move_list) {
         move.make_appropriate(board);
         const int nodes = perft(depth - 1, board);
         nodes_searched += nodes;
