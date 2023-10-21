@@ -170,13 +170,10 @@ void Board::set_player_to_move(const std::string& fen_active_color_field) {
 }
 
 void Board::set_castling_rights(const std::string& fen_castling_field) {
-    if (fen_castling_field.at(0) == '-') {
-        this->game_state.castling_rights[WHITE].kingside = false;
-        this->game_state.castling_rights[WHITE].queenside = false;
-        this->game_state.castling_rights[BLACK].kingside = false;
-        this->game_state.castling_rights[BLACK].queenside = false;
-        return;
-    }
+    this->game_state.castling_rights[WHITE].kingside = false;
+    this->game_state.castling_rights[WHITE].queenside = false;
+    this->game_state.castling_rights[BLACK].kingside = false;
+    this->game_state.castling_rights[BLACK].queenside = false;
 
     for (char ch : fen_castling_field) {
         switch (ch) {
