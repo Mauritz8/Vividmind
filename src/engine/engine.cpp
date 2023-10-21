@@ -15,15 +15,15 @@
 #include "pieces/pawn.h"
 
 
-static double evaluate(const Board& board) {
-    double score = 0;
+static int evaluate(const Board& board) {
+    int score = 0;
     const int white_material = board.game_state.material[WHITE];
     const int black_material = board.game_state.material[BLACK];
     score += white_material - black_material;
 
     const int white_psqt = board.game_state.psqt[WHITE];
     const int black_psqt = board.game_state.psqt[BLACK];
-    score += 0.01 * (white_psqt - black_psqt);
+    score += white_psqt - black_psqt;
 
     if (board.game_state.player_to_move == BLACK) {
         return -score;
@@ -31,7 +31,7 @@ static double evaluate(const Board& board) {
     return score;
 }
 
-static double nega_max(int depth, double alpha, double beta, Board& board) {
+static int nega_max(int depth, int alpha, int beta, Board& board) {
     if (depth == 0) {
         return evaluate(board);
     }
@@ -46,7 +46,7 @@ static double nega_max(int depth, double alpha, double beta, Board& board) {
 
     for (Move& move : legal_moves) {
         move.make_appropriate(board);
-        const double score = -nega_max(depth - 1, -beta, -alpha, board);
+        const int score = -nega_max(depth - 1, -beta, -alpha, board);
         move.undo_appropriate(board);
         if (score >= beta) {
             return beta;
@@ -59,19 +59,19 @@ static double nega_max(int depth, double alpha, double beta, Board& board) {
 }
 
 Move get_best_move(int depth, Board& board) {
-    double max = INT_MIN;
+    int max = INT_MIN;
     std::vector<Move> legal_moves = get_legal_moves(board);
     Move* best_move = nullptr;
     for (Move& move : legal_moves) {
         move.make_appropriate(board);
-        const double score = -nega_max(depth - 1, INT_MIN, INT_MAX, board);
+        const int score = -nega_max(depth - 1, -100000, 100000, board);
         move.undo_appropriate(board);
         if (score > max) {
             max = score;
             best_move = &move;
         }
     }
-    std::cout << "eval = " << max << "\n";
+    std::cout << "info score cp " << max << "\n";
     return *best_move;
 }
 
