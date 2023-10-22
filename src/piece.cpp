@@ -22,7 +22,14 @@ Piece::Piece(Piece_type piece_type, Color color, Pos pos) {
 }
 
 bool Piece::operator==(Piece piece) const {
-    return piece.pos.x == pos.x && piece.pos.y == pos.y && piece.color == color;
+    return piece.pos.x == pos.x
+        && piece.pos.y == pos.y 
+        && piece.color == color 
+        && piece.piece_type == piece_type;
+}
+
+bool Piece::operator!=(Piece piece) const {
+    return !(*this == piece);
 }
 
 std::vector<Move> Piece::get_psuedo_legal_moves(Board& board) const {

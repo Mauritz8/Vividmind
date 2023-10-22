@@ -18,10 +18,11 @@ struct GameState {
     Color player_to_move;
     std::optional<Pos> en_passant_square;
     std::array<Castling, 2> castling_rights;
-    std::array<std::vector<std::shared_ptr<Piece>>, 2> pieces;
+    std::array<std::vector<Piece>, 2> pieces;
     std::array<int, 2> material;
     std::array<int, 2> psqt;
 };
+bool operator==(GameState state1, GameState state2);
 
 class Board {
     public:
@@ -42,7 +43,9 @@ class Board {
         void switch_player_to_move();
         std::vector<Move> get_psuedo_legal_moves();
         std::vector<Move> get_threatened_moves(Color color);
-        void remove_piece(std::shared_ptr<Piece> piece);
+        Piece& get_piece(Piece piece);
+        void remove_piece(Piece piece);
+        void move_piece(Pos from, Pos to);
 
     private:
         std::array<std::array<Square, 8>, 8> squares;
