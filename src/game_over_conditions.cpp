@@ -24,13 +24,13 @@ bool is_checkmate(Board& board, std::vector<Move>& legal_moves) {
    return true;
 }
 
-static bool is_insufficient_material(const std::vector<std::shared_ptr<Piece>>& pieces) {
+static bool is_insufficient_material(const std::vector<Piece>& pieces) {
     if (pieces.size() > 2) {
         return false;
     }
 
     for (auto piece : pieces) {
-        if (piece->piece_type == PAWN || piece->piece_type == ROOK || piece->piece_type == QUEEN) {
+        if (piece.piece_type == PAWN || piece.piece_type == ROOK || piece.piece_type == QUEEN) {
             return false;
         }
     }
@@ -49,6 +49,22 @@ static bool is_stalemate(Board& board, const std::vector<Move>& legal_moves) {
     return false;
 }
 
+static bool is_threefold_repetition(Board& board) {
+    int repetitions = 1;
+    for (int i = board.history.size() - 1; i >= 0; i--) {
+        GameState& old_state = board.history.at(i);
+        if (old_state == board.game_state) {
+            repetitions++;  
+        }         
+        if (repetitions == 3) {
+            return true;
+        }
+    }
+    return false;
+}
+
 bool is_draw(Board& board, std::vector<Move>& legal_moves) {
-    return is_insufficient_material(board) || is_stalemate(board, legal_moves);
+    return is_insufficient_material(board)
+        || is_stalemate(board, legal_moves)
+        || is_threefold_repetition(board);
 }

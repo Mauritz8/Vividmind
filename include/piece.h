@@ -30,6 +30,7 @@ class Piece {
         Piece(Piece_type piece_type, Color color, Pos pos);
 
         bool operator==(Piece piece) const;
+        bool operator!=(Piece piece) const;
 
         std::vector<Move> get_psuedo_legal_moves(Board& board) const;
         std::vector<Move> get_threatened_moves(Board& board);

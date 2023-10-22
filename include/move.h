@@ -14,7 +14,7 @@ class Move {
     public:
         Pos start;
         Pos end;
-        std::shared_ptr<Piece> captured_piece;
+        std::optional<Piece> captured_piece;
         bool is_castling_move;
         bool is_promotion;
         std::optional<Piece_type> promotion_piece;

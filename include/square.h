@@ -3,19 +3,18 @@
 
 #include "piece.h"
 #include <memory>
+#include <optional>
 
 
 class Square {
     public:
         int x;
         int y;
-        std::shared_ptr<Piece> piece;
+        std::optional<Piece> piece;
 
         Square() {}
         Square(int x, int y);
-        Square(int x, int y, std::shared_ptr<Piece> piece);
-
-        void move_piece(Square& to);
+        Square(int x, int y, std::optional<Piece> piece);
 };
 
 #endif

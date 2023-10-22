@@ -22,7 +22,6 @@ Move::Move(int start_x, int start_y, int end_x, int end_y) {
     this->is_promotion = false;
     this->is_en_passant = false;
     this->is_pawn_two_squares_forward = false;
-    this->captured_piece = nullptr;
 }
 
 Move::Move(Pos start, Pos end) {
@@ -32,7 +31,6 @@ Move::Move(Pos start, Pos end) {
     this->is_promotion = false;
     this->is_en_passant = false;
     this->is_pawn_two_squares_forward = false;
-    this->captured_piece = nullptr;
 }
 
 Move::Move(const Square& start, const Square& end) {
@@ -42,7 +40,6 @@ Move::Move(const Square& start, const Square& end) {
     this->is_promotion = false;
     this->is_en_passant = false;
     this->is_pawn_two_squares_forward = false;
-    this->captured_piece = nullptr;
 }
 
 Move Move::get_from_uci_notation(const std::string& uci_notation, const Board& board) {
@@ -167,18 +164,19 @@ std::string Move::to_uci_notation() const {
 void Move::make(Board& board) {
     Square& start_square = board.get_square(start); 
     Square& end_square = board.get_square(end); 
-    std::shared_ptr<Piece> captured_piece = std::move(end_square.piece);
+    std::optional<Piece> captured_piece = end_square.piece;
     if (captured_piece) {
-        board.remove_piece(captured_piece);
+        board.remove_piece(*captured_piece);
         board.game_state.material[captured_piece->color] -= captured_piece->get_value();
         board.game_state.psqt[captured_piece->color] -= captured_piece->get_psqt_score();
-        this->captured_piece = std::move(captured_piece);
+        this->captured_piece = captured_piece;
     }
-    std::shared_ptr<Piece> piece = start_square.piece;
-    const int psqt_old = piece->get_psqt_score();
-    start_square.move_piece(end_square);
-    const int psqt_new = piece->get_psqt_score();
-    board.game_state.psqt[piece->color] += psqt_new - psqt_old;
+    Piece& piece_in_game_state = board.get_piece(*start_square.piece);
+    piece_in_game_state.pos = end;
+    const int psqt_old = start_square.piece->get_psqt_score();
+    board.move_piece(start, end);
+    const int psqt_new = end_square.piece->get_psqt_score();
+    board.game_state.psqt[end_square.piece->color] += psqt_new - psqt_old;
 
     board.game_state.en_passant_square = {};
     this->update_castling_rights(board);
@@ -187,8 +185,7 @@ void Move::make(Board& board) {
 void Move::undo(Board& board) {
     Square& start_square = board.get_square(start); 
     Square& end_square = board.get_square(end); 
-    std::shared_ptr<Piece> piece = start_square.piece;
-    end_square.move_piece(start_square);
+    board.move_piece(end, start);
     if (captured_piece) {
         end_square.piece = captured_piece;
     }
@@ -348,13 +345,11 @@ void Move::undo_castling(Board& board) {
 }
 
 void Move::make_en_passant(Board& board) {
-    Square& start_square = board.get_square(start);
-    Square& end_square = board.get_square(end);
-    start_square.move_piece(end_square);
+    board.move_piece(start, end);
 
     const int x_diff = end.x - start.x;
     Square& captured_square = board.get_square(start.x + x_diff, start.y);
-    board.remove_piece(captured_square.piece);
+    board.remove_piece(*captured_square.piece);
     this->captured_piece = captured_square.piece;
     board.game_state.material[captured_piece->color] -= captured_piece->get_value();
     board.game_state.psqt[captured_piece->color] -= captured_piece->get_psqt_score();
@@ -362,13 +357,11 @@ void Move::make_en_passant(Board& board) {
 }
 
 void Move::undo_en_passant(Board& board) {
-    Square& start_square = board.get_square(start);
-    Square& end_square = board.get_square(end);
-    end_square.move_piece(start_square);
+    board.move_piece(end, start);
 
     const int x_diff = end.x - start.x;
     Square& captured_square = board.get_square(start.x + x_diff, start.y);
-    board.game_state.pieces[captured_piece->color].push_back(captured_piece);
+    board.game_state.pieces[captured_piece->color].push_back(*captured_piece);
     board.game_state.material[captured_piece->color] += captured_piece->get_value();
     captured_square.piece = captured_piece;
 }
@@ -379,6 +372,9 @@ void Move::make_promotion(Board& board) {
     }
     this->make(board);
     Square& end_square = board.get_square(end);
+    Piece& piece_in_game_state = board.get_piece(*end_square.piece);
+    piece_in_game_state.pos = end;
+    piece_in_game_state.piece_type = *promotion_piece;
     const int old_psqt = end_square.piece->get_psqt_score();
     end_square.piece->piece_type = promotion_piece.value();
     const int new_value = end_square.piece->get_value();

@@ -67,7 +67,7 @@ Square& Board::get_square(Pos pos) {
 void Board::show() const {
     for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 8; j++) {
-            const std::shared_ptr<Piece>& piece = this->get_square(j, i).piece;
+            const std::optional<Piece>& piece = this->get_square(j, i).piece;
             if (piece) {
                 std::cout << " " << piece->get_char_representation();
             } else {
@@ -90,8 +90,8 @@ void Board::switch_player_to_move() {
 
 std::vector<Move> Board::get_psuedo_legal_moves() {
     std::vector<Move> moves;
-    for (auto piece : game_state.pieces[game_state.player_to_move]) {
-        std::vector<Move> piece_moves = piece->get_psuedo_legal_moves(*this);
+    for (Piece piece : game_state.pieces[game_state.player_to_move]) {
+        std::vector<Move> piece_moves = piece.get_psuedo_legal_moves(*this);
         moves.insert(std::end(moves), std::begin(piece_moves), std::end(piece_moves));
     } 
     return moves;
@@ -99,21 +99,38 @@ std::vector<Move> Board::get_psuedo_legal_moves() {
 
 std::vector<Move> Board::get_threatened_moves(Color color) {
     std::vector<Move> moves;
-    for (auto piece : game_state.pieces[color]) {
-        std::vector<Move> piece_moves = piece->get_threatened_moves(*this);
+    for (Piece piece : game_state.pieces[color]) {
+        std::vector<Move> piece_moves = piece.get_threatened_moves(*this);
         moves.insert(std::end(moves), std::begin(piece_moves), std::end(piece_moves));
     } 
     return moves;
 }
 
-void Board::remove_piece(std::shared_ptr<Piece> piece) {
-    std::vector<std::shared_ptr<Piece>>& pieces = this->game_state.pieces[piece->color];
+Piece& Board::get_piece(Piece piece) {
+    for (Piece& p : game_state.pieces[piece.color]) {
+        if (p.pos == piece.pos) {
+            return p;
+        } 
+    }
+    throw std::invalid_argument("could not find piece");
+}
+
+void Board::remove_piece(Piece piece) {
+    std::vector<Piece>& pieces = this->game_state.pieces[piece.color];
     for (auto it = pieces.begin(); it != pieces.end(); ++it) {
-        if (it->get() == piece.get()) {
+        if (*it == piece) {
             pieces.erase(it); 
             return;
         }
     }
+}
+
+void Board::move_piece(Pos from, Pos to) {
+    Square& start = get_square(from);
+    Square& end = get_square(to);
+    start.piece->pos = to;
+    end.piece = start.piece;
+    start.piece = {};
 }
 
 void Board::place_pieces(const std::string& pieces) {
@@ -134,14 +151,14 @@ void Board::place_pieces(const std::string& pieces) {
         } else {
             Color color = islower(ch) ? BLACK : WHITE;
             Piece_type piece_type = *get_piece_type(ch);
-            std::shared_ptr<Piece> piece = std::make_shared<Piece>(Piece(piece_type, color, Pos{x, y}));
+            Piece piece = Piece(piece_type, color, Pos{x, y});
             Square& square = get_square(x, y);
             square.x = x;
             square.y = y;
             square.piece = piece;
             game_state.pieces[color].push_back(piece);
-            game_state.material[color] += piece->get_value();                
-            game_state.psqt[color] += piece->get_psqt_score();
+            game_state.material[color] += piece.get_value();                
+            game_state.psqt[color] += piece.get_psqt_score();
             x++;
         }
     }
@@ -186,4 +203,21 @@ void Board::set_en_passant_square(const std::string& en_passant_square) {
     const int x = en_passant_square[0] - 'a';
     const int y = 8 - (en_passant_square[1] - '0');
     this->game_state.en_passant_square = Pos{x, y};
+}
+
+bool operator==(GameState state1, GameState state2) {
+    for (int i = 0; i < 2; i++) {
+        std::vector<Piece> pieces1 = state1.pieces[i];
+        std::vector<Piece> pieces2 = state2.pieces[i];
+        if (pieces1.size() != pieces2.size()) {
+            return false;
+        }
+
+        for (int j = 0; j < state1.pieces[i].size(); j++) {
+            if (pieces1[j] != pieces2[j]) {
+                return false;
+            }
+        }
+    }
+    return true;
 }
