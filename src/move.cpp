@@ -345,6 +345,9 @@ void Move::undo_castling(Board& board) {
 }
 
 void Move::make_en_passant(Board& board) {
+    Square& start_square = board.get_square(start);
+    Piece& piece_in_game_state = board.get_piece(*start_square.piece);
+    piece_in_game_state.pos = end;
     board.move_piece(start, end);
 
     const int x_diff = end.x - start.x;
