@@ -24,26 +24,19 @@ bool is_checkmate(Board& board, std::vector<Move>& legal_moves) {
    return true;
 }
 
-static bool is_insufficient_material(const std::vector<Piece>& pieces) {
-    if (pieces.size() > 2) {
-        return false;
-    }
-
-    for (auto piece : pieces) {
-        if (piece.piece_type == PAWN || piece.piece_type == ROOK || piece.piece_type == QUEEN) {
-            return false;
+static bool is_insufficient_material(const Board& board) {
+    for (const std::vector<Piece>& pieces : board.game_state.pieces) {
+        for (Piece piece : pieces) {
+            if (piece.piece_type == PAWN || piece.piece_type == ROOK || piece.piece_type == QUEEN) {
+                return false;
+            }
         }
     }
     return true;
 }
 
-static bool is_insufficient_material(const Board& board) {
-    return is_insufficient_material(board.game_state.pieces[WHITE]) || 
-           is_insufficient_material(board.game_state.pieces[BLACK]);
-}
-
 static bool is_stalemate(Board& board, const std::vector<Move>& legal_moves) {
-    if (!is_in_check(board.game_state.player_to_move, board) && legal_moves.size() == 0) {
+    if (legal_moves.size() == 0 && !is_in_check(board.game_state.player_to_move, board)) {
         return true;
     }
     return false;
