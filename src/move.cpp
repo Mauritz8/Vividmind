@@ -74,7 +74,6 @@ Move::Move(const Move& move) {
     this->is_promotion = move.is_promotion;
     this->promotion_piece = move.promotion_piece;
     this->is_en_passant = move.is_en_passant;
-    this->captured_piece = move.captured_piece;
     this->is_pawn_two_squares_forward = move.is_pawn_two_squares_forward;
 }
 
@@ -82,7 +81,6 @@ Move::Move(const Move& move) {
 Move Move::operator=(const Move& move) {
     this->start = move.start;
     this->end = move.end;
-    this->captured_piece = move.captured_piece;
     this->is_castling_move = move.is_castling_move;
     this->is_promotion = move.is_promotion;
     this->promotion_piece = move.promotion_piece;
@@ -102,7 +100,7 @@ bool Move::leaves_king_in_check(Board& board) {
     return false;
 }
 
-void Move::make_appropriate(Board& board) {
+void Move::make_appropriate(Board& board) const {
     if (start.x == 4 && start.y == 6 && end.x == 4 && end.y == 4) {
         std::cout << "";
     }
@@ -122,7 +120,7 @@ void Move::make_appropriate(Board& board) {
     board.switch_player_to_move();
 }
 
-void Move::undo_appropriate(Board& board) {
+void Move::undo_appropriate(Board& board) const {
     const Square& end_square = board.get_square(end);
     if (!end_square.piece) {
         std::cout << "Can't undo move\n"; 
@@ -161,7 +159,9 @@ std::string Move::to_uci_notation() const {
     return uci_notation;
 }
 
-void Move::make(Board& board) {
+void Move::make(Board& board) const {
+    board.game_state.en_passant_square = {};
+    board.game_state.captured_piece = {};
     Square& start_square = board.get_square(start); 
     Square& end_square = board.get_square(end); 
     std::optional<Piece> captured_piece = end_square.piece;
@@ -169,7 +169,7 @@ void Move::make(Board& board) {
         board.remove_piece(*captured_piece);
         board.game_state.material[captured_piece->color] -= captured_piece->get_value();
         board.game_state.psqt[captured_piece->color] -= captured_piece->get_psqt_score();
-        this->captured_piece = captured_piece;
+        board.game_state.captured_piece = captured_piece;
     }
     Piece& piece_in_game_state = board.get_piece(*start_square.piece);
     piece_in_game_state.pos = end;
@@ -178,16 +178,15 @@ void Move::make(Board& board) {
     const int psqt_new = end_square.piece->get_psqt_score();
     board.game_state.psqt[end_square.piece->color] += psqt_new - psqt_old;
 
-    board.game_state.en_passant_square = {};
     this->update_castling_rights(board);
 }
 
-void Move::undo(Board& board) {
+void Move::undo(Board& board) const {
     Square& start_square = board.get_square(start); 
     Square& end_square = board.get_square(end); 
     board.move_piece(end, start);
-    if (captured_piece) {
-        end_square.piece = captured_piece;
+    if (board.game_state.captured_piece) {
+        end_square.piece = board.game_state.captured_piece;
     }
 }
 
@@ -332,19 +331,19 @@ Move Move::get_castling_rook_move(const Board& board) const {
     return rook_move;
 }
 
-void Move::make_castling(Board& board) {
+void Move::make_castling(Board& board) const {
     this->make(board);
     Move rook_move = this->get_castling_rook_move(board);
     rook_move.make(board);
 }
 
-void Move::undo_castling(Board& board) {
+void Move::undo_castling(Board& board) const {
     this->undo(board);
     Move rook_move = this->get_castling_rook_move(board);
     rook_move.undo(board);
 }
 
-void Move::make_en_passant(Board& board) {
+void Move::make_en_passant(Board& board) const {
     Square& start_square = board.get_square(start);
     Piece& piece_in_game_state = board.get_piece(*start_square.piece);
     piece_in_game_state.pos = end;
@@ -353,23 +352,23 @@ void Move::make_en_passant(Board& board) {
     const int x_diff = end.x - start.x;
     Square& captured_square = board.get_square(start.x + x_diff, start.y);
     board.remove_piece(*captured_square.piece);
-    this->captured_piece = captured_square.piece;
-    board.game_state.material[captured_piece->color] -= captured_piece->get_value();
-    board.game_state.psqt[captured_piece->color] -= captured_piece->get_psqt_score();
-    captured_square.piece.reset();
+    board.game_state.captured_piece = captured_square.piece;
+    board.game_state.material[captured_square.piece->color] -= captured_square.piece->get_value();
+    board.game_state.psqt[captured_square.piece->color] -= captured_square.piece->get_psqt_score();
+    captured_square.piece = {};
 }
 
-void Move::undo_en_passant(Board& board) {
+void Move::undo_en_passant(Board& board) const {
     board.move_piece(end, start);
 
     const int x_diff = end.x - start.x;
     Square& captured_square = board.get_square(start.x + x_diff, start.y);
-    board.game_state.pieces[captured_piece->color].push_back(*captured_piece);
-    board.game_state.material[captured_piece->color] += captured_piece->get_value();
-    captured_square.piece = captured_piece;
+    board.game_state.pieces[board.game_state.captured_piece->color].push_back(*board.game_state.captured_piece);
+    board.game_state.material[board.game_state.captured_piece->color] += board.game_state.captured_piece->get_value();
+    captured_square.piece = board.game_state.captured_piece;
 }
 
-void Move::make_promotion(Board& board) {
+void Move::make_promotion(Board& board) const {
     if (!this->promotion_piece) {
         return;
     }
@@ -386,18 +385,18 @@ void Move::make_promotion(Board& board) {
     board.game_state.psqt[end_square.piece->color] += new_psqt - old_psqt;
 }
 
-void Move::undo_promotion(Board& board) {
+void Move::undo_promotion(Board& board) const {
     this->undo(board);
     Square& start_square = board.get_square(start);
     start_square.piece->piece_type = PAWN;
 }
 
-void Move::make_pawn_two_squares_forward(Board& board) {
+void Move::make_pawn_two_squares_forward(Board& board) const {
     this->make(board);
     board.game_state.en_passant_square = Pos{start.x, (end.y + start.y) / 2};
 }
 
-void Move::undo_pawn_two_squares_forward(Board& board) {
+void Move::undo_pawn_two_squares_forward(Board& board) const {
     this->undo(board);
     board.game_state.en_passant_square = {};
 }

@@ -21,6 +21,7 @@ struct GameState {
     std::array<std::vector<Piece>, 2> pieces;
     std::array<int, 2> material;
     std::array<int, 2> psqt;
+    std::optional<Piece> captured_piece;
 };
 bool operator==(GameState state1, GameState state2);
 

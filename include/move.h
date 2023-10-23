@@ -14,7 +14,6 @@ class Move {
     public:
         Pos start;
         Pos end;
-        std::optional<Piece> captured_piece;
         bool is_castling_move;
         bool is_promotion;
         std::optional<Piece_type> promotion_piece;
@@ -31,14 +30,13 @@ class Move {
         bool operator==(const Move& move) const;
 
         bool leaves_king_in_check(Board& board);
-        void make_appropriate(Board& board);
-        void undo_appropriate(Board& board);
+        void make_appropriate(Board& board) const;
+        void undo_appropriate(Board& board) const;
         std::string to_uci_notation() const;
 
     private:
-
-        void make(Board& board);
-        void undo(Board& board);
+        void make(Board& board) const;
+        void undo(Board& board) const;
         bool is_valid_rook_move(const Board& board) const;
         bool is_valid_bishop_move(const Board& board) const ;
         bool is_valid_queen_move(const Board& board) const;
@@ -49,14 +47,14 @@ class Move {
         bool is_valid_pawn_move_threat(const Board& board) const;
         void update_castling_rights(Board& board) const;
         Move get_castling_rook_move(const Board& board) const;
-        void make_castling(Board& board);
-        void undo_castling(Board& board);
-        void make_en_passant(Board& board);
-        void undo_en_passant(Board& board);
-        void make_promotion(Board& board);
-        void undo_promotion(Board& board);
-        void make_pawn_two_squares_forward(Board& board);
-        void undo_pawn_two_squares_forward(Board& board);
+        void make_castling(Board& board) const;
+        void undo_castling(Board& board) const;
+        void make_en_passant(Board& board) const;
+        void undo_en_passant(Board& board) const;
+        void make_promotion(Board& board) const;
+        void undo_promotion(Board& board) const;
+        void make_pawn_two_squares_forward(Board& board) const;
+        void undo_pawn_two_squares_forward(Board& board) const;
 };
 
 #endif
