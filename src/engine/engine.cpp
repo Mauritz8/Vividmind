@@ -38,7 +38,7 @@ static int nega_max(int depth, int alpha, int beta, Board& board) {
 
     std::vector<Move> legal_moves = get_legal_moves(board);
     if (is_checkmate(board, legal_moves)) {
-        return -200;
+        return -KING_VALUE - depth;
     }
     if (is_draw(board, legal_moves)) {
         return 0;
