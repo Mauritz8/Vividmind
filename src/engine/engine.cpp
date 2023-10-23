@@ -32,16 +32,17 @@ static int evaluate(const Board& board) {
 }
 
 static int nega_max(int depth, int alpha, int beta, Board& board) {
-    if (depth == 0) {
-        return evaluate(board);
-    }
-
     std::vector<Move> legal_moves = get_legal_moves(board);
+
     if (is_checkmate(board, legal_moves)) {
         return -KING_VALUE - depth;
     }
     if (is_draw(board, legal_moves)) {
         return 0;
+    }
+
+    if (depth == 0) {
+        return evaluate(board);
     }
 
     for (Move& move : legal_moves) {
