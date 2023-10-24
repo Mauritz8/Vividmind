@@ -9,29 +9,32 @@
 #include <vector>
 
 
-std::vector<Move> get_pawn_psuedo_legal_moves(Piece pawn, Board& board) {
+std::vector<Move> get_pawn_psuedo_legal_moves(Piece pawn, Board& board, bool only_captures) {
     std::vector<Move> moves;
     const int direction = board.game_state.player_to_move == BLACK ? 1 : -1;
 
     Pos start = pawn.pos;
-    try {
-        const Square& end1 = board.get_square(
-                start.x,
-                start.y + direction);
-        if (!end1.piece) {
-            moves.push_back(Move(start.x, start.y, end1.x, end1.y));
 
-            const Square& end2 = board.get_square(
+    if (!only_captures) {
+        try {
+            const Square& end1 = board.get_square(
                     start.x,
-                    start.y + 2 * direction);
-            const int starting_row = pawn.color == BLACK ? 1 : 6;
-            if (start.y == starting_row && !end2.piece) {
-                Move move = Move(start.x, start.y, end2.x, end2.y);
-                move.is_pawn_two_squares_forward = true;
-                moves.push_back(move);
+                    start.y + direction);
+            if (!end1.piece) {
+                moves.push_back(Move(start.x, start.y, end1.x, end1.y));
+
+                const Square& end2 = board.get_square(
+                        start.x,
+                        start.y + 2 * direction);
+                const int starting_row = pawn.color == BLACK ? 1 : 6;
+                if (start.y == starting_row && !end2.piece) {
+                    Move move = Move(start.x, start.y, end2.x, end2.y);
+                    move.is_pawn_two_squares_forward = true;
+                    moves.push_back(move);
+                }
             }
-        }
-    } catch (const std::invalid_argument& e) {}
+        } catch (const std::invalid_argument& e) {}
+    }
 
 
     std::vector<Move> captures = get_pawn_captures(pawn, board);

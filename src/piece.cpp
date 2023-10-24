@@ -32,25 +32,25 @@ bool Piece::operator!=(Piece piece) const {
     return !(*this == piece);
 }
 
-std::vector<Move> Piece::get_psuedo_legal_moves(Board& board) const {
+std::vector<Move> Piece::get_psuedo_legal_moves(Board& board, bool only_captures) const {
     switch (piece_type) {
         case KING: {
-            return get_king_psuedo_legal_moves(board);
+            return get_king_psuedo_legal_moves(board, only_captures);
         }
         case QUEEN: {
-            return get_queen_psuedo_legal_moves(board);
+            return get_queen_psuedo_legal_moves(board, only_captures);
         }
         case ROOK: {
-            return get_rook_psuedo_legal_moves(board);
+            return get_rook_psuedo_legal_moves(board, only_captures);
         }
         case BISHOP: {
-            return get_bishop_psuedo_legal_moves(board);
+            return get_bishop_psuedo_legal_moves(board, only_captures);
         }
         case KNIGHT: {
-            return get_knight_psuedo_legal_moves(board);
+            return get_knight_psuedo_legal_moves(board, only_captures);
         }
         case PAWN: {
-            return get_pawn_psuedo_legal_moves(*this, board);
+            return get_pawn_psuedo_legal_moves(*this, board, only_captures);
         }
     }    
     return {};
@@ -61,9 +61,9 @@ std::vector<Move> Piece::get_threatened_moves(Board& board) {
         return get_pawn_captures(*this, board);
     }
     if (piece_type == KING) {
-        return get_king_threatened_moves(*this, board);
+        return get_king_threatened_moves(*this, board, false);
     }
-    return this->get_psuedo_legal_moves(board);
+    return this->get_psuedo_legal_moves(board, false);
 }
 
 char Piece::get_char_representation() const {
@@ -101,13 +101,13 @@ int Piece::get_psqt_score() const {
 }
 
 
-std::vector<Move> Piece::get_bishop_psuedo_legal_moves(Board& board) const {
+std::vector<Move> Piece::get_bishop_psuedo_legal_moves(Board& board, bool only_captures) const {
     std::vector<Move> moves;
 
-    std::vector<Move> up_right = get_psuedo_legal_moves_direction(1, 1, board);
-    std::vector<Move> down_right = get_psuedo_legal_moves_direction(1, -1, board);
-    std::vector<Move> down_left = get_psuedo_legal_moves_direction(-1, -1, board);
-    std::vector<Move> up_left = get_psuedo_legal_moves_direction(-1, 1, board);
+    std::vector<Move> up_right = get_psuedo_legal_moves_direction(1, 1, board, only_captures);
+    std::vector<Move> down_right = get_psuedo_legal_moves_direction(1, -1, board, only_captures);
+    std::vector<Move> down_left = get_psuedo_legal_moves_direction(-1, -1, board, only_captures);
+    std::vector<Move> up_left = get_psuedo_legal_moves_direction(-1, 1, board, only_captures);
 
     moves.insert(std::end(moves), std::begin(up_right), std::end(up_right));
     moves.insert(std::end(moves), std::begin(down_right), std::end(down_right));
@@ -117,13 +117,13 @@ std::vector<Move> Piece::get_bishop_psuedo_legal_moves(Board& board) const {
     return moves;
 }
 
-std::vector<Move> Piece::get_rook_psuedo_legal_moves(Board& board) const {
+std::vector<Move> Piece::get_rook_psuedo_legal_moves(Board& board, bool only_captures) const {
     std::vector<Move> moves;
 
-    std::vector<Move> up = get_psuedo_legal_moves_direction(0, 1, board);
-    std::vector<Move> right = get_psuedo_legal_moves_direction(1, 0, board);
-    std::vector<Move> down = get_psuedo_legal_moves_direction(0, -1, board);
-    std::vector<Move> left = get_psuedo_legal_moves_direction(-1, 0, board);
+    std::vector<Move> up = get_psuedo_legal_moves_direction(0, 1, board, only_captures);
+    std::vector<Move> right = get_psuedo_legal_moves_direction(1, 0, board, only_captures);
+    std::vector<Move> down = get_psuedo_legal_moves_direction(0, -1, board, only_captures);
+    std::vector<Move> left = get_psuedo_legal_moves_direction(-1, 0, board, only_captures);
 
     moves.insert(std::end(moves), std::begin(up), std::end(up));
     moves.insert(std::end(moves), std::begin(right), std::end(right));
@@ -133,17 +133,17 @@ std::vector<Move> Piece::get_rook_psuedo_legal_moves(Board& board) const {
     return moves;
 }
 
-std::vector<Move> Piece::get_queen_psuedo_legal_moves(Board& board) const {
+std::vector<Move> Piece::get_queen_psuedo_legal_moves(Board& board, bool only_captures) const {
     std::vector<Move> moves;
 
-    std::vector<Move> up = get_psuedo_legal_moves_direction(0, 1, board);
-    std::vector<Move> up_right = get_psuedo_legal_moves_direction(1, 1, board);
-    std::vector<Move> right = get_psuedo_legal_moves_direction(1, 0, board);
-    std::vector<Move> down_right = get_psuedo_legal_moves_direction(1, -1, board);
-    std::vector<Move> down = get_psuedo_legal_moves_direction(0, -1, board);
-    std::vector<Move> down_left = get_psuedo_legal_moves_direction(-1, -1, board);
-    std::vector<Move> left = get_psuedo_legal_moves_direction(-1, 0, board);
-    std::vector<Move> up_left = get_psuedo_legal_moves_direction(-1, 1, board);
+    std::vector<Move> up = get_psuedo_legal_moves_direction(0, 1, board, only_captures);
+    std::vector<Move> up_right = get_psuedo_legal_moves_direction(1, 1, board, only_captures);
+    std::vector<Move> right = get_psuedo_legal_moves_direction(1, 0, board, only_captures);
+    std::vector<Move> down_right = get_psuedo_legal_moves_direction(1, -1, board, only_captures);
+    std::vector<Move> down = get_psuedo_legal_moves_direction(0, -1, board, only_captures);
+    std::vector<Move> down_left = get_psuedo_legal_moves_direction(-1, -1, board, only_captures);
+    std::vector<Move> left = get_psuedo_legal_moves_direction(-1, 0, board, only_captures);
+    std::vector<Move> up_left = get_psuedo_legal_moves_direction(-1, 1, board, only_captures);
 
     moves.insert(std::end(moves), std::begin(up), std::end(up));
     moves.insert(std::end(moves), std::begin(up_right), std::end(up_right));
@@ -158,7 +158,7 @@ std::vector<Move> Piece::get_queen_psuedo_legal_moves(Board& board) const {
     return moves;
 }
 
-std::vector<Move> Piece::get_knight_psuedo_legal_moves(Board& board) const {
+std::vector<Move> Piece::get_knight_psuedo_legal_moves(Board& board, bool only_captures) const {
     const std::array<Pos, 8> end_squares = {
         Pos{pos.x + 1, pos.y + 2},
         Pos{pos.x + 1, pos.y - 2},
@@ -172,21 +172,27 @@ std::vector<Move> Piece::get_knight_psuedo_legal_moves(Board& board) const {
 
     std::vector<Move> moves;
     for (Pos end : end_squares) {
-        if (!is_outside_board(end) && !is_occupied_by_color(end, color, board)) {
-            moves.push_back(Move(pos, end));
+        if (!is_outside_board(end)) {
+            if (only_captures && is_occupied_by_color(end, get_opposite_color(color), board)) {
+                moves.push_back(Move(pos, end));
+            } else if (!only_captures && !is_occupied_by_color(end, color, board)) {
+                moves.push_back(Move(pos, end));
+            }
         }
     }
     return moves;
 }
 
-std::vector<Move> Piece::get_king_psuedo_legal_moves(Board& board) const {
-    std::vector<Move> moves = get_king_threatened_moves(*this, board);
-    std::vector<Move> castling_moves = get_castling_moves(board);
-    moves.insert(moves.end(), castling_moves.begin(), castling_moves.end());
+std::vector<Move> Piece::get_king_psuedo_legal_moves(Board& board, bool only_captures) const {
+    std::vector<Move> moves = get_king_threatened_moves(*this, board, only_captures);
+    if (!only_captures) {
+        std::vector<Move> castling_moves = get_castling_moves(board);
+        moves.insert(moves.end(), castling_moves.begin(), castling_moves.end());
+    }
     return moves;
 }
 
-std::vector<Move> Piece::get_psuedo_legal_moves_direction(int x_direction, int y_direction, Board& board) const {
+std::vector<Move> Piece::get_psuedo_legal_moves_direction(int x_direction, int y_direction, Board& board, bool only_captures) const {
     std::vector<Move> moves;
 
     int x = this->pos.x + x_direction;
@@ -200,9 +206,11 @@ std::vector<Move> Piece::get_psuedo_legal_moves_direction(int x_direction, int y
             break;
         }
 
-        moves.push_back(Move(this->pos, Pos{x, y}));
-        x+= x_direction;
-        y+= y_direction;
+        if (!only_captures) {
+            moves.push_back(Move(this->pos, Pos{x, y}));
+        }
+        x += x_direction;
+        y += y_direction;
     }
 
     return moves;
