@@ -42,7 +42,7 @@ class Board {
 
         void show() const;
         void switch_player_to_move();
-        std::vector<Move> get_psuedo_legal_moves();
+        std::vector<Move> get_psuedo_legal_moves(bool only_captures);
         std::vector<Move> get_threatened_moves(Color color);
         Piece& get_piece(Piece piece);
         void remove_piece(Piece piece);

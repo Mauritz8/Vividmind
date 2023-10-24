@@ -88,10 +88,10 @@ void Board::switch_player_to_move() {
 }
 
 
-std::vector<Move> Board::get_psuedo_legal_moves() {
+std::vector<Move> Board::get_psuedo_legal_moves(bool only_captures) {
     std::vector<Move> moves;
     for (Piece piece : game_state.pieces[game_state.player_to_move]) {
-        std::vector<Move> piece_moves = piece.get_psuedo_legal_moves(*this);
+        std::vector<Move> piece_moves = piece.get_psuedo_legal_moves(*this, only_captures);
         moves.insert(std::end(moves), std::begin(piece_moves), std::end(piece_moves));
     } 
     return moves;

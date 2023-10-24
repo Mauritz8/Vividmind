@@ -11,6 +11,31 @@
 #include <vector>
 
 
+std::vector<Move> get_king_threatened_moves(Piece king, const Board& board, bool only_captures) {
+    const std::array<Pos, 8> end_squares = {
+        Pos{king.pos.x, king.pos.y + 1},
+        Pos{king.pos.x + 1, king.pos.y + 1},
+        Pos{king.pos.x + 1, king.pos.y},
+        Pos{king.pos.x + 1, king.pos.y - 1},
+        Pos{king.pos.x, king.pos.y - 1},
+        Pos{king.pos.x - 1, king.pos.y - 1},
+        Pos{king.pos.x - 1, king.pos.y},
+        Pos{king.pos.x - 1, king.pos.y + 1}
+    };
+
+    std::vector<Move> moves;
+    for (Pos end : end_squares) {
+        if (!is_outside_board(end) ) {
+            if (only_captures && is_occupied_by_color(end, get_opposite_color(king.color), board)) {
+                moves.push_back(Move(king.pos, end));
+            } else if (!only_captures && !is_occupied_by_color(end, king.color, board)) {
+                moves.push_back(Move(king.pos, end));
+            }
+        }
+    }
+    return moves;
+}
+
 static std::vector<Move> get_potential_castling_moves(const Board& board) {
     const Color color = board.game_state.player_to_move;
     const int king_x = 4;
@@ -62,28 +87,6 @@ static bool passes_through_check_when_castling(const Move& castling_move, Board&
         }
     }
     return false;
-}
-
-
-std::vector<Move> get_king_threatened_moves(Piece king, const Board& board) {
-    const std::array<Pos, 8> end_squares = {
-        Pos{king.pos.x, king.pos.y + 1},
-        Pos{king.pos.x + 1, king.pos.y + 1},
-        Pos{king.pos.x + 1, king.pos.y},
-        Pos{king.pos.x + 1, king.pos.y - 1},
-        Pos{king.pos.x, king.pos.y - 1},
-        Pos{king.pos.x - 1, king.pos.y - 1},
-        Pos{king.pos.x - 1, king.pos.y},
-        Pos{king.pos.x - 1, king.pos.y + 1}
-    };
-
-    std::vector<Move> moves;
-    for (Pos end : end_squares) {
-        if (!is_outside_board(end) && !is_occupied_by_color(end, king.color, board)) {
-            moves.push_back(Move(king.pos, end));
-        }
-    }
-    return moves;
 }
 
 bool is_valid_castling(const Move& move, Board& board) {

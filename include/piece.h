@@ -32,19 +32,19 @@ class Piece {
         bool operator==(Piece piece) const;
         bool operator!=(Piece piece) const;
 
-        std::vector<Move> get_psuedo_legal_moves(Board& board) const;
+        std::vector<Move> get_psuedo_legal_moves(Board& board, bool only_captures) const;
         std::vector<Move> get_threatened_moves(Board& board);
         char get_char_representation() const;
         int get_value() const;
         int get_psqt_score() const;
 
     private:
-        std::vector<Move> get_bishop_psuedo_legal_moves(Board& board) const;
-        std::vector<Move> get_rook_psuedo_legal_moves(Board& board) const;
-        std::vector<Move> get_queen_psuedo_legal_moves(Board& board) const;
-        std::vector<Move> get_knight_psuedo_legal_moves(Board& board) const;
-        std::vector<Move> get_king_psuedo_legal_moves(Board& board) const;
-        std::vector<Move> get_psuedo_legal_moves_direction(int x_direction, int y_direction, Board& board) const;
+        std::vector<Move> get_bishop_psuedo_legal_moves(Board& board, bool only_captures) const;
+        std::vector<Move> get_rook_psuedo_legal_moves(Board& board, bool only_captures) const;
+        std::vector<Move> get_queen_psuedo_legal_moves(Board& board, bool only_captures) const;
+        std::vector<Move> get_knight_psuedo_legal_moves(Board& board, bool only_captures) const;
+        std::vector<Move> get_king_psuedo_legal_moves(Board& board, bool only_captures) const;
+        std::vector<Move> get_psuedo_legal_moves_direction(int x_direction, int y_direction, Board& board, bool only_captures) const;
 };
 
 char get_char_representation(Piece_type piece_type);

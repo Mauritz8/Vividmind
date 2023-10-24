@@ -27,8 +27,8 @@ static Pos get_king_square(Color color, const Board& board) {
     throw std::invalid_argument("No " + color_str + " king on the board");
 }
 
-std::vector<Move> get_legal_moves(Board& board) {
-    std::vector<Move> legal_moves = board.get_psuedo_legal_moves();
+std::vector<Move> get_legal_moves(Board& board, bool only_captures) {
+    std::vector<Move> legal_moves = board.get_psuedo_legal_moves(only_captures);
     for (auto it = legal_moves.begin(); it != legal_moves.end();) {
         if (it->leaves_king_in_check(board)) {
             it = legal_moves.erase(it);
