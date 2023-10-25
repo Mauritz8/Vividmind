@@ -1,20 +1,12 @@
-#include <cctype>
-#include <memory>
-#include <stdexcept>
-#include <vector>
-
-#include "board.h"
-#include "board_utils.h"
-#include "game_state.h"
-#include "move.h"
 #include "piece.h"
-#include "pieces/king.h"
-#include "pieces/pawn.h"
+
+#include <cctype>
+#include <stdexcept>
+
 #include "engine/psqt.h"
-#include "square.h"
 
 
-Piece::Piece(Piece_type piece_type, Color color, Pos pos) {
+Piece::Piece(PieceType piece_type, Color color, Pos pos) {
     this->piece_type = piece_type;
     this->color = color;
     this->pos.x = pos.x;
@@ -32,49 +24,8 @@ bool Piece::operator!=(Piece piece) const {
     return !(*this == piece);
 }
 
-std::vector<Move> Piece::get_psuedo_legal_moves(Board& board, bool only_captures) const {
-    switch (piece_type) {
-        case KING: {
-            return get_king_psuedo_legal_moves(board, only_captures);
-        }
-        case QUEEN: {
-            return get_queen_psuedo_legal_moves(board, only_captures);
-        }
-        case ROOK: {
-            return get_rook_psuedo_legal_moves(board, only_captures);
-        }
-        case BISHOP: {
-            return get_bishop_psuedo_legal_moves(board, only_captures);
-        }
-        case KNIGHT: {
-            return get_knight_psuedo_legal_moves(board, only_captures);
-        }
-        case PAWN: {
-            return get_pawn_psuedo_legal_moves(*this, board, only_captures);
-        }
-    }    
-    return {};
-}
-
-std::vector<Move> Piece::get_threatened_moves(Board& board) {
-    if (piece_type == PAWN) {
-        return get_pawn_captures(*this, board);
-    }
-    if (piece_type == KING) {
-        return get_king_threatened_moves(*this, board, false);
-    }
-    return this->get_psuedo_legal_moves(board, false);
-}
-
 char Piece::get_char_representation() const {
-    switch (piece_type) {
-        case KING: return 'K';
-        case QUEEN: return 'Q';
-        case ROOK: return 'R';
-        case BISHOP: return 'B';
-        case KNIGHT: return 'N';
-        case PAWN: return 'p';
-    }
+    return ::get_char_representation(piece_type);
 }
 
 int Piece::get_value() const {
@@ -101,122 +52,7 @@ int Piece::get_psqt_score() const {
 }
 
 
-std::vector<Move> Piece::get_bishop_psuedo_legal_moves(Board& board, bool only_captures) const {
-    std::vector<Move> moves;
-
-    std::vector<Move> up_right = get_psuedo_legal_moves_direction(1, 1, board, only_captures);
-    std::vector<Move> down_right = get_psuedo_legal_moves_direction(1, -1, board, only_captures);
-    std::vector<Move> down_left = get_psuedo_legal_moves_direction(-1, -1, board, only_captures);
-    std::vector<Move> up_left = get_psuedo_legal_moves_direction(-1, 1, board, only_captures);
-
-    moves.insert(std::end(moves), std::begin(up_right), std::end(up_right));
-    moves.insert(std::end(moves), std::begin(down_right), std::end(down_right));
-    moves.insert(std::end(moves), std::begin(down_left), std::end(down_left));
-    moves.insert(std::end(moves), std::begin(up_left), std::end(up_left));
-
-    return moves;
-}
-
-std::vector<Move> Piece::get_rook_psuedo_legal_moves(Board& board, bool only_captures) const {
-    std::vector<Move> moves;
-
-    std::vector<Move> up = get_psuedo_legal_moves_direction(0, 1, board, only_captures);
-    std::vector<Move> right = get_psuedo_legal_moves_direction(1, 0, board, only_captures);
-    std::vector<Move> down = get_psuedo_legal_moves_direction(0, -1, board, only_captures);
-    std::vector<Move> left = get_psuedo_legal_moves_direction(-1, 0, board, only_captures);
-
-    moves.insert(std::end(moves), std::begin(up), std::end(up));
-    moves.insert(std::end(moves), std::begin(right), std::end(right));
-    moves.insert(std::end(moves), std::begin(down), std::end(down));
-    moves.insert(std::end(moves), std::begin(left), std::end(left));
-
-    return moves;
-}
-
-std::vector<Move> Piece::get_queen_psuedo_legal_moves(Board& board, bool only_captures) const {
-    std::vector<Move> moves;
-
-    std::vector<Move> up = get_psuedo_legal_moves_direction(0, 1, board, only_captures);
-    std::vector<Move> up_right = get_psuedo_legal_moves_direction(1, 1, board, only_captures);
-    std::vector<Move> right = get_psuedo_legal_moves_direction(1, 0, board, only_captures);
-    std::vector<Move> down_right = get_psuedo_legal_moves_direction(1, -1, board, only_captures);
-    std::vector<Move> down = get_psuedo_legal_moves_direction(0, -1, board, only_captures);
-    std::vector<Move> down_left = get_psuedo_legal_moves_direction(-1, -1, board, only_captures);
-    std::vector<Move> left = get_psuedo_legal_moves_direction(-1, 0, board, only_captures);
-    std::vector<Move> up_left = get_psuedo_legal_moves_direction(-1, 1, board, only_captures);
-
-    moves.insert(std::end(moves), std::begin(up), std::end(up));
-    moves.insert(std::end(moves), std::begin(up_right), std::end(up_right));
-    moves.insert(std::end(moves), std::begin(right), std::end(right));
-    moves.insert(std::end(moves), std::begin(down_right), std::end(down_right));
-    moves.insert(std::end(moves), std::begin(down), std::end(down));
-    moves.insert(std::end(moves), std::begin(down_left), std::end(down_left));
-    moves.insert(std::end(moves), std::begin(left), std::end(left));
-    moves.insert(std::end(moves), std::begin(up_left), std::end(up_left));
-
-
-    return moves;
-}
-
-std::vector<Move> Piece::get_knight_psuedo_legal_moves(Board& board, bool only_captures) const {
-    const std::array<Pos, 8> end_squares = {
-        Pos{pos.x + 1, pos.y + 2},
-        Pos{pos.x + 1, pos.y - 2},
-        Pos{pos.x - 1, pos.y + 2},
-        Pos{pos.x - 1, pos.y - 2},
-        Pos{pos.x + 2, pos.y + 1},
-        Pos{pos.x + 2, pos.y - 1},
-        Pos{pos.x - 2, pos.y + 1},
-        Pos{pos.x - 2, pos.y - 1}
-    };
-
-    std::vector<Move> moves;
-    for (Pos end : end_squares) {
-        if (!is_outside_board(end)) {
-            if (only_captures && is_occupied_by_color(end, get_opposite_color(color), board)) {
-                moves.push_back(Move(pos, end));
-            } else if (!only_captures && !is_occupied_by_color(end, color, board)) {
-                moves.push_back(Move(pos, end));
-            }
-        }
-    }
-    return moves;
-}
-
-std::vector<Move> Piece::get_king_psuedo_legal_moves(Board& board, bool only_captures) const {
-    std::vector<Move> moves = get_king_threatened_moves(*this, board, only_captures);
-    if (!only_captures) {
-        std::vector<Move> castling_moves = get_castling_moves(board);
-        moves.insert(moves.end(), castling_moves.begin(), castling_moves.end());
-    }
-    return moves;
-}
-
-std::vector<Move> Piece::get_psuedo_legal_moves_direction(int x_direction, int y_direction, Board& board, bool only_captures) const {
-    std::vector<Move> moves;
-
-    int x = this->pos.x + x_direction;
-    int y = this->pos.y + y_direction;
-    while (!is_outside_board(x, y)) {
-        const Square& end = board.get_square(x, y);
-        if (end.piece) {
-            if (end.piece->color != this->color) {
-                moves.push_back(Move(this->pos, Pos{x, y}));
-            }
-            break;
-        }
-
-        if (!only_captures) {
-            moves.push_back(Move(this->pos, Pos{x, y}));
-        }
-        x += x_direction;
-        y += y_direction;
-    }
-
-    return moves;
-}
-
-char get_char_representation(Piece_type piece_type) {
+char get_char_representation(PieceType piece_type) {
     switch (piece_type) {
         case PAWN: return 'p';
         case KNIGHT: return 'N';
@@ -228,7 +64,7 @@ char get_char_representation(Piece_type piece_type) {
     throw std::invalid_argument("invalid piece type");
 }
 
-std::optional<Piece_type> get_piece_type(char char_representation) {
+PieceType get_piece_type(char char_representation) {
     switch (tolower(char_representation)) {
         case 'p': return PAWN;
         case 'n': return KNIGHT;
@@ -236,14 +72,6 @@ std::optional<Piece_type> get_piece_type(char char_representation) {
         case 'r': return ROOK;
         case 'q': return QUEEN;
         case 'k': return KING;
-        default: return {};
     }
-}
-
-std::optional<Piece_type> get_promotion_piece_type(char char_representation_lowercase) {
-    if (char_representation_lowercase == 'n') return KNIGHT;
-    if (char_representation_lowercase == 'b') return BISHOP;
-    if (char_representation_lowercase == 'r') return ROOK;
-    if (char_representation_lowercase == 'q') return QUEEN;
-    return {};
+    throw std::invalid_argument("invalid piece type");
 }

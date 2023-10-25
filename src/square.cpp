@@ -1,5 +1,4 @@
 #include "square.h"
-#include <memory>
 
 
 Square::Square(int x, int y) {

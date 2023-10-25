@@ -1,12 +1,13 @@
 #ifndef BOARD_H
 #define BOARD_H
 
-#include "square.h"
 #include <array>
-#include <memory>
 #include <optional>
 #include <string>
 #include <vector>
+
+#include "piece.h"
+#include "square.h"
 
 
 struct Castling {
@@ -42,8 +43,6 @@ class Board {
 
         void show() const;
         void switch_player_to_move();
-        std::vector<Move> get_psuedo_legal_moves(bool only_captures);
-        std::vector<Move> get_threatened_moves(Color color);
         Piece& get_piece(Piece piece);
         void remove_piece(Piece piece);
         void move_piece(Pos from, Pos to);

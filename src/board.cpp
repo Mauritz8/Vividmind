@@ -1,20 +1,12 @@
-#include <algorithm>
-#include <array>
+#include "board.h"
+
 #include <iostream>
-#include <memory>
 #include <cctype>
-#include <optional>
 #include <sstream>
 #include <stdexcept>
-#include <string>
 #include <vector>
 
-#include "board.h"
 #include "board_utils.h"
-#include "game_state.h"
-#include "piece.h"
-#include "pieces/king.h"
-#include "pieces/pawn.h"
 
 
 Board Board::get_starting_position() {
@@ -87,25 +79,6 @@ void Board::switch_player_to_move() {
     }
 }
 
-
-std::vector<Move> Board::get_psuedo_legal_moves(bool only_captures) {
-    std::vector<Move> moves;
-    for (Piece piece : game_state.pieces[game_state.player_to_move]) {
-        std::vector<Move> piece_moves = piece.get_psuedo_legal_moves(*this, only_captures);
-        moves.insert(std::end(moves), std::begin(piece_moves), std::end(piece_moves));
-    } 
-    return moves;
-}
-
-std::vector<Move> Board::get_threatened_moves(Color color) {
-    std::vector<Move> moves;
-    for (Piece piece : game_state.pieces[color]) {
-        std::vector<Move> piece_moves = piece.get_threatened_moves(*this);
-        moves.insert(std::end(moves), std::begin(piece_moves), std::end(piece_moves));
-    } 
-    return moves;
-}
-
 Piece& Board::get_piece(Piece piece) {
     for (Piece& p : game_state.pieces[piece.color]) {
         if (p.pos == piece.pos) {
@@ -150,8 +123,7 @@ void Board::place_pieces(const std::string& pieces) {
             x = 0;
         } else {
             Color color = islower(ch) ? BLACK : WHITE;
-            Piece_type piece_type = *get_piece_type(ch);
-            Piece piece = Piece(piece_type, color, Pos{x, y});
+            Piece piece = Piece(get_piece_type(ch), color, Pos{x, y});
             Square& square = get_square(x, y);
             square.x = x;
             square.y = y;

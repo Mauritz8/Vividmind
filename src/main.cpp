@@ -1,19 +1,18 @@
 #include <iostream>
 #include <string>
-#include <vector>
 
 #include "board.h"
 #include "engine/uci.h"
-#include "game_state.h"
 
 
-int main(void) {
+int main() {
     Board board = Board::get_starting_position();
+    UCI uci = UCI(board);
 
     std::string input;
     while (true) {
         std::getline(std::cin, input);
-        process_uci_command(input, board);
+        uci.process_command(input);
     }
 
     return 0;

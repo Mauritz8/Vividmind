@@ -1,18 +1,10 @@
-#include <algorithm>
-#include <iostream>
-#include <memory>
-#include <optional>
-#include <cctype>
-#include <string>
-#include <vector>
-
-#include "board.h"
-#include "board_utils.h"
 #include "move.h"
-#include "piece.h"
-#include "game_state.h"
-#include "pieces/king.h"
-#include "pieces/pawn.h"
+
+#include <iostream>
+
+#include "board_helper.h"
+#include "board_utils.h"
+#include "move_validator.h"
 
 
 Move::Move(int start_x, int start_y, int end_x, int end_y) {
@@ -51,15 +43,18 @@ Move Move::get_from_uci_notation(const std::string& uci_notation, const Board& b
 
     const Square& start = board.get_square(start_x, start_y);
     const Square& end = board.get_square(end_x, end_y);
-    if (start.piece->piece_type == KING && move.is_valid_castling_move()) {
+
+    BoardHelper board_helper = BoardHelper(board);
+    MoveValidator move_validator = MoveValidator(board, board_helper);
+    if (start.piece->piece_type == KING && move_validator.is_valid_castling_move(move)) {
         move.is_castling_move = true;
     } else if (start.piece->piece_type == PAWN) {
-        if (is_valid_en_passant(move, board)) {
+        if (move_validator.is_valid_en_passant(move)) {
             move.is_en_passant = true;
-        } else if (is_promotion_move(move)) {
+        } else if (move_validator.is_promotion_move(move)) {
             move.is_promotion = true;
             const char promotion_piece = uci_notation[4];
-            move.promotion_piece = get_promotion_piece_type(promotion_piece);
+            move.promotion_piece = get_piece_type(promotion_piece);
         } else if (abs(move.end.y - move.start.y) == 2) {
             move.is_pawn_two_squares_forward = true;
         }
@@ -89,21 +84,7 @@ Move Move::operator=(const Move& move) {
     return *this;
 }
 
-bool Move::leaves_king_in_check(Board& board) {
-    const Color player_to_move = board.game_state.player_to_move;
-    this->make_appropriate(board);
-    if (is_in_check(player_to_move, board)) {
-        this->undo_appropriate(board);
-        return true;
-    }
-    this->undo_appropriate(board);
-    return false;
-}
-
 void Move::make_appropriate(Board& board) const {
-    if (start.x == 4 && start.y == 6 && end.x == 4 && end.y == 4) {
-        std::cout << "";
-    }
     board.history.push_back(board.game_state);
     if (this->is_castling_move) {
         this->make_castling(board);
@@ -153,7 +134,7 @@ std::string Move::to_uci_notation() const {
     uci_notation += files[this->end.x];
     uci_notation += ranks[this->end.y];
 
-    if (this->promotion_piece.has_value()) {
+    if (this->promotion_piece) {
         uci_notation += tolower(get_char_representation(this->promotion_piece.value()));
     }
     return uci_notation;
@@ -188,104 +169,6 @@ void Move::undo(Board& board) const {
     if (board.game_state.captured_piece) {
         end_square.piece = board.game_state.captured_piece;
     }
-}
-
-bool Move::is_valid_rook_move(const Board& board) const {
-    if (!is_same_line(this->start, this->end)) {
-        return false;
-    }
-    if (!is_clear_line(this->start, this->end, board)) {
-        return false;
-    }
-    return true;
-}
-
-bool Move::is_valid_bishop_move(const Board& board) const {
-    if (!is_same_diagonal(this->start, this->end)) {
-        return false;
-    }
-    if (!is_clear_diagonal(this->start, this->end, board)) {
-        return false;
-    }
-    return true;
-}
-
-bool Move::is_valid_queen_move(const Board& board) const {
-    if (this->is_valid_rook_move(board)) {
-        return true;
-    }
-    if (this->is_valid_bishop_move(board)) {
-        return true;
-    }
-    return false;
-}
-
-bool Move::is_valid_knight_move() const {
-    if (abs(end.x - start.x) == 1 && abs(end.y - start.y) == 2) {
-        return true;
-    }
-    if (abs(end.x - start.x) == 2 && abs(end.y - start.y) == 1) {
-        return true;
-    }
-    return false;
-}
-
-bool Move::is_valid_king_move() const {
-    const int x_diff = abs(start.x - end.x);
-    const int y_diff = abs(start.y - end.y);
-    if (x_diff > 1 || y_diff > 1) {
-        return false;
-    }
-    return true;
-}
-
-bool Move::is_valid_castling_move() const {
-    const int king_x = 4;
-    if (start.x != king_x) {
-        return false;
-    }
-    if (end.x != 2 && end.x != 6) {
-        return false;
-    }
-
-    return true;
-}
-
-bool Move::is_valid_pawn_move(const Board& board) const {
-    const Square& start_square = board.get_square(start);
-    const Square& end_square = board.get_square(end);
-    
-    const int direction = start_square.piece->color == BLACK ? 1 : -1;
-
-    const int x_diff = end.x - start.x;
-    const int y_diff = end.y - start.y;
-
-    const bool is_valid_move_one_square_forward = x_diff == 0 && y_diff == direction && !end_square.piece;
-
-    const int starting_row = start_square.piece->color == BLACK ? 1 : 6;
-    const bool is_on_starting_row = start_square.y == starting_row;
-    const bool one_square_forward_is_empty = !board.get_square(start.x, start.y + direction).piece;
-    const bool is_valid_move_two_squares_forward = x_diff == 0 && y_diff == 2 * direction && is_on_starting_row && one_square_forward_is_empty && !end_square.piece;
-
-    const bool is_valid_capture = abs(x_diff) == 1 && y_diff == direction && !end_square.piece;
-
-    if (is_valid_move_one_square_forward || is_valid_move_two_squares_forward || is_valid_capture) {
-        return true;
-    }
-    return false;
-}
-
-bool Move::is_valid_pawn_move_threat(const Board& board) const {
-    const int direction = board.get_square(start).piece->color == BLACK ? 1 : -1;
-    const int x_diff = end.x - start.x;
-    const int y_diff = end.y - start.y;
-
-    const bool is_threatening_diagonally = abs(x_diff) == 1 && y_diff == direction;
-
-    if (is_threatening_diagonally) {
-        return true;
-    }
-    return false;
 }
 
 void Move::update_castling_rights(Board& board) const {
