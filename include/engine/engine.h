@@ -2,19 +2,21 @@
 #define ENGINE_H
 
 #include "board.h"
+#include "board_helper.h"
 #include "move_generator.h"
 #include "game_over_detector.h"
 
 
 class Engine {
     public:
-        Engine(Board& board);
+        Engine(Board& board, BoardHelper& board_helper);
 
         Move get_best_move(int depth);
         void divide(int depth);
 
     private:
         Board& board;
+        BoardHelper& board_helper;
         MoveGenerator move_gen;
         GameOverDetector game_over_detector;
 

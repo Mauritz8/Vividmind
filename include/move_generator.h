@@ -12,7 +12,7 @@
 
 class MoveGenerator {
     public:
-        MoveGenerator(Board& board);
+        MoveGenerator(Board& board, BoardHelper& board_helper);
 
         std::vector<Move> get_legal_moves(bool only_captures) const;
         std::vector<Move> get_threatened_moves(Color color) const;
@@ -23,7 +23,7 @@ class MoveGenerator {
 
     private:
         Board& board;
-        BoardHelper board_helper;
+        BoardHelper& board_helper;
         MoveValidator move_validator;
 
         std::vector<Move> get_psuedo_legal_moves(bool only_captures) const;

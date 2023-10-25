@@ -5,12 +5,14 @@
 #include <optional>
 #include <vector>
 
+#include "board_helper.h"
 #include "move.h"
 
 
-Engine::Engine(Board& board) 
+Engine::Engine(Board& board, BoardHelper& board_helper) 
     : board(board)
-    , move_gen(board)
+    , board_helper(board_helper)
+    , move_gen(board, board_helper)
     , game_over_detector(board, move_gen)
 {}
 
@@ -19,9 +21,9 @@ Move Engine::get_best_move(int depth) {
     std::vector<Move> legal_moves = move_gen.get_legal_moves(false);
     Move* best_move = nullptr;
     for (Move& move : legal_moves) {
-        move.make_appropriate(board);
+        board_helper.make_appropriate(move);
         const int evaluation = -search(depth - 1, -100000, 100000);
-        move.undo_appropriate(board);
+        board_helper.undo_appropriate(move);
         if (evaluation > max) {
             max = evaluation;
             best_move = &move;
@@ -50,9 +52,9 @@ int Engine::search(int depth, int alpha, int beta) {
     }
 
     for (Move& move : legal_moves) {
-        move.make_appropriate(board);
+        board_helper.make_appropriate(move);
         const int evaluation = -search(depth - 1, -beta, -alpha);
-        move.undo_appropriate(board);
+        board_helper.undo_appropriate(move);
 
         if (evaluation >= beta) {
             return beta;
@@ -76,9 +78,9 @@ int Engine::search_captures(int alpha, int beta) {
 
     std::vector<Move> captures = move_gen.get_legal_moves(true);
     for (Move& capture : captures) {
-        capture.make_appropriate(board);
+        board_helper.make_appropriate(capture);
         evaluation = -search_captures(-beta, -alpha);
-        capture.undo_appropriate(board);
+        board_helper.undo_appropriate(capture);
 
         if (evaluation >= beta) {
             return beta;

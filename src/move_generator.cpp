@@ -4,14 +4,15 @@
 #include <iostream>
 #include <stdexcept>
 
+#include "board_helper.h"
 #include "board_utils.h"
 #include "pos.h"
 #include "square.h"
 
 
-MoveGenerator::MoveGenerator(Board& board)
+MoveGenerator::MoveGenerator(Board& board, BoardHelper& board_helper)
     : board(board)
-    , board_helper(board)
+    , board_helper(board_helper)
     , move_validator(board, board_helper)
 {}
 
@@ -44,9 +45,9 @@ int MoveGenerator::perft(int depth) const {
     int nodes = 0;
     std::vector<Move> move_list = get_legal_moves(false);
     for (Move& move : move_list) {
-        move.make_appropriate(board);
+        board_helper.make_appropriate(move);
         nodes += perft(depth - 1);    
-        move.undo_appropriate(board);
+        board_helper.undo_appropriate(move);
     }
     return nodes;
 }
@@ -56,23 +57,23 @@ void MoveGenerator::divide(int depth) const {
     int nodes_searched = 0;
     std::vector<Move> move_list = get_legal_moves(false);
     for (Move& move : move_list) {
-        move.make_appropriate(board);
+        board_helper.make_appropriate(move);
         const int nodes = perft(depth - 1);
         nodes_searched += nodes;
         std::cout << move.to_uci_notation() << ": " << nodes << "\n";
-        move.undo_appropriate(board);
+        board_helper.undo_appropriate(move);
     }
     std::cout << "\nNodes searched: " << nodes_searched << "\n";
 }
 
 bool MoveGenerator::leaves_king_in_check(const Move& move) const {
     const Color player_to_move = board.game_state.player_to_move;
-    move.make_appropriate(board);
+    board_helper.make_appropriate(move);
     if (is_in_check(player_to_move)) {
-        move.undo_appropriate(board);
+        board_helper.undo_appropriate(move);
         return true;
     }
-    move.undo_appropriate(board);
+    board_helper.undo_appropriate(move);
     return false;
 }
 
