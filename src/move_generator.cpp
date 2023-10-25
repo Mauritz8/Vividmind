@@ -219,24 +219,22 @@ std::vector<Move> MoveGenerator::get_pawn_psuedo_legal_moves(Piece pawn, bool on
     Pos start = pawn.pos;
 
     if (!only_captures) {
-        try {
-            const Square& end1 = board.get_square(
-                    start.x,
-                    start.y + direction);
-            if (!end1.piece) {
-                moves.push_back(Move(start.x, start.y, end1.x, end1.y));
+        const Pos end1 = Pos{start.x, start.y + direction};
+        if (!is_outside_board(end1)) {
+            if (!board.get_square(end1).piece) {
+                moves.push_back(Move(start, end1));
 
-                const Square& end2 = board.get_square(
-                        start.x,
-                        start.y + 2 * direction);
                 const int starting_row = pawn.color == BLACK ? 1 : 6;
-                if (start.y == starting_row && !end2.piece) {
-                    Move move = Move(start.x, start.y, end2.x, end2.y);
-                    move.is_pawn_two_squares_forward = true;
-                    moves.push_back(move);
+                if (start.y == starting_row) {
+                    const Pos end2 = Pos{start.x, start.y + 2 * direction};
+                    if (!board.get_square(end2).piece) {
+                        Move move = Move(start, end2);
+                        move.is_pawn_two_squares_forward = true;
+                        moves.push_back(move);
+                    }
                 }
             }
-        } catch (const std::invalid_argument& e) {}
+        }
     }
 
 
@@ -251,14 +249,15 @@ std::vector<Move> MoveGenerator::get_pawn_psuedo_legal_moves(Piece pawn, bool on
         }
     }
 
-    std::vector<Move> other_promotion_moves;
-    const std::array<PieceType, 3> other_promotion_piece_types = {
-        ROOK,
-        BISHOP,
-        KNIGHT
-    };
-    for (Move& move : moves) {
-        if (move_validator.is_promotion_move(move)) {
+    int about_to_promote_row = board.game_state.player_to_move == WHITE ? 1 : 6;
+    if (start.y == about_to_promote_row) {
+        const std::array<PieceType, 3> other_promotion_piece_types = {
+            ROOK,
+            BISHOP,
+            KNIGHT
+        };
+        std::vector<Move> other_promotion_moves;
+        for (Move& move : moves) {
             move.is_promotion = true;
             move.promotion_piece = QUEEN;
             for (PieceType piece_type : other_promotion_piece_types) {
@@ -267,8 +266,8 @@ std::vector<Move> MoveGenerator::get_pawn_psuedo_legal_moves(Piece pawn, bool on
                 other_promotion_moves.push_back(promotion_move);
             }
         }
+        moves.insert(moves.end(), other_promotion_moves.begin(), other_promotion_moves.end());
     }
-    moves.insert(moves.end(), other_promotion_moves.begin(), other_promotion_moves.end());
 
     return moves;
 }
