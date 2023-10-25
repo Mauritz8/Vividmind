@@ -47,7 +47,7 @@ int MoveGenerator::perft(int depth) const {
     for (Move& move : move_list) {
         board_helper.make_appropriate(move);
         nodes += perft(depth - 1);    
-        board_helper.undo_appropriate(move);
+        board_helper.undo_appropriate();
     }
     return nodes;
 }
@@ -61,7 +61,7 @@ void MoveGenerator::divide(int depth) const {
         const int nodes = perft(depth - 1);
         nodes_searched += nodes;
         std::cout << move.to_uci_notation() << ": " << nodes << "\n";
-        board_helper.undo_appropriate(move);
+        board_helper.undo_appropriate();
     }
     std::cout << "\nNodes searched: " << nodes_searched << "\n";
 }
@@ -70,10 +70,10 @@ bool MoveGenerator::leaves_king_in_check(const Move& move) const {
     const Color player_to_move = board.game_state.player_to_move;
     board_helper.make_appropriate(move);
     if (is_in_check(player_to_move)) {
-        board_helper.undo_appropriate(move);
+        board_helper.undo_appropriate();
         return true;
     }
-    board_helper.undo_appropriate(move);
+    board_helper.undo_appropriate();
     return false;
 }
 

@@ -5,12 +5,12 @@
 #include <string>
 #include <vector>
 
-#include "board.h"
 #include "piece.h"
 #include "pos.h"
 #include "square.h"
 
 
+class Board;
 class Move {
     public:
         Pos start;
@@ -21,6 +21,7 @@ class Move {
         bool is_en_passant;
         bool is_pawn_two_squares_forward;
 
+        Move() {};
         Move(int start_x, int start_y, int end_x, int end_y);
         Move(Pos start, Pos end);
         Move(const Square& start, const Square& end);

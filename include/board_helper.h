@@ -16,7 +16,7 @@ class BoardHelper {
         bool is_clear_diagonal(Pos pos1, Pos pos2) const;
         Pos get_king_square(Color color) const;
         void make_appropriate(const Move& move) const;
-        void undo_appropriate(const Move& move) const;
+        void undo_appropriate() const;
 
     private:
         Board& board;

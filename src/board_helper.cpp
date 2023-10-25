@@ -69,6 +69,7 @@ Pos BoardHelper::get_king_square(Color color) const {
 }
 
 void BoardHelper::make_appropriate(const Move& move) const {
+    board.game_state.next_move = move;
     board.history.push_back(board.game_state);
     if (move.is_castling_move) {
         make_castling(move);
@@ -85,7 +86,8 @@ void BoardHelper::make_appropriate(const Move& move) const {
     board.switch_player_to_move();
 }
 
-void BoardHelper::undo_appropriate(const Move& move) const {
+void BoardHelper::undo_appropriate() const {
+    Move move = board.history.back().next_move;
     const Square& end_square = board.get_square(move.end);
     if (!end_square.piece) {
         std::cout << "Can't undo move\n"; 

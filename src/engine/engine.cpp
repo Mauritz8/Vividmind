@@ -23,7 +23,7 @@ Move Engine::get_best_move(int depth) {
     for (Move& move : legal_moves) {
         board_helper.make_appropriate(move);
         const int evaluation = -search(depth - 1, -100000, 100000);
-        board_helper.undo_appropriate(move);
+        board_helper.undo_appropriate();
         if (evaluation > max) {
             max = evaluation;
             best_move = &move;
@@ -54,7 +54,7 @@ int Engine::search(int depth, int alpha, int beta) {
     for (Move& move : legal_moves) {
         board_helper.make_appropriate(move);
         const int evaluation = -search(depth - 1, -beta, -alpha);
-        board_helper.undo_appropriate(move);
+        board_helper.undo_appropriate();
 
         if (evaluation >= beta) {
             return beta;
@@ -80,7 +80,7 @@ int Engine::search_captures(int alpha, int beta) {
     for (Move& capture : captures) {
         board_helper.make_appropriate(capture);
         evaluation = -search_captures(-beta, -alpha);
-        board_helper.undo_appropriate(capture);
+        board_helper.undo_appropriate();
 
         if (evaluation >= beta) {
             return beta;
