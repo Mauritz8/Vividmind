@@ -5,12 +5,14 @@
 #include <stdexcept>
 #include <string>
 
+#include "board_helper.h"
 #include "move.h"
 
 
 UCI::UCI(Board& board) 
     : board(board)
-    , engine(board)
+    , board_helper(board)
+    , engine(board, board_helper)
 {}
 
 void UCI::process_command(const std::string& command) {
@@ -50,7 +52,7 @@ void UCI::make_moves(std::istringstream& moves) {
     std::string move_uci;
     while (std::getline(moves, move_uci, ' ')) {
         Move move = Move::get_from_uci_notation(move_uci, board);
-        move.make_appropriate(board);
+        board_helper.make_appropriate(move);
     }
 }
 

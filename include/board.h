@@ -6,6 +6,7 @@
 #include <string>
 #include <vector>
 
+#include "move.h"
 #include "piece.h"
 #include "square.h"
 
@@ -23,6 +24,7 @@ struct GameState {
     std::array<int, 2> material;
     std::array<int, 2> psqt;
     std::optional<Piece> captured_piece;
+    Move next_move;
 };
 bool operator==(GameState state1, GameState state2);
 
