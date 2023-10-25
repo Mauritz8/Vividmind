@@ -1,9 +1,9 @@
 #ifndef SQUARE_H
 #define SQUARE_H
 
-#include "piece.h"
-#include <memory>
 #include <optional>
+
+#include "piece.h"
 
 
 class Square {

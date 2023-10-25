@@ -19,18 +19,18 @@ FetchContent_MakeAvailable(googletest)
 
 set(COMMON_SOURCES
     src/board.cpp
+    src/board_helper.cpp
     src/board_utils.cpp
-    src/game_over_conditions.cpp
-    src/game_state.cpp
+    src/game_over_detector.cpp
     src/move.cpp
+    src/move_generator.cpp
+    src/move_validator.cpp
     src/piece.cpp
     src/pos.cpp
     src/square.cpp
     src/engine/engine.cpp
-    src/engine/uci.cpp
     src/engine/psqt.cpp
-    src/pieces/king.cpp
-    src/pieces/pawn.cpp
+    src/engine/uci.cpp
 )
 
 add_executable(vividmind 
