@@ -2,6 +2,7 @@
 
 #include <array>
 #include <iostream>
+#include <iterator>
 #include <stdexcept>
 
 #include "board_helper.h"
@@ -168,24 +169,10 @@ std::vector<Move> MoveGenerator::get_rook_psuedo_legal_moves(const Piece& piece,
 std::vector<Move> MoveGenerator::get_queen_psuedo_legal_moves(const Piece& piece, bool only_captures) const {
     std::vector<Move> moves;
 
-    std::vector<Move> up = get_psuedo_legal_moves_direction(piece, 0, 1, only_captures);
-    std::vector<Move> up_right = get_psuedo_legal_moves_direction(piece, 1, 1, only_captures);
-    std::vector<Move> right = get_psuedo_legal_moves_direction(piece, 1, 0, only_captures);
-    std::vector<Move> down_right = get_psuedo_legal_moves_direction(piece, 1, -1, only_captures);
-    std::vector<Move> down = get_psuedo_legal_moves_direction(piece, 0, -1, only_captures);
-    std::vector<Move> down_left = get_psuedo_legal_moves_direction(piece, -1, -1, only_captures);
-    std::vector<Move> left = get_psuedo_legal_moves_direction(piece, -1, 0, only_captures);
-    std::vector<Move> up_left = get_psuedo_legal_moves_direction(piece, -1, 1, only_captures);
-
-    moves.insert(std::end(moves), std::begin(up), std::end(up));
-    moves.insert(std::end(moves), std::begin(up_right), std::end(up_right));
-    moves.insert(std::end(moves), std::begin(right), std::end(right));
-    moves.insert(std::end(moves), std::begin(down_right), std::end(down_right));
-    moves.insert(std::end(moves), std::begin(down), std::end(down));
-    moves.insert(std::end(moves), std::begin(down_left), std::end(down_left));
-    moves.insert(std::end(moves), std::begin(left), std::end(left));
-    moves.insert(std::end(moves), std::begin(up_left), std::end(up_left));
-
+    std::vector<Move> bishop_moves = get_bishop_psuedo_legal_moves(piece, only_captures);
+    std::vector<Move> rook_moves = get_rook_psuedo_legal_moves(piece, only_captures);
+    moves.insert(std::end(moves), std::begin(bishop_moves), std::end(bishop_moves));
+    moves.insert(std::end(moves), std::begin(rook_moves), std::end(rook_moves));
 
     return moves;
 }
