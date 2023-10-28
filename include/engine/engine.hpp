@@ -27,9 +27,9 @@ class Engine {
         GameOverDetector game_over_detector;
 
         Move best_move;
-        int current_depth;
-        int evaluation;
-        int nodes_searched;
+        int depth;
+        int score;
+        int nodes;
         int time;
         std::vector<Move> pv;
 

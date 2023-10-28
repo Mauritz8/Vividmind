@@ -19,22 +19,22 @@ Engine::Engine(Board& board, BoardHelper& board_helper)
 
 
 Move Engine::iterative_deepening_search(int allocated_time_ms) {
-    nodes_searched = 0;
+    nodes = 0;
     time = 0;
     auto start_time = std::chrono::high_resolution_clock::now();
 
-    current_depth = 1;
+    depth = 1;
     while (time < allocated_time_ms) {
-        int evaluation_at_depth = search_root(current_depth, allocated_time_ms - time);
+        int evaluation_at_depth = search_root(depth, allocated_time_ms - time);
         if (evaluation_at_depth == NO_TIME_LEFT) {
             break;
         }
-        evaluation = evaluation_at_depth;
+        score = evaluation_at_depth;
         auto stop_time = std::chrono::high_resolution_clock::now();
         int duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop_time - start_time).count();
         time = duration;
         show_uci_info();
-        current_depth++;
+        depth++;
     }
     return best_move;
 }
@@ -149,7 +149,7 @@ int Engine::search_captures(int alpha, int beta) {
 }
 
 int Engine::evaluate() {
-    nodes_searched++;
+    nodes++;
 
     int evaluation = 0;
     const int white_material = board.game_state.material[WHITE];
@@ -168,9 +168,9 @@ int Engine::evaluate() {
 
 void Engine::show_uci_info() const {
     std::cout << "info";
-    std::cout << " depth " << current_depth;
-    std::cout << " score cp " << evaluation;
-    std::cout << " nodes " << nodes_searched;
+    std::cout << " depth " << depth;
+    std::cout << " score cp " << score;
+    std::cout << " nodes " << nodes;
     std::cout << " time " << time;
     std::cout << " pv";
     for (Move move : pv) {
