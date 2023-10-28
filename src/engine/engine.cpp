@@ -18,10 +18,6 @@ Engine::Engine(Board& board, BoardHelper& board_helper)
 {}
 
 Move Engine::get_best_move(int depth) {
-    current_depth = 0;
-    nodes_searched = 0;
-    auto start_time = std::chrono::high_resolution_clock::now();
-
     int alpha = -200000;
     int beta = -alpha;
     Move best_move;
@@ -36,9 +32,23 @@ Move Engine::get_best_move(int depth) {
             best_move = move;
         }
     }
-    auto stop_time = std::chrono::high_resolution_clock::now();
-    time = std::chrono::duration_cast<std::chrono::milliseconds>(stop_time - start_time).count();
-    show_uci_info(alpha);
+    evaluation = alpha;
+    return best_move;
+}
+
+Move Engine::iterative_deepening_search(int max_depth) {
+    current_depth = 0;
+    nodes_searched = 0;
+    auto start_time = std::chrono::high_resolution_clock::now();
+
+    Move best_move;
+    for (int depth = 1; depth <= max_depth; depth++) {
+        current_depth = depth;
+        best_move = get_best_move(depth); 
+        auto stop_time = std::chrono::high_resolution_clock::now();
+        time = std::chrono::duration_cast<std::chrono::milliseconds>(stop_time - start_time).count();
+        show_uci_info();
+    }
     return best_move;
 }
 
@@ -119,10 +129,10 @@ int Engine::evaluate() const {
     return evaluation;
 }
 
-void Engine::show_uci_info(int alpha) const {
+void Engine::show_uci_info() const {
     std::cout << "info";
     std::cout << " depth " << current_depth;
-    std::cout << " score cp " << alpha;
+    std::cout << " score cp " << evaluation;
     std::cout << " nodes " << nodes_searched;
     std::cout << " time " << time;
     std::cout << "\n";
