@@ -87,7 +87,7 @@ void UCI::handle_go_perft_command(const std::string& depth_argument) {
 }
 
 void UCI::handle_go_command() {
-    const int depth = 2;
-    const Move best_move = engine.iterative_deepening_search(depth);
+    const int time_ms = 5000;
+    const Move best_move = engine.iterative_deepening_search(time_ms);
     std::cout << "bestmove " << best_move.to_uci_notation() << "\n";
 }
