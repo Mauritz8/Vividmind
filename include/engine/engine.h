@@ -28,7 +28,7 @@ class Engine {
 
         int search(int depth, int alpha, int beta);
         int search_captures(int alpha, int beta);
-        int evaluate() const;
+        int evaluate();
         void show_uci_info() const;
 };
 

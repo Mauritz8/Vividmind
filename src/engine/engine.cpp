@@ -24,7 +24,7 @@ Move Engine::get_best_move(int depth) {
     std::vector<Move> legal_moves = move_gen.get_legal_moves(false);
     for (Move& move : legal_moves) {
         board_helper.make_appropriate(move);
-        const int evaluation = -search(depth - 1, alpha, beta);
+        const int evaluation = -search(depth - 1, -beta, -alpha);
         board_helper.undo_appropriate();
 
         if (evaluation > alpha) {
@@ -67,7 +67,6 @@ int Engine::search(int depth, int alpha, int beta) {
     }
 
     if (depth == 0) {
-        nodes_searched++;
         return search_captures(alpha, beta);
     }
 
@@ -113,7 +112,9 @@ int Engine::search_captures(int alpha, int beta) {
     return alpha;
 }
 
-int Engine::evaluate() const {
+int Engine::evaluate() {
+    nodes_searched++;
+
     int evaluation = 0;
     const int white_material = board.game_state.material[WHITE];
     const int black_material = board.game_state.material[BLACK];
