@@ -44,6 +44,7 @@ int Engine::search_root(int depth, int time_left) {
     int alpha = -200000;
     int beta = -alpha;
 
+    Move best_move_at_depth;
     std::vector<Move> legal_moves = move_gen.get_legal_moves(false);
     for (Move& move : legal_moves) {
         board_helper.make_appropriate(move);
@@ -60,9 +61,10 @@ int Engine::search_root(int depth, int time_left) {
 
         if (evaluation > alpha) {
             alpha = evaluation;
-            best_move = move;
+            best_move_at_depth = move;
         }
     }
+    best_move = best_move_at_depth;
     return alpha;
 }
 
