@@ -1,4 +1,4 @@
-#include "square.h"
+#include "square.hpp"
 
 
 Square::Square(int x, int y) {

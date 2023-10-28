@@ -1,12 +1,12 @@
-#include "engine/uci.h"
+#include "engine/uci.hpp"
 
 #include <iostream>
 #include <sstream>
 #include <stdexcept>
 #include <string>
 
-#include "board_helper.h"
-#include "move.h"
+#include "board_helper.hpp"
+#include "move.hpp"
 
 
 UCI::UCI(Board& board) 

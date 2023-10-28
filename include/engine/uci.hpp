@@ -3,9 +3,9 @@
 
 #include <string>
 
-#include "board.h"
-#include "board_helper.h"
-#include "engine/engine.h"
+#include "board.hpp"
+#include "board_helper.hpp"
+#include "engine/engine.hpp"
 
 
 class UCI {

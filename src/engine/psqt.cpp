@@ -1,4 +1,4 @@
-#include "engine/psqt.h"
+#include "engine/psqt.hpp"
 
 
 std::array<std::array<int, 8>, 8> KING_PSQT = {{

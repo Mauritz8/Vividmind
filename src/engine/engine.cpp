@@ -1,4 +1,4 @@
-#include "engine/engine.h"
+#include "engine/engine.hpp"
 
 #include <chrono>
 #include <iostream>
@@ -6,8 +6,8 @@
 #include <optional>
 #include <vector>
 
-#include "board_helper.h"
-#include "move.h"
+#include "board_helper.hpp"
+#include "move.hpp"
 
 
 Engine::Engine(Board& board, BoardHelper& board_helper) 

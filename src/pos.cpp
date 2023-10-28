@@ -1,4 +1,4 @@
-#include "pos.h"
+#include "pos.hpp"
 
 
 bool operator==(Pos pos1, Pos pos2) {

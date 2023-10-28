@@ -1,10 +1,11 @@
 #ifndef ENGINE_H
 #define ENGINE_H
 
-#include "board.h"
-#include "board_helper.h"
-#include "move_generator.h"
-#include "game_over_detector.h"
+#include "board.hpp"
+#include "board_helper.hpp"
+#include "move.hpp"
+#include "move_generator.hpp"
+#include "game_over_detector.hpp"
 
 
 class Engine {

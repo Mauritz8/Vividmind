@@ -3,11 +3,11 @@
 
 #include <vector>
 
-#include "board.h"
-#include "board_helper.h"
-#include "move.h"
-#include "move_validator.h"
-#include "piece.h"
+#include "board.hpp"
+#include "board_helper.hpp"
+#include "move.hpp"
+#include "move_validator.hpp"
+#include "piece.hpp"
 
 
 class MoveGenerator {

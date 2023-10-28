@@ -6,9 +6,9 @@
 #include <string>
 #include <vector>
 
-#include "move.h"
-#include "piece.h"
-#include "square.h"
+#include "move.hpp"
+#include "piece.hpp"
+#include "square.hpp"
 
 
 struct Castling {

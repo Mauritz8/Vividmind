@@ -1,9 +1,9 @@
-#include "piece.h"
+#include "piece.hpp"
 
 #include <cctype>
 #include <stdexcept>
 
-#include "engine/psqt.h"
+#include "engine/psqt.hpp"
 
 
 Piece::Piece(PieceType piece_type, Color color, Pos pos) {

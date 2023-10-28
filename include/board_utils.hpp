@@ -1,8 +1,8 @@
 #ifndef BOARD_UTILS_H
 #define BOARD_UTILS_H
 
-#include "piece.h"
-#include "pos.h"
+#include "piece.hpp"
+#include "pos.hpp"
 
 
 bool is_outside_board(int x, int y);

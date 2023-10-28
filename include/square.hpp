@@ -3,7 +3,7 @@
 
 #include <optional>
 
-#include "piece.h"
+#include "piece.hpp"
 
 
 class Square {

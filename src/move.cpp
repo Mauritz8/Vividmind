@@ -1,10 +1,10 @@
-#include "move.h"
+#include "move.hpp"
 
 #include <iostream>
 
-#include "board_helper.h"
-#include "board_utils.h"
-#include "move_validator.h"
+#include "board_helper.hpp"
+#include "board_utils.hpp"
+#include "move_validator.hpp"
 
 
 Move::Move(int start_x, int start_y, int end_x, int end_y) {

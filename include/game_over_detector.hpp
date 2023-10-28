@@ -3,9 +3,9 @@
 
 #include <vector>
 
-#include "board.h"
-#include "move.h"
-#include "move_generator.h"
+#include "board.hpp"
+#include "move.hpp"
+#include "move_generator.hpp"
 
 
 class GameOverDetector {

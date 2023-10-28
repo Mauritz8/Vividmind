@@ -1,9 +1,9 @@
 #ifndef MOVE_VALIDATOR_H
 #define MOVE_VALIDATOR_H
 
-#include "board.h"
-#include "board_helper.h"
-#include "move.h"
+#include "board.hpp"
+#include "board_helper.hpp"
+#include "move.hpp"
 
 
 class MoveValidator {

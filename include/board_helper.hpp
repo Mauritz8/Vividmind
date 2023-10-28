@@ -1,10 +1,10 @@
 #ifndef BOARD_HELPER_H
 #define BOARD_HELPER_H
 
-#include "board.h"
-#include "move.h"
-#include "piece.h"
-#include "pos.h"
+#include "board.hpp"
+#include "move.hpp"
+#include "piece.hpp"
+#include "pos.hpp"
 
 
 class BoardHelper {

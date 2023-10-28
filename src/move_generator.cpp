@@ -1,14 +1,14 @@
-#include "move_generator.h"
+#include "move_generator.hpp"
 
 #include <array>
 #include <iostream>
 #include <iterator>
 #include <stdexcept>
 
-#include "board_helper.h"
-#include "board_utils.h"
-#include "pos.h"
-#include "square.h"
+#include "board_helper.hpp"
+#include "board_utils.hpp"
+#include "pos.hpp"
+#include "square.hpp"
 
 
 MoveGenerator::MoveGenerator(Board& board, BoardHelper& board_helper)

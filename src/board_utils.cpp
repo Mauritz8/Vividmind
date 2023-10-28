@@ -1,4 +1,4 @@
-#include "board_utils.h"
+#include "board_utils.hpp"
 
 #include <cmath>
 

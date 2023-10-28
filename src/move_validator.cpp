@@ -1,6 +1,6 @@
-#include "move_validator.h"
+#include "move_validator.hpp"
 
-#include "board_utils.h"
+#include "board_utils.hpp"
 
 
 MoveValidator::MoveValidator(const Board& board, BoardHelper& board_helper) 

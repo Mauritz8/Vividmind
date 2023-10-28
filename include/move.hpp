@@ -5,9 +5,9 @@
 #include <string>
 #include <vector>
 
-#include "piece.h"
-#include "pos.h"
-#include "square.h"
+#include "piece.hpp"
+#include "pos.hpp"
+#include "square.hpp"
 
 
 class Board;

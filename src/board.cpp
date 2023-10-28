@@ -1,4 +1,4 @@
-#include "board.h"
+#include "board.hpp"
 
 #include <iostream>
 #include <cctype>
@@ -6,7 +6,7 @@
 #include <stdexcept>
 #include <vector>
 
-#include "board_utils.h"
+#include "board_utils.hpp"
 
 
 Board Board::get_starting_position() {

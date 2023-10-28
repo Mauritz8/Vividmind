@@ -1,4 +1,4 @@
-#include "game_over_detector.h"
+#include "game_over_detector.hpp"
 
 
 GameOverDetector::GameOverDetector(const Board& board, const MoveGenerator& move_generator) 

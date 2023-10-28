@@ -1,9 +1,9 @@
 #include <gtest/gtest.h>
 #include <string>
 
-#include "board.h"
-#include "board_helper.h"
-#include "move_generator.h"
+#include "board.hpp"
+#include "board_helper.hpp"
+#include "move_generator.hpp"
 
 class MoveGenerationTest : public testing::Test {
     public:

@@ -1,9 +1,9 @@
-#include "board_helper.h"
+#include "board_helper.hpp"
 
 #include <iostream>
 #include <stdexcept>
 
-#include "board_utils.h"
+#include "board_utils.hpp"
 
 
 BoardHelper::BoardHelper(Board& board)

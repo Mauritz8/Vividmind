@@ -1,7 +1,7 @@
 #ifndef PIECE_H
 #define PIECE_H
 
-#include "pos.h"
+#include "pos.hpp"
 
 
 typedef enum {PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING} PieceType;

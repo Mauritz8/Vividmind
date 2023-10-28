@@ -1,8 +1,8 @@
 #include <iostream>
 #include <string>
 
-#include "board.h"
-#include "engine/uci.h"
+#include "board.hpp"
+#include "engine/uci.hpp"
 
 
 int main() {
