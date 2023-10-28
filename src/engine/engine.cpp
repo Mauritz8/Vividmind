@@ -1,5 +1,6 @@
 #include "engine/engine.h"
 
+#include <chrono>
 #include <iostream>
 #include <limits.h>
 #include <optional>
@@ -17,20 +18,38 @@ Engine::Engine(Board& board, BoardHelper& board_helper)
 {}
 
 Move Engine::get_best_move(int depth) {
-    int max = INT_MIN;
+    int alpha = -200000;
+    int beta = -alpha;
+    Move best_move;
     std::vector<Move> legal_moves = move_gen.get_legal_moves(false);
-    Move* best_move = nullptr;
     for (Move& move : legal_moves) {
         board_helper.make_appropriate(move);
-        const int evaluation = -search(depth - 1, -100000, 100000);
+        const int evaluation = -search(depth - 1, -beta, -alpha);
         board_helper.undo_appropriate();
-        if (evaluation > max) {
-            max = evaluation;
-            best_move = &move;
+
+        if (evaluation > alpha) {
+            alpha = evaluation;
+            best_move = move;
         }
     }
-    std::cout << "info score cp " << max << "\n";
-    return *best_move;
+    evaluation = alpha;
+    return best_move;
+}
+
+Move Engine::iterative_deepening_search(int max_depth) {
+    current_depth = 0;
+    nodes_searched = 0;
+    auto start_time = std::chrono::high_resolution_clock::now();
+
+    Move best_move;
+    for (int depth = 1; depth <= max_depth; depth++) {
+        current_depth = depth;
+        best_move = get_best_move(depth); 
+        auto stop_time = std::chrono::high_resolution_clock::now();
+        time = std::chrono::duration_cast<std::chrono::milliseconds>(stop_time - start_time).count();
+        show_uci_info();
+    }
+    return best_move;
 }
 
 void Engine::divide(int depth) {
@@ -93,7 +112,9 @@ int Engine::search_captures(int alpha, int beta) {
     return alpha;
 }
 
-int Engine::evaluate() const {
+int Engine::evaluate() {
+    nodes_searched++;
+
     int evaluation = 0;
     const int white_material = board.game_state.material[WHITE];
     const int black_material = board.game_state.material[BLACK];
@@ -107,4 +128,13 @@ int Engine::evaluate() const {
         return -evaluation;
     }
     return evaluation;
+}
+
+void Engine::show_uci_info() const {
+    std::cout << "info";
+    std::cout << " depth " << current_depth;
+    std::cout << " score cp " << evaluation;
+    std::cout << " nodes " << nodes_searched;
+    std::cout << " time " << time;
+    std::cout << "\n";
 }
