@@ -13,7 +13,7 @@ class Engine {
         Engine(Board& board, BoardHelper& board_helper);
 
         Move get_best_move(int depth);
-        Move iterative_deepening_search(int max_depth);
+        Move iterative_deepening_search(int allocated_time_ms);
         void divide(int depth);
 
     private:

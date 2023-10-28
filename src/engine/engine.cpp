@@ -36,18 +36,43 @@ Move Engine::get_best_move(int depth) {
     return best_move;
 }
 
-Move Engine::iterative_deepening_search(int max_depth) {
-    current_depth = 0;
+Move Engine::iterative_deepening_search(int allocated_time_ms) {
     nodes_searched = 0;
+    time = 0;
     auto start_time = std::chrono::high_resolution_clock::now();
 
+    current_depth = 1;
     Move best_move;
-    for (int depth = 1; depth <= max_depth; depth++) {
-        current_depth = depth;
-        best_move = get_best_move(depth); 
+    while (time < allocated_time_ms * 0.5) {
+        int alpha = -200000;
+        int beta = -alpha;
+        std::vector<Move> legal_moves = move_gen.get_legal_moves(false);
+        Move best_move_current_depth;
+        for (Move& move : legal_moves) {
+            auto stop_time = std::chrono::high_resolution_clock::now();
+            time = std::chrono::duration_cast<std::chrono::milliseconds>(stop_time - start_time).count();
+            if (time >= allocated_time_ms) {
+                return best_move;
+            }
+
+            board_helper.make_appropriate(move);
+            const int evaluation = -search(current_depth - 1, -beta, -alpha);
+            board_helper.undo_appropriate();
+
+            if (evaluation > alpha) {
+                alpha = evaluation;
+                best_move_current_depth = move;
+            }
+        }
+        evaluation = alpha;
+        best_move = best_move_current_depth;
+
+
+
         auto stop_time = std::chrono::high_resolution_clock::now();
         time = std::chrono::duration_cast<std::chrono::milliseconds>(stop_time - start_time).count();
         show_uci_info();
+        current_depth++;
     }
     return best_move;
 }
