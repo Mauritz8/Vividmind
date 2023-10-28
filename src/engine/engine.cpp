@@ -47,11 +47,12 @@ int Engine::search_root(int depth, int time_left) {
     Move best_move_at_depth;
     std::vector<Move> legal_moves = move_gen.get_legal_moves(false);
     for (Move& move : legal_moves) {
+        std::vector<Move> principal_variation;
         board_helper.make_appropriate(move);
 
         auto stop_time = std::chrono::high_resolution_clock::now();
         int duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop_time - start_time).count();
-        const int evaluation = -search(depth - 1, -beta, -alpha, time_left - duration);
+        const int evaluation = -search(depth - 1, -beta, -alpha, time_left - duration, principal_variation);
 
         board_helper.undo_appropriate();
 
@@ -62,6 +63,8 @@ int Engine::search_root(int depth, int time_left) {
         if (evaluation > alpha) {
             alpha = evaluation;
             best_move_at_depth = move;
+            principal_variation.insert(principal_variation.begin(), move);
+            pv = principal_variation;
         }
     }
     best_move = best_move_at_depth;
@@ -76,7 +79,7 @@ void Engine::divide(int depth) {
     move_gen.divide(depth);
 }
 
-int Engine::search(int depth, int alpha, int beta, int time_left) {
+int Engine::search(int depth, int alpha, int beta, int time_left, std::vector<Move>& principal_variation) {
     if (time_left <= 0) {
         return NO_TIME_LEFT; 
     }
@@ -95,10 +98,11 @@ int Engine::search(int depth, int alpha, int beta, int time_left) {
     }
 
     for (Move& move : legal_moves) {
+        std::vector<Move> line;
         board_helper.make_appropriate(move);
         auto stop_time = std::chrono::high_resolution_clock::now();
         int time_spent = std::chrono::duration_cast<std::chrono::milliseconds>(stop_time - start_time).count();
-        const int evaluation = -search(depth - 1, -beta, -alpha, time_left - time_spent);
+        const int evaluation = -search(depth - 1, -beta, -alpha, time_left - time_spent, line);
         board_helper.undo_appropriate();
 
         if (evaluation == NO_TIME_LEFT) {
@@ -110,6 +114,8 @@ int Engine::search(int depth, int alpha, int beta, int time_left) {
         }
         if (evaluation > alpha) {
             alpha = evaluation;
+            line.insert(line.begin(), move);
+            principal_variation = line;
         }
     }
     return alpha;
@@ -166,5 +172,9 @@ void Engine::show_uci_info() const {
     std::cout << " score cp " << evaluation;
     std::cout << " nodes " << nodes_searched;
     std::cout << " time " << time;
+    std::cout << " pv";
+    for (Move move : pv) {
+        std::cout << " " << move.to_uci_notation();
+    }
     std::cout << "\n";
 }
