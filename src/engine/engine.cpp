@@ -1,5 +1,6 @@
 #include "engine/engine.h"
 
+#include <chrono>
 #include <iostream>
 #include <limits.h>
 #include <optional>
@@ -17,7 +18,9 @@ Engine::Engine(Board& board, BoardHelper& board_helper)
 {}
 
 Move Engine::get_best_move(int depth) {
+    current_depth = 0;
     nodes_searched = 0;
+    auto start_time = std::chrono::high_resolution_clock::now();
 
     int alpha = -200000;
     int beta = -alpha;
@@ -33,8 +36,9 @@ Move Engine::get_best_move(int depth) {
             best_move = move;
         }
     }
-    std::cout << "nodes searched = " << nodes_searched << "\n";
-    std::cout << "info score cp " << alpha << "\n";
+    auto stop_time = std::chrono::high_resolution_clock::now();
+    time = std::chrono::duration_cast<std::chrono::milliseconds>(stop_time - start_time).count();
+    show_uci_info(alpha);
     return best_move;
 }
 
@@ -113,4 +117,13 @@ int Engine::evaluate() const {
         return -evaluation;
     }
     return evaluation;
+}
+
+void Engine::show_uci_info(int alpha) const {
+    std::cout << "info";
+    std::cout << " depth " << current_depth;
+    std::cout << " score cp " << alpha;
+    std::cout << " nodes " << nodes_searched;
+    std::cout << " time " << time;
+    std::cout << "\n";
 }
