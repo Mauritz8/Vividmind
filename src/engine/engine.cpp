@@ -17,20 +17,25 @@ Engine::Engine(Board& board, BoardHelper& board_helper)
 {}
 
 Move Engine::get_best_move(int depth) {
-    int max = INT_MIN;
+    nodes_searched = 0;
+
+    int alpha = -200000;
+    int beta = -alpha;
+    Move best_move;
     std::vector<Move> legal_moves = move_gen.get_legal_moves(false);
-    Move* best_move = nullptr;
     for (Move& move : legal_moves) {
         board_helper.make_appropriate(move);
-        const int evaluation = -search(depth - 1, -100000, 100000);
+        const int evaluation = -search(depth - 1, alpha, beta);
         board_helper.undo_appropriate();
-        if (evaluation > max) {
-            max = evaluation;
-            best_move = &move;
+
+        if (evaluation > alpha) {
+            alpha = evaluation;
+            best_move = move;
         }
     }
-    std::cout << "info score cp " << max << "\n";
-    return *best_move;
+    std::cout << "nodes searched = " << nodes_searched << "\n";
+    std::cout << "info score cp " << alpha << "\n";
+    return best_move;
 }
 
 void Engine::divide(int depth) {
@@ -48,6 +53,7 @@ int Engine::search(int depth, int alpha, int beta) {
     }
 
     if (depth == 0) {
+        nodes_searched++;
         return search_captures(alpha, beta);
     }
 
