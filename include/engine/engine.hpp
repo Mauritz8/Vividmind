@@ -15,12 +15,19 @@ class Engine {
     public:
         Move best_move;
 
+        int wtime;
+        int btime;
+        int winc;
+        int binc;
+        int moves_to_go;
+
         Engine(Board& board, BoardHelper& board_helper);
 
         void iterative_deepening_search_depth(int search_depth);
         void iterative_deepening_search_time(int allocated_time_ms);
         void iterative_deepening_search_infinite();
         void divide(int depth);
+        int get_allocated_time();
 
     private:
         Board& board;

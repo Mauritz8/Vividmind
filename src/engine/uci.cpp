@@ -84,24 +84,38 @@ void UCI::handle_go_command(const std::string& arguments) {
         std::string argument;
         std::getline(ss, argument, ' ');
 
-        if (token == "perft") {
+        if (token == "wtime") {
+            engine.wtime = std::stoi(argument);
+        } else if (token == "btime") {
+            engine.btime = std::stoi(argument);
+        } else if (token == "winc") {
+            engine.btime = std::stoi(argument);
+        } else if (token == "binc") {
+            engine.btime = std::stoi(argument);
+        } else if (token == "movestogo") {
+            engine.moves_to_go = std::stoi(argument);
+        }
+        
+
+        else if (token == "perft") {
             int depth =  std::stoi(argument);
             engine.divide(depth);
             return;
         }
 
-        if (token == "depth") {
+        else if (token == "depth") {
             int depth =  std::stoi(argument);
             engine.iterative_deepening_search_depth(depth);
-            break;
+            return;
         } else if (token == "movetime") {
             int movetime =  std::stoi(argument);
             engine.iterative_deepening_search_time(movetime);
-            break;
+            return;
         } else if (token == "infinite") {
             engine.iterative_deepening_search_infinite(); 
-            break;
+            return;
         }
     }
-    std::cout << "bestmove " << engine.best_move.to_uci_notation() << "\n";
+    int allocated_time = engine.get_allocated_time();
+    engine.iterative_deepening_search_time(allocated_time);
 }
