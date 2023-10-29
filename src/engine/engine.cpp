@@ -202,6 +202,7 @@ void Engine::show_uci_info() const {
         std::cout << " " << move.to_uci_notation();
     }
     std::cout << "\n";
+    std::cout.flush();
 }
 
 void Engine::move_ordering(std::vector<Move>& legal_moves, int current_depth) const {

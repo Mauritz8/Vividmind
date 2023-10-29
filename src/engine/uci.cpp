@@ -29,7 +29,7 @@ void UCI::process_command(const std::string& command) {
     } else if (command == "quit") {
         exit(0);
     }
-    fflush(stdout);
+    std::cout.flush();
 }
 
 void UCI::handle_uci_command() {
