@@ -20,21 +20,21 @@ Engine::Engine(Board& board, BoardHelper& board_helper)
 
 
 
-Move Engine::iterative_deepening_search_time(int allocated_time_ms) {
-    return iterative_deepening_search(NO_CONSTRAINT, allocated_time_ms);
+void Engine::iterative_deepening_search_time(int allocated_time_ms) {
+    iterative_deepening_search(NO_CONSTRAINT, allocated_time_ms);
 }
-Move Engine::iterative_deepening_search_depth(int search_depth) {
-    return iterative_deepening_search(search_depth, NO_CONSTRAINT);
+void Engine::iterative_deepening_search_depth(int search_depth) {
+    iterative_deepening_search(search_depth, NO_CONSTRAINT);
 }
-Move Engine::iterative_deepening_search_infinite() {
-    return iterative_deepening_search(NO_CONSTRAINT, NO_CONSTRAINT);
+void Engine::iterative_deepening_search_infinite() {
+    iterative_deepening_search(NO_CONSTRAINT, NO_CONSTRAINT);
 }
 
 void Engine::divide(int depth) {
     move_gen.divide(depth);
 }
 
-Move Engine::iterative_deepening_search(int search_depth, int allocated_time_ms) {
+void Engine::iterative_deepening_search(int search_depth, int allocated_time_ms) {
     nodes = 0;
     time = 0;
     auto start_time = std::chrono::high_resolution_clock::now();
@@ -52,7 +52,6 @@ Move Engine::iterative_deepening_search(int search_depth, int allocated_time_ms)
         show_uci_info();
         depth++;
     }
-    return best_move;
 }
 
 int Engine::search_root(int depth, int time_left) {
