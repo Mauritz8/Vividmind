@@ -2,6 +2,7 @@
 #define ENGINE_H
 
 #include <climits>
+#include <vector>
 
 #include "board.hpp"
 #include "board_helper.hpp"
@@ -26,18 +27,20 @@ class Engine {
         GameOverDetector game_over_detector;
 
         Move best_move;
-        int current_depth;
-        int evaluation;
-        int nodes_searched;
+        int depth;
+        int score;
+        int nodes;
         int time;
+        std::vector<Move> pv;
 
         static const int NO_TIME_CONSTRAINT = INT_MAX;
         static const int NO_TIME_LEFT = INT_MIN;
 
-        int search(int depth, int alpha, int beta, int time_left);
+        int search(int depth, int alpha, int beta, int time_left, std::vector<Move>& principal_variation);
         int search_captures(int alpha, int beta);
         int evaluate();
         void show_uci_info() const;
+        void move_ordering(std::vector<Move>& legal_moves, int current_depth) const;
 };
 
 

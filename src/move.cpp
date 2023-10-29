@@ -84,6 +84,10 @@ Move Move::operator=(const Move& move) {
     return *this;
 }
 
+bool Move::operator==(const Move& move) const {
+    return move.start == start && move.end == end;
+}
+
 std::string Move::to_uci_notation() const {
     const std::string files = "abcdefgh";
     const std::string ranks = "87654321";
