@@ -19,13 +19,25 @@ Engine::Engine(Board& board, BoardHelper& board_helper)
 {}
 
 
-Move Engine::iterative_deepening_search(int allocated_time_ms) {
+
+Move Engine::iterative_deepening_search_time(int allocated_time_ms) {
+    return iterative_deepening_search(NO_CONSTRAINT, allocated_time_ms);
+}
+Move Engine::iterative_deepening_search_depth(int search_depth) {
+    return iterative_deepening_search(search_depth, NO_CONSTRAINT);
+}
+
+void Engine::divide(int depth) {
+    move_gen.divide(depth);
+}
+
+Move Engine::iterative_deepening_search(int search_depth, int allocated_time_ms) {
     nodes = 0;
     time = 0;
     auto start_time = std::chrono::high_resolution_clock::now();
 
     depth = 1;
-    while (time < allocated_time_ms) {
+    while (depth <= search_depth && time < allocated_time_ms) {
         int evaluation_at_depth = search_root(depth, allocated_time_ms - time);
         if (evaluation_at_depth == NO_TIME_LEFT) {
             break;
@@ -73,14 +85,6 @@ int Engine::search_root(int depth, int time_left) {
     best_move = best_move_at_depth;
     pv = principal_variation;
     return alpha;
-}
-
-int Engine::search_root(int depth) {
-    return search_root(depth, NO_TIME_CONSTRAINT);
-}
-
-void Engine::divide(int depth) {
-    move_gen.divide(depth);
 }
 
 int Engine::search(int depth, int alpha, int beta, int time_left, std::vector<Move>& principal_variation) {
