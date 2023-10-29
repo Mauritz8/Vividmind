@@ -24,10 +24,8 @@ void UCI::process_command(const std::string& command) {
         handle_ucinewgame_command();
     } else if (command.substr(0, 8) == "position") {
         handle_position_command(command.substr(9, std::string::npos));
-    } else if (command.substr(0, 8) == "go perft") {
-        handle_go_perft_command(command.substr(9, std::string::npos));
     } else if (command.substr(0, 2) == "go") {
-        handle_go_command();
+        handle_go_command(command.substr(3, std::string::npos));
     } else if (command == "quit") {
         exit(0);
     }
@@ -79,15 +77,31 @@ void UCI::handle_position_command(const std::string& position) {
     }
 }
 
-void UCI::handle_go_perft_command(const std::string& depth_argument) {
-    try {
-        const int depth = std::stoi(depth_argument);
-        engine.divide(depth);
-    } catch (const std::invalid_argument& e) {}
-}
+void UCI::handle_go_command(const std::string& arguments) {
+    std::istringstream ss(arguments);
+    std::string token;
+    while (std::getline(ss, token, ' ')) {
+        std::string argument;
+        std::getline(ss, argument, ' ');
 
-void UCI::handle_go_command() {
-    const int time_ms = 5000;
-    const Move best_move = engine.iterative_deepening_search(time_ms);
-    std::cout << "bestmove " << best_move.to_uci_notation() << "\n";
+        if (token == "perft") {
+            int depth =  std::stoi(argument);
+            engine.divide(depth);
+            return;
+        }
+
+        if (token == "depth") {
+            int depth =  std::stoi(argument);
+            engine.iterative_deepening_search_depth(depth);
+            break;
+        } else if (token == "movetime") {
+            int movetime =  std::stoi(argument);
+            engine.iterative_deepening_search_time(movetime);
+            break;
+        } else if (token == "infinite") {
+            engine.iterative_deepening_search_infinite(); 
+            break;
+        }
+    }
+    std::cout << "bestmove " << engine.best_move.to_uci_notation() << "\n";
 }

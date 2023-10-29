@@ -13,11 +13,15 @@
 
 class Engine {
     public:
+        static const int NO_CONSTRAINT = INT_MAX;
+
+        Move best_move;
+
         Engine(Board& board, BoardHelper& board_helper);
 
-        Move iterative_deepening_search(int allocated_time_ms);
-        int search_root(int depth, int time_left);
-        int search_root(int depth);
+        void iterative_deepening_search_depth(int search_depth);
+        void iterative_deepening_search_time(int allocated_time_ms);
+        void iterative_deepening_search_infinite();
         void divide(int depth);
 
     private:
@@ -26,16 +30,16 @@ class Engine {
         MoveGenerator move_gen;
         GameOverDetector game_over_detector;
 
-        Move best_move;
         int depth;
         int score;
         int nodes;
         int time;
         std::vector<Move> pv;
 
-        static const int NO_TIME_CONSTRAINT = INT_MAX;
         static const int NO_TIME_LEFT = INT_MIN;
 
+        void iterative_deepening_search(int search_depth, int allocated_time_ms);
+        int search_root(int depth, int time_left);
         int search(int depth, int alpha, int beta, int time_left, std::vector<Move>& principal_variation);
         int search_captures(int alpha, int beta);
         int evaluate();

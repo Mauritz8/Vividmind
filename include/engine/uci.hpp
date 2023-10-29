@@ -24,8 +24,7 @@ class UCI {
         void handle_ucinewgame_command();
         void make_moves(std::istringstream& moves);
         void handle_position_command(const std::string& position);
-        void handle_go_perft_command(const std::string& depth_argument);
-        void handle_go_command();
+        void handle_go_command(const std::string& arguments);
 };
 
 #endif
