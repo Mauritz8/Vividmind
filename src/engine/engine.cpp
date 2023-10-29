@@ -105,7 +105,9 @@ int Engine::search(int depth, int alpha, int beta, int time_left, std::vector<Mo
     }
 
     if (depth == 0) {
-        return search_captures(alpha, beta);
+        auto stop_time = std::chrono::high_resolution_clock::now();
+        int time_spent = std::chrono::duration_cast<std::chrono::milliseconds>(stop_time - start_time).count();
+        return search_captures(alpha, beta, time_left - time_spent);
     }
 
     for (Move& move : legal_moves) {
@@ -132,7 +134,12 @@ int Engine::search(int depth, int alpha, int beta, int time_left, std::vector<Mo
     return alpha;
 }
 
-int Engine::search_captures(int alpha, int beta) {
+int Engine::search_captures(int alpha, int beta, int time_left) {
+    if (time_left <= 10) {
+        return NO_TIME_LEFT; 
+    }
+    auto start_time = std::chrono::high_resolution_clock::now();
+
     int evaluation = evaluate();
     if (evaluation >= beta) {
         return beta;
@@ -145,8 +152,14 @@ int Engine::search_captures(int alpha, int beta) {
     std::vector<Move> captures = move_gen.get_legal_moves(true);
     for (Move& capture : captures) {
         board_helper.make_appropriate(capture);
-        evaluation = -search_captures(-beta, -alpha);
+        auto stop_time = std::chrono::high_resolution_clock::now();
+        int time_spent = std::chrono::duration_cast<std::chrono::milliseconds>(stop_time - start_time).count();
+        evaluation = -search_captures(-beta, -alpha, time_left - time_spent);
         board_helper.undo_appropriate();
+
+        if (evaluation == NO_TIME_LEFT) {
+            return evaluation;
+        }
 
         if (evaluation >= beta) {
             return beta;
