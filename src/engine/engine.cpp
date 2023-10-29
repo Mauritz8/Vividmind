@@ -26,6 +26,9 @@ Move Engine::iterative_deepening_search_time(int allocated_time_ms) {
 Move Engine::iterative_deepening_search_depth(int search_depth) {
     return iterative_deepening_search(search_depth, NO_CONSTRAINT);
 }
+Move Engine::iterative_deepening_search_infinite() {
+    return iterative_deepening_search(NO_CONSTRAINT, NO_CONSTRAINT);
+}
 
 void Engine::divide(int depth) {
     move_gen.divide(depth);

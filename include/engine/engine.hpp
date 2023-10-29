@@ -19,6 +19,7 @@ class Engine {
 
         Move iterative_deepening_search_depth(int search_depth);
         Move iterative_deepening_search_time(int allocated_time_ms);
+        Move iterative_deepening_search_infinite();
         void divide(int depth);
 
     private:
