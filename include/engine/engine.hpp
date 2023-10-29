@@ -13,8 +13,6 @@
 
 class Engine {
     public:
-        static const int NO_CONSTRAINT = INT_MAX;
-
         Move best_move;
 
         Engine(Board& board, BoardHelper& board_helper);
@@ -36,6 +34,7 @@ class Engine {
         int time;
         std::vector<Move> pv;
 
+        static const int NO_CONSTRAINT = INT_MAX;
         static const int NO_TIME_LEFT = INT_MIN;
 
         void iterative_deepening_search(int search_depth, int allocated_time_ms);
