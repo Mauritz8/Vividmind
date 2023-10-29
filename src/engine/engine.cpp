@@ -1,5 +1,6 @@
 #include "engine/engine.hpp"
 
+#include <algorithm>
 #include <chrono>
 #include <iostream>
 #include <limits.h>
@@ -45,14 +46,16 @@ int Engine::search_root(int depth, int time_left) {
     int beta = -alpha;
 
     Move best_move_at_depth;
+    std::vector<Move> principal_variation;
     std::vector<Move> legal_moves = move_gen.get_legal_moves(false);
+    move_ordering(legal_moves, this->depth - depth);
     for (Move& move : legal_moves) {
-        std::vector<Move> principal_variation;
+        std::vector<Move> variation;
         board_helper.make_appropriate(move);
 
         auto stop_time = std::chrono::high_resolution_clock::now();
         int duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop_time - start_time).count();
-        const int evaluation = -search(depth - 1, -beta, -alpha, time_left - duration, principal_variation);
+        const int evaluation = -search(depth - 1, -beta, -alpha, time_left - duration, variation);
 
         board_helper.undo_appropriate();
 
@@ -63,11 +66,12 @@ int Engine::search_root(int depth, int time_left) {
         if (evaluation > alpha) {
             alpha = evaluation;
             best_move_at_depth = move;
-            principal_variation.insert(principal_variation.begin(), move);
-            pv = principal_variation;
+            variation.insert(variation.begin(), move);
+            principal_variation = variation;
         }
     }
     best_move = best_move_at_depth;
+    pv = principal_variation;
     return alpha;
 }
 
@@ -86,6 +90,7 @@ int Engine::search(int depth, int alpha, int beta, int time_left, std::vector<Mo
     auto start_time = std::chrono::high_resolution_clock::now();
 
     std::vector<Move> legal_moves = move_gen.get_legal_moves(false);
+    move_ordering(legal_moves, this->depth - depth);
     if (game_over_detector.is_checkmate(legal_moves)) {
         return -KING_VALUE - depth;
     }
@@ -178,4 +183,13 @@ void Engine::show_uci_info() const {
         std::cout << " " << move.to_uci_notation();
     }
     std::cout << "\n";
+}
+
+void Engine::move_ordering(std::vector<Move>& legal_moves, int current_depth) const {
+    if (pv.size() > current_depth) {
+        auto pv_move = std::find(legal_moves.begin(), legal_moves.end(), pv.at(current_depth));
+        if (pv_move != legal_moves.end()) {
+            std::rotate(legal_moves.begin(), pv_move, pv_move + 1);
+        }
+    }
 }

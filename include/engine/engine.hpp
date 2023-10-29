@@ -40,6 +40,7 @@ class Engine {
         int search_captures(int alpha, int beta);
         int evaluate();
         void show_uci_info() const;
+        void move_ordering(std::vector<Move>& legal_moves, int current_depth) const;
 };
 
 
