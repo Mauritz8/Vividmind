@@ -171,6 +171,7 @@ void Engine::show_uci_info() const {
     std::cout << " depth " << depth;
     std::cout << " score cp " << score;
     std::cout << " nodes " << nodes;
+    std::cout << " nps " << nodes * 1000 / time;
     std::cout << " time " << time;
     std::cout << " pv";
     for (Move move : pv) {
