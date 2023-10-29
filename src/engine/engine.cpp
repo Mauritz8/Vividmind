@@ -34,6 +34,13 @@ void Engine::divide(int depth) {
     move_gen.divide(depth);
 }
 
+int Engine::get_allocated_time() {
+    if (board.game_state.player_to_move == WHITE) {
+        return wtime / 20;
+    }
+    return btime / 20;
+}
+
 void Engine::iterative_deepening_search(int search_depth, int allocated_time_ms) {
     nodes = 0;
     time = 0;
@@ -52,6 +59,7 @@ void Engine::iterative_deepening_search(int search_depth, int allocated_time_ms)
         show_uci_info();
         depth++;
     }
+    std::cout << "bestmove " << best_move.to_uci_notation() << "\n";
 }
 
 int Engine::search_root(int depth, int time_left) {
