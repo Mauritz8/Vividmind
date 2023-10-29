@@ -33,7 +33,7 @@ Move Engine::iterative_deepening_search(int allocated_time_ms) {
         score = evaluation_at_depth;
         auto stop_time = std::chrono::high_resolution_clock::now();
         int duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop_time - start_time).count();
-        time = duration;
+        time = duration == 0 ? 1 : duration;
         show_uci_info();
         depth++;
     }
