@@ -98,7 +98,7 @@ int Engine::search_root(int depth, int time_left) {
 }
 
 int Engine::search(int depth, int alpha, int beta, int time_left, std::vector<Move>& principal_variation) {
-    if (time_left <= 0) {
+    if (time_left <= MOVE_OVERHEAD) {
         return NO_TIME_LEFT; 
     }
     auto start_time = std::chrono::high_resolution_clock::now();
@@ -143,7 +143,7 @@ int Engine::search(int depth, int alpha, int beta, int time_left, std::vector<Mo
 }
 
 int Engine::search_captures(int alpha, int beta, int time_left) {
-    if (time_left <= 10) {
+    if (time_left <= MOVE_OVERHEAD) {
         return NO_TIME_LEFT; 
     }
     auto start_time = std::chrono::high_resolution_clock::now();
