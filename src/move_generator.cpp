@@ -29,6 +29,15 @@ std::vector<Move> MoveGenerator::get_legal_moves(bool only_captures) const {
     return legal_moves;
 }
 
+std::vector<Move> MoveGenerator::get_psuedo_legal_moves(bool only_captures) const {
+    std::vector<Move> moves;
+    for (Piece piece : board.game_state.pieces[board.game_state.player_to_move]) {
+        std::vector<Move> piece_moves = get_psuedo_legal_moves(piece, only_captures);
+        moves.insert(std::end(moves), std::begin(piece_moves), std::end(piece_moves));
+    } 
+    return moves;
+}
+
 std::vector<Move> MoveGenerator::get_threatened_moves(Color color) const {
     std::vector<Move> moves;
     for (Piece piece : board.game_state.pieces[color]) {
@@ -88,15 +97,6 @@ bool MoveGenerator::is_in_check(Color color) const {
         }
     }
     return false;
-}
-
-std::vector<Move> MoveGenerator::get_psuedo_legal_moves(bool only_captures) const {
-    std::vector<Move> moves;
-    for (Piece piece : board.game_state.pieces[board.game_state.player_to_move]) {
-        std::vector<Move> piece_moves = get_psuedo_legal_moves(piece, only_captures);
-        moves.insert(std::end(moves), std::begin(piece_moves), std::end(piece_moves));
-    } 
-    return moves;
 }
 
 std::vector<Move> MoveGenerator::get_psuedo_legal_moves(const Piece& piece, bool only_captures) const {
