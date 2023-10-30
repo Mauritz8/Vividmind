@@ -89,9 +89,9 @@ void UCI::handle_go_command(const std::string& arguments) {
         } else if (token == "btime") {
             engine.btime = std::stoi(argument);
         } else if (token == "winc") {
-            engine.btime = std::stoi(argument);
+            engine.winc = std::stoi(argument);
         } else if (token == "binc") {
-            engine.btime = std::stoi(argument);
+            engine.binc = std::stoi(argument);
         } else if (token == "movestogo") {
             engine.moves_to_go = std::stoi(argument);
         }
