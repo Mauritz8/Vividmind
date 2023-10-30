@@ -15,6 +15,7 @@ class MoveGenerator {
         MoveGenerator(Board& board, BoardHelper& board_helper);
 
         std::vector<Move> get_legal_moves(bool only_captures) const;
+        std::vector<Move> get_psuedo_legal_moves(bool only_captures) const;
         std::vector<Move> get_threatened_moves(Color color) const;
         int perft(int depth) const;
         void divide(int depth) const;
@@ -26,7 +27,6 @@ class MoveGenerator {
         BoardHelper& board_helper;
         MoveValidator move_validator;
 
-        std::vector<Move> get_psuedo_legal_moves(bool only_captures) const;
 
         std::vector<Move> get_psuedo_legal_moves(const Piece& piece, bool only_captures) const;
         std::vector<Move> get_threatened_moves(const Piece& piece) const;
