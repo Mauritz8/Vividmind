@@ -8,13 +8,12 @@
 
 class Square {
     public:
-        int x;
-        int y;
+        int pos;
         std::optional<Piece> piece;
 
         Square() {}
-        Square(int x, int y);
-        Square(int x, int y, std::optional<Piece> piece);
+        Square(int pos);
+        Square(int pos, std::optional<Piece> piece);
 };
 
 #endif

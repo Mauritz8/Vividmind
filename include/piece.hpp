@@ -1,8 +1,6 @@
 #ifndef PIECE_H
 #define PIECE_H
 
-#include "pos.hpp"
-
 
 typedef enum {PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING} PieceType;
 typedef enum {WHITE, BLACK} Color;
@@ -18,9 +16,9 @@ class Piece {
     public:
         PieceType piece_type;
         Color color;
-        Pos pos;
+        int pos;
 
-        Piece(PieceType piece_type, Color color, Pos pos);
+        Piece(PieceType piece_type, Color color, int pos);
 
         bool operator==(Piece piece) const;
         bool operator!=(Piece piece) const;

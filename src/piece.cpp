@@ -6,16 +6,14 @@
 #include "engine/psqt.hpp"
 
 
-Piece::Piece(PieceType piece_type, Color color, Pos pos) {
+Piece::Piece(PieceType piece_type, Color color, int pos) {
     this->piece_type = piece_type;
     this->color = color;
-    this->pos.x = pos.x;
-    this->pos.y = pos.y;
+    this->pos = pos;
 }
 
 bool Piece::operator==(Piece piece) const {
-    return piece.pos.x == pos.x
-        && piece.pos.y == pos.y 
+    return piece.pos == pos
         && piece.color == color 
         && piece.piece_type == piece_type;
 }
@@ -40,14 +38,14 @@ int Piece::get_value() const {
 }
 
 int Piece::get_psqt_score() const {
-    int y = color == WHITE ? pos.y : 7 - pos.y;
+    int square = color == WHITE ? pos : 56 - pos + pos % 8;
     switch (piece_type) {
-        case KING: return KING_PSQT[y][pos.x];
-        case QUEEN: return QUEEN_PSQT[y][pos.x];
-        case ROOK: return ROOK_PSQT[y][pos.x];
-        case BISHOP: return BISHOP_PSQT[y][pos.x];
-        case KNIGHT: return KNIGHT_PSQT[y][pos.x];
-        case PAWN: return PAWN_PSQT[y][pos.x];
+        case KING: return KING_PSQT[square];
+        case QUEEN: return QUEEN_PSQT[square];
+        case ROOK: return ROOK_PSQT[square];
+        case BISHOP: return BISHOP_PSQT[square];
+        case KNIGHT: return KNIGHT_PSQT[square];
+        case PAWN: return PAWN_PSQT[square];
     }
 }
 
