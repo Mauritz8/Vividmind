@@ -38,7 +38,9 @@ int Piece::get_value() const {
 }
 
 int Piece::get_psqt_score() const {
-    int square = color == WHITE ? pos : 56 - pos + pos % 8;
+    const int x = pos % 8;
+    const int y = pos / 8;
+    const int square = color == WHITE ? pos : x + (7 - y) * 8;
     switch (piece_type) {
         case KING: return KING_PSQT[square];
         case QUEEN: return QUEEN_PSQT[square];
