@@ -4,10 +4,10 @@
 #include <iostream>
 #include <iterator>
 #include <stdexcept>
+#include <vector>
 
 #include "board_helper.hpp"
 #include "board_utils.hpp"
-#include "pos.hpp"
 #include "square.hpp"
 
 
@@ -88,7 +88,7 @@ bool MoveGenerator::leaves_king_in_check(const Move& move) const {
 }
 
 bool MoveGenerator::is_in_check(Color color) const {
-    const Pos king_square = board_helper.get_king_square(color);
+    const int king_square = board_helper.get_king_square(color);
     const Color opponent = get_opposite_color(color);
     const std::vector<Move> psuedo_legal_moves = get_threatened_moves(opponent);
     for (const Move& move : psuedo_legal_moves) {
@@ -178,26 +178,38 @@ std::vector<Move> MoveGenerator::get_queen_psuedo_legal_moves(const Piece& piece
 }
 
 std::vector<Move> MoveGenerator::get_knight_psuedo_legal_moves(const Piece& piece, bool only_captures) const {
-    Pos start = piece.pos;
-    const std::array<Pos, 8> end_squares = {
-        Pos{start.x + 1, start.y + 2},
-        Pos{start.x + 1, start.y - 2},
-        Pos{start.x - 1, start.y + 2},
-        Pos{start.x - 1, start.y - 2},
-        Pos{start.x + 2, start.y + 1},
-        Pos{start.x + 2, start.y - 1},
-        Pos{start.x - 2, start.y + 1},
-        Pos{start.x - 2, start.y - 1}
-    };
+    int start = piece.pos;
+    std::vector<int> end_squares;
+    end_squares.reserve(8);
+    int x = start % 8;
+    int y = start / 8;
+    if (x < 7) {
+        if (y < 6) end_squares.push_back(start + 17);
+        if (y > 1) end_squares.push_back(start - 15);
 
+        if (x < 6) {
+            if (y < 7) end_squares.push_back(start + 10);
+            if (y > 0) end_squares.push_back(start - 6);
+        }
+    }
+
+    if (x > 0) {
+        if (y < 6) end_squares.push_back(start + 15);
+        if (y > 1) end_squares.push_back(start - 17);
+
+        if (x > 1) {
+            if (y > 0) end_squares.push_back(start - 10);
+            if (y < 7) end_squares.push_back(start + 6);
+        }
+    }
+
+    const Color opponent = get_opposite_color(piece.color);
     std::vector<Move> moves;
-    for (Pos end : end_squares) {
-        if (!is_outside_board(end)) {
-            if (only_captures && board_helper.is_occupied_by_color(end, get_opposite_color(piece.color))) {
-                moves.push_back(Move(start, end));
-            } else if (!only_captures && !board_helper.is_occupied_by_color(end, piece.color)) {
-                moves.push_back(Move(start, end));
-            }
+    for (int end : end_squares) {
+        if (only_captures && board_helper.is_occupied_by_color(end, opponent)) {
+            moves.push_back(Move(start, end));
+        } else if (!only_captures && !board_helper.is_occupied_by_color(end, piece.color)) {
+            moves.push_back(Move(start, end));
         }
     }
     return moves;
@@ -205,6 +217,7 @@ std::vector<Move> MoveGenerator::get_knight_psuedo_legal_moves(const Piece& piec
 
 std::vector<Move> MoveGenerator::get_king_psuedo_legal_moves(const Piece& piece, bool only_captures) const {
     std::vector<Move> moves = get_king_threatened_moves(piece, only_captures);
+    moves.reserve(10);
     if (!only_captures) {
         std::vector<Move> castling_moves = get_castling_moves();
         moves.insert(moves.end(), castling_moves.begin(), castling_moves.end());
@@ -214,24 +227,22 @@ std::vector<Move> MoveGenerator::get_king_psuedo_legal_moves(const Piece& piece,
 
 std::vector<Move> MoveGenerator::get_pawn_psuedo_legal_moves(Piece pawn, bool only_captures) const {
     std::vector<Move> moves;
+    moves.reserve(4);
     const int direction = board.game_state.player_to_move == BLACK ? 1 : -1;
-
-    Pos start = pawn.pos;
+    int start = pawn.pos;
 
     if (!only_captures) {
-        const Pos end1 = Pos{start.x, start.y + direction};
-        if (!is_outside_board(end1)) {
-            if (!board.get_square(end1).piece) {
-                moves.push_back(Move(start, end1));
+        const int end1 = start + 8 * direction;
+        if (!board.squares[end1].piece) {
+            moves.push_back(Move(start, end1));
 
-                const int starting_row = pawn.color == BLACK ? 1 : 6;
-                if (start.y == starting_row) {
-                    const Pos end2 = Pos{start.x, start.y + 2 * direction};
-                    if (!board.get_square(end2).piece) {
-                        Move move = Move(start, end2);
-                        move.is_pawn_two_squares_forward = true;
-                        moves.push_back(move);
-                    }
+            const int starting_row = pawn.color == BLACK ? 1 : 6;
+            if (start / 8 == starting_row) {
+                const int end2 = start + 16 * direction;
+                if (!board.squares[end2].piece) {
+                    Move move = Move(start, end2);
+                    move.is_pawn_two_squares_forward = true;
+                    moves.push_back(move);
                 }
             }
         }
@@ -240,7 +251,7 @@ std::vector<Move> MoveGenerator::get_pawn_psuedo_legal_moves(Piece pawn, bool on
 
     std::vector<Move> captures = get_pawn_captures(pawn);
     for (Move& capture : captures) {
-        const Square& end = board.get_square(capture.end);
+        const Square& end = board.squares[capture.end];
         if (end.piece && end.piece->color != pawn.color) {
             moves.push_back(capture);
         } else if (move_validator.is_valid_en_passant(capture)) {
@@ -250,7 +261,7 @@ std::vector<Move> MoveGenerator::get_pawn_psuedo_legal_moves(Piece pawn, bool on
     }
 
     int about_to_promote_row = board.game_state.player_to_move == WHITE ? 1 : 6;
-    if (start.y == about_to_promote_row) {
+    if (start / 8 == about_to_promote_row) {
         const std::array<PieceType, 3> other_promotion_piece_types = {
             ROOK,
             BISHOP,
@@ -274,20 +285,20 @@ std::vector<Move> MoveGenerator::get_pawn_psuedo_legal_moves(Piece pawn, bool on
 
 std::vector<Move> MoveGenerator::get_psuedo_legal_moves_direction(const Piece& piece, int x_direction, int y_direction, bool only_captures) const {
     std::vector<Move> moves;
-
-    int x = piece.pos.x + x_direction;
-    int y = piece.pos.y + y_direction;
+    int x = piece.pos % 8 + x_direction;
+    int y = piece.pos / 8 + y_direction;
     while (!is_outside_board(x, y)) {
-        const Square& end = board.get_square(x, y);
+        int pos = x + y * 8;
+        const Square& end = board.squares[pos];
         if (end.piece) {
             if (end.piece->color != piece.color) {
-                moves.push_back(Move(piece.pos, Pos{x, y}));
+                moves.push_back(Move(piece.pos, pos));
             }
             break;
         }
 
         if (!only_captures) {
-            moves.push_back(Move(piece.pos, Pos{x, y}));
+            moves.push_back(Move(piece.pos, pos));
         }
         x += x_direction;
         y += y_direction;
@@ -297,25 +308,30 @@ std::vector<Move> MoveGenerator::get_psuedo_legal_moves_direction(const Piece& p
 }
 
 std::vector<Move> MoveGenerator::get_king_threatened_moves(Piece king, bool only_captures) const {
-    const std::array<Pos, 8> end_squares = {
-        Pos{king.pos.x, king.pos.y + 1},
-        Pos{king.pos.x + 1, king.pos.y + 1},
-        Pos{king.pos.x + 1, king.pos.y},
-        Pos{king.pos.x + 1, king.pos.y - 1},
-        Pos{king.pos.x, king.pos.y - 1},
-        Pos{king.pos.x - 1, king.pos.y - 1},
-        Pos{king.pos.x - 1, king.pos.y},
-        Pos{king.pos.x - 1, king.pos.y + 1}
-    };
+    int start = king.pos;
+    std::vector<int> end_squares;
+    end_squares.reserve(8);
+    int x = start % 8;
+    int y = start / 8;
+    if (x < 7) {
+        end_squares.push_back(start + 1);
+        if (y > 0) end_squares.push_back(start - 7);
+        if (y < 7) end_squares.push_back(start + 9);
+    }
+    if (x > 0) {
+        end_squares.push_back(start - 1);
+        if (y < 7) end_squares.push_back(start + 7);
+        if (y > 0) end_squares.push_back(start - 9);
+    }
+    if (y < 7) end_squares.push_back(start + 8);
+    if (y > 0) end_squares.push_back(start - 8);
 
     std::vector<Move> moves;
-    for (Pos end : end_squares) {
-        if (!is_outside_board(end) ) {
-            if (only_captures && board_helper.is_occupied_by_color(end, get_opposite_color(king.color))) {
-                moves.push_back(Move(king.pos, end));
-            } else if (!only_captures && !board_helper.is_occupied_by_color(end, king.color)) {
-                moves.push_back(Move(king.pos, end));
-            }
+    for (int end : end_squares) {
+        if (only_captures && board_helper.is_occupied_by_color(end, get_opposite_color(king.color))) {
+            moves.push_back(Move(king.pos, end));
+        } else if (!only_captures && !board_helper.is_occupied_by_color(end, king.color)) {
+            moves.push_back(Move(king.pos, end));
         }
     }
     return moves;
@@ -336,33 +352,31 @@ std::vector<Move> MoveGenerator::get_castling_moves() const {
 
 std::vector<Move> MoveGenerator::get_potential_castling_moves() const {
     const Color color = board.game_state.player_to_move;
-    const int king_x = 4;
-    const int row = color == WHITE ? 7 : 0;
-    const int kingside_end_x = 6;
-    const int queenside_end_x = 2;
+    const int king_start = color == BLACK ? 4 : 60;
 
     std::vector<Move> potential_castling_moves;
+    potential_castling_moves.reserve(2);
     if (board.game_state.castling_rights[color].kingside) {
-        potential_castling_moves.push_back(Move(king_x, row, kingside_end_x, row));
+        const int kingside_end = color == BLACK ? 6 : 62;
+        potential_castling_moves.push_back(Move(king_start, kingside_end));
     } 
 
     if (board.game_state.castling_rights[color].queenside) {
-        potential_castling_moves.push_back(Move(king_x, row, queenside_end_x, row));
+        const int queenside_end = color == BLACK ? 2 : 58;
+        potential_castling_moves.push_back(Move(king_start, queenside_end));
     } 
 
     return potential_castling_moves;
 }
 
 bool MoveGenerator::is_valid_castling(const Move& move) const {
-    int rook_x;
-    if (move.end.x == 6) {
-        rook_x = 7;
-    } else if (move.end.x == 2) {
-        rook_x = 0;
-    } 
-    
-    const Pos king_pos = Pos{move.start.x, move.start.y};
-    const Pos rook_pos = Pos{rook_x, move.start.y};
+    const int king_pos = move.start;
+    int rook_pos;
+    if (move.end % 8 == 6) {
+        rook_pos = king_pos + 3;
+    } else {
+        rook_pos = king_pos - 4;
+    }
     if (!board_helper.is_clear_line(king_pos, rook_pos)) {
         return false;
     }
@@ -377,20 +391,16 @@ bool MoveGenerator::is_valid_castling(const Move& move) const {
 }
 
 bool MoveGenerator::passes_through_check_when_castling(const Move& castling_move) const {
-    const int row = castling_move.start.y;
-    const int start_x = castling_move.start.x;
-    const int end_x = castling_move.end.x;
-    const int direction = end_x - start_x > 0 ? 1 : -1;
+    const int direction = castling_move.end - castling_move.start > 0 ? 1 : -1;
     const Color opponent = get_opposite_color(board.game_state.player_to_move);
 
     std::vector<Move> threatened_moves = get_threatened_moves(opponent);
     for (Move& move : threatened_moves) {
-        int x = start_x;
-        while (x != end_x) {
-            if (move.end == Pos{x + direction, row}) {
-                return true;
-            }
-            x += direction;
+        if (move.end >= castling_move.start && move.end < castling_move.end) {
+            return true;
+        }
+        if (move.end <= castling_move.start && move.end > castling_move.end) {
+            return true;
         }
     }
     return false;
@@ -398,18 +408,23 @@ bool MoveGenerator::passes_through_check_when_castling(const Move& castling_move
 
 
 std::vector<Move> MoveGenerator::get_pawn_captures(Piece pawn) const {
-    const int direction = pawn.color == BLACK ? 1 : -1;
-
-    const Pos start = pawn.pos;
-    const Pos end1 = Pos{pawn.pos.x + 1, pawn.pos.y + direction};
-    const Pos end2 = Pos{pawn.pos.x - 1, pawn.pos.y + direction};
-
     std::vector<Move> moves;
-    if (!is_outside_board(end1)) {
-        moves.push_back(Move(start, end1));
-    }
-    if (!is_outside_board(end2)) {
-        moves.push_back(Move(start, end2));
+    moves.reserve(2);
+    const int x = pawn.pos % 8;
+    if (pawn.color == WHITE) {
+        if (x < 7) {
+            moves.push_back(Move(pawn.pos, pawn.pos - 7));
+        }
+        if (x > 0) {
+            moves.push_back(Move(pawn.pos, pawn.pos - 9));
+        }
+    } else {
+        if (x < 7) {
+            moves.push_back(Move(pawn.pos, pawn.pos + 9));
+        }
+        if (x > 0) {
+            moves.push_back(Move(pawn.pos, pawn.pos + 7));
+        }
     }
     return moves;
 }

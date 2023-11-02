@@ -2,12 +2,12 @@
 #define BOARD_UTILS_H
 
 #include "piece.hpp"
-#include "pos.hpp"
 
 
 bool is_outside_board(int x, int y);
+bool is_outside_board(int pos);
 Color get_opposite_color(Color color);
-bool is_same_line(Pos pos1, Pos pos2);
-bool is_same_diagonal(Pos pos1, Pos pos2);
+bool is_same_line(int pos1, int pos2);
+bool is_same_diagonal(int pos1, int pos2);
 
 #endif

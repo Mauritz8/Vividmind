@@ -11,54 +11,50 @@ BoardHelper::BoardHelper(Board& board)
 {}
 
 
-bool BoardHelper::is_occupied_by_color(Pos pos, Color color) const {
-    const Square& end = board.get_square(pos.x, pos.y);
+bool BoardHelper::is_occupied_by_color(int pos, Color color) const {
+    const Square& end = board.squares[pos];
     return end.piece && end.piece->color == color;
 }
 
-bool BoardHelper::is_clear_line(Pos pos1, Pos pos2) const {
-    int x_direction = 0;
-    int y_direction = 0;
+bool BoardHelper::is_clear_line(int pos1, int pos2) const {
+    int x_diff = pos2 % 8 - pos1 % 8;
+    int y_diff = pos2 / 8 - pos1 / 8;
+    int x_direction = x_diff > 0 ? 1 : -1;
+    int y_direction = y_diff > 0 ? 1 : -1;
 
-    if (pos1.x != pos2.x) {
-        x_direction = (pos2.x - pos1.x) > 0 ? 1 : -1;
-    } else if (pos1.y != pos2.y) {
-        y_direction = (pos2.y - pos1.y) > 0 ? 1 : -1;
-    }
-
-    int x = pos1.x + x_direction;
-    int y = pos1.y + y_direction;
-    while (x != pos2.x || y != pos2.y) {
-        if (board.get_square(x, y).piece) {
+    int step = x_direction + y_diff * 8;
+    int pos = pos1 + step;
+    while (pos != pos2) {
+        if (board.squares[pos].piece) {
             return false;
         }
-        x += x_direction;
-        y += y_direction;
+        pos += step;
     }
     return true;
 }
 
-bool BoardHelper::is_clear_diagonal(Pos pos1, Pos pos2) const {
+bool BoardHelper::is_clear_diagonal(int pos1, int pos2) const {
     if (pos1 == pos2) {
         return true;
     }
 
-    const int x_direction = (pos2.x - pos1.x) > 0 ? 1 : -1;
-    const int y_direction = (pos2.y - pos1.y) > 0 ? 1 : -1;
+    int x_diff = pos2 % 8 - pos1 % 8;
+    int y_diff = pos2 / 8 - pos1 / 8;
+    const int x_direction = x_diff > 0 ? 1 : -1;
+    const int y_direction = y_diff > 0 ? 1 : -1;
 
-    int x = pos1.x + x_direction;
-    int y = pos1.y + y_direction;
-    while (x != pos2.x && y != pos2.y) {
-        if (board.get_square(x, y).piece) {
+    int step = x_direction + y_diff * 8;
+    int pos = pos1 + step;
+    while (pos != pos2) {
+        if (board.squares[pos].piece) {
             return false;
         }
-        x += x_direction;
-        y += y_direction;
+        pos += step;
     }
     return true;
 }
 
-Pos BoardHelper::get_king_square(Color color) const {
+int BoardHelper::get_king_square(Color color) const {
     for (Piece piece : board.game_state.pieces[color]) {
         if (piece.piece_type == KING) {
             return piece.pos;
@@ -88,7 +84,7 @@ void BoardHelper::make_appropriate(const Move& move) const {
 
 void BoardHelper::undo_appropriate() const {
     Move move = board.history.back().next_move;
-    const Square& end_square = board.get_square(move.end);
+    const Square& end_square = board.squares[move.end];
     if (!end_square.piece) {
         std::cout << "Can't undo move\n"; 
         return;
@@ -113,8 +109,8 @@ void BoardHelper::undo_appropriate() const {
 void BoardHelper::make(const Move& move) const {
     board.game_state.en_passant_square = {};
     board.game_state.captured_piece = {};
-    Square& start_square = board.get_square(move.start); 
-    Square& end_square = board.get_square(move.end); 
+    Square& start_square = board.squares[move.start]; 
+    Square& end_square = board.squares[move.end]; 
     std::optional<Piece> captured_piece = end_square.piece;
     if (captured_piece) {
         board.remove_piece(*captured_piece);
@@ -133,8 +129,8 @@ void BoardHelper::make(const Move& move) const {
 }
 
 void BoardHelper::undo(const Move& move) const {
-    Square& start_square = board.get_square(move.start); 
-    Square& end_square = board.get_square(move.end); 
+    Square& start_square = board.squares[move.start]; 
+    Square& end_square = board.squares[move.end]; 
     board.move_piece(move.end, move.start);
     if (board.game_state.captured_piece) {
         end_square.piece = board.game_state.captured_piece;
@@ -145,11 +141,11 @@ void BoardHelper::update_castling_rights(const Move& move) const {
     const Color color = board.game_state.player_to_move;
     const int player_starting_row = color == WHITE ? 7 : 0; 
     const int opponent_starting_row = color == WHITE ? 0 : 7;
-    const Pos player_king = Pos{4, player_starting_row};
-    const Pos player_rook1 = Pos{0, player_starting_row};
-    const Pos player_rook2 = Pos{7, player_starting_row};
-    const Pos opponent_rook1 = Pos{0, opponent_starting_row};
-    const Pos opponent_rook2 = Pos{7, opponent_starting_row};
+    const int player_king = player_starting_row * 8 + 4;
+    const int player_rook1 = player_starting_row * 8 + 0;
+    const int player_rook2 = player_starting_row * 8 + 7;
+    const int opponent_rook1 = opponent_starting_row * 8 + 0;
+    const int opponent_rook2 = opponent_starting_row * 8 + 7;
 
     if (move.start == player_king) {
         board.game_state.castling_rights[color].kingside = false; 
@@ -166,8 +162,8 @@ void BoardHelper::update_castling_rights(const Move& move) const {
 }
 
 Move BoardHelper::get_castling_rook_move(const Move& move) const {
-    const int row = move.start.y;
-    const int move_direction = move.end.x - move.start.x; 
+    const int row = move.start / 8;
+    const int move_direction = move.end - move.start; 
 
     int start_x;
     int end_x;
@@ -180,7 +176,7 @@ Move BoardHelper::get_castling_rook_move(const Move& move) const {
         start_x = 0;
         end_x = 3;
     }
-    Move rook_move = Move(start_x, row, end_x, row);
+    Move rook_move = Move(start_x + row * 8, end_x +  row * 8);
     return rook_move;
 }
 
@@ -197,13 +193,13 @@ void BoardHelper::undo_castling(const Move& move) const {
 }
 
 void BoardHelper::make_en_passant(const Move& move) const {
-    Square& start_square = board.get_square(move.start);
+    Square& start_square = board.squares[move.start];
     Piece& piece_in_game_state = board.get_piece(*start_square.piece);
     piece_in_game_state.pos = move.end;
     board.move_piece(move.start, move.end);
 
-    const int x_diff = move.end.x - move.start.x;
-    Square& captured_square = board.get_square(move.start.x + x_diff, move.start.y);
+    const int x_diff = move.end % 8 - move.start % 8;
+    Square& captured_square = board.squares[move.start + x_diff];
     board.remove_piece(*captured_square.piece);
     board.game_state.captured_piece = captured_square.piece;
     board.game_state.material[captured_square.piece->color] -= captured_square.piece->get_value();
@@ -214,8 +210,8 @@ void BoardHelper::make_en_passant(const Move& move) const {
 void BoardHelper::undo_en_passant(const Move& move) const {
     board.move_piece(move.end, move.start);
 
-    const int x_diff = move.end.x - move.start.x;
-    Square& captured_square = board.get_square(move.start.x + x_diff, move.start.y);
+    const int x_diff = move.end % 8 - move.start % 8;
+    Square& captured_square = board.squares[move.start + x_diff];
     board.game_state.pieces[board.game_state.captured_piece->color].push_back(*board.game_state.captured_piece);
     board.game_state.material[board.game_state.captured_piece->color] += board.game_state.captured_piece->get_value();
     captured_square.piece = board.game_state.captured_piece;
@@ -226,7 +222,7 @@ void BoardHelper::make_promotion(const Move& move) const {
         return;
     }
     make(move);
-    Square& end_square = board.get_square(move.end);
+    Square& end_square = board.squares[move.end];
     Piece& piece_in_game_state = board.get_piece(*end_square.piece);
     piece_in_game_state.pos = move.end;
     piece_in_game_state.piece_type = *move.promotion_piece;
@@ -240,13 +236,17 @@ void BoardHelper::make_promotion(const Move& move) const {
 
 void BoardHelper::undo_promotion(const Move& move) const {
     undo(move);
-    Square& start_square = board.get_square(move.start);
+    Square& start_square = board.squares[move.start];
     start_square.piece->piece_type = PAWN;
 }
 
 void BoardHelper::make_pawn_two_squares_forward(const Move& move) const {
     make(move);
-    board.game_state.en_passant_square = Pos{move.start.x, (move.end.y + move.start.y) / 2};
+    if (move.start > 7 && move.start < 16) {
+        board.game_state.en_passant_square = move.start + 8;
+    } else {
+        board.game_state.en_passant_square = move.start - 8;
+    }
 }
 
 void BoardHelper::undo_pawn_two_squares_forward(const Move& move) const {

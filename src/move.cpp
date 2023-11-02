@@ -7,16 +7,7 @@
 #include "move_validator.hpp"
 
 
-Move::Move(int start_x, int start_y, int end_x, int end_y) {
-    this->start = {start_x, start_y};
-    this->end = {end_x, end_y};
-    this->is_castling_move = false;
-    this->is_promotion = false;
-    this->is_en_passant = false;
-    this->is_pawn_two_squares_forward = false;
-}
-
-Move::Move(Pos start, Pos end) {
+Move::Move(int start, int end) {
     this->start = start;
     this->end = end;
     this->is_castling_move = false;
@@ -26,8 +17,8 @@ Move::Move(Pos start, Pos end) {
 }
 
 Move::Move(const Square& start, const Square& end) {
-    this->start = Pos{start.x, start.y};
-    this->end = Pos{end.x, end.y};
+    this->start = start.pos;
+    this->end = end.pos;
     this->is_castling_move = false;
     this->is_promotion = false;
     this->is_en_passant = false;
@@ -39,10 +30,13 @@ Move Move::get_from_uci_notation(const std::string& uci_notation, Board& board) 
     const int start_y = 8 - (uci_notation[1] - '0');
     const int end_x = uci_notation[2] - 'a';
     const int end_y = 8 - (uci_notation[3] - '0');
-    Move move = Move(start_x, start_y, end_x, end_y);
 
-    const Square& start = board.get_square(start_x, start_y);
-    const Square& end = board.get_square(end_x, end_y);
+    const int start_pos = start_x + start_y * 8;
+    const int end_pos = end_x + end_y * 8;
+    Move move = Move(start_pos, end_pos);
+
+    const Square& start = board.squares[start_pos];
+    const Square& end = board.squares[end_pos];
 
     BoardHelper board_helper = BoardHelper(board);
     MoveValidator move_validator = MoveValidator(board, board_helper);
@@ -55,7 +49,7 @@ Move Move::get_from_uci_notation(const std::string& uci_notation, Board& board) 
             move.is_promotion = true;
             const char promotion_piece = uci_notation[4];
             move.promotion_piece = get_piece_type(promotion_piece);
-        } else if (abs(move.end.y - move.start.y) == 2) {
+        } else if (abs((move.end - move.start) / 8) == 2) {
             move.is_pawn_two_squares_forward = true;
         }
     }
@@ -93,10 +87,10 @@ std::string Move::to_uci_notation() const {
     const std::string ranks = "87654321";
 
     std::string uci_notation;
-    uci_notation += files[this->start.x];
-    uci_notation += ranks[this->start.y];
-    uci_notation += files[this->end.x];
-    uci_notation += ranks[this->end.y];
+    uci_notation += files[this->start % 8];
+    uci_notation += ranks[this->start / 8];
+    uci_notation += files[this->end % 8];
+    uci_notation += ranks[this->end / 8];
 
     if (this->promotion_piece) {
         uci_notation += tolower(get_char_representation(this->promotion_piece.value()));

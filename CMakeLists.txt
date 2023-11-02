@@ -26,7 +26,6 @@ set(COMMON_SOURCES
     src/move_generator.cpp
     src/move_validator.cpp
     src/piece.cpp
-    src/pos.cpp
     src/square.cpp
     src/engine/engine.cpp
     src/engine/psqt.cpp

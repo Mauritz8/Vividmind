@@ -33,40 +33,18 @@ Board Board::get_position_from_fen(std::string fen) {
 }
 
 
-const Square& Board::get_square(int x, int y) const { 
-    if (is_outside_board(x, y)) {
-        throw std::invalid_argument("Square (" + std::to_string(x) + ", " + std::to_string(y) + ") is outside board");
-    }
-    return squares.at(y).at(x); 
-}
-
-Square& Board::get_square(int x, int y) { 
-    if (is_outside_board(x, y)) {
-        throw std::invalid_argument("Square (" + std::to_string(x) + ", " + std::to_string(y) + ") is outside board");
-    }
-    return squares.at(y).at(x); 
-}
-
-const Square& Board::get_square(Pos pos) const {
-    return get_square(pos.x, pos.y);
-}
-
-Square& Board::get_square(Pos pos) {
-    return get_square(pos.x, pos.y);
-}
-
-
 void Board::show() const {
-    for (int i = 0; i < 8; i++) {
-        for (int j = 0; j < 8; j++) {
-            const std::optional<Piece>& piece = this->get_square(j, i).piece;
-            if (piece) {
-                std::cout << " " << piece->get_char_representation();
-            } else {
-                std::cout << " _";
-            }
+    for (int i = 0; i < 64; i++) {
+        const std::optional<Piece>& piece = this->squares[i].piece;
+        if (piece) {
+            std::cout << " " << piece->get_char_representation();
+        } else {
+            std::cout << " _";
         }
-        std::cout << "\n";
+
+        if ((i + 1) % 8 == 0) {
+            std::cout << "\n";
+        }
     }
     std::cout << "\n";
 }
@@ -98,40 +76,35 @@ void Board::remove_piece(Piece piece) {
     }
 }
 
-void Board::move_piece(Pos from, Pos to) {
-    Square& start = get_square(from);
-    Square& end = get_square(to);
+void Board::move_piece(int from, int to) {
+    Square& start = squares[from];
+    Square& end = squares[to];
     start.piece->pos = to;
     end.piece = start.piece;
     start.piece = {};
 }
 
 void Board::place_pieces(const std::string& pieces) {
-    int x = 0;
-    int y = 0;
+    int pos = 0;
     for (const char ch : pieces) {
+        if (ch == '/') continue;
+
         if (isdigit(ch)) {
             const int n = (int) ch - '0';
             for (int i = 0; i < n; i++) {
-                Square& square = get_square(x, y);
-                square.x = x;
-                square.y = y;
-                x++;
+                squares[pos].pos = pos;
+                pos++;
             }
-        } else if (ch == '/') {
-            y++;        
-            x = 0;
         } else {
             Color color = islower(ch) ? BLACK : WHITE;
-            Piece piece = Piece(get_piece_type(ch), color, Pos{x, y});
-            Square& square = get_square(x, y);
-            square.x = x;
-            square.y = y;
-            square.piece = piece;
+            Piece piece = Piece(get_piece_type(ch), color, pos);
+            Square& square = squares[pos];
+            squares[pos].pos = pos;
+            squares[pos].piece = piece;
             game_state.pieces[color].push_back(piece);
             game_state.material[color] += piece.get_value();                
             game_state.psqt[color] += piece.get_psqt_score();
-            x++;
+            pos++;
         }
     }
 }
@@ -174,7 +147,7 @@ void Board::set_en_passant_square(const std::string& en_passant_square) {
     } 
     const int x = en_passant_square[0] - 'a';
     const int y = 8 - (en_passant_square[1] - '0');
-    this->game_state.en_passant_square = Pos{x, y};
+    this->game_state.en_passant_square = x + y * 8;
 }
 
 bool operator==(GameState state1, GameState state2) {

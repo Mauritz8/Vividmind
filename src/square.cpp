@@ -1,13 +1,11 @@
 #include "square.hpp"
 
 
-Square::Square(int x, int y) {
-    this->x = x;
-    this->y = y;
+Square::Square(int pos) {
+    this->pos = pos;
 }
 
-Square::Square(int x, int y, std::optional<Piece> piece) {
-    this->x = x;
-    this->y = y;
+Square::Square(int pos, std::optional<Piece> piece) {
+    this->pos = pos;
     this->piece = piece;
 }
