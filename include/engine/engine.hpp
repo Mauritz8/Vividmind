@@ -37,8 +37,8 @@ class Engine {
 
         int depth;
         int score;
-        int nodes;
-        int time;
+        long nodes;
+        long time;
         std::vector<Move> pv;
 
         static const int NO_CONSTRAINT = INT_MAX;
