@@ -109,7 +109,6 @@ int Engine::search(int depth, int alpha, int beta, int time_left, std::vector<Mo
     auto start_time = std::chrono::high_resolution_clock::now();
 
     std::vector<Move> legal_moves = move_gen.get_psuedo_legal_moves(false);
-    move_ordering(legal_moves, this->depth - depth);
     if (game_over_detector.is_checkmate(legal_moves)) {
         return -KING_VALUE - depth;
     }
@@ -123,6 +122,7 @@ int Engine::search(int depth, int alpha, int beta, int time_left, std::vector<Mo
         return search_captures(alpha, beta, time_left - time_spent);
     }
 
+    move_ordering(legal_moves, this->depth - depth);
     const Color player = board.game_state.player_to_move;
     for (Move& move : legal_moves) {
         std::vector<Move> line;
