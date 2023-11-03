@@ -50,7 +50,7 @@ void UCI::make_moves(std::istringstream& moves) {
     std::string move_uci;
     while (std::getline(moves, move_uci, ' ')) {
         Move move = Move::get_from_uci_notation(move_uci, board);
-        board_helper.make_appropriate(move);
+        board.make(move);
     }
 }
 

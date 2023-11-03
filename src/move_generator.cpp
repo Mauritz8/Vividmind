@@ -55,9 +55,9 @@ int MoveGenerator::perft(int depth) const {
     int nodes = 0;
     std::vector<Move> move_list = get_legal_moves(false);
     for (Move& move : move_list) {
-        board_helper.make_appropriate(move);
+        board.make(move);
         nodes += perft(depth - 1);    
-        board_helper.undo_appropriate();
+        board.undo();
     }
     return nodes;
 }
@@ -67,23 +67,23 @@ void MoveGenerator::divide(int depth) const {
     int nodes_searched = 0;
     std::vector<Move> move_list = get_legal_moves(false);
     for (Move& move : move_list) {
-        board_helper.make_appropriate(move);
+        board.make(move);
         const int nodes = perft(depth - 1);
         nodes_searched += nodes;
         std::cout << move.to_uci_notation() << ": " << nodes << "\n";
-        board_helper.undo_appropriate();
+        board.undo();
     }
     std::cout << "\nNodes searched: " << nodes_searched << "\n";
 }
 
 bool MoveGenerator::leaves_king_in_check(const Move& move) const {
     const Color player_to_move = board.game_state.player_to_move;
-    board_helper.make_appropriate(move);
+    board.make(move);
     if (is_in_check(player_to_move)) {
-        board_helper.undo_appropriate();
+        board.undo();
         return true;
     }
-    board_helper.undo_appropriate();
+    board.undo();
     return false;
 }
 
@@ -188,9 +188,9 @@ std::vector<Move> MoveGenerator::get_knight_pseudo_legal_moves(const Piece& piec
             continue;
         }
 
-        if (only_captures && board_helper.is_occupied_by_color(end, opponent)) {
+        if (only_captures && board.squares[end].is_occupied_by(opponent)) {
             moves.push_back(Move(piece.pos, end));
-        } else if (!only_captures && !board_helper.is_occupied_by_color(end, piece.color)) {
+        } else if (!only_captures && !board.squares[end].is_occupied_by(piece.color)) {
             moves.push_back(Move(piece.pos, end));
         }
     }
@@ -299,9 +299,9 @@ std::vector<Move> MoveGenerator::get_king_threatened_moves(Piece king, bool only
             continue;
         }
 
-        if (only_captures && board_helper.is_occupied_by_color(end, opponent)) {
+        if (only_captures && board.squares[end].is_occupied_by(opponent)) {
             moves.push_back(Move(king.pos, end));
-        } else if (!only_captures && !board_helper.is_occupied_by_color(end, king.color)) {
+        } else if (!only_captures && !board.squares[end].is_occupied_by(king.color)) {
             moves.push_back(Move(king.pos, end));
         }
     }

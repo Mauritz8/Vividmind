@@ -14,6 +14,8 @@ class Square {
         Square() {}
         Square(int pos);
         Square(int pos, std::optional<Piece> piece);
+
+        bool is_occupied_by(Color color) const;
 };
 
 #endif

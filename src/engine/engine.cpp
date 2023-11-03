@@ -99,10 +99,10 @@ int Engine::search(int depth, int alpha, int beta, int time_left, std::vector<Mo
     const Color player = board.game_state.player_to_move;
     if (depth > 1 && !last_was_nullmove && !move_gen.is_in_check(player)) {
         std::vector<Move> variation;
-        board_helper.make_null_move();
+        board.make_null_move();
         const int shallow_search_depth = depth < 4 ? 0 : depth - 3;
         const int evaluation = -search(shallow_search_depth, -beta, -alpha, time_left, variation, true); 
-        board_helper.undo_null_move();
+        board.undo_null_move();
 
         if (evaluation >= beta) {
             return beta;
@@ -112,16 +112,16 @@ int Engine::search(int depth, int alpha, int beta, int time_left, std::vector<Mo
     move_ordering(pseudo_legal_moves, search_result.depth - depth);
     for (const Move& move : pseudo_legal_moves) {
         std::vector<Move> variation;
-        board_helper.make_appropriate(move);
+        board.make(move);
         if (move_gen.is_in_check(player)) {
-            board_helper.undo_appropriate();
+            board.undo();
             continue;
         }
 
         const auto stop_time = std::chrono::high_resolution_clock::now();
         const int time_spent = std::chrono::duration_cast<std::chrono::milliseconds>(stop_time - start_time).count();
         const int evaluation = -search(depth - 1, -beta, -alpha, time_left - time_spent, variation, false);
-        board_helper.undo_appropriate();
+        board.undo();
 
         if (evaluation == NO_TIME_LEFT) {
             return NO_TIME_LEFT;
@@ -163,15 +163,15 @@ int Engine::search_captures(int alpha, int beta, int time_left) {
     const Color player = board.game_state.player_to_move;
     std::vector<Move> captures = move_gen.get_pseudo_legal_moves(true);
     for (const Move& capture : captures) {
-        board_helper.make_appropriate(capture);
+        board.make(capture);
         if (move_gen.is_in_check(player)) {
-            board_helper.undo_appropriate();
+            board.undo();
             continue;
         }
         auto stop_time = std::chrono::high_resolution_clock::now();
         int time_spent = std::chrono::duration_cast<std::chrono::milliseconds>(stop_time - start_time).count();
         evaluation = -search_captures(-beta, -alpha, time_left - time_spent);
-        board_helper.undo_appropriate();
+        board.undo();
 
         if (evaluation == NO_TIME_LEFT) {
             return NO_TIME_LEFT;
