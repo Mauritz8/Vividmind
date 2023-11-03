@@ -2,13 +2,6 @@
 
 #include <cmath>
 
-bool is_outside_board(int x, int y) {
-    return x < 0 || x > 7 || y < 0 || y > 7;
-}
-
-bool is_outside_board(int pos) {
-    return pos < 0 || pos > 63;
-}
 
 Color get_opposite_color(Color color) {
     return color == WHITE ? BLACK : WHITE;
