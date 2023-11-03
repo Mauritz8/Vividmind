@@ -7,7 +7,7 @@
 #include <vector>
 
 #include "board_utils.hpp"
-#include "psqt.hpp"
+#include "engine/psqt.hpp"
 
 
 Board Board::get_starting_position() {
