@@ -71,7 +71,7 @@ int Engine::search_root(int depth, int time_left) {
     std::vector<Move> pseudo_legal_moves = move_gen.get_pseudo_legal_moves(false);
     move_ordering(pseudo_legal_moves, search_result.depth - depth);
     const Color player = board.game_state.player_to_move;
-    for (Move& move : pseudo_legal_moves) {
+    for (const Move& move : pseudo_legal_moves) {
         std::vector<Move> variation;
         board_helper.make_appropriate(move);
         if (move_gen.is_in_check(player)) {
@@ -139,7 +139,7 @@ int Engine::search(int depth, int alpha, int beta, int time_left, std::vector<Mo
     }
 
     move_ordering(legal_moves, search_result.depth - depth);
-    for (Move& move : legal_moves) {
+    for (const Move& move : legal_moves) {
         std::vector<Move> variation;
         board_helper.make_appropriate(move);
         if (move_gen.is_in_check(player)) {
@@ -191,7 +191,7 @@ int Engine::search_captures(int alpha, int beta, int time_left) {
 
     const Color player = board.game_state.player_to_move;
     std::vector<Move> captures = move_gen.get_pseudo_legal_moves(true);
-    for (Move& capture : captures) {
+    for (const Move& capture : captures) {
         board_helper.make_appropriate(capture);
         if (move_gen.is_in_check(player)) {
             board_helper.undo_appropriate();
@@ -247,7 +247,7 @@ void Engine::show_uci_info() const {
     std::cout << " nps " << search_result.nodes * 1000 / search_result.time;
     std::cout << " time " << search_result.time;
     std::cout << " pv";
-    for (Move move : search_result.pv) {
+    for (const Move& move : search_result.pv) {
         std::cout << " " << move.to_uci_notation();
     }
     std::cout << "\n";
