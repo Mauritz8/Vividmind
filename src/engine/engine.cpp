@@ -84,7 +84,7 @@ int Engine::search(int depth, int alpha, int beta, int time_left, std::vector<Mo
         const int ply_to_mate = search_result.depth - depth;
         return -CHECKMATE + ply_to_mate;
     }
-    if (game_over_detector.is_draw(pseudo_legal_moves)) {
+    if (game_over_detector.is_insufficient_material() || game_over_detector.is_threefold_repetition()) {
         return DRAW;
     }
 

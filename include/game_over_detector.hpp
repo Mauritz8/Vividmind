@@ -13,14 +13,13 @@ class GameOverDetector {
         GameOverDetector(const Board& board, const MoveGenerator& move_generator);
 
         bool is_checkmate(std::vector<Move>& legal_moves) const;
-        bool is_draw(std::vector<Move>& legal_moves) const;
+        bool is_insufficient_material() const;
+        bool is_threefold_repetition() const;
 
     private:
         const Board& board;
         const MoveGenerator& move_gen;
 
-        bool is_insufficient_material() const;
-        bool is_threefold_repetition() const;
 };
 
 #endif
