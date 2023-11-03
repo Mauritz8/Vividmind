@@ -10,5 +10,6 @@ extern std::array<int, 64> BISHOP_PSQT;
 extern std::array<int, 64> ROOK_PSQT; 
 extern std::array<int, 64> QUEEN_PSQT; 
 extern std::array<int, 64> KING_PSQT; 
+extern std::array<int, 64> KING_ENDGAME_PSQT; 
 
 #endif

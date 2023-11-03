@@ -127,14 +127,14 @@ void BoardHelper::make(const Move& move) const {
     if (captured_piece) {
         board.remove_piece(*captured_piece);
         board.game_state.material[captured_piece->color] -= captured_piece->get_value();
-        board.game_state.psqt[captured_piece->color] -= captured_piece->get_psqt_score();
+        board.game_state.psqt[captured_piece->color] -= board.get_psqt_score(*captured_piece);
         board.game_state.captured_piece = captured_piece;
     }
     Piece& piece_in_game_state = board.get_piece(*start_square.piece);
     piece_in_game_state.pos = move.end;
-    const int psqt_old = start_square.piece->get_psqt_score();
+    const int psqt_old = board.get_psqt_score(*start_square.piece);
     board.move_piece(move.start, move.end);
-    const int psqt_new = end_square.piece->get_psqt_score();
+    const int psqt_new = board.get_psqt_score(*end_square.piece);
     board.game_state.psqt[end_square.piece->color] += psqt_new - psqt_old;
 
     update_castling_rights(move);
@@ -215,7 +215,7 @@ void BoardHelper::make_en_passant(const Move& move) const {
     board.remove_piece(*captured_square.piece);
     board.game_state.captured_piece = captured_square.piece;
     board.game_state.material[captured_square.piece->color] -= captured_square.piece->get_value();
-    board.game_state.psqt[captured_square.piece->color] -= captured_square.piece->get_psqt_score();
+    board.game_state.psqt[captured_square.piece->color] -= board.get_psqt_score(*captured_square.piece);
     captured_square.piece = {};
 }
 
@@ -238,10 +238,10 @@ void BoardHelper::make_promotion(const Move& move) const {
     Piece& piece_in_game_state = board.get_piece(*end_square.piece);
     piece_in_game_state.pos = move.end;
     piece_in_game_state.piece_type = *move.promotion_piece;
-    const int old_psqt = end_square.piece->get_psqt_score();
+    const int old_psqt = board.get_psqt_score(*end_square.piece);
     end_square.piece->piece_type = *move.promotion_piece;
     const int new_value = end_square.piece->get_value();
-    const int new_psqt = end_square.piece->get_psqt_score();
+    const int new_psqt = board.get_psqt_score(*end_square.piece);
     board.game_state.material[end_square.piece->color] += new_value - PAWN_VALUE;
     board.game_state.psqt[end_square.piece->color] += new_psqt - old_psqt;
 }

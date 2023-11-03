@@ -7,6 +7,7 @@
 #include <vector>
 
 #include "board_utils.hpp"
+#include "psqt.hpp"
 
 
 Board Board::get_starting_position() {
@@ -84,6 +85,37 @@ void Board::move_piece(int from, int to) {
     start.piece = {};
 }
 
+bool Board::is_endgame() const {
+    std::array<Color, 2> colors = {WHITE, BLACK};
+    for (Color color : colors) {
+        for (const Piece& piece : game_state.pieces[color]) {
+            if (piece.piece_type == QUEEN) {
+                return false;
+            } 
+        }
+    }
+    return true;
+}
+
+int Board::get_psqt_score(const Piece& piece) const {
+    const int x = piece.pos % 8;
+    const int y = piece.pos / 8;
+    const int square = piece.color == WHITE ? piece.pos : x + (7 - y) * 8;
+    switch (piece.piece_type) {
+        case KING: {
+            if (is_endgame()) {
+                return KING_ENDGAME_PSQT[square];
+            }
+            return KING_PSQT[square];
+        }
+        case QUEEN: return QUEEN_PSQT[square];
+        case ROOK: return ROOK_PSQT[square];
+        case BISHOP: return BISHOP_PSQT[square];
+        case KNIGHT: return KNIGHT_PSQT[square];
+        case PAWN: return PAWN_PSQT[square];
+    }
+}
+
 void Board::place_pieces(const std::string& pieces) {
     int pos = 0;
     for (const char ch : pieces) {
@@ -103,7 +135,7 @@ void Board::place_pieces(const std::string& pieces) {
             squares[pos].piece = piece;
             game_state.pieces[color].push_back(piece);
             game_state.material[color] += piece.get_value();                
-            game_state.psqt[color] += piece.get_psqt_score();
+            game_state.psqt[color] += get_psqt_score(piece);
             pos++;
         }
     }
