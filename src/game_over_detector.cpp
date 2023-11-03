@@ -21,7 +21,6 @@ bool GameOverDetector::is_checkmate(std::vector<Move>& legal_moves) const {
 
 bool GameOverDetector::is_draw(std::vector<Move>& legal_moves) const {
     return is_insufficient_material()
-        || is_stalemate(legal_moves)
         || is_threefold_repetition();
 }
 
@@ -34,13 +33,6 @@ bool GameOverDetector::is_insufficient_material() const {
         }
     }
     return true;
-}
-
-bool GameOverDetector::is_stalemate(const std::vector<Move>& legal_moves) const {
-    if (legal_moves.size() == 0 && !move_gen.is_in_check(board.game_state.player_to_move)) {
-        return true;
-    }
-    return false;
 }
 
 bool GameOverDetector::is_threefold_repetition() const {
