@@ -6,15 +6,13 @@
 #include <stdexcept>
 #include <vector>
 
-#include "board_helper.hpp"
 #include "board_utils.hpp"
 #include "square.hpp"
 
 
-MoveGenerator::MoveGenerator(Board& board, BoardHelper& board_helper)
+MoveGenerator::MoveGenerator(Board& board)
     : board(board)
-    , board_helper(board_helper)
-    , move_validator(board, board_helper)
+    , move_validator(board)
 {}
 
 std::vector<Move> MoveGenerator::get_legal_moves(bool only_captures) const {
@@ -88,7 +86,7 @@ bool MoveGenerator::leaves_king_in_check(const Move& move) const {
 }
 
 bool MoveGenerator::is_in_check(Color color) const {
-    const int king_square = board_helper.get_king_square(color);
+    const int king_square = board.get_king_square(color);
     const Color opponent = get_opposite_color(color);
     const std::vector<Move> pseudo_legal_moves = get_threatened_moves(opponent);
     for (const Move& move : pseudo_legal_moves) {
@@ -348,7 +346,7 @@ bool MoveGenerator::is_valid_castling(const Move& move) const {
     } else {
         rook_pos = king_pos - 4;
     }
-    if (!board_helper.is_clear_line(king_pos, rook_pos)) {
+    if (!move_validator.is_clear_line(king_pos, rook_pos)) {
         return false;
     }
     if (is_in_check(board.game_state.player_to_move)) {

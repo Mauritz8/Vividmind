@@ -5,7 +5,6 @@
 #include <vector>
 
 #include "board.hpp"
-#include "board_helper.hpp"
 #include "move.hpp"
 #include "move_generator.hpp"
 #include "game_over_detector.hpp"
@@ -31,7 +30,7 @@ class Engine {
     public:
         SearchParams search_params;
 
-        Engine(Board& board, BoardHelper& board_helper);
+        Engine(Board& board);
 
         void iterative_deepening_search_depth(int search_depth);
         void iterative_deepening_search_time(int allocated_time_ms);
@@ -41,7 +40,6 @@ class Engine {
 
     private:
         Board& board;
-        BoardHelper& board_helper;
         MoveGenerator move_gen;
         GameOverDetector game_over_detector;
 

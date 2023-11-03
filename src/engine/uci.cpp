@@ -5,14 +5,12 @@
 #include <stdexcept>
 #include <string>
 
-#include "board_helper.hpp"
 #include "move.hpp"
 
 
 UCI::UCI(Board& board) 
     : board(board)
-    , board_helper(board)
-    , engine(board, board_helper)
+    , engine(board)
 {}
 
 void UCI::process_command(const std::string& command) {

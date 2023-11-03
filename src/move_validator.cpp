@@ -3,16 +3,15 @@
 #include "board_utils.hpp"
 
 
-MoveValidator::MoveValidator(const Board& board, BoardHelper& board_helper) 
+MoveValidator::MoveValidator(const Board& board) 
     : board(board)
-    , board_helper(board_helper)
 {}
 
 bool MoveValidator::is_valid_rook_move(const Move& move) const {
     if (!is_same_line(move.start, move.end)) {
         return false;
     }
-    if (!board_helper.is_clear_line(move.start, move.end)) {
+    if (!is_clear_line(move.start, move.end)) {
         return false;
     }
     return true;
@@ -22,7 +21,7 @@ bool MoveValidator::is_valid_bishop_move(const Move& move) const {
     if (!is_same_diagonal(move.start, move.end)) {
         return false;
     }
-    if (!board_helper.is_clear_diagonal(move.start, move.end)) {
+    if (!is_clear_diagonal(move.start, move.end)) {
         return false;
     }
     return true;
@@ -120,4 +119,42 @@ bool MoveValidator::is_promotion_move(const Move& pawn_move) const {
         return true;
     }
     return false;
+}
+
+bool MoveValidator::is_clear_line(int pos1, int pos2) const {
+    int x_diff = pos2 % 8 - pos1 % 8;
+    int y_diff = pos2 / 8 - pos1 / 8;
+    int x_direction = x_diff > 0 ? 1 : -1;
+    int y_direction = y_diff > 0 ? 1 : -1;
+
+    int step = x_direction + y_diff * 8;
+    int pos = pos1 + step;
+    while (pos != pos2) {
+        if (board.squares[pos].piece) {
+            return false;
+        }
+        pos += step;
+    }
+    return true;
+}
+
+bool MoveValidator::is_clear_diagonal(int pos1, int pos2) const {
+    if (pos1 == pos2) {
+        return true;
+    }
+
+    int x_diff = pos2 % 8 - pos1 % 8;
+    int y_diff = pos2 / 8 - pos1 / 8;
+    const int x_direction = x_diff > 0 ? 1 : -1;
+    const int y_direction = y_diff > 0 ? 1 : -1;
+
+    int step = x_direction + y_diff * 8;
+    int pos = pos1 + step;
+    while (pos != pos2) {
+        if (board.squares[pos].piece) {
+            return false;
+        }
+        pos += step;
+    }
+    return true;
 }

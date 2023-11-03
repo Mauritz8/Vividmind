@@ -4,7 +4,6 @@
 #include <vector>
 
 #include "board.hpp"
-#include "board_helper.hpp"
 #include "move.hpp"
 #include "move_validator.hpp"
 #include "piece.hpp"
@@ -12,7 +11,7 @@
 
 class MoveGenerator {
     public:
-        MoveGenerator(Board& board, BoardHelper& board_helper);
+        MoveGenerator(Board& board);
 
         std::vector<Move> get_legal_moves(bool only_captures) const;
         std::vector<Move> get_pseudo_legal_moves(bool only_captures) const;
@@ -24,7 +23,6 @@ class MoveGenerator {
 
     private:
         Board& board;
-        BoardHelper& board_helper;
         MoveValidator move_validator;
 
 

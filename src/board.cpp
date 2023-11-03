@@ -169,6 +169,16 @@ void Board::undo_null_move() {
     history.pop_back();
 }
 
+int Board::get_king_square(Color color) const {
+    for (Piece piece : game_state.pieces[color]) {
+        if (piece.piece_type == KING) {
+            return piece.pos;
+        }
+    }
+    std::string color_str = color == WHITE ? "white" : "black";
+    throw std::invalid_argument("No " + color_str + " king on the board");
+}
+
 void Board::place_pieces(const std::string& pieces) {
     int pos = 0;
     for (const char ch : pieces) {

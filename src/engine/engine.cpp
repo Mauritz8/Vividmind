@@ -7,15 +7,13 @@
 #include <optional>
 #include <vector>
 
-#include "board_helper.hpp"
 #include "move.hpp"
 #include "piece.hpp"
 
 
-Engine::Engine(Board& board, BoardHelper& board_helper) 
+Engine::Engine(Board& board) 
     : board(board)
-    , board_helper(board_helper)
-    , move_gen(board, board_helper)
+    , move_gen(board)
     , game_over_detector(board, move_gen)
 {}
 

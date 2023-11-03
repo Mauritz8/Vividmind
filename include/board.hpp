@@ -48,6 +48,7 @@ class Board {
         void undo();
         void make_null_move();
         void undo_null_move();
+        int get_king_square(Color color) const;
 
     private:
         void place_pieces(const std::string& pieces);
