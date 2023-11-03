@@ -56,7 +56,6 @@ class Engine {
         static const int ALPHA_INITIAL_VALUE = -CHECKMATE;
 
         void iterative_deepening_search(int search_depth, int allocated_time_ms);
-        int search_root(int depth, int time_left);
         int search(int depth, int alpha, int beta, int time_left, std::vector<Move>& principal_variation, bool last_was_nullmove);
         int search_captures(int alpha, int beta, int time_left);
         int evaluate();
