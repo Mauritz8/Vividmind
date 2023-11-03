@@ -19,11 +19,6 @@ bool GameOverDetector::is_checkmate(std::vector<Move>& legal_moves) const {
    return true;
 }
 
-bool GameOverDetector::is_draw(std::vector<Move>& legal_moves) const {
-    return is_insufficient_material()
-        || is_threefold_repetition();
-}
-
 bool GameOverDetector::is_insufficient_material() const {
     for (const std::vector<Piece>& pieces : board.game_state.pieces) {
         for (Piece piece : pieces) {

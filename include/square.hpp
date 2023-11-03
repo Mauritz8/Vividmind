@@ -1,5 +1,5 @@
-#ifndef SQUARE_H
-#define SQUARE_H
+#ifndef SQUARE_HPP
+#define SQUARE_HPP
 
 #include <optional>
 
@@ -14,6 +14,8 @@ class Square {
         Square() {}
         Square(int pos);
         Square(int pos, std::optional<Piece> piece);
+
+        bool is_occupied_by(Color color) const;
 };
 
 #endif

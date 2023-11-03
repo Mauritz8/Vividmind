@@ -2,19 +2,16 @@
 #include <string>
 
 #include "board.hpp"
-#include "board_helper.hpp"
 #include "move_generator.hpp"
 
 class MoveGenerationTest : public testing::Test {
     public:
         Board board;
-        BoardHelper board_helper;
         MoveGenerator move_gen;
 
         MoveGenerationTest() 
             : board(Board())
-            , board_helper(board)
-            , move_gen(board, board_helper)
+            , move_gen(board)
         {}
 };
 

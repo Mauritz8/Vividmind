@@ -2,8 +2,7 @@
 
 #include <iostream>
 
-#include "board_helper.hpp"
-#include "board_utils.hpp"
+#include "utils.hpp"
 #include "move_validator.hpp"
 
 
@@ -38,8 +37,7 @@ Move Move::get_from_uci_notation(const std::string& uci_notation, Board& board) 
     const Square& start = board.squares[start_pos];
     const Square& end = board.squares[end_pos];
 
-    BoardHelper board_helper = BoardHelper(board);
-    MoveValidator move_validator = MoveValidator(board, board_helper);
+    MoveValidator move_validator = MoveValidator(board);
     if (start.piece->piece_type == KING && move_validator.is_valid_castling_move(move)) {
         move.is_castling_move = true;
     } else if (start.piece->piece_type == PAWN) {

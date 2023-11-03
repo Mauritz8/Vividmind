@@ -4,7 +4,6 @@
 #include <string>
 
 #include "board.hpp"
-#include "board_helper.hpp"
 #include "engine/engine.hpp"
 
 
@@ -16,7 +15,6 @@ class UCI {
 
     private:
         Board& board;
-        BoardHelper board_helper;
         Engine engine;
 
         void handle_uci_command();

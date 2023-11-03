@@ -1,5 +1,5 @@
-#ifndef BOARD_H
-#define BOARD_H
+#ifndef BOARD_HPP
+#define BOARD_HPP
 
 #include <array>
 #include <optional>
@@ -25,8 +25,9 @@ struct GameState {
     std::array<int, 2> psqt;
     std::optional<Piece> captured_piece;
     Move next_move;
+
+    bool operator==(GameState other) const;
 };
-bool operator==(GameState state1, GameState state2);
 
 class Board {
     public:
@@ -44,17 +45,26 @@ class Board {
 
         void show() const;
         void switch_player_to_move();
-        Piece& get_piece(Piece piece);
-        void remove_piece(Piece piece);
-        void move_piece(int from, int to);
-        bool is_endgame() const;
-        int get_psqt_score(const Piece& piece) const;
+        void make(const Move& move);
+        void undo();
+        void make_null_move();
+        void undo_null_move();
+        int get_king_square(Color color) const;
 
     private:
         void place_pieces(const std::string& pieces);
         void set_player_to_move(const std::string& player_to_move);
         void set_castling_rights(const std::string& castling_rights);
         void set_en_passant_square(const std::string& en_passant_square);
+
+        Piece& get_piece(Piece piece);
+        void remove_piece(Piece piece);
+        void move_piece(Square& from, Square& to);
+        void update_castling_rights(const Move& move);
+        Move get_castling_rook_move(const Move& move) const;
+
+        int get_psqt_score(const Piece& piece) const;
+        bool is_endgame() const;
 };
 
 #endif

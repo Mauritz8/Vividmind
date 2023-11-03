@@ -6,19 +6,17 @@
 #include <stdexcept>
 #include <vector>
 
-#include "board_helper.hpp"
-#include "board_utils.hpp"
+#include "utils.hpp"
 #include "square.hpp"
 
 
-MoveGenerator::MoveGenerator(Board& board, BoardHelper& board_helper)
+MoveGenerator::MoveGenerator(Board& board)
     : board(board)
-    , board_helper(board_helper)
-    , move_validator(board, board_helper)
+    , move_validator(board)
 {}
 
 std::vector<Move> MoveGenerator::get_legal_moves(bool only_captures) const {
-    std::vector<Move> legal_moves = get_psuedo_legal_moves(only_captures);
+    std::vector<Move> legal_moves = get_pseudo_legal_moves(only_captures);
     for (auto it = legal_moves.begin(); it != legal_moves.end();) {
         if (leaves_king_in_check(*it)) {
             it = legal_moves.erase(it);
@@ -29,10 +27,10 @@ std::vector<Move> MoveGenerator::get_legal_moves(bool only_captures) const {
     return legal_moves;
 }
 
-std::vector<Move> MoveGenerator::get_psuedo_legal_moves(bool only_captures) const {
+std::vector<Move> MoveGenerator::get_pseudo_legal_moves(bool only_captures) const {
     std::vector<Move> moves;
     for (Piece piece : board.game_state.pieces[board.game_state.player_to_move]) {
-        std::vector<Move> piece_moves = get_psuedo_legal_moves(piece, only_captures);
+        std::vector<Move> piece_moves = get_pseudo_legal_moves(piece, only_captures);
         moves.insert(std::end(moves), std::begin(piece_moves), std::end(piece_moves));
     } 
     return moves;
@@ -55,9 +53,9 @@ int MoveGenerator::perft(int depth) const {
     int nodes = 0;
     std::vector<Move> move_list = get_legal_moves(false);
     for (Move& move : move_list) {
-        board_helper.make_appropriate(move);
+        board.make(move);
         nodes += perft(depth - 1);    
-        board_helper.undo_appropriate();
+        board.undo();
     }
     return nodes;
 }
@@ -67,31 +65,31 @@ void MoveGenerator::divide(int depth) const {
     int nodes_searched = 0;
     std::vector<Move> move_list = get_legal_moves(false);
     for (Move& move : move_list) {
-        board_helper.make_appropriate(move);
+        board.make(move);
         const int nodes = perft(depth - 1);
         nodes_searched += nodes;
         std::cout << move.to_uci_notation() << ": " << nodes << "\n";
-        board_helper.undo_appropriate();
+        board.undo();
     }
     std::cout << "\nNodes searched: " << nodes_searched << "\n";
 }
 
 bool MoveGenerator::leaves_king_in_check(const Move& move) const {
     const Color player_to_move = board.game_state.player_to_move;
-    board_helper.make_appropriate(move);
+    board.make(move);
     if (is_in_check(player_to_move)) {
-        board_helper.undo_appropriate();
+        board.undo();
         return true;
     }
-    board_helper.undo_appropriate();
+    board.undo();
     return false;
 }
 
 bool MoveGenerator::is_in_check(Color color) const {
-    const int king_square = board_helper.get_king_square(color);
+    const int king_square = board.get_king_square(color);
     const Color opponent = get_opposite_color(color);
-    const std::vector<Move> psuedo_legal_moves = get_threatened_moves(opponent);
-    for (const Move& move : psuedo_legal_moves) {
+    const std::vector<Move> pseudo_legal_moves = get_threatened_moves(opponent);
+    for (const Move& move : pseudo_legal_moves) {
         if (move.end == king_square) {
             return true;
         }
@@ -99,25 +97,25 @@ bool MoveGenerator::is_in_check(Color color) const {
     return false;
 }
 
-std::vector<Move> MoveGenerator::get_psuedo_legal_moves(const Piece& piece, bool only_captures) const {
+std::vector<Move> MoveGenerator::get_pseudo_legal_moves(const Piece& piece, bool only_captures) const {
     switch (piece.piece_type) {
         case KING: {
-            return get_king_psuedo_legal_moves(piece, only_captures);
+            return get_king_pseudo_legal_moves(piece, only_captures);
         }
         case QUEEN: {
-            return get_queen_psuedo_legal_moves(piece, only_captures);
+            return get_queen_pseudo_legal_moves(piece, only_captures);
         }
         case ROOK: {
-            return get_rook_psuedo_legal_moves(piece, only_captures);
+            return get_rook_pseudo_legal_moves(piece, only_captures);
         }
         case BISHOP: {
-            return get_bishop_psuedo_legal_moves(piece, only_captures);
+            return get_bishop_pseudo_legal_moves(piece, only_captures);
         }
         case KNIGHT: {
-            return get_knight_psuedo_legal_moves(piece, only_captures);
+            return get_knight_pseudo_legal_moves(piece, only_captures);
         }
         case PAWN: {
-            return get_pawn_psuedo_legal_moves(piece, only_captures);
+            return get_pawn_pseudo_legal_moves(piece, only_captures);
         }
     }    
     return {};
@@ -130,17 +128,17 @@ std::vector<Move> MoveGenerator::get_threatened_moves(const Piece& piece) const 
     if (piece.piece_type == KING) {
         return get_king_threatened_moves(piece, false);
     }
-    return get_psuedo_legal_moves(piece, false);
+    return get_pseudo_legal_moves(piece, false);
 }
 
 
-std::vector<Move> MoveGenerator::get_bishop_psuedo_legal_moves(const Piece& piece, bool only_captures) const {
+std::vector<Move> MoveGenerator::get_bishop_pseudo_legal_moves(const Piece& piece, bool only_captures) const {
     std::vector<Move> moves;
 
-    std::vector<Move> up_right = get_psuedo_legal_moves_direction(piece, 1, 1, only_captures);
-    std::vector<Move> down_right = get_psuedo_legal_moves_direction(piece, 1, -1, only_captures);
-    std::vector<Move> down_left = get_psuedo_legal_moves_direction(piece, -1, -1, only_captures);
-    std::vector<Move> up_left = get_psuedo_legal_moves_direction(piece, -1, 1, only_captures);
+    std::vector<Move> up_right = get_pseudo_legal_moves_direction(piece, 1, 1, only_captures);
+    std::vector<Move> down_right = get_pseudo_legal_moves_direction(piece, 1, -1, only_captures);
+    std::vector<Move> down_left = get_pseudo_legal_moves_direction(piece, -1, -1, only_captures);
+    std::vector<Move> up_left = get_pseudo_legal_moves_direction(piece, -1, 1, only_captures);
 
     moves.insert(std::end(moves), std::begin(up_right), std::end(up_right));
     moves.insert(std::end(moves), std::begin(down_right), std::end(down_right));
@@ -150,13 +148,13 @@ std::vector<Move> MoveGenerator::get_bishop_psuedo_legal_moves(const Piece& piec
     return moves;
 }
 
-std::vector<Move> MoveGenerator::get_rook_psuedo_legal_moves(const Piece& piece, bool only_captures) const {
+std::vector<Move> MoveGenerator::get_rook_pseudo_legal_moves(const Piece& piece, bool only_captures) const {
     std::vector<Move> moves;
 
-    std::vector<Move> up = get_psuedo_legal_moves_direction(piece, 0, 1, only_captures);
-    std::vector<Move> right = get_psuedo_legal_moves_direction(piece, 1, 0, only_captures);
-    std::vector<Move> down = get_psuedo_legal_moves_direction(piece, 0, -1, only_captures);
-    std::vector<Move> left = get_psuedo_legal_moves_direction(piece, -1, 0, only_captures);
+    std::vector<Move> up = get_pseudo_legal_moves_direction(piece, 0, 1, only_captures);
+    std::vector<Move> right = get_pseudo_legal_moves_direction(piece, 1, 0, only_captures);
+    std::vector<Move> down = get_pseudo_legal_moves_direction(piece, 0, -1, only_captures);
+    std::vector<Move> left = get_pseudo_legal_moves_direction(piece, -1, 0, only_captures);
 
     moves.insert(std::end(moves), std::begin(up), std::end(up));
     moves.insert(std::end(moves), std::begin(right), std::end(right));
@@ -166,18 +164,18 @@ std::vector<Move> MoveGenerator::get_rook_psuedo_legal_moves(const Piece& piece,
     return moves;
 }
 
-std::vector<Move> MoveGenerator::get_queen_psuedo_legal_moves(const Piece& piece, bool only_captures) const {
+std::vector<Move> MoveGenerator::get_queen_pseudo_legal_moves(const Piece& piece, bool only_captures) const {
     std::vector<Move> moves;
 
-    std::vector<Move> bishop_moves = get_bishop_psuedo_legal_moves(piece, only_captures);
-    std::vector<Move> rook_moves = get_rook_psuedo_legal_moves(piece, only_captures);
+    std::vector<Move> bishop_moves = get_bishop_pseudo_legal_moves(piece, only_captures);
+    std::vector<Move> rook_moves = get_rook_pseudo_legal_moves(piece, only_captures);
     moves.insert(std::end(moves), std::begin(bishop_moves), std::end(bishop_moves));
     moves.insert(std::end(moves), std::begin(rook_moves), std::end(rook_moves));
 
     return moves;
 }
 
-std::vector<Move> MoveGenerator::get_knight_psuedo_legal_moves(const Piece& piece, bool only_captures) const {
+std::vector<Move> MoveGenerator::get_knight_pseudo_legal_moves(const Piece& piece, bool only_captures) const {
     const std::array<int, 8> movements = {21, -21, 19, -19, 12, -12, 8, -8};
     const Color opponent = get_opposite_color(piece.color);
     std::vector<Move> moves;
@@ -188,16 +186,16 @@ std::vector<Move> MoveGenerator::get_knight_psuedo_legal_moves(const Piece& piec
             continue;
         }
 
-        if (only_captures && board_helper.is_occupied_by_color(end, opponent)) {
+        if (only_captures && board.squares[end].is_occupied_by(opponent)) {
             moves.push_back(Move(piece.pos, end));
-        } else if (!only_captures && !board_helper.is_occupied_by_color(end, piece.color)) {
+        } else if (!only_captures && !board.squares[end].is_occupied_by(piece.color)) {
             moves.push_back(Move(piece.pos, end));
         }
     }
     return moves;
 }
 
-std::vector<Move> MoveGenerator::get_king_psuedo_legal_moves(const Piece& piece, bool only_captures) const {
+std::vector<Move> MoveGenerator::get_king_pseudo_legal_moves(const Piece& piece, bool only_captures) const {
     std::vector<Move> moves = get_king_threatened_moves(piece, only_captures);
     moves.reserve(10);
     if (!only_captures) {
@@ -207,7 +205,7 @@ std::vector<Move> MoveGenerator::get_king_psuedo_legal_moves(const Piece& piece,
     return moves;
 }
 
-std::vector<Move> MoveGenerator::get_pawn_psuedo_legal_moves(Piece pawn, bool only_captures) const {
+std::vector<Move> MoveGenerator::get_pawn_pseudo_legal_moves(Piece pawn, bool only_captures) const {
     std::vector<Move> moves;
     moves.reserve(4);
     const int direction = board.game_state.player_to_move == BLACK ? 1 : -1;
@@ -265,7 +263,7 @@ std::vector<Move> MoveGenerator::get_pawn_psuedo_legal_moves(Piece pawn, bool on
     return moves;
 }
 
-std::vector<Move> MoveGenerator::get_psuedo_legal_moves_direction(const Piece& piece, int x_direction, int y_direction, bool only_captures) const {
+std::vector<Move> MoveGenerator::get_pseudo_legal_moves_direction(const Piece& piece, int x_direction, int y_direction, bool only_captures) const {
     std::vector<Move> moves;
 
     const int step = x_direction + y_direction * 10;
@@ -299,9 +297,9 @@ std::vector<Move> MoveGenerator::get_king_threatened_moves(Piece king, bool only
             continue;
         }
 
-        if (only_captures && board_helper.is_occupied_by_color(end, opponent)) {
+        if (only_captures && board.squares[end].is_occupied_by(opponent)) {
             moves.push_back(Move(king.pos, end));
-        } else if (!only_captures && !board_helper.is_occupied_by_color(end, king.color)) {
+        } else if (!only_captures && !board.squares[end].is_occupied_by(king.color)) {
             moves.push_back(Move(king.pos, end));
         }
     }
@@ -348,7 +346,7 @@ bool MoveGenerator::is_valid_castling(const Move& move) const {
     } else {
         rook_pos = king_pos - 4;
     }
-    if (!board_helper.is_clear_line(king_pos, rook_pos)) {
+    if (!move_validator.is_clear_line(king_pos, rook_pos)) {
         return false;
     }
     if (is_in_check(board.game_state.player_to_move)) {

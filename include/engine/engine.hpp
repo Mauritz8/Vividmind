@@ -5,23 +5,32 @@
 #include <vector>
 
 #include "board.hpp"
-#include "board_helper.hpp"
 #include "move.hpp"
 #include "move_generator.hpp"
 #include "game_over_detector.hpp"
 
 
+struct SearchParams {
+    int wtime;
+    int btime;
+    int winc;
+    int binc;
+    int moves_to_go;
+};
+
+struct SearchResult {
+    int depth;
+    int score;
+    long nodes;
+    long time;
+    std::vector<Move> pv;
+};
+
 class Engine {
     public:
-        Move best_move;
+        SearchParams search_params;
 
-        int wtime;
-        int btime;
-        int winc;
-        int binc;
-        int moves_to_go;
-
-        Engine(Board& board, BoardHelper& board_helper);
+        Engine(Board& board);
 
         void iterative_deepening_search_depth(int search_depth);
         void iterative_deepening_search_time(int allocated_time_ms);
@@ -31,25 +40,20 @@ class Engine {
 
     private:
         Board& board;
-        BoardHelper& board_helper;
         MoveGenerator move_gen;
         GameOverDetector game_over_detector;
 
-        int depth;
-        int score;
-        long nodes;
-        long time;
-        std::vector<Move> pv;
+        SearchResult search_result;
 
         static const int NO_CONSTRAINT = INT_MAX;
         static const int NO_TIME_LEFT = INT_MIN;
         static const int MOVE_OVERHEAD = 50;
+        static const int DRAW = 0;
         static const int CHECKMATE = 50000;
         static const int CHECKMATE_THRESHOLD = 49000;
         static const int ALPHA_INITIAL_VALUE = -CHECKMATE;
 
         void iterative_deepening_search(int search_depth, int allocated_time_ms);
-        int search_root(int depth, int time_left);
         int search(int depth, int alpha, int beta, int time_left, std::vector<Move>& principal_variation, bool last_was_nullmove);
         int search_captures(int alpha, int beta, int time_left);
         int evaluate();

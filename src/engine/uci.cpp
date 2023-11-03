@@ -5,14 +5,12 @@
 #include <stdexcept>
 #include <string>
 
-#include "board_helper.hpp"
 #include "move.hpp"
 
 
 UCI::UCI(Board& board) 
     : board(board)
-    , board_helper(board)
-    , engine(board, board_helper)
+    , engine(board)
 {}
 
 void UCI::process_command(const std::string& command) {
@@ -50,7 +48,7 @@ void UCI::make_moves(std::istringstream& moves) {
     std::string move_uci;
     while (std::getline(moves, move_uci, ' ')) {
         Move move = Move::get_from_uci_notation(move_uci, board);
-        board_helper.make_appropriate(move);
+        board.make(move);
     }
 }
 
@@ -85,15 +83,15 @@ void UCI::handle_go_command(const std::string& arguments) {
         std::getline(ss, argument, ' ');
 
         if (token == "wtime") {
-            engine.wtime = std::stoi(argument);
+            engine.search_params.wtime = std::stoi(argument);
         } else if (token == "btime") {
-            engine.btime = std::stoi(argument);
+            engine.search_params.btime = std::stoi(argument);
         } else if (token == "winc") {
-            engine.winc = std::stoi(argument);
+            engine.search_params.winc = std::stoi(argument);
         } else if (token == "binc") {
-            engine.binc = std::stoi(argument);
+            engine.search_params.binc = std::stoi(argument);
         } else if (token == "movestogo") {
-            engine.moves_to_go = std::stoi(argument);
+            engine.search_params.moves_to_go = std::stoi(argument);
         }
         
 

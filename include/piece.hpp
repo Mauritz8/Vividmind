@@ -1,5 +1,5 @@
-#ifndef PIECE_H
-#define PIECE_H
+#ifndef PIECE_HPP
+#define PIECE_HPP
 
 
 typedef enum {PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING} PieceType;
