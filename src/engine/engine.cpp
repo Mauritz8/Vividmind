@@ -125,11 +125,10 @@ int Engine::search(int depth, int alpha, int beta, int time_left, std::vector<Mo
 
     // null move pruning
     const Color player = board.game_state.player_to_move;
-    const int R = 2;
-    if (depth > R && !last_was_nullmove && !move_gen.is_in_check(player)) {
+    if (depth > 1 && !last_was_nullmove && !move_gen.is_in_check(player)) {
         std::vector<Move> line;
         board_helper.make_null_move();
-        int shallow_search_depth = depth - R;
+        const int shallow_search_depth = depth < 4 ? 0 : depth - 3;
         int evaluation = -search(shallow_search_depth, -beta, -alpha, time_left, line, true); 
         board_helper.undo_null_move();
 
