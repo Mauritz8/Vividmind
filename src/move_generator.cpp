@@ -290,6 +290,7 @@ std::vector<Move> MoveGenerator::get_psuedo_legal_moves_direction(const Piece& p
 
 std::vector<Move> MoveGenerator::get_king_threatened_moves(Piece king, bool only_captures) const {
     std::array<int, 8> movements = {11, -11, 10, -10, 9, -9, 1, -1};
+    const Color opponent = get_opposite_color(king.color);
     std::vector<Move> moves;
     moves.reserve(8);
     for (int movement : movements) {
@@ -298,7 +299,7 @@ std::vector<Move> MoveGenerator::get_king_threatened_moves(Piece king, bool only
             continue;
         }
 
-        if (only_captures && board_helper.is_occupied_by_color(end, get_opposite_color(king.color))) {
+        if (only_captures && board_helper.is_occupied_by_color(end, opponent)) {
             moves.push_back(Move(king.pos, end));
         } else if (!only_captures && !board_helper.is_occupied_by_color(end, king.color)) {
             moves.push_back(Move(king.pos, end));
