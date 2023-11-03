@@ -43,21 +43,20 @@ int Engine::get_allocated_time() {
 }
 
 void Engine::iterative_deepening_search(int search_depth, int allocated_time_ms) {
-    search_result.nodes = 0;
-    search_result.time = 0;
+    search_result = SearchResult();
     auto start_time = std::chrono::high_resolution_clock::now();
+    while (search_result.depth < search_depth && search_result.time < allocated_time_ms) {
+        search_result.depth++;
+        const int evaluation_at_depth = search_root(search_result.depth, allocated_time_ms - search_result.time);
 
-    search_result.depth = 1;
-    while (search_result.depth <= search_depth && search_result.time < allocated_time_ms) {
-        int evaluation_at_depth = search_root(search_result.depth, allocated_time_ms - search_result.time);
         if (evaluation_at_depth == NO_TIME_LEFT) {
             break;
         }
+
         auto stop_time = std::chrono::high_resolution_clock::now();
         int duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop_time - start_time).count();
         search_result.time = duration == 0 ? 1 : duration;
         show_uci_info();
-        search_result.depth++;
     }
     std::cout << "bestmove " << search_result.best_move.to_uci_notation() << "\n";
 }
