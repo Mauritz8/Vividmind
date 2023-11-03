@@ -64,7 +64,7 @@ void Engine::iterative_deepening_search(int search_depth, int allocated_time_ms)
 
 int Engine::search_root(int depth, int time_left) {
     auto start_time = std::chrono::high_resolution_clock::now();
-    int alpha = -50000;
+    int alpha = ALPHA_INITIAL_VALUE;
     int beta = -alpha;
 
     Move best_move_at_depth;
@@ -111,7 +111,8 @@ int Engine::search(int depth, int alpha, int beta, int time_left, std::vector<Mo
 
     std::vector<Move> legal_moves = move_gen.get_psuedo_legal_moves(false);
     if (game_over_detector.is_checkmate(legal_moves)) {
-        return -(KING_VALUE + this->depth - depth);
+        const int ply_to_mate = this->depth - depth;
+        return -CHECKMATE + ply_to_mate;
     }
     if (game_over_detector.is_draw(legal_moves)) {
         return 0;
@@ -164,6 +165,12 @@ int Engine::search(int depth, int alpha, int beta, int time_left, std::vector<Mo
             line.insert(line.begin(), move);
             principal_variation = line;
         }
+    }
+    // if alpha is still it's initial value
+    // no move was possible, which means it is stalemate
+    const bool is_stalemate = alpha == ALPHA_INITIAL_VALUE;
+    if (is_stalemate) {
+        return 0;
     }
     return alpha;
 }
@@ -232,8 +239,8 @@ int Engine::evaluate() {
 void Engine::show_uci_info() const {
     std::cout << "info";
     std::cout << " depth " << depth;
-    if (score > KING_VALUE) {
-        std::cout << " score mate " << score - KING_VALUE;
+    if (score > CHECKMATE_THRESHOLD) {
+        std::cout << " score mate " << CHECKMATE - score;
     } else {
         std::cout << " score cp " << score;
     }

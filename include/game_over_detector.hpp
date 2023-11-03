@@ -20,7 +20,6 @@ class GameOverDetector {
         const MoveGenerator& move_gen;
 
         bool is_insufficient_material() const;
-        bool is_stalemate(const std::vector<Move>& legal_moves) const;
         bool is_threefold_repetition() const;
 };
 
