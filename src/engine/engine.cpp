@@ -37,29 +37,29 @@ void Engine::divide(int depth) {
 
 int Engine::get_allocated_time() {
     if (board.game_state.player_to_move == WHITE) {
-        return wtime / 20;
+        return search_params.wtime / 20;
     }
-    return btime / 20;
+    return search_params.btime / 20;
 }
 
 void Engine::iterative_deepening_search(int search_depth, int allocated_time_ms) {
-    nodes = 0;
-    time = 0;
+    search_result.nodes = 0;
+    search_result.time = 0;
     auto start_time = std::chrono::high_resolution_clock::now();
 
-    depth = 1;
-    while (depth <= search_depth && time < allocated_time_ms) {
-        int evaluation_at_depth = search_root(depth, allocated_time_ms - time);
+    search_result.depth = 1;
+    while (search_result.depth <= search_depth && search_result.time < allocated_time_ms) {
+        int evaluation_at_depth = search_root(search_result.depth, allocated_time_ms - search_result.time);
         if (evaluation_at_depth == NO_TIME_LEFT) {
             break;
         }
         auto stop_time = std::chrono::high_resolution_clock::now();
         int duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop_time - start_time).count();
-        time = duration == 0 ? 1 : duration;
+        search_result.time = duration == 0 ? 1 : duration;
         show_uci_info();
-        depth++;
+        search_result.depth++;
     }
-    std::cout << "bestmove " << best_move.to_uci_notation() << "\n";
+    std::cout << "bestmove " << search_result.best_move.to_uci_notation() << "\n";
 }
 
 int Engine::search_root(int depth, int time_left) {
@@ -70,7 +70,7 @@ int Engine::search_root(int depth, int time_left) {
     Move best_move_at_depth;
     std::vector<Move> principal_variation;
     std::vector<Move> legal_moves = move_gen.get_psuedo_legal_moves(false);
-    move_ordering(legal_moves, this->depth - depth);
+    move_ordering(legal_moves, search_result.depth - depth);
     const Color player = board.game_state.player_to_move;
     for (Move& move : legal_moves) {
         std::vector<Move> variation;
@@ -97,21 +97,21 @@ int Engine::search_root(int depth, int time_left) {
             principal_variation = variation;
         }
     }
-    score = alpha;
-    best_move = best_move_at_depth;
-    pv = principal_variation;
+    search_result.score = alpha;
+    search_result.best_move = best_move_at_depth;
+    search_result.pv = principal_variation;
     return alpha;
 }
 
 int Engine::search(int depth, int alpha, int beta, int time_left, std::vector<Move>& principal_variation, bool last_was_nullmove) {
-    if (time_left <= MOVE_OVERHEAD && this->depth > 1) {
+    if (time_left <= MOVE_OVERHEAD && search_result.depth > 1) {
         return NO_TIME_LEFT; 
     }
     auto start_time = std::chrono::high_resolution_clock::now();
 
     std::vector<Move> legal_moves = move_gen.get_psuedo_legal_moves(false);
     if (game_over_detector.is_checkmate(legal_moves)) {
-        const int ply_to_mate = this->depth - depth;
+        const int ply_to_mate = search_result.depth - depth;
         return -CHECKMATE + ply_to_mate;
     }
     if (game_over_detector.is_draw(legal_moves)) {
@@ -139,7 +139,7 @@ int Engine::search(int depth, int alpha, int beta, int time_left, std::vector<Mo
         }
     }
 
-    move_ordering(legal_moves, this->depth - depth);
+    move_ordering(legal_moves, search_result.depth - depth);
     for (Move& move : legal_moves) {
         std::vector<Move> line;
         board_helper.make_appropriate(move);
@@ -176,7 +176,7 @@ int Engine::search(int depth, int alpha, int beta, int time_left, std::vector<Mo
 }
 
 int Engine::search_captures(int alpha, int beta, int time_left) {
-    if (time_left <= MOVE_OVERHEAD && this->depth > 1) {
+    if (time_left <= MOVE_OVERHEAD && search_result.depth > 1) {
         return NO_TIME_LEFT; 
     }
     auto start_time = std::chrono::high_resolution_clock::now();
@@ -219,7 +219,7 @@ int Engine::search_captures(int alpha, int beta, int time_left) {
 }
 
 int Engine::evaluate() {
-    nodes++;
+    search_result.nodes++;
 
     int evaluation = 0;
     const int white_material = board.game_state.material[WHITE];
@@ -238,17 +238,17 @@ int Engine::evaluate() {
 
 void Engine::show_uci_info() const {
     std::cout << "info";
-    std::cout << " depth " << depth;
-    if (score > CHECKMATE_THRESHOLD) {
-        std::cout << " score mate " << CHECKMATE - score;
+    std::cout << " depth " << search_result.depth;
+    if (search_result.score > CHECKMATE_THRESHOLD) {
+        std::cout << " score mate " << CHECKMATE - search_result.score;
     } else {
-        std::cout << " score cp " << score;
+        std::cout << " score cp " << search_result.score;
     }
-    std::cout << " nodes " << nodes;
-    std::cout << " nps " << nodes * 1000 / time;
-    std::cout << " time " << time;
+    std::cout << " nodes " << search_result.nodes;
+    std::cout << " nps " << search_result.nodes * 1000 / search_result.time;
+    std::cout << " time " << search_result.time;
     std::cout << " pv";
-    for (Move move : pv) {
+    for (Move move : search_result.pv) {
         std::cout << " " << move.to_uci_notation();
     }
     std::cout << "\n";
@@ -256,8 +256,8 @@ void Engine::show_uci_info() const {
 }
 
 void Engine::move_ordering(std::vector<Move>& legal_moves, int current_depth) const {
-    if (pv.size() > current_depth) {
-        auto pv_move = std::find(legal_moves.begin(), legal_moves.end(), pv.at(current_depth));
+    if (search_result.pv.size() > current_depth) {
+        auto pv_move = std::find(legal_moves.begin(), legal_moves.end(), search_result.pv.at(current_depth));
         if (pv_move != legal_moves.end()) {
             std::rotate(legal_moves.begin(), pv_move, pv_move + 1);
         }

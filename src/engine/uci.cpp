@@ -85,15 +85,15 @@ void UCI::handle_go_command(const std::string& arguments) {
         std::getline(ss, argument, ' ');
 
         if (token == "wtime") {
-            engine.wtime = std::stoi(argument);
+            engine.search_params.wtime = std::stoi(argument);
         } else if (token == "btime") {
-            engine.btime = std::stoi(argument);
+            engine.search_params.btime = std::stoi(argument);
         } else if (token == "winc") {
-            engine.winc = std::stoi(argument);
+            engine.search_params.winc = std::stoi(argument);
         } else if (token == "binc") {
-            engine.binc = std::stoi(argument);
+            engine.search_params.binc = std::stoi(argument);
         } else if (token == "movestogo") {
-            engine.moves_to_go = std::stoi(argument);
+            engine.search_params.moves_to_go = std::stoi(argument);
         }
         
 

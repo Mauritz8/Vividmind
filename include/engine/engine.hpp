@@ -11,15 +11,26 @@
 #include "game_over_detector.hpp"
 
 
+struct SearchParams {
+    int wtime;
+    int btime;
+    int winc;
+    int binc;
+    int moves_to_go;
+};
+
+struct SearchResult {
+    Move best_move;
+    int depth;
+    int score;
+    long nodes;
+    long time;
+    std::vector<Move> pv;
+};
+
 class Engine {
     public:
-        Move best_move;
-
-        int wtime;
-        int btime;
-        int winc;
-        int binc;
-        int moves_to_go;
+        SearchParams search_params;
 
         Engine(Board& board, BoardHelper& board_helper);
 
@@ -35,11 +46,7 @@ class Engine {
         MoveGenerator move_gen;
         GameOverDetector game_over_detector;
 
-        int depth;
-        int score;
-        long nodes;
-        long time;
-        std::vector<Move> pv;
+        SearchResult search_result;
 
         static const int NO_CONSTRAINT = INT_MAX;
         static const int NO_TIME_LEFT = INT_MIN;
