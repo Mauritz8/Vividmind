@@ -127,10 +127,10 @@ int Engine::search(int depth, int alpha, int beta, int time_left, std::vector<Mo
     // null move pruning
     const Color player = board.game_state.player_to_move;
     if (depth > 1 && !last_was_nullmove && !move_gen.is_in_check(player)) {
-        std::vector<Move> line;
+        std::vector<Move> variation;
         board_helper.make_null_move();
         const int shallow_search_depth = depth < 4 ? 0 : depth - 3;
-        int evaluation = -search(shallow_search_depth, -beta, -alpha, time_left, line, true); 
+        int evaluation = -search(shallow_search_depth, -beta, -alpha, time_left, variation, true); 
         board_helper.undo_null_move();
 
         if (evaluation >= beta) {
@@ -140,7 +140,7 @@ int Engine::search(int depth, int alpha, int beta, int time_left, std::vector<Mo
 
     move_ordering(legal_moves, search_result.depth - depth);
     for (Move& move : legal_moves) {
-        std::vector<Move> line;
+        std::vector<Move> variation;
         board_helper.make_appropriate(move);
         if (move_gen.is_in_check(player)) {
             board_helper.undo_appropriate();
@@ -149,7 +149,7 @@ int Engine::search(int depth, int alpha, int beta, int time_left, std::vector<Mo
 
         auto stop_time = std::chrono::high_resolution_clock::now();
         int time_spent = std::chrono::duration_cast<std::chrono::milliseconds>(stop_time - start_time).count();
-        const int evaluation = -search(depth - 1, -beta, -alpha, time_left - time_spent, line, false);
+        const int evaluation = -search(depth - 1, -beta, -alpha, time_left - time_spent, variation, false);
         board_helper.undo_appropriate();
 
         if (evaluation == NO_TIME_LEFT) {
@@ -161,8 +161,8 @@ int Engine::search(int depth, int alpha, int beta, int time_left, std::vector<Mo
         }
         if (evaluation > alpha) {
             alpha = evaluation;
-            line.insert(line.begin(), move);
-            principal_variation = line;
+            variation.insert(variation.begin(), move);
+            principal_variation = variation;
         }
     }
     // if alpha is still it's initial value
