@@ -6,7 +6,7 @@
 #include <stdexcept>
 #include <vector>
 
-#include "board_utils.hpp"
+#include "utils.hpp"
 #include "square.hpp"
 
 

@@ -1,5 +1,5 @@
-#ifndef BOARD_UTILS_H
-#define BOARD_UTILS_H
+#ifndef UTILS_H
+#define UTILS_H
 
 #include "piece.hpp"
 

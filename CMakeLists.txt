@@ -19,7 +19,7 @@ FetchContent_MakeAvailable(googletest)
 
 set(COMMON_SOURCES
     src/board.cpp
-    src/board_utils.cpp
+    src/utils.cpp
     src/game_over_detector.cpp
     src/move.cpp
     src/move_generator.cpp

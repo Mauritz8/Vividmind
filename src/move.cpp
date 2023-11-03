@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-#include "board_utils.hpp"
+#include "utils.hpp"
 #include "move_validator.hpp"
 
 

@@ -1,4 +1,4 @@
-#include "board_utils.hpp"
+#include "utils.hpp"
 
 
 Color get_opposite_color(Color color) {
