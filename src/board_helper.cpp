@@ -106,6 +106,18 @@ void BoardHelper::undo_appropriate() const {
     board.history.pop_back();
 }
 
+void BoardHelper::make_null_move() const {
+    board.history.push_back(board.game_state);
+    board.game_state.en_passant_square = {};
+    board.game_state.captured_piece = {};
+    board.switch_player_to_move();
+}
+
+void BoardHelper::undo_null_move() const {
+    board.game_state = board.history.at(board.history.size() - 1);
+    board.history.pop_back();
+}
+
 void BoardHelper::make(const Move& move) const {
     board.game_state.en_passant_square = {};
     board.game_state.captured_piece = {};

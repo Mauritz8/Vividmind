@@ -16,6 +16,8 @@ class BoardHelper {
         int get_king_square(Color color) const;
         void make_appropriate(const Move& move) const;
         void undo_appropriate() const;
+        void make_null_move() const;
+        void undo_null_move() const;
 
     private:
         Board& board;
