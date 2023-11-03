@@ -1,5 +1,5 @@
-#ifndef MOVE_VALIDATOR_H
-#define MOVE_VALIDATOR_H
+#ifndef MOVE_VALIDATOR_HPP
+#define MOVE_VALIDATOR_HPP
 
 #include "board.hpp"
 #include "move.hpp"

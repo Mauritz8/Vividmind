@@ -1,5 +1,5 @@
-#ifndef MOVE_GENERATOR_H
-#define MOVE_GENERATOR_H
+#ifndef MOVE_GENERATOR_HPP
+#define MOVE_GENERATOR_HPP
 
 #include <vector>
 

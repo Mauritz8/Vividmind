@@ -1,5 +1,5 @@
-#ifndef SQUARE_H
-#define SQUARE_H
+#ifndef SQUARE_HPP
+#define SQUARE_HPP
 
 #include <optional>
 

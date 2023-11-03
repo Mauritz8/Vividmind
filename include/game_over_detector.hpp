@@ -1,5 +1,5 @@
-#ifndef GAME_OVER_DETECTOR_H
-#define GAME_OVER_DETECTOR_H
+#ifndef GAME_OVER_DETECTOR_HPP
+#define GAME_OVER_DETECTOR_HPP
 
 #include <vector>
 
