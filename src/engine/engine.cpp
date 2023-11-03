@@ -68,10 +68,10 @@ int Engine::search_root(int depth, int time_left) {
 
     Move best_move_at_depth;
     std::vector<Move> principal_variation;
-    std::vector<Move> legal_moves = move_gen.get_psuedo_legal_moves(false);
-    move_ordering(legal_moves, search_result.depth - depth);
+    std::vector<Move> pseudo_legal_moves = move_gen.get_pseudo_legal_moves(false);
+    move_ordering(pseudo_legal_moves, search_result.depth - depth);
     const Color player = board.game_state.player_to_move;
-    for (Move& move : legal_moves) {
+    for (Move& move : pseudo_legal_moves) {
         std::vector<Move> variation;
         board_helper.make_appropriate(move);
         if (move_gen.is_in_check(player)) {
@@ -108,7 +108,7 @@ int Engine::search(int depth, int alpha, int beta, int time_left, std::vector<Mo
     }
     auto start_time = std::chrono::high_resolution_clock::now();
 
-    std::vector<Move> legal_moves = move_gen.get_psuedo_legal_moves(false);
+    std::vector<Move> legal_moves = move_gen.get_pseudo_legal_moves(false);
     if (game_over_detector.is_checkmate(legal_moves)) {
         const int ply_to_mate = search_result.depth - depth;
         return -CHECKMATE + ply_to_mate;
@@ -190,7 +190,7 @@ int Engine::search_captures(int alpha, int beta, int time_left) {
 
 
     const Color player = board.game_state.player_to_move;
-    std::vector<Move> captures = move_gen.get_psuedo_legal_moves(true);
+    std::vector<Move> captures = move_gen.get_pseudo_legal_moves(true);
     for (Move& capture : captures) {
         board_helper.make_appropriate(capture);
         if (move_gen.is_in_check(player)) {
