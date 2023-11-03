@@ -9,6 +9,7 @@
 
 #include "board_helper.hpp"
 #include "move.hpp"
+#include "piece.hpp"
 
 
 Engine::Engine(Board& board, BoardHelper& board_helper) 
@@ -63,7 +64,7 @@ void Engine::iterative_deepening_search(int search_depth, int allocated_time_ms)
 
 int Engine::search_root(int depth, int time_left) {
     auto start_time = std::chrono::high_resolution_clock::now();
-    int alpha = -200000;
+    int alpha = -50000;
     int beta = -alpha;
 
     Move best_move_at_depth;
@@ -110,7 +111,7 @@ int Engine::search(int depth, int alpha, int beta, int time_left, std::vector<Mo
 
     std::vector<Move> legal_moves = move_gen.get_psuedo_legal_moves(false);
     if (game_over_detector.is_checkmate(legal_moves)) {
-        return -KING_VALUE - depth;
+        return -(KING_VALUE + this->depth - depth);
     }
     if (game_over_detector.is_draw(legal_moves)) {
         return 0;
@@ -231,7 +232,11 @@ int Engine::evaluate() {
 void Engine::show_uci_info() const {
     std::cout << "info";
     std::cout << " depth " << depth;
-    std::cout << " score cp " << score;
+    if (score > KING_VALUE) {
+        std::cout << " score mate " << score - KING_VALUE;
+    } else {
+        std::cout << " score cp " << score;
+    }
     std::cout << " nodes " << nodes;
     std::cout << " nps " << nodes * 1000 / time;
     std::cout << " time " << time;
