@@ -178,38 +178,20 @@ std::vector<Move> MoveGenerator::get_queen_psuedo_legal_moves(const Piece& piece
 }
 
 std::vector<Move> MoveGenerator::get_knight_psuedo_legal_moves(const Piece& piece, bool only_captures) const {
-    int start = piece.pos;
-    std::vector<int> end_squares;
-    end_squares.reserve(8);
-    int x = start % 8;
-    int y = start / 8;
-    if (x < 7) {
-        if (y < 6) end_squares.push_back(start + 17);
-        if (y > 1) end_squares.push_back(start - 15);
-
-        if (x < 6) {
-            if (y < 7) end_squares.push_back(start + 10);
-            if (y > 0) end_squares.push_back(start - 6);
-        }
-    }
-
-    if (x > 0) {
-        if (y < 6) end_squares.push_back(start + 15);
-        if (y > 1) end_squares.push_back(start - 17);
-
-        if (x > 1) {
-            if (y > 0) end_squares.push_back(start - 10);
-            if (y < 7) end_squares.push_back(start + 6);
-        }
-    }
-
+    const std::array<int, 8> movements = {21, -21, 19, -19, 12, -12, 8, -8};
     const Color opponent = get_opposite_color(piece.color);
     std::vector<Move> moves;
-    for (int end : end_squares) {
+    moves.reserve(8);
+    for (int movement : movements) {
+        const int end = Board::mailbox[Board::mailbox64[piece.pos] + movement];
+        if (end == -1) {
+            continue;
+        }
+
         if (only_captures && board_helper.is_occupied_by_color(end, opponent)) {
-            moves.push_back(Move(start, end));
+            moves.push_back(Move(piece.pos, end));
         } else if (!only_captures && !board_helper.is_occupied_by_color(end, piece.color)) {
-            moves.push_back(Move(start, end));
+            moves.push_back(Move(piece.pos, end));
         }
     }
     return moves;
@@ -285,10 +267,10 @@ std::vector<Move> MoveGenerator::get_pawn_psuedo_legal_moves(Piece pawn, bool on
 
 std::vector<Move> MoveGenerator::get_psuedo_legal_moves_direction(const Piece& piece, int x_direction, int y_direction, bool only_captures) const {
     std::vector<Move> moves;
-    int x = piece.pos % 8 + x_direction;
-    int y = piece.pos / 8 + y_direction;
-    while (!is_outside_board(x, y)) {
-        int pos = x + y * 8;
+
+    const int step = x_direction + y_direction * 10;
+    int pos = Board::mailbox[Board::mailbox64[piece.pos] + step];
+    while (pos != -1) {
         const Square& end = board.squares[pos];
         if (end.piece) {
             if (end.piece->color != piece.color) {
@@ -300,34 +282,22 @@ std::vector<Move> MoveGenerator::get_psuedo_legal_moves_direction(const Piece& p
         if (!only_captures) {
             moves.push_back(Move(piece.pos, pos));
         }
-        x += x_direction;
-        y += y_direction;
+        pos = Board::mailbox[Board::mailbox64[pos] + step];
     }
 
     return moves;
 }
 
 std::vector<Move> MoveGenerator::get_king_threatened_moves(Piece king, bool only_captures) const {
-    int start = king.pos;
-    std::vector<int> end_squares;
-    end_squares.reserve(8);
-    int x = start % 8;
-    int y = start / 8;
-    if (x < 7) {
-        end_squares.push_back(start + 1);
-        if (y > 0) end_squares.push_back(start - 7);
-        if (y < 7) end_squares.push_back(start + 9);
-    }
-    if (x > 0) {
-        end_squares.push_back(start - 1);
-        if (y < 7) end_squares.push_back(start + 7);
-        if (y > 0) end_squares.push_back(start - 9);
-    }
-    if (y < 7) end_squares.push_back(start + 8);
-    if (y > 0) end_squares.push_back(start - 8);
-
+    std::array<int, 8> movements = {11, -11, 10, -10, 9, -9, 1, -1};
     std::vector<Move> moves;
-    for (int end : end_squares) {
+    moves.reserve(8);
+    for (int movement : movements) {
+        const int end = Board::mailbox[Board::mailbox64[king.pos] + movement];
+        if (end == -1) {
+            continue;
+        }
+
         if (only_captures && board_helper.is_occupied_by_color(end, get_opposite_color(king.color))) {
             moves.push_back(Move(king.pos, end));
         } else if (!only_captures && !board_helper.is_occupied_by_color(end, king.color)) {
@@ -408,22 +378,15 @@ bool MoveGenerator::passes_through_check_when_castling(const Move& castling_move
 
 
 std::vector<Move> MoveGenerator::get_pawn_captures(Piece pawn) const {
+    const int direction = pawn.color == BLACK ? 1 : -1;
+    const std::array<int, 2> movements = {9 * direction, 11 * direction};
+
     std::vector<Move> moves;
     moves.reserve(2);
-    const int x = pawn.pos % 8;
-    if (pawn.color == WHITE) {
-        if (x < 7) {
-            moves.push_back(Move(pawn.pos, pawn.pos - 7));
-        }
-        if (x > 0) {
-            moves.push_back(Move(pawn.pos, pawn.pos - 9));
-        }
-    } else {
-        if (x < 7) {
-            moves.push_back(Move(pawn.pos, pawn.pos + 9));
-        }
-        if (x > 0) {
-            moves.push_back(Move(pawn.pos, pawn.pos + 7));
+    for (int movement : movements) {
+        int end = Board::mailbox[Board::mailbox64[pawn.pos] + movement];
+        if (end != -1) {
+           moves.push_back(Move(pawn.pos, end));  
         }
     }
     return moves;

@@ -30,6 +30,9 @@ bool operator==(GameState state1, GameState state2);
 
 class Board {
     public:
+        const static std::array<int, 120> mailbox;
+        const static std::array<int, 64> mailbox64;
+
         std::array<Square, 64> squares;
         GameState game_state;
         std::vector<GameState> history;
