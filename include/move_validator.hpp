@@ -24,6 +24,9 @@ class MoveValidator {
 
     private:
         const Board& board;
+
+        bool is_same_line(int pos1, int pos2) const;
+        bool is_same_diagonal(int pos1, int pos2) const;
 };
 
 #endif

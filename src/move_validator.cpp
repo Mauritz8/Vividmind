@@ -1,7 +1,5 @@
 #include "move_validator.hpp"
 
-#include "board_utils.hpp"
-
 
 MoveValidator::MoveValidator(const Board& board) 
     : board(board)
@@ -157,4 +155,12 @@ bool MoveValidator::is_clear_diagonal(int pos1, int pos2) const {
         pos += step;
     }
     return true;
+}
+
+bool MoveValidator::is_same_line(int pos1, int pos2) const {
+    return abs(pos1 % 8 - pos2 % 8) == 0 || pos1 / 8 == pos2 / 8;
+}
+
+bool MoveValidator::is_same_diagonal(int pos1, int pos2) const {
+    return abs(pos1 % 8 - pos2 % 8) == (pos1 - pos2) / 8;
 }
