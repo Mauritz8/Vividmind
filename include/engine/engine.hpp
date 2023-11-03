@@ -20,7 +20,6 @@ struct SearchParams {
 };
 
 struct SearchResult {
-    Move best_move;
     int depth;
     int score;
     long nodes;
@@ -51,6 +50,7 @@ class Engine {
         static const int NO_CONSTRAINT = INT_MAX;
         static const int NO_TIME_LEFT = INT_MIN;
         static const int MOVE_OVERHEAD = 50;
+        static const int DRAW = 0;
         static const int CHECKMATE = 50000;
         static const int CHECKMATE_THRESHOLD = 49000;
         static const int ALPHA_INITIAL_VALUE = -CHECKMATE;

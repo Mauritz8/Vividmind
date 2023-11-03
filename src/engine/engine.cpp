@@ -43,83 +43,54 @@ int Engine::get_allocated_time() {
 }
 
 void Engine::iterative_deepening_search(int search_depth, int allocated_time_ms) {
-    search_result = SearchResult();
     auto start_time = std::chrono::high_resolution_clock::now();
+
+
+    int alpha = ALPHA_INITIAL_VALUE;
+    int beta = -alpha;
+
+    search_result = SearchResult();
     while (search_result.depth < search_depth && search_result.time < allocated_time_ms) {
         search_result.depth++;
-        const int evaluation_at_depth = search_root(search_result.depth, allocated_time_ms - search_result.time);
 
-        if (evaluation_at_depth == NO_TIME_LEFT) {
+        std::vector<Move> principal_variation;
+
+        const int evaluation = search(search_result.depth, alpha, beta, allocated_time_ms - search_result.time, principal_variation, false);
+
+        if (evaluation == NO_TIME_LEFT) {
             break;
         }
 
         auto stop_time = std::chrono::high_resolution_clock::now();
         int duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop_time - start_time).count();
         search_result.time = duration == 0 ? 1 : duration;
+        search_result.score = evaluation;
+        search_result.pv = principal_variation;
+
         show_uci_info();
     }
-    std::cout << "bestmove " << search_result.best_move.to_uci_notation() << "\n";
-}
-
-int Engine::search_root(int depth, int time_left) {
-    auto start_time = std::chrono::high_resolution_clock::now();
-    int alpha = ALPHA_INITIAL_VALUE;
-    int beta = -alpha;
-
-    Move best_move_at_depth;
-    std::vector<Move> principal_variation;
-    std::vector<Move> pseudo_legal_moves = move_gen.get_pseudo_legal_moves(false);
-    move_ordering(pseudo_legal_moves, search_result.depth - depth);
-    const Color player = board.game_state.player_to_move;
-    for (const Move& move : pseudo_legal_moves) {
-        board_helper.make_appropriate(move);
-        if (move_gen.is_in_check(player)) {
-            board_helper.undo_appropriate();
-            continue;
-        }
-
-        auto stop_time = std::chrono::high_resolution_clock::now();
-        int duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop_time - start_time).count();
-        std::vector<Move> variation;
-        const int evaluation = -search(depth - 1, -beta, -alpha, time_left - duration, variation, false);
-
-        board_helper.undo_appropriate();
-
-        if (evaluation == NO_TIME_LEFT) {
-            return NO_TIME_LEFT;
-        }
-
-        if (evaluation > alpha) {
-            alpha = evaluation;
-            best_move_at_depth = move;
-            variation.insert(variation.begin(), move);
-            principal_variation = variation;
-        }
-    }
-    search_result.score = alpha;
-    search_result.best_move = best_move_at_depth;
-    search_result.pv = principal_variation;
-    return alpha;
+    const Move& best_move = search_result.pv.at(0);
+    std::cout << "bestmove " << best_move.to_uci_notation() << "\n";
 }
 
 int Engine::search(int depth, int alpha, int beta, int time_left, std::vector<Move>& principal_variation, bool last_was_nullmove) {
     if (time_left <= MOVE_OVERHEAD && search_result.depth > 1) {
         return NO_TIME_LEFT; 
     }
-    auto start_time = std::chrono::high_resolution_clock::now();
+    const auto start_time = std::chrono::high_resolution_clock::now();
 
-    std::vector<Move> legal_moves = move_gen.get_pseudo_legal_moves(false);
-    if (game_over_detector.is_checkmate(legal_moves)) {
+    std::vector<Move> pseudo_legal_moves = move_gen.get_pseudo_legal_moves(false);
+    if (game_over_detector.is_checkmate(pseudo_legal_moves)) {
         const int ply_to_mate = search_result.depth - depth;
         return -CHECKMATE + ply_to_mate;
     }
-    if (game_over_detector.is_draw(legal_moves)) {
-        return 0;
+    if (game_over_detector.is_draw(pseudo_legal_moves)) {
+        return DRAW;
     }
 
     if (depth == 0) {
-        auto stop_time = std::chrono::high_resolution_clock::now();
-        int time_spent = std::chrono::duration_cast<std::chrono::milliseconds>(stop_time - start_time).count();
+        const auto stop_time = std::chrono::high_resolution_clock::now();
+        const int time_spent = std::chrono::duration_cast<std::chrono::milliseconds>(stop_time - start_time).count();
         return search_captures(alpha, beta, time_left - time_spent);
     }
 
@@ -130,7 +101,7 @@ int Engine::search(int depth, int alpha, int beta, int time_left, std::vector<Mo
         std::vector<Move> variation;
         board_helper.make_null_move();
         const int shallow_search_depth = depth < 4 ? 0 : depth - 3;
-        int evaluation = -search(shallow_search_depth, -beta, -alpha, time_left, variation, true); 
+        const int evaluation = -search(shallow_search_depth, -beta, -alpha, time_left, variation, true); 
         board_helper.undo_null_move();
 
         if (evaluation >= beta) {
@@ -138,8 +109,8 @@ int Engine::search(int depth, int alpha, int beta, int time_left, std::vector<Mo
         }
     }
 
-    move_ordering(legal_moves, search_result.depth - depth);
-    for (const Move& move : legal_moves) {
+    move_ordering(pseudo_legal_moves, search_result.depth - depth);
+    for (const Move& move : pseudo_legal_moves) {
         std::vector<Move> variation;
         board_helper.make_appropriate(move);
         if (move_gen.is_in_check(player)) {
@@ -147,8 +118,8 @@ int Engine::search(int depth, int alpha, int beta, int time_left, std::vector<Mo
             continue;
         }
 
-        auto stop_time = std::chrono::high_resolution_clock::now();
-        int time_spent = std::chrono::duration_cast<std::chrono::milliseconds>(stop_time - start_time).count();
+        const auto stop_time = std::chrono::high_resolution_clock::now();
+        const int time_spent = std::chrono::duration_cast<std::chrono::milliseconds>(stop_time - start_time).count();
         const int evaluation = -search(depth - 1, -beta, -alpha, time_left - time_spent, variation, false);
         board_helper.undo_appropriate();
 
@@ -169,7 +140,7 @@ int Engine::search(int depth, int alpha, int beta, int time_left, std::vector<Mo
     // no move was possible, which means it is stalemate
     const bool is_stalemate = alpha == ALPHA_INITIAL_VALUE;
     if (is_stalemate) {
-        return 0;
+        return DRAW;
     }
     return alpha;
 }
