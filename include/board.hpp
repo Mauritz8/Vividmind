@@ -44,9 +44,10 @@ class Board {
         Piece& get_piece(Piece piece);
         void remove_piece(Piece piece);
         void move_piece(int from, int to);
+        bool is_endgame() const;
+        int get_psqt_score(const Piece& piece) const;
 
     private:
-
         void place_pieces(const std::string& pieces);
         void set_player_to_move(const std::string& player_to_move);
         void set_castling_rights(const std::string& castling_rights);

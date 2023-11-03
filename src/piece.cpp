@@ -3,8 +3,6 @@
 #include <cctype>
 #include <stdexcept>
 
-#include "engine/psqt.hpp"
-
 
 Piece::Piece(PieceType piece_type, Color color, int pos) {
     this->piece_type = piece_type;
@@ -36,21 +34,6 @@ int Piece::get_value() const {
         case PAWN: return PAWN_VALUE;
     }
 }
-
-int Piece::get_psqt_score() const {
-    const int x = pos % 8;
-    const int y = pos / 8;
-    const int square = color == WHITE ? pos : x + (7 - y) * 8;
-    switch (piece_type) {
-        case KING: return KING_PSQT[square];
-        case QUEEN: return QUEEN_PSQT[square];
-        case ROOK: return ROOK_PSQT[square];
-        case BISHOP: return BISHOP_PSQT[square];
-        case KNIGHT: return KNIGHT_PSQT[square];
-        case PAWN: return PAWN_PSQT[square];
-    }
-}
-
 
 char get_char_representation(PieceType piece_type) {
     switch (piece_type) {
