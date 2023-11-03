@@ -25,8 +25,9 @@ struct GameState {
     std::array<int, 2> psqt;
     std::optional<Piece> captured_piece;
     Move next_move;
+
+    bool operator==(GameState other) const;
 };
-bool operator==(GameState state1, GameState state2);
 
 class Board {
     public:

@@ -356,15 +356,15 @@ bool Board::is_endgame() const {
     return true;
 }
 
-bool operator==(GameState state1, GameState state2) {
+bool GameState::operator==(GameState other) const {
     for (int i = 0; i < 2; i++) {
-        std::vector<Piece> pieces1 = state1.pieces[i];
-        std::vector<Piece> pieces2 = state2.pieces[i];
+        std::vector<Piece> pieces1 = this->pieces[i];
+        std::vector<Piece> pieces2 = other.pieces[i];
         if (pieces1.size() != pieces2.size()) {
             return false;
         }
 
-        for (int j = 0; j < state1.pieces[i].size(); j++) {
+        for (int j = 0; j < pieces1.size(); j++) {
             if (pieces1[j] != pieces2[j]) {
                 return false;
             }
