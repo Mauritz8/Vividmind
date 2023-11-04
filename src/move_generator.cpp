@@ -15,18 +15,6 @@ MoveGenerator::MoveGenerator(Board& board)
     , move_validator(board)
 {}
 
-std::vector<Move> MoveGenerator::get_legal_moves(bool only_captures) const {
-    std::vector<Move> legal_moves = get_pseudo_legal_moves(only_captures);
-    for (auto it = legal_moves.begin(); it != legal_moves.end();) {
-        if (leaves_king_in_check(*it)) {
-            it = legal_moves.erase(it);
-        } else {
-            ++it;
-        }
-    }
-    return legal_moves;
-}
-
 std::vector<Move> MoveGenerator::get_pseudo_legal_moves(bool only_captures) const {
     std::vector<Move> moves;
     for (Piece piece : board.game_state.pieces[board.game_state.player_to_move]) {
@@ -51,9 +39,14 @@ int MoveGenerator::perft(int depth) const {
     }
 
     int nodes = 0;
-    std::vector<Move> move_list = get_legal_moves(false);
-    for (Move& move : move_list) {
+    const Color player = board.game_state.player_to_move;
+    std::vector<Move> pseudo_legal_moves = get_pseudo_legal_moves(false);
+    for (const Move& move : pseudo_legal_moves) {
         board.make(move);
+        if (is_in_check(player)) {
+            board.undo();
+            continue;
+        }
         nodes += perft(depth - 1);    
         board.undo();
     }
@@ -63,26 +56,20 @@ int MoveGenerator::perft(int depth) const {
 void MoveGenerator::divide(int depth) const {
     std::cout << "";
     int nodes_searched = 0;
-    std::vector<Move> move_list = get_legal_moves(false);
-    for (Move& move : move_list) {
+    const Color player = board.game_state.player_to_move;
+    std::vector<Move> pseudo_legal_moves = get_pseudo_legal_moves(false);
+    for (const Move& move : pseudo_legal_moves) {
         board.make(move);
+        if (is_in_check(player)) {
+            board.undo();
+            continue;
+        }
         const int nodes = perft(depth - 1);
         nodes_searched += nodes;
         std::cout << move.to_uci_notation() << ": " << nodes << "\n";
         board.undo();
     }
     std::cout << "\nNodes searched: " << nodes_searched << "\n";
-}
-
-bool MoveGenerator::leaves_king_in_check(const Move& move) const {
-    const Color player_to_move = board.game_state.player_to_move;
-    board.make(move);
-    if (is_in_check(player_to_move)) {
-        board.undo();
-        return true;
-    }
-    board.undo();
-    return false;
 }
 
 bool MoveGenerator::is_in_check(Color color) const {

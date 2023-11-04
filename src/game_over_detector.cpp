@@ -1,7 +1,7 @@
 #include "game_over_detector.hpp"
 
 
-GameOverDetector::GameOverDetector(const Board& board, const MoveGenerator& move_generator) 
+GameOverDetector::GameOverDetector(Board& board, const MoveGenerator& move_generator) 
     : board(board)
     , move_gen(move_generator)
 {}
@@ -11,10 +11,14 @@ bool GameOverDetector::is_checkmate(std::vector<Move>& legal_moves) const {
        return false;
    }
 
-   for (Move& move : legal_moves) {
-       if (!move_gen.leaves_king_in_check(move)) {
+   const Color player = board.game_state.player_to_move;
+   for (const Move& move : legal_moves) {
+       board.make(move);
+       if (!move_gen.is_in_check(player)) {
+           board.undo();
            return false;
        }
+       board.undo();
    }
    return true;
 }

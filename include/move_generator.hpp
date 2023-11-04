@@ -13,12 +13,10 @@ class MoveGenerator {
     public:
         MoveGenerator(Board& board);
 
-        std::vector<Move> get_legal_moves(bool only_captures) const;
         std::vector<Move> get_pseudo_legal_moves(bool only_captures) const;
         std::vector<Move> get_threatened_moves(Color color) const;
         int perft(int depth) const;
         void divide(int depth) const;
-        bool leaves_king_in_check(const Move& move) const;
         bool is_in_check(Color color) const;
 
     private:
