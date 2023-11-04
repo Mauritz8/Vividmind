@@ -8,6 +8,7 @@
 #include <vector>
 
 #include "move.hpp"
+#include "move_generator.hpp"
 #include "piece.hpp"
 
 
@@ -77,7 +78,7 @@ int Engine::search(int depth, int alpha, int beta, int time_left, std::vector<Mo
     }
     const auto start_time = std::chrono::high_resolution_clock::now();
 
-    std::vector<Move> pseudo_legal_moves = move_gen.get_pseudo_legal_moves(false);
+    std::vector<Move> pseudo_legal_moves = move_gen.get_pseudo_legal_moves(ALL);
     if (game_over_detector.is_checkmate(pseudo_legal_moves)) {
         const int ply_to_mate = search_result.depth - depth;
         return -CHECKMATE + ply_to_mate;
@@ -159,7 +160,7 @@ int Engine::search_captures(int alpha, int beta, int time_left) {
 
 
     const Color player = board.game_state.player_to_move;
-    std::vector<Move> captures = move_gen.get_pseudo_legal_moves(true);
+    std::vector<Move> captures = move_gen.get_pseudo_legal_moves(CAPTURES);
     for (const Move& capture : captures) {
         board.make(capture);
         if (move_gen.is_in_check(player)) {
