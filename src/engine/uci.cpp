@@ -13,52 +13,38 @@ UCI::UCI(Board& board)
     , engine(board)
 {}
 
-void UCI::process_command(const std::string& command) {
+void UCI::process(const std::string& command) {
     if (command == "uci") {
-        handle_uci_command();
+        uci();
     } else if (command == "isready") {
-        handle_isready_command();
-    } else if (command == "ucinewgame") {
-        handle_ucinewgame_command();
+        isready();
     } else if (command.substr(0, 8) == "position") {
-        handle_position_command(command.substr(9, std::string::npos));
+        position(command.substr(9, std::string::npos));
     } else if (command.substr(0, 2) == "go") {
-        handle_go_command(command.substr(3, std::string::npos));
+        go(command.substr(3, std::string::npos));
     } else if (command == "quit") {
         exit(0);
     }
     std::cout.flush();
 }
 
-void UCI::handle_uci_command() {
+void UCI::uci() {
     std::cout << "id name Vividmind\n";
     std::cout << "id author Mauritz Sjödin\n"; 
     std::cout << "uciok\n\n";
 }
 
-void UCI::handle_isready_command() {
+void UCI::isready() {
     std::cout << "readyok\n\n";
 }
 
-void UCI::handle_ucinewgame_command() {
-    board = Board::get_starting_position();
-}
-
-void UCI::make_moves(std::istringstream& moves) {
-    std::string move_uci;
-    while (std::getline(moves, move_uci, ' ')) {
-        Move move = Move::get_from_uci_notation(move_uci, board);
-        board.make(move);
-    }
-}
-
-void UCI::handle_position_command(const std::string& position) {
+void UCI::position(const std::string& position) {
     std::istringstream ss(position);
     std::string token;
 
     std::getline(ss, token, ' ');
     if (token == "startpos") {
-        handle_ucinewgame_command();
+        board = Board::get_starting_position();
     } else if (token == "fen") {
         std::string fen;
         std::string fen_part;
@@ -75,7 +61,7 @@ void UCI::handle_position_command(const std::string& position) {
     }
 }
 
-void UCI::handle_go_command(const std::string& arguments) {
+void UCI::go(const std::string& arguments) {
     std::istringstream ss(arguments);
     std::string token;
     while (std::getline(ss, token, ' ')) {
@@ -116,4 +102,13 @@ void UCI::handle_go_command(const std::string& arguments) {
     }
     int allocated_time = engine.get_allocated_time();
     engine.iterative_deepening_search_time(allocated_time);
+}
+
+
+void UCI::make_moves(std::istringstream& moves) {
+    std::string move_uci;
+    while (std::getline(moves, move_uci, ' ')) {
+        Move move = Move::get_from_uci_notation(move_uci, board);
+        board.make(move);
+    }
 }

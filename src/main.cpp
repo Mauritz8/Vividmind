@@ -12,7 +12,7 @@ int main() {
     std::string input;
     while (true) {
         std::getline(std::cin, input);
-        uci.process_command(input);
+        uci.process(input);
     }
 
     return 0;
