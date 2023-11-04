@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <chrono>
+#include <cmath>
 #include <iostream>
 #include <limits.h>
 #include <optional>
@@ -208,8 +209,11 @@ int Engine::evaluate() {
 void Engine::show_uci_info() const {
     std::cout << "info";
     std::cout << " depth " << search_result.depth;
-    if (search_result.score > CHECKMATE_THRESHOLD) {
-        std::cout << " score mate " << CHECKMATE - search_result.score;
+    if (std::abs(search_result.score) > CHECKMATE_THRESHOLD) {
+        const int ply = CHECKMATE - std::abs(search_result.score);
+        const int mate_in_x = std::ceil(ply / 2.0);
+        const int sign = search_result.score > 0 ? 1 : -1;
+        std::cout << " score mate " << sign * mate_in_x;
     } else {
         std::cout << " score cp " << search_result.score;
     }
