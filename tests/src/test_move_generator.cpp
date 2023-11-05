@@ -72,5 +72,7 @@ int main() {
             std::cout << "FEN: " << test.fen << "(depth " << test.depth << " found ";
             std::cout << test.actual_nodes << "/" << test.expected_nodes << " moves)\n"; 
         }
+        return 1;
     }
+    return 0;
 }
