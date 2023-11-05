@@ -12,7 +12,6 @@
 
 MoveGenerator::MoveGenerator(Board& board)
     : board(board)
-    , move_validator(board)
 {}
 
 std::vector<Move> MoveGenerator::get_pseudo_legal_moves(MoveType move_type) const {
@@ -221,7 +220,7 @@ std::vector<Move> MoveGenerator::get_pawn_pseudo_legal_moves(Piece pawn, MoveTyp
         const Square& end = board.squares[capture.end];
         if (end.piece && end.piece->color != pawn.color) {
             moves.push_back(capture);
-        } else if (move_validator.is_valid_en_passant(capture)) {
+        } else if (is_valid_en_passant(capture)) {
             capture.is_en_passant = true;
             moves.push_back(capture);
         }
@@ -326,14 +325,7 @@ std::vector<Move> MoveGenerator::get_potential_castling_moves() const {
 }
 
 bool MoveGenerator::is_valid_castling(const Move& move) const {
-    const int king_pos = move.start;
-    int rook_pos;
-    if (move.end % 8 == 6) {
-        rook_pos = king_pos + 3;
-    } else {
-        rook_pos = king_pos - 4;
-    }
-    if (!move_validator.is_clear_line(king_pos, rook_pos)) {
+    if (!is_clear_path_castling(move)) {
         return false;
     }
     if (is_in_check(board.game_state.player_to_move)) {
@@ -343,6 +335,22 @@ bool MoveGenerator::is_valid_castling(const Move& move) const {
         return false;
     }
 
+    return true;
+}
+
+bool MoveGenerator::is_clear_path_castling(const Move& castling_move) const {
+    const int x_direction = castling_move.end - castling_move.start > 0 ? 1 : -1;
+    const int rook_pos = x_direction == 1 
+                         ? castling_move.end + 1
+                         : castling_move.end - 2;
+
+    int pos = castling_move.start + x_direction;
+    while (pos != rook_pos) {
+        if (board.squares[pos].piece) {
+            return false;
+        }
+        pos += x_direction;
+    }
     return true;
 }
 
@@ -376,4 +384,11 @@ std::vector<Move> MoveGenerator::get_pawn_captures(Piece pawn) const {
         }
     }
     return moves;
+}
+
+bool MoveGenerator::is_valid_en_passant(const Move& pawn_capture) const {
+    if (!board.game_state.en_passant_square.has_value()) {
+        return false;
+    }
+    return pawn_capture.end == board.game_state.en_passant_square.value();
 }

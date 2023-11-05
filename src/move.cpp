@@ -3,7 +3,6 @@
 #include <iostream>
 
 #include "utils.hpp"
-#include "move_validator.hpp"
 
 
 Move::Move(int start, int end) {

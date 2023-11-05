@@ -23,7 +23,6 @@ set(COMMON_SOURCES
     src/game_over_detector.cpp
     src/move.cpp
     src/move_generator.cpp
-    src/move_validator.cpp
     src/piece.cpp
     src/square.cpp
     src/engine/engine.cpp
