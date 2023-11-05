@@ -1,69 +1,76 @@
-#include <gtest/gtest.h>
+#include <chrono>
+#include <iostream>
 #include <string>
+#include <vector>
 
 #include "board.hpp"
 #include "move_generator.hpp"
+#include "test_positions.cpp"
 
-class MoveGenerationTest : public testing::Test {
-    public:
-        Board board;
-        MoveGenerator move_gen;
-
-        MoveGenerationTest() 
-            : board(Board())
-            , move_gen(board)
-        {}
+struct Test {
+    std::string fen;
+    int depth;
+    int expected_nodes;
+    int actual_nodes;
 };
 
-TEST_F(MoveGenerationTest, test_move_generation_on_initial_position) {
-    board = Board::get_starting_position();
+int main() {
+    Board board;
+    MoveGenerator move_gen(board);
 
-    EXPECT_EQ(move_gen.perft(1), 20);
-    EXPECT_EQ(move_gen.perft(2), 400);
-    EXPECT_EQ(move_gen.perft(3), 8902);
-}
+    int total_duration = 0;
+    std::vector<Test> failed_tests;
+    const int nr_tests = test_positions.size();
+    for (int i = 0; i < test_positions.size(); i++) {
+        std::string position = test_positions.at(i);
+        size_t delim_index;
+        std::vector<std::string> tokens;
+        while (true) {
+            delim_index = position.find(';');
+            tokens.push_back(position.substr(0, delim_index)); 
+            position.erase(0, delim_index + 1);
+            
+            if (delim_index == std::string::npos) break;
+        }
 
-TEST_F(MoveGenerationTest, test_move_generation_on_position_2) {
-    const std::string fen = "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq -"; 
-    board = Board::get_position_from_fen(fen);
+        const std::string fen = tokens.at(0);
+        board = board.get_position_from_fen(fen);
+        std::cout << "Test " << i + 1 << "\n";
+        std::cout << "FEN: " << fen <<"\n";
+        for (int i = 1; i < tokens.size(); i++) {
+            std::string token = tokens.at(i);
+            const size_t split_index = token.find(' ');
 
-    EXPECT_EQ(move_gen.perft(1), 48);
-    EXPECT_EQ(move_gen.perft(2), 2039);
-    EXPECT_EQ(move_gen.perft(3), 97862);
-}
+            std::string depth_str = token.substr(0, split_index); 
+            const int depth = std::stoi(depth_str.substr(1));
+            const int expected_nodes = std::stoi(token.substr(split_index)); 
 
-TEST_F(MoveGenerationTest, test_move_generation_on_position_3) {
-    const std::string fen = "8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - -"; 
-    board = Board::get_position_from_fen(fen);
+            const auto start = std::chrono::high_resolution_clock::now();
+            const int actual_nodes = move_gen.perft(depth);
+            const auto finished = std::chrono::high_resolution_clock::now();
+            const int duration = std::chrono::duration_cast<std::chrono::milliseconds>(finished - start).count();
+            total_duration += duration;
+            const bool is_successful = actual_nodes == expected_nodes;
+            std::cout << "depth " << depth << ": found ";
+            std::cout << actual_nodes << "/" << expected_nodes << " moves"; 
+            std::cout << " - " << (is_successful ? "[OK]" : "[FAIL]");
+            std::cout << " (" << "" << duration << " ms)" << "\n";
 
-    EXPECT_EQ(move_gen.perft(1), 14);
-    EXPECT_EQ(move_gen.perft(2), 191);
-    EXPECT_EQ(move_gen.perft(3), 2812);
-}
+            if (!is_successful) {
+                failed_tests.push_back(Test{fen, depth, expected_nodes, actual_nodes});
+            }
+        }
+        std::cout << "\n";
+    }
 
-TEST_F(MoveGenerationTest, test_move_generation_on_position_4) {
-    const std::string fen = "r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq - 0 1"; 
-    board = Board::get_position_from_fen(fen);
-
-    EXPECT_EQ(move_gen.perft(1), 6);
-    EXPECT_EQ(move_gen.perft(2), 264);
-    EXPECT_EQ(move_gen.perft(3), 9467);
-}
-
-TEST_F(MoveGenerationTest, test_move_generation_on_position_5) {
-    const std::string fen = "rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ - 1 8"; 
-    board = Board::get_position_from_fen(fen);
-
-    EXPECT_EQ(move_gen.perft(1), 44);
-    EXPECT_EQ(move_gen.perft(2), 1486);
-    EXPECT_EQ(move_gen.perft(3), 62379);
-}
-
-TEST_F(MoveGenerationTest, test_move_generation_on_position_6) {
-    const std::string fen = "r4rk1/1pp1qppp/p1np1n2/2b1p1B1/2B1P1b1/P1NP1N2/1PP1QPPP/R4RK1 w - - 0 10"; 
-    board = Board::get_position_from_fen(fen);
-
-    EXPECT_EQ(move_gen.perft(1), 46);
-    EXPECT_EQ(move_gen.perft(2), 2079);
-    EXPECT_EQ(move_gen.perft(3), 89890);
+    const int nr_failed_tests = failed_tests.size();
+    std::cout << "\n\nFinished in " << total_duration / 1000 << " s\n";
+    std::cout << nr_tests - nr_failed_tests << "/" << nr_tests << " tests were successful\n\n";
+    if (nr_failed_tests > 0) {
+        std::cout << "Failed tests:\n";
+        for (Test test : failed_tests) {
+            std::cout << "FEN: " << test.fen << "(depth " << test.depth << " found ";
+            std::cout << test.actual_nodes << "/" << test.expected_nodes << " moves)\n"; 
+        }
+    }
 }

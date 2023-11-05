@@ -8,15 +8,6 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # for debugging
 # set(CMAKE_BUILD_TYPE Debug)
 
-include(FetchContent)
-FetchContent_Declare(
-  googletest
-  GIT_REPOSITORY https://github.com/google/googletest.git
-  GIT_TAG        v1.14.0
-)
-FetchContent_MakeAvailable(googletest)
-
-
 set(COMMON_SOURCES
     src/board.cpp
     src/utils.cpp
@@ -40,8 +31,6 @@ target_include_directories(vividmind PRIVATE
 )
 
 
-enable_testing()
-
 add_executable(tests
     tests/src/test_move_generator.cpp
     ${COMMON_SOURCES}
@@ -49,10 +38,3 @@ add_executable(tests
 target_include_directories(tests PRIVATE
     include
 )
-target_link_libraries(
-    tests
-    GTest::gtest_main
-)
-
-include(GoogleTest)
-gtest_discover_tests(tests)
