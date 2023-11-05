@@ -24,36 +24,6 @@ Move::Move(const Square& start, const Square& end) {
     this->is_pawn_two_squares_forward = false;
 }
 
-Move Move::get_from_uci_notation(const std::string& uci_notation, Board& board) {
-    const int start_x = uci_notation[0] - 'a';
-    const int start_y = 8 - (uci_notation[1] - '0');
-    const int end_x = uci_notation[2] - 'a';
-    const int end_y = 8 - (uci_notation[3] - '0');
-
-    const int start_pos = start_x + start_y * 8;
-    const int end_pos = end_x + end_y * 8;
-    Move move = Move(start_pos, end_pos);
-
-    const Square& start = board.squares[start_pos];
-    const Square& end = board.squares[end_pos];
-
-    MoveValidator move_validator = MoveValidator(board);
-    if (start.piece->piece_type == KING && move_validator.is_valid_castling_move(move)) {
-        move.is_castling_move = true;
-    } else if (start.piece->piece_type == PAWN) {
-        if (move_validator.is_valid_en_passant(move)) {
-            move.is_en_passant = true;
-        } else if (move_validator.is_promotion_move(move)) {
-            move.is_promotion = true;
-            const char promotion_piece = uci_notation[4];
-            move.promotion_piece = get_piece_type(promotion_piece);
-        } else if (abs((move.end - move.start) / 8) == 2) {
-            move.is_pawn_two_squares_forward = true;
-        }
-    }
-    return move;
-}
-
 Move::Move(const Move& move) {
     this->start = move.start;
     this->end = move.end;

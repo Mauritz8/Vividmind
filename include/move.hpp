@@ -23,7 +23,6 @@ class Move {
         Move() {};
         Move(int start, int end);
         Move(const Square& start, const Square& end);
-        static Move get_from_uci_notation(const std::string& uci_notation, Board& board);
         Move(const Move& move);
 
         Move operator=(const Move& move);
