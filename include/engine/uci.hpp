@@ -23,6 +23,7 @@ class UCI {
         void go(const std::string& arguments);
 
         void make_moves(std::istringstream& moves);
+        bool make_move(const std::string& move);
 };
 
 #endif

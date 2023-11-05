@@ -4,8 +4,10 @@
 #include <sstream>
 #include <stdexcept>
 #include <string>
+#include <vector>
 
 #include "move.hpp"
+#include "move_generator.hpp"
 
 
 UCI::UCI(Board& board) 
@@ -108,7 +110,26 @@ void UCI::go(const std::string& arguments) {
 void UCI::make_moves(std::istringstream& moves) {
     std::string move_uci;
     while (std::getline(moves, move_uci, ' ')) {
-        Move move = Move::get_from_uci_notation(move_uci, board);
-        board.make(move);
+        const bool is_legal = make_move(move_uci);
+        if (!is_legal) {
+            return;
+        }
     }
+}
+
+bool UCI::make_move(const std::string& move_uci) {
+    MoveGenerator move_gen(board);
+    const Color player = board.game_state.player_to_move;
+    const std::vector<Move> pseudo_legal_moves = move_gen.get_pseudo_legal_moves(ALL);
+    for (const Move& move : pseudo_legal_moves) {
+        if (move.to_uci_notation() == move_uci) {
+            board.make(move);
+            if (move_gen.is_in_check(player)) {
+                board.undo();
+                return false;
+            }
+            return true;
+        } 
+    }
+    return false;
 }

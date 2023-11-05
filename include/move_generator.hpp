@@ -5,7 +5,6 @@
 
 #include "board.hpp"
 #include "move.hpp"
-#include "move_validator.hpp"
 #include "piece.hpp"
 
 
@@ -23,8 +22,6 @@ class MoveGenerator {
 
     private:
         Board& board;
-        MoveValidator move_validator;
-
 
         std::vector<Move> get_pseudo_legal_moves(const Piece& piece, MoveType move_type) const;
         std::vector<Move> get_threatened_moves(const Piece& piece) const;
@@ -42,9 +39,11 @@ class MoveGenerator {
         std::vector<Move> get_castling_moves() const;
         std::vector<Move> get_potential_castling_moves() const;
         bool is_valid_castling(const Move& move) const;
+        bool is_clear_path_castling(const Move& castling_move) const;
         bool passes_through_check_when_castling(const Move& castling_move) const;
 
         std::vector<Move> get_pawn_captures(Piece pawn) const;
+        bool is_valid_en_passant(const Move& pawn_capture) const;
 };
 
 #endif
