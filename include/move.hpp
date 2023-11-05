@@ -3,13 +3,10 @@
 
 #include <optional>
 #include <string>
-#include <vector>
 
 #include "piece.hpp"
-#include "square.hpp"
 
 
-class Board;
 class Move {
     public:
         int start;
@@ -22,7 +19,6 @@ class Move {
 
         Move() {};
         Move(int start, int end);
-        Move(const Square& start, const Square& end);
         Move(const Move& move);
 
         Move operator=(const Move& move);

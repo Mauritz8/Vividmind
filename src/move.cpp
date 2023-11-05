@@ -1,22 +1,9 @@
 #include "move.hpp"
 
-#include <iostream>
-
-#include "utils.hpp"
-
 
 Move::Move(int start, int end) {
     this->start = start;
     this->end = end;
-    this->is_castling_move = false;
-    this->is_promotion = false;
-    this->is_en_passant = false;
-    this->is_pawn_two_squares_forward = false;
-}
-
-Move::Move(const Square& start, const Square& end) {
-    this->start = start.pos;
-    this->end = end.pos;
     this->is_castling_move = false;
     this->is_promotion = false;
     this->is_en_passant = false;
@@ -32,7 +19,6 @@ Move::Move(const Move& move) {
     this->is_en_passant = move.is_en_passant;
     this->is_pawn_two_squares_forward = move.is_pawn_two_squares_forward;
 }
-
 
 Move Move::operator=(const Move& move) {
     this->start = move.start;
