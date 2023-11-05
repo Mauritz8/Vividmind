@@ -14,5 +14,5 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: run tests
-      working-directory: ./build
+      working-directory: /build
       run: make tests && ./tests 
