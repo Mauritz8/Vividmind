@@ -13,6 +13,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+    - name: build directory
+      run: mkdir -p build && cd build 
     - name: make tests
       run: make tests
     - name: run tests
