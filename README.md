@@ -9,7 +9,6 @@ Vividmind is a work-in-progress chess engine written in C++. It adheres to the U
 ## Search
 * Alpha-Beta
 * Iterative Deepening
-* Null Move Pruning
 * Quiescence Search
 
 ## Evaluation

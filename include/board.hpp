@@ -20,13 +20,10 @@ struct GameState {
     Color player_to_move;
     std::optional<int> en_passant_square;
     std::array<Castling, 2> castling_rights;
-    std::array<std::vector<Piece>, 2> pieces;
     std::array<int, 2> material;
     std::array<int, 2> psqt;
     std::optional<Piece> captured_piece;
     Move next_move;
-
-    bool operator==(GameState other) const;
 };
 
 class Board {
@@ -35,6 +32,7 @@ class Board {
         const static std::array<int, 64> mailbox64;
 
         std::array<Square, 64> squares;
+        std::array<std::vector<Piece>, 2> pieces;
         GameState game_state;
         std::vector<GameState> history;
 
@@ -43,12 +41,12 @@ class Board {
         static Board get_starting_position();
         static Board get_position_from_fen(std::string fen);
 
+        bool operator==(const Board& board) const;
+
         void show() const;
         void switch_player_to_move();
         void make(const Move& move);
         void undo();
-        void make_null_move();
-        void undo_null_move();
         int get_king_square(Color color) const;
 
     private:

@@ -1,11 +1,13 @@
 #include "board.hpp"
 
+#include <array>
 #include <iostream>
 #include <cctype>
 #include <sstream>
 #include <stdexcept>
 #include <vector>
 
+#include "piece.hpp"
 #include "utils.hpp"
 #include "engine/psqt.hpp"
 
@@ -59,6 +61,30 @@ Board Board::get_position_from_fen(std::string fen) {
     return board;
 }
 
+
+bool Board::operator==(const Board& other) const {
+    for (int pos = 0; pos < 64; pos++) {
+        if (squares[pos].piece != other.squares[pos].piece) {
+            return false;
+        } 
+    }
+
+    if (game_state.en_passant_square != other.game_state.en_passant_square) {
+        return false;
+    }
+
+    std::array<Color, 2> colors = {WHITE, BLACK};
+    for (Color color : colors) {
+        if (game_state.castling_rights[color].kingside != other.game_state.castling_rights[color].kingside) {
+            return false;
+        }
+        if (game_state.castling_rights[color].queenside != other.game_state.castling_rights[color].queenside) {
+            return false;
+        }
+    }
+
+    return true;
+}
 
 void Board::show() const {
     for (int i = 0; i < 64; i++) {
@@ -143,34 +169,26 @@ void Board::undo() {
         Piece captured_piece = *game_state.captured_piece;
         Square& captured_square = squares[captured_piece.pos];
         captured_square.piece = captured_piece;
+        pieces[captured_piece.color].push_back(captured_piece);
         game_state.captured_piece = {};
     } else if (move.is_promotion) {
         end.piece->piece_type = PAWN;
+        Piece& piece_in_piece_list = get_piece(*end.piece);
+        piece_in_piece_list.piece_type = PAWN;
     } 
 
     move_piece(end, start);
     if (game_state.captured_piece) {
         end.piece = game_state.captured_piece;
+        pieces[game_state.captured_piece->color].push_back(*game_state.captured_piece);
     }
 
     game_state = history.at(history.size() - 1);
     history.pop_back();
 }
 
-void Board::make_null_move() {
-    history.push_back(game_state);
-    game_state.en_passant_square = {};
-    game_state.captured_piece = {};
-    switch_player_to_move();
-}
-
-void Board::undo_null_move() {
-    game_state = history.at(history.size() - 1);
-    history.pop_back();
-}
-
 int Board::get_king_square(Color color) const {
-    for (Piece piece : game_state.pieces[color]) {
+    for (Piece piece : pieces[color]) {
         if (piece.piece_type == KING) {
             return piece.pos;
         }
@@ -196,7 +214,7 @@ void Board::place_pieces(const std::string& pieces) {
             Square& square = squares[pos];
             squares[pos].pos = pos;
             squares[pos].piece = piece;
-            game_state.pieces[color].push_back(piece);
+            this->pieces[color].push_back(piece);
             game_state.material[color] += piece.get_value();                
             game_state.psqt[color] += get_psqt_score(piece);
             pos++;
@@ -246,7 +264,7 @@ void Board::set_en_passant_square(const std::string& en_passant_square) {
 }
 
 Piece& Board::get_piece(Piece piece) {
-    for (Piece& p : game_state.pieces[piece.color]) {
+    for (Piece& p : pieces[piece.color]) {
         if (p.pos == piece.pos) {
             return p;
         } 
@@ -255,7 +273,7 @@ Piece& Board::get_piece(Piece piece) {
 }
 
 void Board::remove_piece(Piece piece) {
-    std::vector<Piece>& pieces = this->game_state.pieces[piece.color];
+    std::vector<Piece>& pieces = this->pieces[piece.color];
     for (auto it = pieces.begin(); it != pieces.end(); ++it) {
         if (*it == piece) {
             pieces.erase(it); 
@@ -347,27 +365,10 @@ int Board::get_psqt_score(const Piece& piece) const {
 bool Board::is_endgame() const {
     std::array<Color, 2> colors = {WHITE, BLACK};
     for (Color color : colors) {
-        for (const Piece& piece : game_state.pieces[color]) {
+        for (const Piece& piece : pieces[color]) {
             if (piece.piece_type == QUEEN) {
                 return false;
             } 
-        }
-    }
-    return true;
-}
-
-bool GameState::operator==(GameState other) const {
-    for (int i = 0; i < 2; i++) {
-        std::vector<Piece> pieces1 = this->pieces[i];
-        std::vector<Piece> pieces2 = other.pieces[i];
-        if (pieces1.size() != pieces2.size()) {
-            return false;
-        }
-
-        for (int j = 0; j < pieces1.size(); j++) {
-            if (pieces1[j] != pieces2[j]) {
-                return false;
-            }
         }
     }
     return true;

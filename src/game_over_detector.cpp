@@ -24,7 +24,7 @@ bool GameOverDetector::is_checkmate(std::vector<Move>& legal_moves) const {
 }
 
 bool GameOverDetector::is_insufficient_material() const {
-    for (const std::vector<Piece>& pieces : board.game_state.pieces) {
+    for (const std::vector<Piece>& pieces : board.pieces) {
         for (Piece piece : pieces) {
             if (piece.piece_type == PAWN || piece.piece_type == ROOK || piece.piece_type == QUEEN) {
                 return false;
@@ -35,10 +35,12 @@ bool GameOverDetector::is_insufficient_material() const {
 }
 
 bool GameOverDetector::is_threefold_repetition() const {
+    Board old_board = board;
     int repetitions = 1;
-    for (int i = board.history.size() - 1; i >= 0; i--) {
-        const GameState& old_state = board.history.at(i);
-        if (old_state == board.game_state) {
+    const int history_size = board.history.size();
+    for (int i = 0; i < history_size - 1; i++) {
+        old_board.undo();
+        if (board == old_board) {
             repetitions++;  
         }         
         if (repetitions == 3) {
