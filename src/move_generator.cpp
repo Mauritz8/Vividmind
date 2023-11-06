@@ -119,7 +119,7 @@ bool MoveGenerator::is_attacked_by(int pos, Color color) const {
 
     const std::vector<Move> pawn_captures = get_pawn_captures(piece);
     for (const Move& move : pawn_captures) {
-        if (board.squares[move.end].piece->piece_type == PAWN) {
+        if (board.squares[move.end].piece->piece_type == PAWN && board.game_state.en_passant_square != move.end) {
             return true;
         }
     }
