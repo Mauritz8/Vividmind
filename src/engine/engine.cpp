@@ -49,39 +49,40 @@ void Engine::iterative_deepening_search(int search_depth, int allocated_time_ms)
     int alpha = ALPHA_INITIAL_VALUE;
     int beta = -alpha;
 
-    search_result = SearchResult();
-    while (search_result.depth < search_depth && search_result.time < allocated_time_ms) {
-        search_result.depth++;
+    search_info = SearchInfo();
+    while (search_info.depth < search_depth) {
+        search_info.depth++;
 
         std::vector<Move> principal_variation;
 
-        const int evaluation = search(search_result.depth, alpha, beta, allocated_time_ms - search_result.time, principal_variation, false);
+        const int evaluation = search(search_info.depth, alpha, beta, allocated_time_ms - search_info.time, principal_variation, false);
 
-        if (evaluation == NO_TIME_LEFT) {
+        if (search_info.is_terminated) {
             break;
         }
 
         auto stop_time = std::chrono::high_resolution_clock::now();
         int duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop_time - start_time).count();
-        search_result.time = duration == 0 ? 1 : duration;
-        search_result.score = evaluation;
-        search_result.pv = principal_variation;
+        search_info.time = duration == 0 ? 1 : duration;
+        search_info.score = evaluation;
+        search_info.pv = principal_variation;
 
         show_uci_info();
     }
-    const Move& best_move = search_result.pv.at(0);
+    const Move& best_move = search_info.pv.at(0);
     std::cout << "bestmove " << best_move.to_uci_notation() << "\n";
 }
 
 int Engine::search(int depth, int alpha, int beta, int time_left, std::vector<Move>& principal_variation, bool last_was_nullmove) {
-    if (time_left <= MOVE_OVERHEAD && search_result.depth > 1) {
-        return NO_TIME_LEFT; 
+    if (time_left <= MOVE_OVERHEAD && search_info.depth > 1) {
+        search_info.is_terminated = true;
+        return 0; 
     }
     const auto start_time = std::chrono::high_resolution_clock::now();
 
     std::vector<Move> pseudo_legal_moves = move_gen.get_pseudo_legal_moves(ALL);
     if (game_over_detector.is_checkmate(pseudo_legal_moves)) {
-        const int ply_to_mate = search_result.depth - depth;
+        const int ply_to_mate = search_info.depth - depth;
         return -CHECKMATE + ply_to_mate;
     }
     if (game_over_detector.is_insufficient_material() || game_over_detector.is_threefold_repetition()) {
@@ -104,12 +105,16 @@ int Engine::search(int depth, int alpha, int beta, int time_left, std::vector<Mo
         const int evaluation = -search(shallow_search_depth, -beta, -alpha, time_left, variation, true); 
         board.undo_null_move();
 
+        if (search_info.is_terminated) {
+            return 0;
+        }
+
         if (evaluation >= beta) {
             return beta;
         }
     }
 
-    move_ordering(pseudo_legal_moves, search_result.depth - depth);
+    move_ordering(pseudo_legal_moves, search_info.depth - depth);
     for (const Move& move : pseudo_legal_moves) {
         std::vector<Move> variation;
         board.make(move);
@@ -123,8 +128,8 @@ int Engine::search(int depth, int alpha, int beta, int time_left, std::vector<Mo
         const int evaluation = -search(depth - 1, -beta, -alpha, time_left - time_spent, variation, false);
         board.undo();
 
-        if (evaluation == NO_TIME_LEFT) {
-            return NO_TIME_LEFT;
+        if (search_info.is_terminated) {
+            return 0;
         }
 
         if (evaluation >= beta) {
@@ -146,8 +151,9 @@ int Engine::search(int depth, int alpha, int beta, int time_left, std::vector<Mo
 }
 
 int Engine::search_captures(int alpha, int beta, int time_left) {
-    if (time_left <= MOVE_OVERHEAD && search_result.depth > 1) {
-        return NO_TIME_LEFT; 
+    if (time_left <= MOVE_OVERHEAD && search_info.depth > 1) {
+        search_info.is_terminated = true;
+        return 0; 
     }
     auto start_time = std::chrono::high_resolution_clock::now();
 
@@ -173,8 +179,8 @@ int Engine::search_captures(int alpha, int beta, int time_left) {
         evaluation = -search_captures(-beta, -alpha, time_left - time_spent);
         board.undo();
 
-        if (evaluation == NO_TIME_LEFT) {
-            return NO_TIME_LEFT;
+        if (search_info.is_terminated) {
+            return 0;
         }
 
         if (evaluation >= beta) {
@@ -189,7 +195,7 @@ int Engine::search_captures(int alpha, int beta, int time_left) {
 }
 
 int Engine::evaluate() {
-    search_result.nodes++;
+    search_info.nodes++;
 
     int evaluation = 0;
     const int white_material = board.game_state.material[WHITE];
@@ -208,20 +214,20 @@ int Engine::evaluate() {
 
 void Engine::show_uci_info() const {
     std::cout << "info";
-    std::cout << " depth " << search_result.depth;
-    if (std::abs(search_result.score) > CHECKMATE_THRESHOLD) {
-        const int ply = CHECKMATE - std::abs(search_result.score);
+    std::cout << " depth " << search_info.depth;
+    if (std::abs(search_info.score) > CHECKMATE_THRESHOLD) {
+        const int ply = CHECKMATE - std::abs(search_info.score);
         const int mate_in_x = std::ceil(ply / 2.0);
-        const int sign = search_result.score > 0 ? 1 : -1;
+        const int sign = search_info.score > 0 ? 1 : -1;
         std::cout << " score mate " << sign * mate_in_x;
     } else {
-        std::cout << " score cp " << search_result.score;
+        std::cout << " score cp " << search_info.score;
     }
-    std::cout << " nodes " << search_result.nodes;
-    std::cout << " nps " << search_result.nodes * 1000 / search_result.time;
-    std::cout << " time " << search_result.time;
+    std::cout << " nodes " << search_info.nodes;
+    std::cout << " nps " << search_info.nodes * 1000 / search_info.time;
+    std::cout << " time " << search_info.time;
     std::cout << " pv";
-    for (const Move& move : search_result.pv) {
+    for (const Move& move : search_info.pv) {
         std::cout << " " << move.to_uci_notation();
     }
     std::cout << "\n";
@@ -229,8 +235,8 @@ void Engine::show_uci_info() const {
 }
 
 void Engine::move_ordering(std::vector<Move>& legal_moves, int current_depth) const {
-    if (search_result.pv.size() > current_depth) {
-        auto pv_move = std::find(legal_moves.begin(), legal_moves.end(), search_result.pv.at(current_depth));
+    if (search_info.pv.size() > current_depth) {
+        auto pv_move = std::find(legal_moves.begin(), legal_moves.end(), search_info.pv.at(current_depth));
         if (pv_move != legal_moves.end()) {
             std::rotate(legal_moves.begin(), pv_move, pv_move + 1);
         }

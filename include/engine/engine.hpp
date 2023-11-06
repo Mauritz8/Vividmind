@@ -18,12 +18,13 @@ struct SearchParams {
     int moves_to_go;
 };
 
-struct SearchResult {
+struct SearchInfo {
     int depth;
     int score;
     long nodes;
     long time;
     std::vector<Move> pv;
+    bool is_terminated;
 };
 
 class Engine {
@@ -43,10 +44,9 @@ class Engine {
         MoveGenerator move_gen;
         GameOverDetector game_over_detector;
 
-        SearchResult search_result;
+        SearchInfo search_info;
 
-        static const int NO_CONSTRAINT = INT_MAX;
-        static const int NO_TIME_LEFT = INT_MIN;
+        static const int NO_CONSTRAINT = 100000;
         static const int MOVE_OVERHEAD = 50;
         static const int DRAW = 0;
         static const int CHECKMATE = 50000;
