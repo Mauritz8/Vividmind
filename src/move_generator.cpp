@@ -23,15 +23,6 @@ std::vector<Move> MoveGenerator::get_pseudo_legal_moves(MoveType move_type) cons
     return moves;
 }
 
-std::vector<Move> MoveGenerator::get_threatened_moves(Color color) const {
-    std::vector<Move> moves;
-    for (Piece piece : board.game_state.pieces[color]) {
-        std::vector<Move> piece_moves = get_threatened_moves(piece);
-        moves.insert(std::end(moves), std::begin(piece_moves), std::end(piece_moves));
-    } 
-    return moves;
-}
-
 int MoveGenerator::perft(int depth) const {
     if (depth == 0) {
         return 1;
@@ -73,14 +64,7 @@ void MoveGenerator::divide(int depth) const {
 
 bool MoveGenerator::is_in_check(Color color) const {
     const int king_square = board.get_king_square(color);
-    const Color opponent = get_opposite_color(color);
-    const std::vector<Move> pseudo_legal_moves = get_threatened_moves(opponent);
-    for (const Move& move : pseudo_legal_moves) {
-        if (move.end == king_square) {
-            return true;
-        }
-    }
-    return false;
+    return is_attacked_by(king_square, get_opposite_color(color));
 }
 
 std::vector<Move> MoveGenerator::get_pseudo_legal_moves(const Piece& piece, MoveType move_type) const {
@@ -107,16 +91,47 @@ std::vector<Move> MoveGenerator::get_pseudo_legal_moves(const Piece& piece, Move
     return {};
 }
 
-std::vector<Move> MoveGenerator::get_threatened_moves(const Piece& piece) const {
-    if (piece.piece_type == PAWN) {
-        return get_pawn_captures(piece);
-    }
-    if (piece.piece_type == KING) {
-        return get_king_threatened_moves(piece, ALL);
-    }
-    return get_pseudo_legal_moves(piece, ALL);
-}
+bool MoveGenerator::is_attacked_by(int pos, Color color) const {
+    const Piece& piece = Piece(KING, get_opposite_color(color), pos);
 
+    const std::vector<Move>& rook_moves = get_rook_pseudo_legal_moves(piece, CAPTURES);
+    for (const Move& move : rook_moves) {
+        const PieceType piece_type = board.squares[move.end].piece->piece_type;
+        if (piece_type == ROOK || piece_type == QUEEN) {
+            return true;
+        }
+    }
+
+    const std::vector<Move>& bishop_moves = get_bishop_pseudo_legal_moves(piece, CAPTURES);
+    for (const Move& move : bishop_moves) {
+        const PieceType piece_type = board.squares[move.end].piece->piece_type;
+        if (piece_type == BISHOP || piece_type == QUEEN) {
+            return true;
+        }
+    }
+
+    const std::vector<Move>& knight_moves = get_knight_pseudo_legal_moves(piece, CAPTURES);
+    for (const Move& move : knight_moves) {
+        if (board.squares[move.end].piece->piece_type == KNIGHT) {
+            return true;
+        }
+    }
+
+    const std::vector<Move> pawn_captures = get_pawn_captures(piece);
+    for (const Move& move : pawn_captures) {
+        if (board.squares[move.end].piece->piece_type == PAWN) {
+            return true;
+        }
+    }
+
+    const std::vector<Move> king_moves = get_king_normal_moves(piece, CAPTURES);
+    for (const Move& move : king_moves) {
+        if (board.squares[move.end].piece->piece_type == KING) {
+            return true;
+        }
+    }
+    return false;
+}
 
 std::vector<Move> MoveGenerator::get_bishop_pseudo_legal_moves(const Piece& piece, MoveType move_type) const {
     std::vector<Move> moves;
@@ -182,7 +197,7 @@ std::vector<Move> MoveGenerator::get_knight_pseudo_legal_moves(const Piece& piec
 }
 
 std::vector<Move> MoveGenerator::get_king_pseudo_legal_moves(const Piece& piece, MoveType move_type) const {
-    std::vector<Move> moves = get_king_threatened_moves(piece, move_type);
+    std::vector<Move> moves = get_king_normal_moves(piece, move_type);
     moves.reserve(10);
     if (move_type == ALL) {
         std::vector<Move> castling_moves = get_castling_moves();
@@ -191,18 +206,18 @@ std::vector<Move> MoveGenerator::get_king_pseudo_legal_moves(const Piece& piece,
     return moves;
 }
 
-std::vector<Move> MoveGenerator::get_pawn_pseudo_legal_moves(Piece pawn, MoveType move_type) const {
+std::vector<Move> MoveGenerator::get_pawn_pseudo_legal_moves(const Piece& piece, MoveType move_type) const {
     std::vector<Move> moves;
     moves.reserve(4);
     const int direction = board.game_state.player_to_move == BLACK ? 1 : -1;
-    int start = pawn.pos;
+    int start = piece.pos;
 
     if (move_type == ALL) {
         const int end1 = start + 8 * direction;
         if (!board.squares[end1].piece) {
             moves.push_back(Move(start, end1));
 
-            const int starting_row = pawn.color == BLACK ? 1 : 6;
+            const int starting_row = piece.color == BLACK ? 1 : 6;
             if (start / 8 == starting_row) {
                 const int end2 = start + 16 * direction;
                 if (!board.squares[end2].piece) {
@@ -215,16 +230,8 @@ std::vector<Move> MoveGenerator::get_pawn_pseudo_legal_moves(Piece pawn, MoveTyp
     }
 
 
-    std::vector<Move> captures = get_pawn_captures(pawn);
-    for (Move& capture : captures) {
-        const Square& end = board.squares[capture.end];
-        if (end.piece && end.piece->color != pawn.color) {
-            moves.push_back(capture);
-        } else if (is_valid_en_passant(capture)) {
-            capture.is_en_passant = true;
-            moves.push_back(capture);
-        }
-    }
+    const std::vector<Move> captures = get_pawn_captures(piece);
+    moves.insert(moves.end(), captures.begin(), captures.end());
 
     int about_to_promote_row = board.game_state.player_to_move == WHITE ? 1 : 6;
     if (start / 8 == about_to_promote_row) {
@@ -272,21 +279,21 @@ std::vector<Move> MoveGenerator::get_pseudo_legal_moves_direction(const Piece& p
     return moves;
 }
 
-std::vector<Move> MoveGenerator::get_king_threatened_moves(Piece king, MoveType move_type) const {
+std::vector<Move> MoveGenerator::get_king_normal_moves(const Piece& piece, MoveType move_type) const {
     std::array<int, 8> movements = {11, -11, 10, -10, 9, -9, 1, -1};
-    const Color opponent = get_opposite_color(king.color);
+    const Color opponent = get_opposite_color(piece.color);
     std::vector<Move> moves;
     moves.reserve(8);
     for (int movement : movements) {
-        const int end = Board::mailbox[Board::mailbox64[king.pos] + movement];
+        const int end = Board::mailbox[Board::mailbox64[piece.pos] + movement];
         if (end == -1) {
             continue;
         }
 
         if (move_type == CAPTURES && board.squares[end].is_occupied_by(opponent)) {
-            moves.push_back(Move(king.pos, end));
-        } else if (move_type == ALL && !board.squares[end].is_occupied_by(king.color)) {
-            moves.push_back(Move(king.pos, end));
+            moves.push_back(Move(piece.pos, end));
+        } else if (move_type == ALL && !board.squares[end].is_occupied_by(piece.color)) {
+            moves.push_back(Move(piece.pos, end));
         }
     }
     return moves;
@@ -356,39 +363,44 @@ bool MoveGenerator::is_clear_path_castling(const Move& castling_move) const {
 
 bool MoveGenerator::passes_through_check_when_castling(const Move& castling_move) const {
     const int direction = castling_move.end - castling_move.start > 0 ? 1 : -1;
-    const Color opponent = get_opposite_color(board.game_state.player_to_move);
+    const Color player = board.game_state.player_to_move;
+    const Color opponent = get_opposite_color(player);
 
-    std::vector<Move> threatened_moves = get_threatened_moves(opponent);
-    for (Move& move : threatened_moves) {
-        if (move.end >= castling_move.start && move.end < castling_move.end) {
+    int pos = castling_move.start + direction;
+    while (true) {
+        if (is_attacked_by(pos, opponent)) {
             return true;
         }
-        if (move.end <= castling_move.start && move.end > castling_move.end) {
-            return true;
-        }
+        if (pos == castling_move.end) break; 
+        pos += direction;
     }
     return false;
 }
 
 
-std::vector<Move> MoveGenerator::get_pawn_captures(Piece pawn) const {
-    const int direction = pawn.color == BLACK ? 1 : -1;
+std::vector<Move> MoveGenerator::get_pawn_captures(const Piece& piece) const {
+    const int direction = piece.color == BLACK ? 1 : -1;
     const std::array<int, 2> movements = {9 * direction, 11 * direction};
 
     std::vector<Move> moves;
     moves.reserve(2);
     for (int movement : movements) {
-        int end = Board::mailbox[Board::mailbox64[pawn.pos] + movement];
-        if (end != -1) {
-           moves.push_back(Move(pawn.pos, end));  
+        int end = Board::mailbox[Board::mailbox64[piece.pos] + movement];
+        const Square& square = board.squares[end];
+        if (end != -1 && square.piece && square.piece->color != piece.color) {
+           moves.push_back(Move(piece.pos, end));  
+        } else if (is_valid_en_passant(end)) {
+            Move move = Move(piece.pos, end);
+            move.is_en_passant = true;
+            moves.push_back(move);
         }
     }
     return moves;
 }
 
-bool MoveGenerator::is_valid_en_passant(const Move& pawn_capture) const {
+bool MoveGenerator::is_valid_en_passant(int capture_pos) const {
     if (!board.game_state.en_passant_square.has_value()) {
         return false;
     }
-    return pawn_capture.end == board.game_state.en_passant_square.value();
+    return capture_pos == board.game_state.en_passant_square.value();
 }
