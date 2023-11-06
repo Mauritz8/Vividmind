@@ -55,7 +55,7 @@ void Engine::iterative_deepening_search(int search_depth, int allocated_time_ms)
 
         std::vector<Move> principal_variation;
 
-        const int evaluation = search(search_info.depth, alpha, beta, allocated_time_ms - search_info.time, principal_variation, false);
+        const int evaluation = search(search_info.depth, alpha, beta, allocated_time_ms - search_info.time, principal_variation);
 
         if (search_info.is_terminated) {
             break;
@@ -73,7 +73,7 @@ void Engine::iterative_deepening_search(int search_depth, int allocated_time_ms)
     std::cout << "bestmove " << best_move.to_uci_notation() << "\n";
 }
 
-int Engine::search(int depth, int alpha, int beta, int time_left, std::vector<Move>& principal_variation, bool last_was_nullmove) {
+int Engine::search(int depth, int alpha, int beta, int time_left, std::vector<Move>& principal_variation) {
     if (time_left <= MOVE_OVERHEAD && search_info.depth > 1) {
         search_info.is_terminated = true;
         return 0; 
@@ -96,25 +96,8 @@ int Engine::search(int depth, int alpha, int beta, int time_left, std::vector<Mo
     }
 
 
-    // null move pruning
-    const Color player = board.game_state.player_to_move;
-    if (depth > 1 && !last_was_nullmove && !move_gen.is_in_check(player)) {
-        std::vector<Move> variation;
-        board.make_null_move();
-        const int shallow_search_depth = depth < 4 ? 0 : depth - 3;
-        const int evaluation = -search(shallow_search_depth, -beta, -alpha, time_left, variation, true); 
-        board.undo_null_move();
-
-        if (search_info.is_terminated) {
-            return 0;
-        }
-
-        if (evaluation >= beta) {
-            return beta;
-        }
-    }
-
     move_ordering(pseudo_legal_moves, search_info.depth - depth);
+    const Color player = board.game_state.player_to_move;
     for (const Move& move : pseudo_legal_moves) {
         std::vector<Move> variation;
         board.make(move);
@@ -125,7 +108,7 @@ int Engine::search(int depth, int alpha, int beta, int time_left, std::vector<Mo
 
         const auto stop_time = std::chrono::high_resolution_clock::now();
         const int time_spent = std::chrono::duration_cast<std::chrono::milliseconds>(stop_time - start_time).count();
-        const int evaluation = -search(depth - 1, -beta, -alpha, time_left - time_spent, variation, false);
+        const int evaluation = -search(depth - 1, -beta, -alpha, time_left - time_spent, variation);
         board.undo();
 
         if (search_info.is_terminated) {

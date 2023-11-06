@@ -16,7 +16,7 @@ MoveGenerator::MoveGenerator(Board& board)
 
 std::vector<Move> MoveGenerator::get_pseudo_legal_moves(MoveType move_type) const {
     std::vector<Move> moves;
-    for (Piece piece : board.game_state.pieces[board.game_state.player_to_move]) {
+    for (Piece piece : board.pieces[board.game_state.player_to_move]) {
         std::vector<Move> piece_moves = get_pseudo_legal_moves(piece, move_type);
         moves.insert(std::end(moves), std::begin(piece_moves), std::end(piece_moves));
     } 
