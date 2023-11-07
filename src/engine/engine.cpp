@@ -16,7 +16,6 @@
 Engine::Engine(Board& board) 
     : board(board)
     , move_gen(board)
-    , game_over_detector(board, move_gen)
 {}
 
 void Engine::iterative_deepening_search() {
@@ -93,16 +92,7 @@ int Engine::search(int depth, int alpha, int beta, std::vector<Move>& principal_
         return 0;
     }
 
-    std::vector<Move> pseudo_legal_moves = move_gen.get_pseudo_legal_moves(ALL);
-
-
-    if (game_over_detector.is_checkmate(pseudo_legal_moves)) {
-        // if it is checkmate return large negative value + ply_to_mate
-        // to score faster checkmates higher
-        const int ply_to_mate = search_info.depth - depth;
-        return -CHECKMATE + ply_to_mate;
-    }
-    if (game_over_detector.is_insufficient_material() || game_over_detector.is_threefold_repetition()) {
+    if (board.is_insufficient_material() || board.is_threefold_repetition()) {
         return DRAW;
     }
 
@@ -114,6 +104,7 @@ int Engine::search(int depth, int alpha, int beta, std::vector<Move>& principal_
     }
 
     const Color player = board.game_state.player_to_move;
+    std::vector<Move> pseudo_legal_moves = move_gen.get_pseudo_legal_moves(ALL);
     for (const Move& move : pseudo_legal_moves) {
 
         board.make(move);
@@ -151,10 +142,20 @@ int Engine::search(int depth, int alpha, int beta, std::vector<Move>& principal_
         }
     }
 
-    // if alpha is still it's initial value
-    // no move was possible, which means it is stalemate
-    const bool is_stalemate = alpha == -CHECKMATE;
-    if (is_stalemate) {
+    // if alpha is still it's initial value no move was possible, 
+    // which means that it is either checkmate or stalemate
+    if (alpha == -CHECKMATE) {
+
+        // if there were no legal moves and the player is in check
+        // it means that it must be checkmate
+        if (move_gen.is_in_check(player)) {
+            // if it is checkmate return large negative value + ply_to_mate
+            // to score faster checkmates higher
+            const int ply_to_mate = search_info.depth - depth;
+            return -CHECKMATE + ply_to_mate;
+        }
+
+        // otherwise it is stalemate
         return DRAW;
     }
 

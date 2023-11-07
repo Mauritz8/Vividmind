@@ -197,6 +197,33 @@ int Board::get_king_square(Color color) const {
     throw std::invalid_argument("No " + color_str + " king on the board");
 }
 
+bool Board::is_insufficient_material() const {
+    for (const std::vector<Piece>& pieces : pieces) {
+        for (Piece piece : pieces) {
+            if (piece.piece_type == PAWN || piece.piece_type == ROOK || piece.piece_type == QUEEN) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+bool Board::is_threefold_repetition() const {
+    Board old_board = *this;
+    int repetitions = 1;
+    const int history_size = history.size();
+    for (int i = 0; i < history_size - 1; i++) {
+        old_board.undo();
+        if (*this == old_board) {
+            repetitions++;  
+        }         
+        if (repetitions == 3) {
+            return true;
+        }
+    }
+    return false;
+}
+
 void Board::place_pieces(const std::string& pieces) {
     int pos = 0;
     for (const char ch : pieces) {

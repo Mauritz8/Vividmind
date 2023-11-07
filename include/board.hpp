@@ -48,6 +48,8 @@ class Board {
         void make(const Move& move);
         void undo();
         int get_king_square(Color color) const;
+        bool is_insufficient_material() const;
+        bool is_threefold_repetition() const;
 
     private:
         void place_pieces(const std::string& pieces);

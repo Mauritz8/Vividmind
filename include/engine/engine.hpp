@@ -8,7 +8,6 @@
 #include "board.hpp"
 #include "move.hpp"
 #include "move_generator.hpp"
-#include "game_over_detector.hpp"
 
 
 enum SearchMode {DEPTH, MOVE_TIME, INFINITE};
@@ -61,7 +60,6 @@ class Engine {
     private:
         Board& board;
         MoveGenerator move_gen;
-        GameOverDetector game_over_detector;
 
         SearchInfo search_info;
 
