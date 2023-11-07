@@ -64,6 +64,19 @@ void UCI::position(const std::string& position) {
 }
 
 void UCI::go(const std::string& arguments) {
+    engine.search_params = {
+        .depth = Engine::MAX_PLY,
+        .allocated_time = 0,
+        .game_time = GameTime{
+            .wtime = 0,
+            .btime = 0,
+            .winc = 0,
+            .binc = 0,
+            .moves_to_go = 0
+        },
+        .search_mode = INFINITE
+    };
+
     std::istringstream ss(arguments);
     std::string token;
     while (std::getline(ss, token, ' ')) {
@@ -71,15 +84,15 @@ void UCI::go(const std::string& arguments) {
         std::getline(ss, argument, ' ');
 
         if (token == "wtime") {
-            engine.search_params.wtime = std::stoi(argument);
+            engine.search_params.game_time.wtime = std::stoi(argument);
         } else if (token == "btime") {
-            engine.search_params.btime = std::stoi(argument);
+            engine.search_params.game_time.btime = std::stoi(argument);
         } else if (token == "winc") {
-            engine.search_params.winc = std::stoi(argument);
+            engine.search_params.game_time.winc = std::stoi(argument);
         } else if (token == "binc") {
-            engine.search_params.binc = std::stoi(argument);
+            engine.search_params.game_time.binc = std::stoi(argument);
         } else if (token == "movestogo") {
-            engine.search_params.moves_to_go = std::stoi(argument);
+            engine.search_params.game_time.moves_to_go = std::stoi(argument);
         }
         
 
@@ -91,19 +104,23 @@ void UCI::go(const std::string& arguments) {
 
         else if (token == "depth") {
             int depth =  std::stoi(argument);
-            engine.iterative_deepening_search_depth(depth);
-            return;
+            engine.search_params.search_mode = DEPTH;
+            engine.search_params.depth = depth;
         } else if (token == "movetime") {
             int movetime =  std::stoi(argument);
-            engine.iterative_deepening_search_time(movetime);
-            return;
-        } else if (token == "infinite") {
-            engine.iterative_deepening_search_infinite(); 
-            return;
+            engine.search_params.search_mode = MOVE_TIME;
+            engine.search_params.allocated_time = movetime - MOVE_OVERHEAD;
         }
     }
-    int allocated_time = engine.get_allocated_time();
-    engine.iterative_deepening_search_time(allocated_time);
+    
+    if (engine.search_params.game_time.wtime != 0 &&
+        engine.search_params.game_time.btime != 0) 
+    {
+        engine.search_params.search_mode = MOVE_TIME;
+        engine.search_params.allocated_time = engine.get_allocated_time() - MOVE_OVERHEAD;
+    }
+
+    engine.iterative_deepening_search();
 }
 
 

@@ -1,6 +1,7 @@
 #ifndef ENGINE_H
 #define ENGINE_H
 
+#include <chrono>
 #include <climits>
 #include <vector>
 
@@ -10,7 +11,9 @@
 #include "game_over_detector.hpp"
 
 
-struct SearchParams {
+enum SearchMode {DEPTH, MOVE_TIME, INFINITE};
+
+struct GameTime {
     int wtime;
     int btime;
     int winc;
@@ -18,24 +21,40 @@ struct SearchParams {
     int moves_to_go;
 };
 
+struct SearchParams {
+    int depth;
+    int allocated_time;
+    GameTime game_time;
+    SearchMode search_mode;
+};
+
+// all the collected info during a search will be stored in this struct
 struct SearchInfo {
+    std::chrono::time_point<std::chrono::high_resolution_clock> start_time;
+    int depth;
+    long nodes;
+    bool is_terminated;
+
+    int time_elapsed() const;
+};
+
+struct SearchSummary {
     int depth;
     int score;
     long nodes;
     long time;
     std::vector<Move> pv;
-    bool is_terminated;
 };
 
 class Engine {
     public:
         SearchParams search_params;
 
+        static const int MAX_PLY = 100;
+
         Engine(Board& board);
 
-        void iterative_deepening_search_depth(int search_depth);
-        void iterative_deepening_search_time(int allocated_time_ms);
-        void iterative_deepening_search_infinite();
+        void iterative_deepening_search();
         void divide(int depth);
         int get_allocated_time();
 
@@ -46,19 +65,15 @@ class Engine {
 
         SearchInfo search_info;
 
-        static const int NO_CONSTRAINT = 100000;
-        static const int MOVE_OVERHEAD = 50;
         static const int DRAW = 0;
         static const int CHECKMATE = 50000;
         static const int CHECKMATE_THRESHOLD = 49000;
-        static const int ALPHA_INITIAL_VALUE = -CHECKMATE;
 
-        void iterative_deepening_search(int search_depth, int allocated_time_ms);
-        int search(int depth, int alpha, int beta, int time_left, std::vector<Move>& principal_variation);
-        int search_captures(int alpha, int beta, int time_left);
+        int search(int depth, int alpha, int beta, std::vector<Move>& principal_variation);
+        int search_captures(int alpha, int beta);
         int evaluate();
-        void show_uci_info() const;
-        void move_ordering(std::vector<Move>& legal_moves, int current_depth) const;
+        void show_uci_info(const SearchSummary& search_summary) const;
+        void check_termination();
 };
 
 

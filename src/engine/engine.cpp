@@ -19,37 +19,9 @@ Engine::Engine(Board& board)
     , game_over_detector(board, move_gen)
 {}
 
-
-
-void Engine::iterative_deepening_search_time(int allocated_time_ms) {
-    iterative_deepening_search(NO_CONSTRAINT, allocated_time_ms);
-}
-void Engine::iterative_deepening_search_depth(int search_depth) {
-    iterative_deepening_search(search_depth, NO_CONSTRAINT);
-}
-void Engine::iterative_deepening_search_infinite() {
-    iterative_deepening_search(NO_CONSTRAINT, NO_CONSTRAINT);
-}
-
-void Engine::divide(int depth) {
-    move_gen.divide(depth);
-}
-
-int Engine::get_allocated_time() {
-    if (board.game_state.player_to_move == WHITE) {
-        return search_params.wtime / 20;
-    }
-    return search_params.btime / 20;
-}
-
-void Engine::iterative_deepening_search(int search_depth, int allocated_time_ms) {
-    // keep track of when the search started,
-    // so that it can stop if the allocated time runs out
-    auto start_time = std::chrono::high_resolution_clock::now();
-
-
+void Engine::iterative_deepening_search() {
     // initialize alpha/beta to the value of immediate checkmate 
-    // so any legal move will be better
+    // so any legal move will be considered better
     const int alpha = -CHECKMATE;
     const int beta = -alpha;
 
@@ -57,10 +29,18 @@ void Engine::iterative_deepening_search(int search_depth, int allocated_time_ms)
     // it contains all the relevant info about the search
     search_info = SearchInfo();
 
+    // keep track of when the search started,
+    // so that it can stop if the allocated time runs out
+    search_info.start_time = std::chrono::high_resolution_clock::now();
+
+
+    // will be updated whenever a new best move is found
+    Move best_move;
+
     // search the position at increasing depths
-    // until either the given search_depth is reached,
-    // or the allocated time has been used up
-    while (search_info.depth < search_depth) {
+    // until either the final depth is reached,
+    // or it is terminated
+    while (search_info.depth < search_params.depth && !search_info.is_terminated) {
         search_info.depth++;
 
         // will be updated every time a new best line is found
@@ -68,43 +48,50 @@ void Engine::iterative_deepening_search(int search_depth, int allocated_time_ms)
 
         // alpha-beta function
         // evaluate the position at the current depth
-        const int evaluation = search(search_info.depth, alpha, beta, allocated_time_ms - search_info.time, principal_variation);
+        const int evaluation = search(search_info.depth, alpha, beta, principal_variation);
 
-        // if the search has been terminated early 
-        // then we can't use the result from the search at this depth 
-        // will only happen if the allocated time has been used up
-        if (search_info.is_terminated) {
-            break;
+        // if the search has not been terminated
+        // then we can use the result from the search at this depth 
+        if (!search_info.is_terminated) {
+            SearchSummary search_summary = {
+                .depth = search_info.depth,
+                .score = evaluation,
+                .nodes = search_info.nodes,
+                .time = search_info.time_elapsed(),
+                .pv = principal_variation
+            };
+            best_move = search_summary.pv.at(0);
+
+            show_uci_info(search_summary);
         }
 
-        // otherwise a valid evaluation was returned, so we can store the result
-        auto stop_time = std::chrono::high_resolution_clock::now();
-        int duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop_time - start_time).count();
-        search_info.time = duration == 0 ? 1 : duration;
-        search_info.score = evaluation;
-        search_info.pv = principal_variation;
-
-        show_uci_info();
     }
     // always finish a search by outputting the best move
-    const Move& best_move = search_info.pv.at(0);
     std::cout << "bestmove " << best_move.to_uci_notation() << "\n";
 }
 
-// alpha-beta evaluation function
-int Engine::search(int depth, int alpha, int beta, int time_left, std::vector<Move>& principal_variation) {
-    // if the time is almost up we have to stop the search
-    // but only if a full search has been completed to depth 1
-    // otherwise there will be no result from the search
-    if (time_left <= MOVE_OVERHEAD && search_info.depth > 1) {
-        search_info.is_terminated = true;
-        return 0; 
+
+void Engine::divide(int depth) {
+    move_gen.divide(depth);
+}
+
+int Engine::get_allocated_time() {
+    if (board.game_state.player_to_move == WHITE) {
+        return search_params.game_time.wtime / 20;
     }
+    return search_params.game_time.btime / 20;
+}
 
-    // keep track of when the search started
-    // so that it can calculate how much time it has left
-    const auto start_time = std::chrono::high_resolution_clock::now();
+// alpha-beta evaluation function
+int Engine::search(int depth, int alpha, int beta, std::vector<Move>& principal_variation) {
+    // check if the search should terminate
+    check_termination();
 
+    // if the search has been terminated, then return immediately
+    // it will only happen if the allocated time has been used up
+    if (search_info.is_terminated) {
+        return 0;
+    }
 
     std::vector<Move> pseudo_legal_moves = move_gen.get_pseudo_legal_moves(ALL);
 
@@ -123,16 +110,8 @@ int Engine::search(int depth, int alpha, int beta, int time_left, std::vector<Mo
     // see if there are any winning/losing captures in the position
     // that might change the evaluation of the position
     if (depth == 0) {
-        const auto stop_time = std::chrono::high_resolution_clock::now();
-        const int time_spent = std::chrono::duration_cast<std::chrono::milliseconds>(stop_time - start_time).count();
-        return search_captures(alpha, beta, time_left - time_spent);
+        return search_captures(alpha, beta);
     }
-
-
-    // try to order the moves by how good they are
-    // so that good moves are considered first
-    // that way more moves can be pruned away by alpha-beta
-    move_ordering(pseudo_legal_moves, search_info.depth - depth);
 
     const Color player = board.game_state.player_to_move;
     for (const Move& move : pseudo_legal_moves) {
@@ -145,34 +124,28 @@ int Engine::search(int depth, int alpha, int beta, int time_left, std::vector<Mo
             continue;
         }
 
-        const auto stop_time = std::chrono::high_resolution_clock::now();
-        const int time_spent = std::chrono::duration_cast<std::chrono::milliseconds>(stop_time - start_time).count();
         std::vector<Move> variation;
 
         // call search function again and decrease the depth
-        const int evaluation = -search(depth - 1, -beta, -alpha, time_left - time_spent, variation);
+        const int evaluation = -search(depth - 1, -beta, -alpha, variation);
 
         board.undo();
 
-        // if the search has been terminated return immediately
-        // will only happen if the allocated time has been used up
-        if (search_info.is_terminated) {
-            return 0;
-        }
-
-        // if the evaluation is better than beta
-        // it means that the opponent has a better option
-        // and we don't have to consider this any further
+        // if the evaluation is higher than beta
+        // it means that the this move is guaranteed to be worse than a previous move we could play
+        // so we don't have to consider this variation any further
         if (evaluation >= beta) {
             return beta;
         }
 
         // if the evaluation is higher than alpha
         // then this move is the best so far
-        // then we can update alpha 
-        // and set the principal variation to the line that gave this evaluation 
         if (evaluation > alpha) {
+
+            // then we can update alpha accordingly
             alpha = evaluation;
+
+            // and set the principal variation to the line that gave this evaluation 
             variation.insert(variation.begin(), move);
             principal_variation = variation;
         }
@@ -180,7 +153,7 @@ int Engine::search(int depth, int alpha, int beta, int time_left, std::vector<Mo
 
     // if alpha is still it's initial value
     // no move was possible, which means it is stalemate
-    const bool is_stalemate = alpha == ALPHA_INITIAL_VALUE;
+    const bool is_stalemate = alpha == -CHECKMATE;
     if (is_stalemate) {
         return DRAW;
     }
@@ -189,12 +162,11 @@ int Engine::search(int depth, int alpha, int beta, int time_left, std::vector<Mo
     return alpha;
 }
 
-int Engine::search_captures(int alpha, int beta, int time_left) {
-    if (time_left <= MOVE_OVERHEAD && search_info.depth > 1) {
-        search_info.is_terminated = true;
-        return 0; 
+int Engine::search_captures(int alpha, int beta) {
+    check_termination();
+    if (search_info.is_terminated) {
+        return 0;
     }
-    auto start_time = std::chrono::high_resolution_clock::now();
 
     int evaluation = evaluate();
     if (evaluation >= beta) {
@@ -213,14 +185,8 @@ int Engine::search_captures(int alpha, int beta, int time_left) {
             board.undo();
             continue;
         }
-        auto stop_time = std::chrono::high_resolution_clock::now();
-        int time_spent = std::chrono::duration_cast<std::chrono::milliseconds>(stop_time - start_time).count();
-        evaluation = -search_captures(-beta, -alpha, time_left - time_spent);
+        evaluation = -search_captures(-beta, -alpha);
         board.undo();
-
-        if (search_info.is_terminated) {
-            return 0;
-        }
 
         if (evaluation >= beta) {
             return beta;
@@ -261,33 +227,47 @@ int Engine::evaluate() {
     return evaluation;
 }
 
-void Engine::show_uci_info() const {
+void Engine::show_uci_info(const SearchSummary& search_summary) const {
     std::cout << "info";
-    std::cout << " depth " << search_info.depth;
-    if (std::abs(search_info.score) > CHECKMATE_THRESHOLD) {
-        const int ply = CHECKMATE - std::abs(search_info.score);
+    std::cout << " depth " << search_summary.depth;
+    if (std::abs(search_summary.score) > CHECKMATE_THRESHOLD) {
+        const int ply = CHECKMATE - std::abs(search_summary.score);
         const int mate_in_x = std::ceil(ply / 2.0);
-        const int sign = search_info.score > 0 ? 1 : -1;
+        const int sign = search_summary.score > 0 ? 1 : -1;
         std::cout << " score mate " << sign * mate_in_x;
     } else {
-        std::cout << " score cp " << search_info.score;
+        std::cout << " score cp " << search_summary.score;
     }
-    std::cout << " nodes " << search_info.nodes;
-    std::cout << " nps " << search_info.nodes * 1000 / search_info.time;
-    std::cout << " time " << search_info.time;
+    std::cout << " nodes " << search_summary.nodes;
+    std::cout << " nps " << (search_summary.time == 0 
+        ? search_summary.nodes * 1000 / 1
+        : search_summary.nodes * 1000 / search_summary.time);
+    std::cout << " time " << search_summary.time;
     std::cout << " pv";
-    for (const Move& move : search_info.pv) {
+    for (const Move& move : search_summary.pv) {
         std::cout << " " << move.to_uci_notation();
     }
     std::cout << "\n";
     std::cout.flush();
 }
 
-void Engine::move_ordering(std::vector<Move>& legal_moves, int current_depth) const {
-    if (search_info.pv.size() > current_depth) {
-        auto pv_move = std::find(legal_moves.begin(), legal_moves.end(), search_info.pv.at(current_depth));
-        if (pv_move != legal_moves.end()) {
-            std::rotate(legal_moves.begin(), pv_move, pv_move + 1);
-        }
+void Engine::check_termination() {
+    switch (search_params.search_mode) {
+        case DEPTH:
+            if (search_info.depth > search_params.depth && search_info.depth > 1) {
+                search_info.is_terminated = true;
+            }
+            break;
+        case MOVE_TIME:
+            if (search_info.time_elapsed() > search_params.allocated_time) {
+                search_info.is_terminated = true;
+            }
+            break;
+        case INFINITE: break;
     }
+}
+
+int SearchInfo::time_elapsed() const {
+    auto now = std::chrono::high_resolution_clock::now();
+    return std::chrono::duration_cast<std::chrono::milliseconds>(now - start_time).count();
 }

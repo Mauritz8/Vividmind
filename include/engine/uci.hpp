@@ -17,6 +17,8 @@ class UCI {
         Board& board;
         Engine engine;
 
+        static const int MOVE_OVERHEAD = 50;
+
         void uci();
         void isready();
         void position(const std::string& position);
