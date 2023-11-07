@@ -208,18 +208,17 @@ bool Board::is_insufficient_material() const {
     return true;
 }
 
+// this will only check if the same position repeats twice
+// because otherwise it will do one repetition in a lot of positions,
+// before it realizes that it has to do something else
 bool Board::is_threefold_repetition() const {
     Board old_board = *this;
-    int repetitions = 1;
     const int history_size = history.size();
-    for (int i = 0; i < history_size - 1; i++) {
+    for (int _ = 0; _ < history_size - 1; _++) {
         old_board.undo();
         if (*this == old_board) {
-            repetitions++;  
-        }         
-        if (repetitions == 3) {
             return true;
-        }
+        }         
     }
     return false;
 }
