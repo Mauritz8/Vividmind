@@ -12,7 +12,8 @@
 
 UCI::UCI(Board& board) 
     : board(board)
-    , engine(board)
+    , move_gen(board)
+    , engine(board, move_gen)
 {}
 
 void UCI::process(const std::string& command) {
@@ -98,7 +99,7 @@ void UCI::go(const std::string& arguments) {
 
         else if (token == "perft") {
             int depth =  std::stoi(argument);
-            engine.divide(depth);
+            move_gen.divide(depth);
             return;
         }
 

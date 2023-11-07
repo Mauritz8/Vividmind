@@ -15,6 +15,7 @@ class UCI {
 
     private:
         Board& board;
+        MoveGenerator move_gen;
         Engine engine;
 
         static const int MOVE_OVERHEAD = 50;

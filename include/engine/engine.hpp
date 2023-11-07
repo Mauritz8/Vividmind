@@ -51,15 +51,14 @@ class Engine {
 
         static const int MAX_PLY = 100;
 
-        Engine(Board& board);
+        Engine(Board& board, MoveGenerator& move_gen);
 
         void iterative_deepening_search();
-        void divide(int depth);
         int get_allocated_time();
 
     private:
         Board& board;
-        MoveGenerator move_gen;
+        MoveGenerator& move_gen;
 
         SearchInfo search_info;
 

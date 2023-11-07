@@ -13,9 +13,9 @@
 #include "piece.hpp"
 
 
-Engine::Engine(Board& board) 
+Engine::Engine(Board& board, MoveGenerator& move_gen) 
     : board(board)
-    , move_gen(board)
+    , move_gen(move_gen)
 {}
 
 void Engine::iterative_deepening_search() {
@@ -67,11 +67,6 @@ void Engine::iterative_deepening_search() {
     }
     // always finish a search by outputting the best move
     std::cout << "bestmove " << best_move.to_uci_notation() << "\n";
-}
-
-
-void Engine::divide(int depth) {
-    move_gen.divide(depth);
 }
 
 int Engine::get_allocated_time() {
