@@ -100,6 +100,7 @@ int Engine::search(int depth, int alpha, int beta, std::vector<Move>& principal_
 
     const Color player = board.game_state.player_to_move;
     std::vector<Move> pseudo_legal_moves = move_gen.get_pseudo_legal_moves(ALL);
+    int legal_moves_found = 0;
     for (const Move& move : pseudo_legal_moves) {
 
         board.make(move);
@@ -109,6 +110,9 @@ int Engine::search(int depth, int alpha, int beta, std::vector<Move>& principal_
             board.undo();
             continue;
         }
+
+        // if the move didn't leave the king in check, it's a legal move
+        legal_moves_found++;
 
         std::vector<Move> variation;
 
@@ -137,9 +141,9 @@ int Engine::search(int depth, int alpha, int beta, std::vector<Move>& principal_
         }
     }
 
-    // if alpha is still it's initial value no move was possible, 
-    // which means that it is either checkmate or stalemate
-    if (alpha == -CHECKMATE) {
+    // if there are no legal moves in the position, 
+    // it means that it is either checkmate or stalemate
+    if (legal_moves_found == 0) {
 
         // if there were no legal moves and the player is in check
         // it means that it must be checkmate
