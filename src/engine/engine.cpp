@@ -87,7 +87,10 @@ int Engine::search(int depth, int alpha, int beta, std::vector<Move>& principal_
         return 0;
     }
 
-    if (board.is_insufficient_material() || board.is_threefold_repetition()) {
+    if (board.is_insufficient_material() || 
+        board.is_threefold_repetition()  ||
+        board.is_draw_by_fifty_move_rule()) 
+    {
         return DRAW;
     }
 

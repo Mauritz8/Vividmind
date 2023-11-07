@@ -58,6 +58,8 @@ Board Board::get_position_from_fen(std::string fen) {
     board.set_player_to_move(fen_parts[1]);
     board.set_castling_rights(fen_parts[2]);
     board.set_en_passant_square(fen_parts[3]);
+    board.game_state.halfmove_clock = std::stoi(fen_parts[4]);
+    board.game_state.fullmove_number =  std::stoi(fen_parts[5]);
     return board;
 }
 
@@ -119,41 +121,57 @@ void Board::make(const Move& move) {
 
     Square& start = squares[move.start]; 
     Square& end = squares[move.end]; 
-    if (move.is_pawn_two_squares_forward) {
-        const int direction = start.piece->color == BLACK ? 1 : -1;
-        game_state.en_passant_square = move.start + direction * 8;
-    } else if (move.is_castling_move) {
+
+    if (start.piece->piece_type == PAWN) {
+        game_state.halfmove_clock = 0;
+
+        if (move.is_pawn_two_squares_forward) {
+            const int direction = start.piece->color == BLACK ? 1 : -1;
+            game_state.en_passant_square = move.start + direction * 8;
+        } else if (move.is_en_passant) {
+            const int x_diff = move.end % 8 - move.start % 8;
+            Square& captured_square = squares[move.start + x_diff];
+            remove_piece(*captured_square.piece);
+            captured_square.piece = {};
+        } else if (move.is_promotion) {
+            if (end.piece) {
+                remove_piece(*end.piece);
+            }
+
+            Piece& piece = *start.piece;
+            Piece& piece_in_game_state = get_piece(piece);
+            PieceType promotion_piece = *move.promotion_piece;
+
+            const int old_psqt = get_psqt_score(piece);
+            piece.piece_type = promotion_piece;
+            piece_in_game_state.piece_type = promotion_piece;
+            const int new_value = piece.get_value();
+            const int new_psqt = get_psqt_score(piece);
+            game_state.material[piece.color] += new_value - PAWN_VALUE;
+            game_state.psqt[piece.color] += new_psqt - old_psqt;
+        } 
+    } 
+
+    if (move.is_castling_move) {
         Move rook_move = get_castling_rook_move(move);
         move_piece(squares[rook_move.start], squares[rook_move.end]);
-    } else if (move.is_en_passant) {
-        const int x_diff = move.end % 8 - move.start % 8;
-        Square& captured_square = squares[move.start + x_diff];
-        remove_piece(*captured_square.piece);
-        captured_square.piece = {};
-    } else if (move.is_promotion) {
-        if (end.piece) {
-            remove_piece(*end.piece);
-        }
-
-        Piece& piece = *start.piece;
-        Piece& piece_in_game_state = get_piece(piece);
-        PieceType promotion_piece = *move.promotion_piece;
-
-        const int old_psqt = get_psqt_score(piece);
-        piece.piece_type = promotion_piece;
-        piece_in_game_state.piece_type = promotion_piece;
-        const int new_value = piece.get_value();
-        const int new_psqt = get_psqt_score(piece);
-        game_state.material[piece.color] += new_value - PAWN_VALUE;
-        game_state.psqt[piece.color] += new_psqt - old_psqt;
     } else {
         if (end.piece) {
+            game_state.halfmove_clock = 0;
             remove_piece(*end.piece);
+        } else {
+            game_state.halfmove_clock++;
         }
     }
 
     move_piece(start, end);
+
     update_castling_rights(move);
+
+    // increment the fullmove number after every time black moves
+    if (game_state.player_to_move == BLACK) {
+        game_state.fullmove_number++;
+    }
     switch_player_to_move();
 }
 
@@ -215,12 +233,23 @@ bool Board::is_threefold_repetition() const {
     Board old_board = *this;
     const int history_size = history.size();
     for (int _ = 0; _ < history_size - 1; _++) {
+
+        // if there has been a capture or a pawn move
+        // it's impossible to reach the same position again 
+        if (old_board.game_state.halfmove_clock == 0) {
+            return false;
+        }
+
         old_board.undo();
         if (*this == old_board) {
             return true;
         }         
     }
     return false;
+}
+
+bool Board::is_draw_by_fifty_move_rule() const {
+    return game_state.halfmove_clock > 100;
 }
 
 void Board::place_pieces(const std::string& pieces) {
