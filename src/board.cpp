@@ -343,7 +343,9 @@ void Board::update_castling_rights(const Move& move) {
         game_state.castling_rights[color].queenside = false; 
     } else if (move.start == player_rook2) {
         game_state.castling_rights[color].kingside = false; 
-    } else if (move.end == opponent_rook1) {
+    } 
+
+    if (move.end == opponent_rook1) {
         game_state.castling_rights[get_opposite_color(color)].queenside = false; 
     } else if (move.end == opponent_rook2) {
         game_state.castling_rights[get_opposite_color(color)].kingside = false; 
