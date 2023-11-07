@@ -376,6 +376,9 @@ int Board::get_psqt_score(const Piece& piece) const {
     const int square = piece.color == WHITE ? piece.pos : x + (7 - y) * 8;
     switch (piece.piece_type) {
         case KING: {
+            if (is_lone_king(piece.color)) {
+                return KING_MATE[square];
+            }
             if (is_endgame()) {
                 return KING_ENDGAME_PSQT[square];
             }
@@ -387,6 +390,13 @@ int Board::get_psqt_score(const Piece& piece) const {
         case KNIGHT: return KNIGHT_PSQT[square];
         case PAWN: return PAWN_PSQT[square];
     }
+}
+
+bool Board::is_lone_king(Color color) const {
+    if (pieces[color].size() == 1) {
+        return true;
+    }
+    return false;
 }
 
 bool Board::is_endgame() const {

@@ -64,6 +64,7 @@ class Board {
         Move get_castling_rook_move(const Move& move) const;
 
         int get_psqt_score(const Piece& piece) const;
+        bool is_lone_king(Color color) const;
         bool is_endgame() const;
 };
 
