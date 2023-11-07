@@ -6,16 +6,14 @@
 
 #include "piece.hpp"
 
+enum MoveType {NORMAL, CASTLING, PROMOTION, EN_PASSANT, PAWN_TWO_SQUARES_FORWARD};
 
 class Move {
     public:
         int start;
         int end;
-        bool is_castling_move;
-        bool is_promotion;
+        MoveType move_type;
         std::optional<PieceType> promotion_piece;
-        bool is_en_passant;
-        bool is_pawn_two_squares_forward;
 
         Move() {};
         Move(int start, int end);

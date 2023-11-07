@@ -4,30 +4,21 @@
 Move::Move(int start, int end) {
     this->start = start;
     this->end = end;
-    this->is_castling_move = false;
-    this->is_promotion = false;
-    this->is_en_passant = false;
-    this->is_pawn_two_squares_forward = false;
+    this->move_type = NORMAL;
 }
 
 Move::Move(const Move& move) {
     this->start = move.start;
     this->end = move.end;
-    this->is_castling_move = move.is_castling_move;
-    this->is_promotion = move.is_promotion;
+    this->move_type = move.move_type;
     this->promotion_piece = move.promotion_piece;
-    this->is_en_passant = move.is_en_passant;
-    this->is_pawn_two_squares_forward = move.is_pawn_two_squares_forward;
 }
 
 Move Move::operator=(const Move& move) {
     this->start = move.start;
     this->end = move.end;
-    this->is_castling_move = move.is_castling_move;
-    this->is_promotion = move.is_promotion;
+    this->move_type = move.move_type;
     this->promotion_piece = move.promotion_piece;
-    this->is_en_passant = move.is_en_passant;
-    this->is_pawn_two_squares_forward = move.is_pawn_two_squares_forward;
     return *this;
 }
 

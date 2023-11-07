@@ -7,6 +7,7 @@
 #include <stdexcept>
 #include <vector>
 
+#include "move.hpp"
 #include "piece.hpp"
 #include "utils.hpp"
 #include "engine/psqt.hpp"
@@ -125,15 +126,15 @@ void Board::make(const Move& move) {
     if (start.piece->piece_type == PAWN) {
         game_state.halfmove_clock = 0;
 
-        if (move.is_pawn_two_squares_forward) {
+        if (move.move_type == PAWN_TWO_SQUARES_FORWARD) {
             const int direction = start.piece->color == BLACK ? 1 : -1;
             game_state.en_passant_square = move.start + direction * 8;
-        } else if (move.is_en_passant) {
+        } else if (move.move_type == EN_PASSANT) {
             const int x_diff = move.end % 8 - move.start % 8;
             Square& captured_square = squares[move.start + x_diff];
             remove_piece(*captured_square.piece);
             captured_square.piece = {};
-        } else if (move.is_promotion) {
+        } else if (move.move_type == PROMOTION) {
             if (end.piece) {
                 remove_piece(*end.piece);
             }
@@ -152,7 +153,7 @@ void Board::make(const Move& move) {
         } 
     } 
 
-    if (move.is_castling_move) {
+    if (move.move_type == CASTLING) {
         Move rook_move = get_castling_rook_move(move);
         move_piece(squares[rook_move.start], squares[rook_move.end]);
     } else {
@@ -180,16 +181,16 @@ void Board::undo() {
     Square& start = squares[move.start]; 
     Square& end = squares[move.end]; 
 
-    if (move.is_castling_move) {
+    if (move.move_type == CASTLING) {
         Move rook_move = get_castling_rook_move(move);
         move_piece(squares[rook_move.end], squares[rook_move.start]);
-    } else if (move.is_en_passant) {
+    } else if (move.move_type == EN_PASSANT) {
         Piece captured_piece = *game_state.captured_piece;
         Square& captured_square = squares[captured_piece.pos];
         captured_square.piece = captured_piece;
         pieces[captured_piece.color].push_back(captured_piece);
         game_state.captured_piece = {};
-    } else if (move.is_promotion) {
+    } else if (move.move_type == PROMOTION) {
         end.piece->piece_type = PAWN;
         Piece& piece_in_piece_list = get_piece(*end.piece);
         piece_in_piece_list.piece_type = PAWN;
