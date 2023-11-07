@@ -390,13 +390,6 @@ int Board::get_psqt_score(const Piece& piece) const {
 }
 
 bool Board::is_endgame() const {
-    std::array<Color, 2> colors = {WHITE, BLACK};
-    for (Color color : colors) {
-        for (const Piece& piece : pieces[color]) {
-            if (piece.piece_type == QUEEN) {
-                return false;
-            } 
-        }
-    }
-    return true;
+    return game_state.material[WHITE] - KING_VALUE < 1500 && 
+           game_state.material[BLACK] - KING_VALUE < 1500;
 }
