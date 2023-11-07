@@ -52,6 +52,7 @@ class Board {
         int get_king_square(Color color) const;
         bool is_insufficient_material() const;
         bool is_threefold_repetition() const;
+        bool is_draw_by_fifty_move_rule() const;
 
     private:
         void place_pieces(const std::string& pieces);
