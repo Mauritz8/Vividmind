@@ -1,4 +1,5 @@
-#include "engine/psqt.hpp"
+#include "psqt.hpp"
+#include "board.hpp"
 
 
 std::array<int, 64> KING_PSQT = {
@@ -89,3 +90,25 @@ std::array<int, 64> KING_MATE = {
     -50,-50,-50,-50,-50,-50,-50,-50,
 };
 
+
+int Board::get_psqt_score(const Piece& piece) const {
+    const int x = piece.pos % 8;
+    const int y = piece.pos / 8;
+    const int square = piece.color == WHITE ? piece.pos : x + (7 - y) * 8;
+    switch (piece.piece_type) {
+        case KING: {
+            if (is_lone_king(piece.color)) {
+                return KING_MATE[square];
+            }
+            if (is_endgame()) {
+                return KING_ENDGAME_PSQT[square];
+            }
+            return KING_PSQT[square];
+        }
+        case QUEEN: return QUEEN_PSQT[square];
+        case ROOK: return ROOK_PSQT[square];
+        case BISHOP: return BISHOP_PSQT[square];
+        case KNIGHT: return KNIGHT_PSQT[square];
+        case PAWN: return PAWN_PSQT[square];
+    }
+}

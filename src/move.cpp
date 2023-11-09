@@ -41,4 +41,3 @@ std::string Move::to_uci_notation() const {
     }
     return uci_notation;
 }
-

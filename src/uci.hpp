@@ -4,7 +4,7 @@
 #include <string>
 
 #include "board.hpp"
-#include "engine/engine.hpp"
+#include "engine.hpp"
 
 
 class UCI {
@@ -12,6 +12,7 @@ class UCI {
         UCI(Board& board);
 
         void process(const std::string& command);
+        static void show(const SearchSummary& search_summary);
 
     private:
         Board& board;

@@ -7,15 +7,19 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 
 set(COMMON_SOURCES
+    src/board/fen.cpp
+    src/board/mailbox.cpp
+    src/board/playmove.cpp
     src/board.cpp
-    src/utils.cpp
+    src/engine.cpp
+    src/evaluation/evaluation.cpp
+    src/evaluation/psqt.cpp
     src/move.cpp
     src/move_generator.cpp
     src/piece.cpp
     src/square.cpp
-    src/engine/engine.cpp
-    src/engine/psqt.cpp
-    src/engine/uci.cpp
+    src/uci.cpp
+    src/utils.cpp
 )
 
 add_executable(vividmind 
@@ -23,8 +27,7 @@ add_executable(vividmind
     ${COMMON_SOURCES}
 )
 target_include_directories(vividmind PRIVATE
-    include
-    include/engine
+    src/
 )
 
 
@@ -33,5 +36,5 @@ add_executable(tests
     ${COMMON_SOURCES}
 )
 target_include_directories(tests PRIVATE
-    include
+    src/
 )

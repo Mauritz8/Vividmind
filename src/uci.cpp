@@ -1,5 +1,6 @@
-#include "engine/uci.hpp"
+#include "uci.hpp"
 
+#include <cmath>
 #include <iostream>
 #include <sstream>
 #include <stdexcept>
@@ -28,6 +29,30 @@ void UCI::process(const std::string& command) {
     } else if (command == "quit") {
         exit(0);
     }
+    std::cout.flush();
+}
+
+void UCI::show(const SearchSummary& search_summary) {
+    std::cout << "info";
+    std::cout << " depth " << search_summary.depth;
+    if (std::abs(search_summary.score) > CHECKMATE_THRESHOLD) {
+        const int ply = CHECKMATE - std::abs(search_summary.score);
+        const int mate_in_x = std::ceil(ply / 2.0);
+        const int sign = search_summary.score > 0 ? 1 : -1;
+        std::cout << " score mate " << sign * mate_in_x;
+    } else {
+        std::cout << " score cp " << search_summary.score;
+    }
+    std::cout << " nodes " << search_summary.nodes;
+    std::cout << " nps " << (search_summary.time == 0 
+        ? search_summary.nodes * 1000 / 1
+        : search_summary.nodes * 1000 / search_summary.time);
+    std::cout << " time " << search_summary.time;
+    std::cout << " pv";
+    for (const Move& move : search_summary.pv) {
+        std::cout << " " << move.to_uci_notation();
+    }
+    std::cout << "\n";
     std::cout.flush();
 }
 
@@ -65,18 +90,7 @@ void UCI::position(const std::string& position) {
 }
 
 void UCI::go(const std::string& arguments) {
-    engine.search_params = {
-        .depth = Engine::MAX_PLY,
-        .allocated_time = 0,
-        .game_time = GameTime{
-            .wtime = 0,
-            .btime = 0,
-            .winc = 0,
-            .binc = 0,
-            .moves_to_go = 0
-        },
-        .search_mode = INFINITE
-    };
+    engine.search_params = SearchParams();
 
     std::istringstream ss(arguments);
     std::string token;
