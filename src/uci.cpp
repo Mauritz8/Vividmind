@@ -17,15 +17,19 @@ UCI::UCI(Board& board)
     , search(board, move_gen)
 {}
 
-void UCI::process(const std::string& command) {
+void UCI::process(const std::string& input) {
+    std::istringstream input_stream(input);
+    std::string command; 
+    std::getline(input_stream, command, ' ');
+
     if (command == "uci") {
         uci();
     } else if (command == "isready") {
         isready();
-    } else if (command.substr(0, 8) == "position") {
-        position(command.substr(9, std::string::npos));
-    } else if (command.substr(0, 2) == "go") {
-        go(command.substr(3, std::string::npos));
+    } else if (command == "position") {
+        position(input_stream);
+    } else if (command == "go") {
+        go(input_stream);
     } else if (command == "quit") {
         exit(0);
     }
@@ -70,37 +74,43 @@ void UCI::isready() {
     std::cout << "readyok\n\n";
 }
 
-void UCI::position(const std::string& position) {
-    std::istringstream ss(position);
+void UCI::position(std::istringstream& arguments) {
     std::string token;
-
-    std::getline(ss, token, ' ');
+    std::getline(arguments, token, ' ');
     if (token == "startpos") {
         board = Board::get_starting_position();
     } else if (token == "fen") {
         std::string fen;
         std::string fen_part;
-        for (int i = 0; i < 6; i++) {
-            std::getline(ss, fen_part, ' ');
-            fen += fen_part + ' ';
-        }
-        board = Board::get_position_from_fen(fen);
-    } 
 
-    std::getline(ss, token, ' ');
+        int i = 0;
+        while (std::getline(arguments, fen_part, ' ') && i < 6) {
+            fen += fen_part;
+            if (i < 5) {
+                fen += ' ';
+            }
+            i++;
+        }
+        try {
+            board = Board::get_position_from_fen(fen);
+        } catch (const std::invalid_argument& e) {
+            std::cout << e.what(); 
+        }
+    } else return;
+
+    std::getline(arguments, token, ' ');
     if (token == "moves") {
-        make_moves(ss);
+        make_moves(arguments);
     }
 }
 
-void UCI::go(const std::string& arguments) {
+void UCI::go(std::istringstream& arguments) {
     search.params = SearchParams();
 
-    std::istringstream ss(arguments);
     std::string token;
-    while (std::getline(ss, token, ' ')) {
+    while (std::getline(arguments, token, ' ')) {
         std::string argument;
-        std::getline(ss, argument, ' ');
+        std::getline(arguments, argument, ' ');
 
         if (token == "wtime") {
             search.params.game_time.wtime = std::stoi(argument);

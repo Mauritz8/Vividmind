@@ -1,3 +1,4 @@
+#include "utils.hpp"
 #include "move.hpp"
 #include "piece.hpp"
 

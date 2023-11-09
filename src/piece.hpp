@@ -26,7 +26,4 @@ class Piece {
         int get_value() const;
 };
 
-char get_char_representation(PieceType piece_type);
-PieceType get_piece_type(char char_representation);
-
 #endif

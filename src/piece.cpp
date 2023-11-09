@@ -3,6 +3,8 @@
 #include <cctype>
 #include <stdexcept>
 
+#include "utils.hpp"
+
 
 Piece::Piece(PieceType piece_type, Color color, int pos) {
     this->piece_type = piece_type;
@@ -33,28 +35,4 @@ int Piece::get_value() const {
         case KNIGHT: return KNIGHT_VALUE;
         case PAWN: return PAWN_VALUE;
     }
-}
-
-char get_char_representation(PieceType piece_type) {
-    switch (piece_type) {
-        case PAWN: return 'p';
-        case KNIGHT: return 'N';
-        case BISHOP: return 'B';
-        case ROOK: return 'R';
-        case QUEEN: return 'Q';
-        case KING: return 'K';
-    }
-    throw std::invalid_argument("invalid piece type");
-}
-
-PieceType get_piece_type(char char_representation) {
-    switch (tolower(char_representation)) {
-        case 'p': return PAWN;
-        case 'n': return KNIGHT;
-        case 'b': return BISHOP;
-        case 'r': return ROOK;
-        case 'q': return QUEEN;
-        case 'k': return KING;
-    }
-    throw std::invalid_argument("invalid piece type");
 }
