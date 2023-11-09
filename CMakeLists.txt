@@ -17,6 +17,7 @@ set(COMMON_SOURCES
     src/move_gen/king.cpp
     src/move_gen/pawn.cpp
     src/move_gen.cpp
+    src/search/defs.cpp
     src/search/time_management.cpp
     src/search.cpp
     src/move.cpp
