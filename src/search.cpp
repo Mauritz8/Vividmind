@@ -1,7 +1,6 @@
 #include "search.hpp"
 
 #include <chrono>
-#include <iostream>
 #include <optional>
 #include <vector>
 
@@ -59,7 +58,7 @@ void Search::iterative_deepening_search() {
 
     }
     // always finish a search by outputting the best move
-    std::cout << "bestmove " << best_move.to_uci_notation() << "\n";
+    UCI::bestmove(best_move);
 }
 
 // alpha-beta evaluation function

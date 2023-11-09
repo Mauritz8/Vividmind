@@ -14,6 +14,7 @@ class UCI {
 
         void process(const std::string& command);
         static void show(const SearchSummary& search_summary);
+        static void bestmove(const Move& move);
 
     private:
         Board& board;

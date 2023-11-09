@@ -56,6 +56,10 @@ void UCI::show(const SearchSummary& search_summary) {
     std::cout.flush();
 }
 
+void UCI::bestmove(const Move& move) {
+    std::cout << "bestmove " << move.to_uci_notation() << "\n";
+}
+
 void UCI::uci() {
     std::cout << "id name Vividmind\n";
     std::cout << "id author Mauritz Sjödin\n"; 
