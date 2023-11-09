@@ -28,10 +28,16 @@ struct SearchParams {
 
 // all the collected info during a search will be stored in this struct
 struct SearchInfo {
-    std::chrono::time_point<std::chrono::high_resolution_clock> start_time;
+
+    // keep track of when the search started,
+    // so that it can stop if the allocated time runs out
+    std::chrono::time_point<std::chrono::high_resolution_clock> start_time; 
+
     int depth;
     long nodes;
     bool is_terminated;
+
+    SearchInfo();
 
     int time_elapsed() const;
 };

@@ -1,16 +1,13 @@
 #include "search.hpp"
 
-#include <algorithm>
 #include <chrono>
-#include <cmath>
 #include <iostream>
-#include <limits.h>
 #include <optional>
 #include <vector>
 
+#include "defs.hpp"
 #include "move.hpp"
 #include "move_generator.hpp"
-#include "piece.hpp"
 #include "uci.hpp"
 
 
@@ -28,11 +25,6 @@ void Search::iterative_deepening_search() {
     // Create a new SearchInfo object 
     // it contains all the relevant info about the search
     info = SearchInfo();
-
-    // keep track of when the search started,
-    // so that it can stop if the allocated time runs out
-    info.start_time = std::chrono::high_resolution_clock::now();
-
 
     // will be updated whenever a new best move is found
     Move best_move;
@@ -68,13 +60,6 @@ void Search::iterative_deepening_search() {
     }
     // always finish a search by outputting the best move
     std::cout << "bestmove " << best_move.to_uci_notation() << "\n";
-}
-
-int Search::get_allocated_time() {
-    if (board.game_state.player_to_move == WHITE) {
-        return params.game_time.wtime / 20;
-    }
-    return params.game_time.btime / 20;
 }
 
 // alpha-beta evaluation function
@@ -221,16 +206,23 @@ void Search::check_termination() {
 }
 
 SearchParams::SearchParams() {
-    depth = MAX_PLY,
-    allocated_time = 0,
+    depth = MAX_PLY;
+    allocated_time = 0;
     game_time = GameTime{
         .wtime = 0,
         .btime = 0,
         .winc = 0,
         .binc = 0,
         .moves_to_go = 0
-    },
+    };
     search_mode = INFINITE;
+}
+
+SearchInfo::SearchInfo() {
+    start_time = std::chrono::high_resolution_clock::now();
+    depth = 0;
+    nodes = 0;
+    is_terminated = false;
 }
 
 int SearchInfo::time_elapsed() const {

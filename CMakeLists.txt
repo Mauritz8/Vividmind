@@ -12,6 +12,7 @@ set(COMMON_SOURCES
     src/board/mailbox.cpp
     src/board/playmove.cpp
     src/board.cpp
+    src/search/time_management.cpp
     src/search.cpp
     src/evaluation/evaluation.cpp
     src/evaluation/psqt.cpp
