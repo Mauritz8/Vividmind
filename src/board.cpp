@@ -4,8 +4,6 @@
 #include <iostream>
 #include <vector>
 
-#include "piece.hpp"
-
 
 bool Board::operator==(const Board& other) const {
     for (int pos = 0; pos < 64; pos++) {

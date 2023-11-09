@@ -6,6 +6,7 @@
 #include <string>
 #include <vector>
 
+#include "defs.hpp"
 #include "move.hpp"
 #include "piece.hpp"
 #include "square.hpp"

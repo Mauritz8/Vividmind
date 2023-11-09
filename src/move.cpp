@@ -1,4 +1,5 @@
 #include "move.hpp"
+#include "piece.hpp"
 
 
 Move::Move(int start, int end) {

@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "board.hpp"
+#include "defs.hpp"
 #include "move.hpp"
 #include "piece.hpp"
 
