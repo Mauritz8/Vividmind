@@ -15,7 +15,7 @@ class Search {
         Search(Board& board, MoveGenerator& move_gen);
 
         void iterative_deepening_search();
-        int get_allocated_time();
+        int calc_allocated_time();
 
     private:
         Board& board;

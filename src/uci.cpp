@@ -132,7 +132,7 @@ void UCI::go(const std::string& arguments) {
         search.params.game_time.btime != 0) 
     {
         search.params.search_mode = MOVE_TIME;
-        search.params.allocated_time = search.get_allocated_time() - MOVE_OVERHEAD;
+        search.params.allocated_time = search.calc_allocated_time() - MOVE_OVERHEAD;
     }
 
     search.iterative_deepening_search();
