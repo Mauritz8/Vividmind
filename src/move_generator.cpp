@@ -6,6 +6,7 @@
 #include <stdexcept>
 #include <vector>
 
+#include "board/defs.hpp"
 #include "move.hpp"
 #include "utils.hpp"
 #include "square.hpp"
@@ -183,7 +184,7 @@ std::vector<Move> MoveGenerator::get_knight_pseudo_legal_moves(const Piece& piec
     std::vector<Move> moves;
     moves.reserve(8);
     for (int movement : movements) {
-        const int end = Board::mailbox[Board::mailbox64[piece.pos] + movement];
+        const int end = mailbox[mailbox64[piece.pos] + movement];
         if (end == -1) {
             continue;
         }
@@ -261,7 +262,7 @@ std::vector<Move> MoveGenerator::get_pseudo_legal_moves_direction(const Piece& p
     std::vector<Move> moves;
 
     const int step = x_direction + y_direction * 10;
-    int pos = Board::mailbox[Board::mailbox64[piece.pos] + step];
+    int pos = mailbox[mailbox64[piece.pos] + step];
     while (pos != -1) {
         const Square& end = board.squares[pos];
         if (end.piece) {
@@ -274,7 +275,7 @@ std::vector<Move> MoveGenerator::get_pseudo_legal_moves_direction(const Piece& p
         if (move_category == ALL) {
             moves.push_back(Move(piece.pos, pos));
         }
-        pos = Board::mailbox[Board::mailbox64[pos] + step];
+        pos = mailbox[mailbox64[pos] + step];
     }
 
     return moves;
@@ -286,7 +287,7 @@ std::vector<Move> MoveGenerator::get_king_normal_moves(const Piece& piece, MoveC
     std::vector<Move> moves;
     moves.reserve(8);
     for (int movement : movements) {
-        const int end = Board::mailbox[Board::mailbox64[piece.pos] + movement];
+        const int end = mailbox[mailbox64[piece.pos] + movement];
         if (end == -1) {
             continue;
         }
@@ -386,7 +387,7 @@ std::vector<Move> MoveGenerator::get_pawn_captures(const Piece& piece) const {
     std::vector<Move> moves;
     moves.reserve(2);
     for (int movement : movements) {
-        int end = Board::mailbox[Board::mailbox64[piece.pos] + movement];
+        int end = mailbox[mailbox64[piece.pos] + movement];
         const Square& square = board.squares[end];
         if (end != -1 && square.piece && square.piece->color != piece.color) {
            moves.push_back(Move(piece.pos, end));  

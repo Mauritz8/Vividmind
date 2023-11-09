@@ -24,4 +24,7 @@ struct GameState {
     Move next_move;
 };
 
+extern const std::array<int, 120> mailbox;
+extern const std::array<int, 64> mailbox64;
+
 #endif

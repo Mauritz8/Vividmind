@@ -15,9 +15,6 @@
 
 class Board {
     public:
-        static const std::array<int, 120> mailbox;
-        static const std::array<int, 64> mailbox64;
-
         std::array<Square, 64> squares;
         std::array<std::vector<Piece>, 2> pieces;
         GameState game_state;
@@ -32,11 +29,10 @@ class Board {
 
         void show() const;
         void switch_player_to_move();
+        int get_king_square(Color color) const;
 
         void make(const Move& move);
         void undo();
-
-        int get_king_square(Color color) const;
 
         bool is_insufficient_material() const;
         bool is_threefold_repetition() const;
