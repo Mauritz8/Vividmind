@@ -37,8 +37,10 @@ target_include_directories(vividmind PRIVATE
 
 add_executable(tests
     tests/test_move_gen.cpp
+    tests/test_positions.cpp
     ${COMMON_SOURCES}
 )
 target_include_directories(tests PRIVATE
+    tests/
     src/
 )

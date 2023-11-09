@@ -1,5 +1,4 @@
-#include <array>
-#include <string>
+#include "test_positions.hpp"
 
 // from http://www.rocechess.ch/perft.html
 const std::array<std::string, 156> test_positions = {

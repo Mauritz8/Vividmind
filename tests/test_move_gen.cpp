@@ -5,7 +5,7 @@
 
 #include "board.hpp"
 #include "move_gen.hpp"
-#include "test_positions.cpp"
+#include "test_positions.hpp"
 
 struct Test {
     std::string fen;
