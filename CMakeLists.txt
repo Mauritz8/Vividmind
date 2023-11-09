@@ -7,6 +7,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 
 set(COMMON_SOURCES
+    src/board/draw.cpp
     src/board/fen.cpp
     src/board/mailbox.cpp
     src/board/playmove.cpp

@@ -112,3 +112,15 @@ int Board::get_psqt_score(const Piece& piece) const {
         case PAWN: return PAWN_PSQT[square];
     }
 }
+
+bool Board::is_lone_king(Color color) const {
+    if (pieces[color].size() == 1) {
+        return true;
+    }
+    return false;
+}
+
+bool Board::is_endgame() const {
+    return game_state.material[WHITE] - KING_VALUE < 1500 && 
+           game_state.material[BLACK] - KING_VALUE < 1500;
+}
