@@ -4,6 +4,8 @@
 #include <stdexcept>
 #include <string>
 
+#include "utils.hpp"
+
 
 Board Board::get_starting_position() {
     return get_position_from_fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
