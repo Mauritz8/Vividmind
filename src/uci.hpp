@@ -23,8 +23,8 @@ class UCI {
 
         static const int MOVE_OVERHEAD = 50;
 
-        void uci();
-        void isready();
+        static void uci();
+        static void isready();
         void position(const std::string& position);
         void go(const std::string& arguments);
 
