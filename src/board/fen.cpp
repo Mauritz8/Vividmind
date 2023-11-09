@@ -1,6 +1,7 @@
 #include "board.hpp"
 
 #include <sstream>
+#include <string>
 
 
 Board Board::get_starting_position() {
@@ -8,10 +9,17 @@ Board Board::get_starting_position() {
 }
 
 Board Board::get_position_from_fen(std::string fen) {
-    std::istringstream ss(fen);
+    std::istringstream fen_stream(fen);
     std::array<std::string, 6> fen_parts;
-    for (int i = 0; i < 6; i++) {
-        std::getline(ss, fen_parts[i], ' ');
+
+    int i = 0;
+    std::string fen_part;
+    while (std::getline(fen_stream, fen_part, ' ')) {
+        fen_parts[i++] = fen_part;
+    }
+
+    if (i != 6) {
+        throw std::invalid_argument("Invalid FEN: Does not contain six parts\n");
     }
 
     Board board;

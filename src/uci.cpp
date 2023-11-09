@@ -82,11 +82,20 @@ void UCI::position(std::istringstream& arguments) {
     } else if (token == "fen") {
         std::string fen;
         std::string fen_part;
-        for (int i = 0; i < 6; i++) {
-            std::getline(arguments, fen_part, ' ');
-            fen += fen_part + ' ';
+
+        int i = 0;
+        while (std::getline(arguments, fen_part, ' ') && i < 6) {
+            fen += fen_part;
+            if (i < 5) {
+                fen += ' ';
+            }
+            i++;
         }
-        board = Board::get_position_from_fen(fen);
+        try {
+            board = Board::get_position_from_fen(fen);
+        } catch (const std::invalid_argument& e) {
+            std::cout << e.what(); 
+        }
     } else return;
 
     std::getline(arguments, token, ' ');
