@@ -1,5 +1,6 @@
-#include "engine/uci.hpp"
+#include "uci.hpp"
 
+#include <cmath>
 #include <iostream>
 #include <sstream>
 #include <stdexcept>
@@ -7,13 +8,13 @@
 #include <vector>
 
 #include "move.hpp"
-#include "move_generator.hpp"
+#include "move_gen.hpp"
 
 
 UCI::UCI(Board& board) 
     : board(board)
     , move_gen(board)
-    , engine(board, move_gen)
+    , search(board, move_gen)
 {}
 
 void UCI::process(const std::string& command) {
@@ -28,6 +29,30 @@ void UCI::process(const std::string& command) {
     } else if (command == "quit") {
         exit(0);
     }
+    std::cout.flush();
+}
+
+void UCI::show(const SearchSummary& search_summary) {
+    std::cout << "info";
+    std::cout << " depth " << search_summary.depth;
+    if (std::abs(search_summary.score) > CHECKMATE_THRESHOLD) {
+        const int ply = CHECKMATE - std::abs(search_summary.score);
+        const int mate_in_x = std::ceil(ply / 2.0);
+        const int sign = search_summary.score > 0 ? 1 : -1;
+        std::cout << " score mate " << sign * mate_in_x;
+    } else {
+        std::cout << " score cp " << search_summary.score;
+    }
+    std::cout << " nodes " << search_summary.nodes;
+    std::cout << " nps " << (search_summary.time == 0 
+        ? search_summary.nodes * 1000 / 1
+        : search_summary.nodes * 1000 / search_summary.time);
+    std::cout << " time " << search_summary.time;
+    std::cout << " pv";
+    for (const Move& move : search_summary.pv) {
+        std::cout << " " << move.to_uci_notation();
+    }
+    std::cout << "\n";
     std::cout.flush();
 }
 
@@ -65,18 +90,7 @@ void UCI::position(const std::string& position) {
 }
 
 void UCI::go(const std::string& arguments) {
-    engine.search_params = {
-        .depth = Engine::MAX_PLY,
-        .allocated_time = 0,
-        .game_time = GameTime{
-            .wtime = 0,
-            .btime = 0,
-            .winc = 0,
-            .binc = 0,
-            .moves_to_go = 0
-        },
-        .search_mode = INFINITE
-    };
+    search.params = SearchParams();
 
     std::istringstream ss(arguments);
     std::string token;
@@ -85,15 +99,15 @@ void UCI::go(const std::string& arguments) {
         std::getline(ss, argument, ' ');
 
         if (token == "wtime") {
-            engine.search_params.game_time.wtime = std::stoi(argument);
+            search.params.game_time.wtime = std::stoi(argument);
         } else if (token == "btime") {
-            engine.search_params.game_time.btime = std::stoi(argument);
+            search.params.game_time.btime = std::stoi(argument);
         } else if (token == "winc") {
-            engine.search_params.game_time.winc = std::stoi(argument);
+            search.params.game_time.winc = std::stoi(argument);
         } else if (token == "binc") {
-            engine.search_params.game_time.binc = std::stoi(argument);
+            search.params.game_time.binc = std::stoi(argument);
         } else if (token == "movestogo") {
-            engine.search_params.game_time.moves_to_go = std::stoi(argument);
+            search.params.game_time.moves_to_go = std::stoi(argument);
         }
         
 
@@ -105,23 +119,23 @@ void UCI::go(const std::string& arguments) {
 
         else if (token == "depth") {
             int depth =  std::stoi(argument);
-            engine.search_params.search_mode = DEPTH;
-            engine.search_params.depth = depth;
+            search.params.search_mode = DEPTH;
+            search.params.depth = depth;
         } else if (token == "movetime") {
             int movetime =  std::stoi(argument);
-            engine.search_params.search_mode = MOVE_TIME;
-            engine.search_params.allocated_time = movetime - MOVE_OVERHEAD;
+            search.params.search_mode = MOVE_TIME;
+            search.params.allocated_time = movetime - MOVE_OVERHEAD;
         }
     }
     
-    if (engine.search_params.game_time.wtime != 0 &&
-        engine.search_params.game_time.btime != 0) 
+    if (search.params.game_time.wtime != 0 &&
+        search.params.game_time.btime != 0) 
     {
-        engine.search_params.search_mode = MOVE_TIME;
-        engine.search_params.allocated_time = engine.get_allocated_time() - MOVE_OVERHEAD;
+        search.params.search_mode = MOVE_TIME;
+        search.params.allocated_time = search.calc_allocated_time() - MOVE_OVERHEAD;
     }
 
-    engine.iterative_deepening_search();
+    search.iterative_deepening_search();
 }
 
 

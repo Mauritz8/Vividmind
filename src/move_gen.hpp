@@ -1,9 +1,10 @@
-#ifndef MOVE_GENERATOR_HPP
-#define MOVE_GENERATOR_HPP
+#ifndef MOVE_GEN_HPP
+#define MOVE_GEN_HPP
 
 #include <vector>
 
 #include "board.hpp"
+#include "defs.hpp"
 #include "move.hpp"
 #include "piece.hpp"
 

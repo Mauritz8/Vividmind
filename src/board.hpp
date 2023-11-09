@@ -6,33 +6,15 @@
 #include <string>
 #include <vector>
 
+#include "defs.hpp"
 #include "move.hpp"
 #include "piece.hpp"
 #include "square.hpp"
+#include "board/defs.hpp"
 
-
-struct Castling {
-    bool kingside;
-    bool queenside;
-};
-
-struct GameState {
-    Color player_to_move;
-    std::array<Castling, 2> castling_rights;
-    std::optional<int> en_passant_square;
-    int halfmove_clock;
-    int fullmove_number;
-    std::array<int, 2> material;
-    std::array<int, 2> psqt;
-    std::optional<Piece> captured_piece;
-    Move next_move;
-};
 
 class Board {
     public:
-        const static std::array<int, 120> mailbox;
-        const static std::array<int, 64> mailbox64;
-
         std::array<Square, 64> squares;
         std::array<std::vector<Piece>, 2> pieces;
         GameState game_state;
@@ -47,12 +29,16 @@ class Board {
 
         void show() const;
         void switch_player_to_move();
+        int get_king_square(Color color) const;
+
         void make(const Move& move);
         void undo();
-        int get_king_square(Color color) const;
+
         bool is_insufficient_material() const;
         bool is_threefold_repetition() const;
         bool is_draw_by_fifty_move_rule() const;
+
+        int evaluate() const;
 
     private:
         void place_pieces(const std::string& pieces);

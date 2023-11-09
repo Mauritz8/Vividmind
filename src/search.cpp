@@ -1,24 +1,22 @@
-#include "engine/engine.hpp"
+#include "search.hpp"
 
-#include <algorithm>
 #include <chrono>
-#include <cmath>
 #include <iostream>
-#include <limits.h>
 #include <optional>
 #include <vector>
 
+#include "defs.hpp"
 #include "move.hpp"
-#include "move_generator.hpp"
-#include "piece.hpp"
+#include "move_gen.hpp"
+#include "uci.hpp"
 
 
-Engine::Engine(Board& board, MoveGenerator& move_gen) 
+Search::Search(Board& board, MoveGenerator& move_gen) 
     : board(board)
     , move_gen(move_gen)
 {}
 
-void Engine::iterative_deepening_search() {
+void Search::iterative_deepening_search() {
     // initialize alpha/beta to the value of immediate checkmate 
     // so any legal move will be considered better
     const int alpha = -CHECKMATE;
@@ -26,12 +24,7 @@ void Engine::iterative_deepening_search() {
 
     // Create a new SearchInfo object 
     // it contains all the relevant info about the search
-    search_info = SearchInfo();
-
-    // keep track of when the search started,
-    // so that it can stop if the allocated time runs out
-    search_info.start_time = std::chrono::high_resolution_clock::now();
-
+    info = SearchInfo();
 
     // will be updated whenever a new best move is found
     Move best_move;
@@ -39,29 +32,29 @@ void Engine::iterative_deepening_search() {
     // search the position at increasing depths
     // until either the final depth is reached,
     // or it is terminated
-    while (search_info.depth < search_params.depth && !search_info.is_terminated) {
-        search_info.depth++;
+    while (info.depth < params.depth && !info.is_terminated) {
+        info.depth++;
 
         // will be updated every time a new best line is found
         std::vector<Move> principal_variation;
 
         // alpha-beta function
         // evaluate the position at the current depth
-        const int evaluation = search(search_info.depth, alpha, beta, principal_variation);
+        const int evaluation = search(info.depth, alpha, beta, principal_variation);
 
         // if the search has not been terminated
         // then we can use the result from the search at this depth 
-        if (!search_info.is_terminated) {
+        if (!info.is_terminated) {
             SearchSummary search_summary = {
-                .depth = search_info.depth,
+                .depth = info.depth,
                 .score = evaluation,
-                .nodes = search_info.nodes,
-                .time = search_info.time_elapsed(),
+                .nodes = info.nodes,
+                .time = info.time_elapsed(),
                 .pv = principal_variation
             };
             best_move = search_summary.pv.at(0);
 
-            show_uci_info(search_summary);
+            UCI::show(search_summary);
         }
 
     }
@@ -69,21 +62,14 @@ void Engine::iterative_deepening_search() {
     std::cout << "bestmove " << best_move.to_uci_notation() << "\n";
 }
 
-int Engine::get_allocated_time() {
-    if (board.game_state.player_to_move == WHITE) {
-        return search_params.game_time.wtime / 20;
-    }
-    return search_params.game_time.btime / 20;
-}
-
 // alpha-beta evaluation function
-int Engine::search(int depth, int alpha, int beta, std::vector<Move>& principal_variation) {
+int Search::search(int depth, int alpha, int beta, std::vector<Move>& principal_variation) {
     // check if the search should terminate
     check_termination();
 
     // if the search has been terminated, then return immediately
     // it will only happen if the allocated time has been used up
-    if (search_info.is_terminated) {
+    if (info.is_terminated) {
         return 0;
     }
 
@@ -153,7 +139,7 @@ int Engine::search(int depth, int alpha, int beta, std::vector<Move>& principal_
         if (move_gen.is_in_check(player)) {
             // if it is checkmate return large negative value + ply_to_mate
             // to score faster checkmates higher
-            const int ply_to_mate = search_info.depth - depth;
+            const int ply_to_mate = info.depth - depth;
             return -CHECKMATE + ply_to_mate;
         }
 
@@ -165,13 +151,14 @@ int Engine::search(int depth, int alpha, int beta, std::vector<Move>& principal_
     return alpha;
 }
 
-int Engine::search_captures(int alpha, int beta) {
+int Search::search_captures(int alpha, int beta) {
     check_termination();
-    if (search_info.is_terminated) {
+    if (info.is_terminated) {
         return 0;
     }
 
-    int evaluation = evaluate();
+    info.nodes++;
+    int evaluation = board.evaluate();
     if (evaluation >= beta) {
         return beta;
     }
@@ -202,72 +189,40 @@ int Engine::search_captures(int alpha, int beta) {
     return alpha;
 }
 
-// the evaluation function is very straight forward
-// it only considers material and piece-square tables
-int Engine::evaluate() {
-    search_info.nodes++;
-
-    // the evaluation from white's point of view
-    int evaluation = 0;
-
-    // calculate the material balance from white's point of view
-    const int white_material = board.game_state.material[WHITE];
-    const int black_material = board.game_state.material[BLACK];
-    evaluation += white_material - black_material;
-
-    // calculate the difference between the piece-square table values 
-    // also from white's point of view
-    const int white_psqt = board.game_state.psqt[WHITE];
-    const int black_psqt = board.game_state.psqt[BLACK];
-    evaluation += white_psqt - black_psqt;
-
-    // always return the score from the view of the player to move
-    // so a positive value always means a good position
-    // and a negative value means a bad position
-    if (board.game_state.player_to_move == BLACK) {
-        return -evaluation;
-    }
-    return evaluation;
-}
-
-void Engine::show_uci_info(const SearchSummary& search_summary) const {
-    std::cout << "info";
-    std::cout << " depth " << search_summary.depth;
-    if (std::abs(search_summary.score) > CHECKMATE_THRESHOLD) {
-        const int ply = CHECKMATE - std::abs(search_summary.score);
-        const int mate_in_x = std::ceil(ply / 2.0);
-        const int sign = search_summary.score > 0 ? 1 : -1;
-        std::cout << " score mate " << sign * mate_in_x;
-    } else {
-        std::cout << " score cp " << search_summary.score;
-    }
-    std::cout << " nodes " << search_summary.nodes;
-    std::cout << " nps " << (search_summary.time == 0 
-        ? search_summary.nodes * 1000 / 1
-        : search_summary.nodes * 1000 / search_summary.time);
-    std::cout << " time " << search_summary.time;
-    std::cout << " pv";
-    for (const Move& move : search_summary.pv) {
-        std::cout << " " << move.to_uci_notation();
-    }
-    std::cout << "\n";
-    std::cout.flush();
-}
-
-void Engine::check_termination() {
-    switch (search_params.search_mode) {
+void Search::check_termination() {
+    switch (params.search_mode) {
         case DEPTH:
-            if (search_info.depth > search_params.depth && search_info.depth > 1) {
-                search_info.is_terminated = true;
+            if (info.depth > params.depth && info.depth > 1) {
+                info.is_terminated = true;
             }
             break;
         case MOVE_TIME:
-            if (search_info.time_elapsed() > search_params.allocated_time) {
-                search_info.is_terminated = true;
+            if (info.time_elapsed() > params.allocated_time) {
+                info.is_terminated = true;
             }
             break;
         case INFINITE: break;
     }
+}
+
+SearchParams::SearchParams() {
+    depth = MAX_PLY;
+    allocated_time = 0;
+    game_time = GameTime{
+        .wtime = 0,
+        .btime = 0,
+        .winc = 0,
+        .binc = 0,
+        .moves_to_go = 0
+    };
+    search_mode = INFINITE;
+}
+
+SearchInfo::SearchInfo() {
+    start_time = std::chrono::high_resolution_clock::now();
+    depth = 0;
+    nodes = 0;
+    is_terminated = false;
 }
 
 int SearchInfo::time_elapsed() const {

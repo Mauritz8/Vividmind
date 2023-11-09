@@ -2,7 +2,7 @@
 #include <string>
 
 #include "board.hpp"
-#include "engine/uci.hpp"
+#include "uci.hpp"
 
 
 int main() {

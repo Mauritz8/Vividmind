@@ -1,16 +1,15 @@
 #ifndef PIECE_HPP
 #define PIECE_HPP
 
-
-enum PieceType {PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING};
-enum Color {WHITE, BLACK};
-
 #define KING_VALUE 100000
 #define QUEEN_VALUE 900
 #define ROOK_VALUE 500
 #define BISHOP_VALUE 300
 #define KNIGHT_VALUE 300
 #define PAWN_VALUE 100
+
+#include "defs.hpp"
+
 
 class Piece {
     public:

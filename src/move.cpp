@@ -1,4 +1,5 @@
 #include "move.hpp"
+#include "piece.hpp"
 
 
 Move::Move(int start, int end) {
@@ -41,4 +42,3 @@ std::string Move::to_uci_notation() const {
     }
     return uci_notation;
 }
-

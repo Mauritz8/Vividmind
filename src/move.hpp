@@ -4,7 +4,7 @@
 #include <optional>
 #include <string>
 
-#include "piece.hpp"
+#include "defs.hpp"
 
 enum MoveType {NORMAL, CASTLING, PROMOTION, EN_PASSANT, PAWN_TWO_SQUARES_FORWARD};
 

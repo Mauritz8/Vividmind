@@ -3,6 +3,7 @@
 
 #include <optional>
 
+#include "defs.hpp"
 #include "piece.hpp"
 
 
