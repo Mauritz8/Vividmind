@@ -12,12 +12,14 @@ set(COMMON_SOURCES
     src/board/mailbox.cpp
     src/board/playmove.cpp
     src/board.cpp
-    src/search/time_management.cpp
-    src/search.cpp
     src/evaluation/evaluation.cpp
     src/evaluation/psqt.cpp
+    src/move_gen/king.cpp
+    src/move_gen/pawn.cpp
+    src/move_gen.cpp
+    src/search/time_management.cpp
+    src/search.cpp
     src/move.cpp
-    src/move_generator.cpp
     src/piece.cpp
     src/square.cpp
     src/uci.cpp
@@ -34,7 +36,7 @@ target_include_directories(vividmind PRIVATE
 
 
 add_executable(tests
-    tests/src/test_move_generator.cpp
+    tests/test_move_gen.cpp
     ${COMMON_SOURCES}
 )
 target_include_directories(tests PRIVATE

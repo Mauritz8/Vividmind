@@ -7,7 +7,7 @@
 
 #include "defs.hpp"
 #include "move.hpp"
-#include "move_generator.hpp"
+#include "move_gen.hpp"
 #include "uci.hpp"
 
 

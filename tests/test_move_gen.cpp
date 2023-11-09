@@ -4,7 +4,7 @@
 #include <vector>
 
 #include "board.hpp"
-#include "move_generator.hpp"
+#include "move_gen.hpp"
 #include "test_positions.cpp"
 
 struct Test {

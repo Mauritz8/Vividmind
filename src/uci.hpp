@@ -4,6 +4,7 @@
 #include <string>
 
 #include "board.hpp"
+#include "move_gen.hpp"
 #include "search.hpp"
 
 

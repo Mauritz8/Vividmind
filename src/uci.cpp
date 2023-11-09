@@ -8,7 +8,7 @@
 #include <vector>
 
 #include "move.hpp"
-#include "move_generator.hpp"
+#include "move_gen.hpp"
 
 
 UCI::UCI(Board& board) 
