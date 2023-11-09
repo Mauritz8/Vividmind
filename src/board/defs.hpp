@@ -1,3 +1,6 @@
+#ifndef BOARD_DEFS_HPP
+#define BOARD_DEFS_HPP
+
 #include <array>
 
 #include "move.hpp"
@@ -20,3 +23,5 @@ struct GameState {
     std::optional<Piece> captured_piece;
     Move next_move;
 };
+
+#endif

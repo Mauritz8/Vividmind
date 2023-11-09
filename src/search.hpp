@@ -1,5 +1,5 @@
-#ifndef ENGINE_H
-#define ENGINE_H
+#ifndef SEARCH_HPP
+#define SEARCH_HPP
 
 #include <vector>
 
@@ -8,11 +8,11 @@
 #include "search/defs.hpp"
 
 
-class Engine {
+class Search {
     public:
-        SearchParams search_params;
+        SearchParams params;
 
-        Engine(Board& board, MoveGenerator& move_gen);
+        Search(Board& board, MoveGenerator& move_gen);
 
         void iterative_deepening_search();
         int get_allocated_time();
@@ -21,13 +21,11 @@ class Engine {
         Board& board;
         MoveGenerator& move_gen;
 
-        SearchInfo search_info;
+        SearchInfo info;
 
         int search(int depth, int alpha, int beta, std::vector<Move>& principal_variation);
         int search_captures(int alpha, int beta);
-        int evaluate();
         void check_termination();
 };
-
 
 #endif

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.14)
-project(chess-engine)
+project(Vividmind)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -11,7 +11,7 @@ set(COMMON_SOURCES
     src/board/mailbox.cpp
     src/board/playmove.cpp
     src/board.cpp
-    src/engine.cpp
+    src/search.cpp
     src/evaluation/evaluation.cpp
     src/evaluation/psqt.cpp
     src/move.cpp

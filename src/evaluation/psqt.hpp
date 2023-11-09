@@ -1,5 +1,5 @@
-#ifndef PSQT_H
-#define PSQT_H
+#ifndef PSQT_HPP
+#define PSQT_HPP
 
 #include <array>
 

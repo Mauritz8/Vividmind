@@ -1,10 +1,10 @@
-#ifndef UCI_H
-#define UCI_H
+#ifndef UCI_HPP
+#define UCI_HPP
 
 #include <string>
 
 #include "board.hpp"
-#include "engine.hpp"
+#include "search.hpp"
 
 
 class UCI {
@@ -17,7 +17,7 @@ class UCI {
     private:
         Board& board;
         MoveGenerator move_gen;
-        Engine engine;
+        Search search;
 
         static const int MOVE_OVERHEAD = 50;
 

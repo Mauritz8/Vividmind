@@ -41,6 +41,8 @@ class Board {
         bool is_threefold_repetition() const;
         bool is_draw_by_fifty_move_rule() const;
 
+        int evaluate() const;
+
     private:
         void place_pieces(const std::string& pieces);
         void set_player_to_move(const std::string& player_to_move);

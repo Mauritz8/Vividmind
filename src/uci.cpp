@@ -14,7 +14,7 @@
 UCI::UCI(Board& board) 
     : board(board)
     , move_gen(board)
-    , engine(board, move_gen)
+    , search(board, move_gen)
 {}
 
 void UCI::process(const std::string& command) {
@@ -90,7 +90,7 @@ void UCI::position(const std::string& position) {
 }
 
 void UCI::go(const std::string& arguments) {
-    engine.search_params = SearchParams();
+    search.params = SearchParams();
 
     std::istringstream ss(arguments);
     std::string token;
@@ -99,15 +99,15 @@ void UCI::go(const std::string& arguments) {
         std::getline(ss, argument, ' ');
 
         if (token == "wtime") {
-            engine.search_params.game_time.wtime = std::stoi(argument);
+            search.params.game_time.wtime = std::stoi(argument);
         } else if (token == "btime") {
-            engine.search_params.game_time.btime = std::stoi(argument);
+            search.params.game_time.btime = std::stoi(argument);
         } else if (token == "winc") {
-            engine.search_params.game_time.winc = std::stoi(argument);
+            search.params.game_time.winc = std::stoi(argument);
         } else if (token == "binc") {
-            engine.search_params.game_time.binc = std::stoi(argument);
+            search.params.game_time.binc = std::stoi(argument);
         } else if (token == "movestogo") {
-            engine.search_params.game_time.moves_to_go = std::stoi(argument);
+            search.params.game_time.moves_to_go = std::stoi(argument);
         }
         
 
@@ -119,23 +119,23 @@ void UCI::go(const std::string& arguments) {
 
         else if (token == "depth") {
             int depth =  std::stoi(argument);
-            engine.search_params.search_mode = DEPTH;
-            engine.search_params.depth = depth;
+            search.params.search_mode = DEPTH;
+            search.params.depth = depth;
         } else if (token == "movetime") {
             int movetime =  std::stoi(argument);
-            engine.search_params.search_mode = MOVE_TIME;
-            engine.search_params.allocated_time = movetime - MOVE_OVERHEAD;
+            search.params.search_mode = MOVE_TIME;
+            search.params.allocated_time = movetime - MOVE_OVERHEAD;
         }
     }
     
-    if (engine.search_params.game_time.wtime != 0 &&
-        engine.search_params.game_time.btime != 0) 
+    if (search.params.game_time.wtime != 0 &&
+        search.params.game_time.btime != 0) 
     {
-        engine.search_params.search_mode = MOVE_TIME;
-        engine.search_params.allocated_time = engine.get_allocated_time() - MOVE_OVERHEAD;
+        search.params.search_mode = MOVE_TIME;
+        search.params.allocated_time = search.get_allocated_time() - MOVE_OVERHEAD;
     }
 
-    engine.iterative_deepening_search();
+    search.iterative_deepening_search();
 }
 
 
