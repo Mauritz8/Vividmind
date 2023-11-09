@@ -1,6 +1,7 @@
 #include "board.hpp"
 
 #include <sstream>
+#include <stdexcept>
 #include <string>
 
 
@@ -8,7 +9,7 @@ Board Board::get_starting_position() {
     return get_position_from_fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
 }
 
-Board Board::get_position_from_fen(std::string fen) {
+Board Board::get_position_from_fen(const std::string& fen) {
     std::istringstream fen_stream(fen);
     std::array<std::string, 6> fen_parts;
 
@@ -31,8 +32,8 @@ Board Board::get_position_from_fen(std::string fen) {
     board.set_player_to_move(fen_parts[1]);
     board.set_castling_rights(fen_parts[2]);
     board.set_en_passant_square(fen_parts[3]);
-    board.game_state.halfmove_clock = std::stoi(fen_parts[4]);
-    board.game_state.fullmove_number =  std::stoi(fen_parts[5]);
+    board.set_halfmove_clock(fen_parts[4]);
+    board.set_fullmove_number(fen_parts[5]);
     return board;
 }
 
@@ -66,7 +67,9 @@ void Board::set_player_to_move(const std::string& player_to_move) {
         this->game_state.player_to_move = WHITE;
     } else if (player_to_move == "b") {
         this->game_state.player_to_move = BLACK;
-    } 
+    } else {
+        throw std::invalid_argument("Invalid FEN: " + player_to_move + " is not a valid color\n");
+    }
 }
 
 void Board::set_castling_rights(const std::string& castling_rights) {
@@ -102,3 +105,18 @@ void Board::set_en_passant_square(const std::string& en_passant_square) {
     this->game_state.en_passant_square = x + y * 8;
 }
 
+void Board::set_halfmove_clock(const std::string& halfmove_clock) {
+    try {
+        game_state.halfmove_clock = std::stoi(halfmove_clock);
+    } catch (const std::invalid_argument& e) {
+        throw std::invalid_argument("Invalid FEN: not a valid halfmove clock value\n");
+    }
+}
+
+void Board::set_fullmove_number(const std::string& fullmove_number) {
+    try {
+        game_state.fullmove_number =  std::stoi(fullmove_number);
+    } catch (const std::invalid_argument& e) {
+        throw std::invalid_argument("Invalid FEN: not a valid fullmove number\n");
+    }
+}

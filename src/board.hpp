@@ -23,7 +23,7 @@ class Board {
         Board() {}
 
         static Board get_starting_position();
-        static Board get_position_from_fen(std::string fen);
+        static Board get_position_from_fen(const std::string& fen);
 
         bool operator==(const Board& board) const;
 
@@ -45,6 +45,8 @@ class Board {
         void set_player_to_move(const std::string& player_to_move);
         void set_castling_rights(const std::string& castling_rights);
         void set_en_passant_square(const std::string& en_passant_square);
+        void set_halfmove_clock(const std::string& halfmove_clock);
+        void set_fullmove_number(const std::string& fullmove_number);
 
         Piece& get_piece(Piece piece);
         void remove_piece(Piece piece);
