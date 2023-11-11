@@ -44,7 +44,6 @@ int MoveGenerator::perft(int depth) const {
 }
 
 void MoveGenerator::divide(int depth) const {
-    std::cout << "";
     int nodes_searched = 0;
     const Color player = board.game_state.player_to_move;
     std::vector<Move> pseudo_legal_moves = get_pseudo_legal_moves(ALL);

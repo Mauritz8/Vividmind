@@ -59,8 +59,7 @@ void UCI::show(const SearchSummary& search_summary) {
     for (const Move& move : search_summary.pv) {
         std::cout << " " << move.to_uci_notation();
     }
-    std::cout << "\n";
-    std::cout.flush();
+    std::cout << std::endl;
 }
 
 void UCI::bestmove(const Move& move) {
