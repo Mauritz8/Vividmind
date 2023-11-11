@@ -72,13 +72,6 @@ int Search::search(int depth, int alpha, int beta, std::vector<Move>& principal_
         return 0;
     }
 
-    if (board.is_insufficient_material() || 
-        board.is_threefold_repetition()  ||
-        board.is_draw_by_fifty_move_rule()) 
-    {
-        return DRAW;
-    }
-
     // after the search has concluded, 
     // see if there are any winning/losing captures in the position
     // that might change the evaluation of the position
@@ -104,8 +97,20 @@ int Search::search(int depth, int alpha, int beta, std::vector<Move>& principal_
 
         std::vector<Move> variation;
 
-        // call search function again and decrease the depth
-        const int evaluation = -search(depth - 1, -beta, -alpha, variation);
+
+        // assume the position is a draw
+        int evaluation = DRAW;
+
+        // if it's not a draw we must search further 
+        const bool is_draw = 
+            board.is_insufficient_material() ||
+            board.is_threefold_repetition()  ||
+            board.is_draw_by_fifty_move_rule();
+        if (!is_draw) {
+            // call search function again and decrease the depth
+            evaluation = -search(depth - 1, -beta, -alpha, variation);
+        }
+
 
         board.undo();
 
