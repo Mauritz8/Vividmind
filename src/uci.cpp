@@ -86,7 +86,7 @@ void UCI::position(std::istringstream& arguments) {
         std::string fen_part;
 
         int i = 0;
-        while (std::getline(arguments, fen_part, ' ') && i < 6) {
+        while (i < 6 && std::getline(arguments, fen_part, ' ')) {
             fen += fen_part;
             if (i < 5) {
                 fen += ' ';
