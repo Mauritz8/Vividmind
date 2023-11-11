@@ -189,9 +189,13 @@ int Search::search_captures(int alpha, int beta) {
 }
 
 void Search::check_termination() {
+    // don't terminate if search hasn't completed to depth 1 at least
+    // because then we haven't found a best move yet
+    if (info.depth < 2) return;
+
     switch (params.search_mode) {
         case DEPTH:
-            if (info.depth > params.depth && info.depth > 1) {
+            if (info.depth > params.depth) {
                 info.is_terminated = true;
             }
             break;
