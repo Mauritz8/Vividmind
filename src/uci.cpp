@@ -41,6 +41,7 @@ void UCI::process(const std::string& input) {
 void UCI::show(const SearchSummary& search_summary) {
     std::cout << "info";
     std::cout << " depth " << search_summary.depth;
+    std::cout << " multipv 1";
     if (std::abs(search_summary.score) > CHECKMATE_THRESHOLD) {
         const int ply = CHECKMATE - std::abs(search_summary.score);
         const int mate_in_x = std::ceil(ply / 2.0);
