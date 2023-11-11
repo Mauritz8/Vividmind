@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <thread>
 
 #include "board.hpp"
 #include "uci.hpp"
@@ -12,7 +13,11 @@ int main() {
     std::string input;
     while (true) {
         std::getline(std::cin, input);
-        uci.process(input);
+
+        std::thread thread([&uci, input] {
+            uci.process(input);
+        });
+        thread.detach();
     }
 
     return 0;

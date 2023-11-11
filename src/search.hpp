@@ -11,6 +11,7 @@
 class Search {
     public:
         SearchParams params;
+        SearchInfo info;
 
         Search(Board& board, MoveGenerator& move_gen);
 
@@ -20,8 +21,6 @@ class Search {
     private:
         Board& board;
         MoveGenerator& move_gen;
-
-        SearchInfo info;
 
         int search(int depth, int alpha, int beta, std::vector<Move>& principal_variation);
         int search_captures(int alpha, int beta);

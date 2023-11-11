@@ -30,6 +30,8 @@ void UCI::process(const std::string& input) {
         position(input_stream);
     } else if (command == "go") {
         go(input_stream);
+    } else if (command == "stop") {
+        search.info.is_terminated = true;
     } else if (command == "quit") {
         exit(0);
     }
