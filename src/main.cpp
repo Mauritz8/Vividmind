@@ -13,11 +13,7 @@ int main() {
     std::string input;
     while (true) {
         std::getline(std::cin, input);
-
-        std::thread thread([&uci, input] {
-            uci.process(input);
-        });
-        thread.detach();
+        uci.process(input);
     }
 
     return 0;
