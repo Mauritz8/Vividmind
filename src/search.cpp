@@ -46,6 +46,7 @@ void Search::iterative_deepening_search() {
         if (!info.is_terminated) {
             SearchSummary search_summary = {
                 .depth = info.depth,
+                .seldepth = info.seldepth,
                 .score = evaluation,
                 .nodes = info.nodes,
                 .time = info.time_elapsed(),
@@ -76,7 +77,7 @@ int Search::search(int depth, int alpha, int beta, std::vector<Move>& principal_
     // see if there are any winning/losing captures in the position
     // that might change the evaluation of the position
     if (depth == 0) {
-        return search_captures(alpha, beta);
+        return search_captures(alpha, beta, principal_variation);
     }
 
     const Color player = board.game_state.player_to_move;
@@ -90,6 +91,10 @@ int Search::search(int depth, int alpha, int beta, std::vector<Move>& principal_
         if (move_gen.is_in_check(player)) {
             board.undo();
             continue;
+        }
+        info.ply_from_root++;
+        if (info.ply_from_root > info.seldepth) {
+            info.seldepth = info.ply_from_root;
         }
 
         // if the move didn't leave the king in check, it's a legal move
@@ -113,6 +118,7 @@ int Search::search(int depth, int alpha, int beta, std::vector<Move>& principal_
 
 
         board.undo();
+        info.ply_from_root--;
 
         // if the evaluation is higher than beta
         // it means that the this move is guaranteed to be worse than a previous move we could play
@@ -155,7 +161,7 @@ int Search::search(int depth, int alpha, int beta, std::vector<Move>& principal_
     return alpha;
 }
 
-int Search::search_captures(int alpha, int beta) {
+int Search::search_captures(int alpha, int beta, std::vector<Move>& principal_variation) {
     check_termination();
     if (info.is_terminated) {
         return 0;
@@ -179,14 +185,24 @@ int Search::search_captures(int alpha, int beta) {
             board.undo();
             continue;
         }
-        evaluation = -search_captures(-beta, -alpha);
+
+        info.ply_from_root++;
+        if (info.ply_from_root > info.seldepth) {
+            info.seldepth = info.ply_from_root;
+        }
+
+        std::vector<Move> variation;
+        evaluation = -search_captures(-beta, -alpha, variation);
         board.undo();
+        info.ply_from_root--;
 
         if (evaluation >= beta) {
             return beta;
         }
         if (evaluation > alpha) {
             alpha = evaluation;
+            variation.insert(variation.begin(), capture);
+            principal_variation = variation;
         }
     }
 
