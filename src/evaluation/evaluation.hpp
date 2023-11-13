@@ -1,8 +1,17 @@
-#include "psqt.hpp"
-#include "board.hpp"
+#ifndef PSQT_HPP
+#define PSQT_HPP
+
+#include <array>
 
 
-std::array<int, 64> KING_PSQT = {
+const int KING_VALUE = 100000;
+const int QUEEN_VALUE = 900;
+const int ROOK_VALUE = 500;
+const int BISHOP_VALUE = 300;
+const int KNIGHT_VALUE = 300;
+const int PAWN_VALUE = 100;
+
+const std::array<int, 64> KING_PSQT = {
     -30,-40,-40,-50,-50,-40,-40,-30,
     -30,-40,-40,-50,-50,-40,-40,-30,
     -30,-40,-40,-50,-50,-40,-40,-30,
@@ -13,7 +22,7 @@ std::array<int, 64> KING_PSQT = {
      20, 30, 10,  0,  0, 10, 30, 20,
 };
 
-std::array<int, 64> KING_ENDGAME_PSQT = {
+const std::array<int, 64> KING_ENDGAME_PSQT = {
     -50,-40,-30,-20,-20,-30,-40,-50,
     -30,-20,-10,  0,  0,-10,-20,-30,
     -30,-10, 20, 30, 30, 20,-10,-30,
@@ -24,7 +33,7 @@ std::array<int, 64> KING_ENDGAME_PSQT = {
     -50,-30,-30,-30,-30,-30,-30,-50
 };
 
-std::array<int, 64> BISHOP_PSQT = {
+const std::array<int, 64> BISHOP_PSQT = {
     -20,-10,-10,-10,-10,-10,-10,-20,
     -10,  0,  0,  0,  0,  0,  0,-10,
     -10,  0,  5, 10, 10,  5,  0,-10,
@@ -35,7 +44,7 @@ std::array<int, 64> BISHOP_PSQT = {
     -20,-10,-10,-10,-10,-10,-10,-20,
 };
 
-std::array<int, 64> KNIGHT_PSQT = {
+const std::array<int, 64> KNIGHT_PSQT = {
     -50,-40,-30,-30,-30,-30,-40,-50,
     -40,-20,  0,  0,  0,  0,-20,-40,
     -30,  0, 10, 15, 15, 10,  0,-30,
@@ -46,7 +55,7 @@ std::array<int, 64> KNIGHT_PSQT = {
     -50,-40,-30,-30,-30,-30,-40,-50,
 };
 
-std::array<int, 64> PAWN_PSQT = {
+const std::array<int, 64> PAWN_PSQT = {
       0,  0,  0,  0,  0,  0,  0,  0,
      50, 50, 50, 50, 50, 50, 50, 50,
      10, 10, 20, 30, 30, 20, 10, 10,
@@ -57,7 +66,7 @@ std::array<int, 64> PAWN_PSQT = {
       0,  0,  0,  0,  0,  0,  0,  0,
 };
 
-std::array<int, 64> QUEEN_PSQT = {
+const std::array<int, 64> QUEEN_PSQT = {
     -20,-10,-10, -5, -5,-10,-10,-20,
     -10,  0,  0,  0,  0,  0,  0,-10,
     -10,  0,  5,  5,  5,  5,  0,-10,
@@ -68,7 +77,7 @@ std::array<int, 64> QUEEN_PSQT = {
     -20,-10,-10, -5, -5,-10,-10,-20,
 };
 
-std::array<int, 64> ROOK_PSQT = {
+const std::array<int, 64> ROOK_PSQT = {
       0,  0,  0,  0,  0,  0,  0,  0,
       5, 10, 10, 10, 10, 10, 10,  5,
      -5,  0,  0,  0,  0,  0,  0, -5,
@@ -79,7 +88,11 @@ std::array<int, 64> ROOK_PSQT = {
       0,  0,  0,  5,  5,  0,  0,  0,
 };
 
-std::array<int, 64> KING_MATE = {
+
+// used when there is only the king left
+// in order to force the king to the edge of the board
+// and eventually mate
+const std::array<int, 64> KING_MATE = {
     -50,-50,-50,-50,-50,-50,-50,-50,
     -50,-30,-30,-30,-30,-30,-30,-50,
     -50,-30, 30, 30, 30, 30,-30,-50,
@@ -90,37 +103,4 @@ std::array<int, 64> KING_MATE = {
     -50,-50,-50,-50,-50,-50,-50,-50,
 };
 
-
-int Board::get_psqt_score(const Piece& piece) const {
-    const int x = piece.pos % 8;
-    const int y = piece.pos / 8;
-    const int square = piece.color == WHITE ? piece.pos : x + (7 - y) * 8;
-    switch (piece.piece_type) {
-        case KING: {
-            if (is_lone_king(piece.color)) {
-                return KING_MATE[square];
-            }
-            if (is_endgame()) {
-                return KING_ENDGAME_PSQT[square];
-            }
-            return KING_PSQT[square];
-        }
-        case QUEEN: return QUEEN_PSQT[square];
-        case ROOK: return ROOK_PSQT[square];
-        case BISHOP: return BISHOP_PSQT[square];
-        case KNIGHT: return KNIGHT_PSQT[square];
-        case PAWN: return PAWN_PSQT[square];
-    }
-}
-
-bool Board::is_lone_king(Color color) const {
-    if (pieces[color].size() == 1) {
-        return true;
-    }
-    return false;
-}
-
-bool Board::is_endgame() const {
-    return game_state.material[WHITE] - KING_VALUE < 1500 && 
-           game_state.material[BLACK] - KING_VALUE < 1500;
-}
+#endif

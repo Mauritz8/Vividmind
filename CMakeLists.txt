@@ -12,7 +12,6 @@ set(COMMON_SOURCES
     src/board/playmove.cpp
     src/board.cpp
     src/evaluation/evaluation.cpp
-    src/evaluation/psqt.cpp
     src/move_gen/king.cpp
     src/move_gen/pawn.cpp
     src/move_gen.cpp
@@ -37,7 +36,6 @@ target_include_directories(vividmind PRIVATE
 
 add_executable(tests
     tests/test_move_gen.cpp
-    tests/test_positions.cpp
     ${COMMON_SOURCES}
 )
 target_include_directories(tests PRIVATE
