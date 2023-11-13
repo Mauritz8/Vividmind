@@ -1,8 +1,5 @@
 #include "piece.hpp"
 
-#include <cctype>
-#include <stdexcept>
-
 #include "utils.hpp"
 
 
@@ -24,15 +21,4 @@ bool Piece::operator!=(Piece piece) const {
 
 char Piece::get_char_representation() const {
     return ::get_char_representation(piece_type);
-}
-
-int Piece::get_value() const {
-    switch (piece_type) {
-        case KING: return KING_VALUE;
-        case QUEEN: return QUEEN_VALUE;
-        case ROOK: return ROOK_VALUE;
-        case BISHOP: return BISHOP_VALUE;
-        case KNIGHT: return KNIGHT_VALUE;
-        case PAWN: return PAWN_VALUE;
-    }
 }

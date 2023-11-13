@@ -1,4 +1,7 @@
-#include "search.hpp"
+#include "evaluation.hpp"
+
+#include "board.hpp"
+#include "piece.hpp"
 
 
 // the evaluation function is very straight forward
@@ -26,4 +29,49 @@ int Board::evaluate() const {
         return -evaluation;
     }
     return evaluation;
+}
+
+int Piece::get_value() const {
+    switch (piece_type) {
+        case KING: return KING_VALUE;
+        case QUEEN: return QUEEN_VALUE;
+        case ROOK: return ROOK_VALUE;
+        case BISHOP: return BISHOP_VALUE;
+        case KNIGHT: return KNIGHT_VALUE;
+        case PAWN: return PAWN_VALUE;
+    }
+}
+
+int Board::get_psqt_score(const Piece& piece) const {
+    const int x = piece.pos % 8;
+    const int y = piece.pos / 8;
+    const int square = piece.color == WHITE ? piece.pos : x + (7 - y) * 8;
+    switch (piece.piece_type) {
+        case KING: {
+            if (is_lone_king(piece.color)) {
+                return KING_MATE[square];
+            }
+            if (is_endgame()) {
+                return KING_ENDGAME_PSQT[square];
+            }
+            return KING_PSQT[square];
+        }
+        case QUEEN: return QUEEN_PSQT[square];
+        case ROOK: return ROOK_PSQT[square];
+        case BISHOP: return BISHOP_PSQT[square];
+        case KNIGHT: return KNIGHT_PSQT[square];
+        case PAWN: return PAWN_PSQT[square];
+    }
+}
+
+bool Board::is_lone_king(Color color) const {
+    if (pieces[color].size() == 1) {
+        return true;
+    }
+    return false;
+}
+
+bool Board::is_endgame() const {
+    return game_state.material[WHITE] - KING_VALUE < 1500 && 
+           game_state.material[BLACK] - KING_VALUE < 1500;
 }
