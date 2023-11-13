@@ -23,7 +23,7 @@ class Search {
         MoveGenerator& move_gen;
 
         int search(int depth, int alpha, int beta, std::vector<Move>& principal_variation);
-        int search_captures(int alpha, int beta);
+        int search_captures(int alpha, int beta, std::vector<Move>& principal_variation);
         void check_termination();
 };
 

@@ -34,6 +34,8 @@ struct SearchInfo {
     std::chrono::time_point<std::chrono::high_resolution_clock> start_time; 
 
     int depth;
+    int ply_from_root;
+    int seldepth;
     long nodes;
     bool is_terminated;
 
@@ -44,6 +46,7 @@ struct SearchInfo {
 
 struct SearchSummary {
     int depth;
+    int seldepth;
     int score;
     long nodes;
     long time;

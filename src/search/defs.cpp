@@ -17,6 +17,8 @@ SearchParams::SearchParams() {
 SearchInfo::SearchInfo() {
     start_time = std::chrono::high_resolution_clock::now();
     depth = 0;
+    ply_from_root = 0;
+    seldepth = 0;
     nodes = 0;
     is_terminated = false;
 }
