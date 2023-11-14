@@ -13,7 +13,7 @@ std::vector<Move> MoveGenerator::get_king_normal_moves(const Piece& piece, MoveC
             continue;
         }
 
-        if (move_category == CAPTURES && board.squares[end].is_occupied_by(opponent)) {
+        if (move_category == TACTICAL && board.squares[end].is_occupied_by(opponent)) {
             moves.push_back(Move(piece.pos, end));
         } else if (move_category == ALL && !board.squares[end].is_occupied_by(piece.color)) {
             moves.push_back(Move(piece.pos, end));

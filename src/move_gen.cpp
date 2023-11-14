@@ -93,7 +93,7 @@ std::vector<Move> MoveGenerator::get_pseudo_legal_moves(const Piece& piece, Move
 bool MoveGenerator::is_attacked_by(int pos, Color color) const {
     const Piece& piece = Piece(KING, get_opposite_color(color), pos);
 
-    const std::vector<Move>& rook_moves = get_rook_pseudo_legal_moves(piece, CAPTURES);
+    const std::vector<Move>& rook_moves = get_rook_pseudo_legal_moves(piece, TACTICAL);
     for (const Move& move : rook_moves) {
         const PieceType piece_type = board.squares[move.end].piece->piece_type;
         if (piece_type == ROOK || piece_type == QUEEN) {
@@ -101,7 +101,7 @@ bool MoveGenerator::is_attacked_by(int pos, Color color) const {
         }
     }
 
-    const std::vector<Move>& bishop_moves = get_bishop_pseudo_legal_moves(piece, CAPTURES);
+    const std::vector<Move>& bishop_moves = get_bishop_pseudo_legal_moves(piece, TACTICAL);
     for (const Move& move : bishop_moves) {
         const PieceType piece_type = board.squares[move.end].piece->piece_type;
         if (piece_type == BISHOP || piece_type == QUEEN) {
@@ -109,7 +109,7 @@ bool MoveGenerator::is_attacked_by(int pos, Color color) const {
         }
     }
 
-    const std::vector<Move>& knight_moves = get_knight_pseudo_legal_moves(piece, CAPTURES);
+    const std::vector<Move>& knight_moves = get_knight_pseudo_legal_moves(piece, TACTICAL);
     for (const Move& move : knight_moves) {
         if (board.squares[move.end].piece->piece_type == KNIGHT) {
             return true;
@@ -123,7 +123,7 @@ bool MoveGenerator::is_attacked_by(int pos, Color color) const {
         }
     }
 
-    const std::vector<Move> king_moves = get_king_normal_moves(piece, CAPTURES);
+    const std::vector<Move> king_moves = get_king_normal_moves(piece, TACTICAL);
     for (const Move& move : king_moves) {
         if (board.squares[move.end].piece->piece_type == KING) {
             return true;
@@ -186,7 +186,7 @@ std::vector<Move> MoveGenerator::get_knight_pseudo_legal_moves(const Piece& piec
             continue;
         }
 
-        if (move_category == CAPTURES && board.squares[end].is_occupied_by(opponent)) {
+        if (move_category == TACTICAL && board.squares[end].is_occupied_by(opponent)) {
             moves.push_back(Move(piece.pos, end));
         } else if (move_category == ALL && !board.squares[end].is_occupied_by(piece.color)) {
             moves.push_back(Move(piece.pos, end));

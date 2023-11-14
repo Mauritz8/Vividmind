@@ -184,7 +184,7 @@ int Search::quiescence(int alpha, int beta, std::vector<Move>& principal_variati
 
 
     const Color player = board.game_state.player_to_move;
-    std::vector<Move> captures = move_gen.get_pseudo_legal_moves(CAPTURES);
+    std::vector<Move> captures = move_gen.get_pseudo_legal_moves(TACTICAL);
     for (const Move& capture : captures) {
         board.make(capture);
         if (move_gen.is_in_check(player)) {
