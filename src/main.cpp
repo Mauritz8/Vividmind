@@ -1,6 +1,5 @@
 #include <iostream>
 #include <string>
-#include <thread>
 
 #include "board.hpp"
 #include "uci.hpp"

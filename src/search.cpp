@@ -39,7 +39,7 @@ void Search::iterative_deepening_search() {
 
         // alpha-beta function
         // evaluate the position at the current depth
-        const int evaluation = search(info.depth, alpha, beta, principal_variation);
+        const int evaluation = alpha_beta(info.depth, alpha, beta, principal_variation);
 
         // if the search has not been terminated
         // then we can use the result from the search at this depth 
@@ -62,8 +62,7 @@ void Search::iterative_deepening_search() {
     UCI::bestmove(best_move);
 }
 
-// alpha-beta evaluation function
-int Search::search(int depth, int alpha, int beta, std::vector<Move>& principal_variation) {
+int Search::alpha_beta(int depth, int alpha, int beta, std::vector<Move>& principal_variation) {
     const Color player = board.game_state.player_to_move;
 
     // check if the search should terminate
@@ -87,7 +86,7 @@ int Search::search(int depth, int alpha, int beta, std::vector<Move>& principal_
     // see if there are any winning/losing captures in the position
     // that might change the evaluation of the position
     if (depth == 0) {
-        return search_captures(alpha, beta, principal_variation);
+        return quiescence(alpha, beta, principal_variation);
     }
 
     std::vector<Move> pseudo_legal_moves = move_gen.get_pseudo_legal_moves(ALL);
@@ -122,7 +121,7 @@ int Search::search(int depth, int alpha, int beta, std::vector<Move>& principal_
             board.is_draw_by_fifty_move_rule();
         if (!is_draw) {
             // call search function again and decrease the depth
-            evaluation = -search(depth - 1, -beta, -alpha, variation);
+            evaluation = -alpha_beta(depth - 1, -beta, -alpha, variation);
         }
 
 
@@ -168,7 +167,7 @@ int Search::search(int depth, int alpha, int beta, std::vector<Move>& principal_
     return alpha;
 }
 
-int Search::search_captures(int alpha, int beta, std::vector<Move>& principal_variation) {
+int Search::quiescence(int alpha, int beta, std::vector<Move>& principal_variation) {
     check_termination();
     if (info.is_terminated) {
         return 0;
@@ -199,7 +198,7 @@ int Search::search_captures(int alpha, int beta, std::vector<Move>& principal_va
         }
 
         std::vector<Move> variation;
-        evaluation = -search_captures(-beta, -alpha, variation);
+        evaluation = -quiescence(-beta, -alpha, variation);
         board.undo();
         info.ply_from_root--;
 
