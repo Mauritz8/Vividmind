@@ -65,10 +65,7 @@ int Board::get_psqt_score(const Piece& piece) const {
 }
 
 bool Board::is_lone_king(Color color) const {
-    if (pieces[color].size() == 1) {
-        return true;
-    }
-    return false;
+    return pieces[color].size() == 1;
 }
 
 bool Board::is_endgame() const {
