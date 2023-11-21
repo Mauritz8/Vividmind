@@ -211,7 +211,11 @@ std::vector<Move> MoveGenerator::get_pawn_pseudo_legal_moves(const Piece& piece,
     const int direction = board.game_state.player_to_move == BLACK ? 1 : -1;
     int start = piece.pos;
 
-    if (move_category == ALL) {
+
+    const int y = start / 8;
+    const int about_to_promote_row = board.game_state.player_to_move == WHITE ? 1 : 6;
+    const bool is_promotion_move = y == about_to_promote_row; 
+    if (move_category == ALL || move_category == TACTICAL && is_promotion_move) {
         const int end1 = start + 8 * direction;
         if (!board.squares[end1].piece) {
             moves.push_back(Move(start, end1));
@@ -232,8 +236,7 @@ std::vector<Move> MoveGenerator::get_pawn_pseudo_legal_moves(const Piece& piece,
     const std::vector<Move> captures = get_pawn_captures(piece);
     moves.insert(moves.end(), captures.begin(), captures.end());
 
-    int about_to_promote_row = board.game_state.player_to_move == WHITE ? 1 : 6;
-    if (start / 8 == about_to_promote_row) {
+    if (is_promotion_move) {
         const std::array<PieceType, 3> other_promotion_piece_types = {
             ROOK,
             BISHOP,
