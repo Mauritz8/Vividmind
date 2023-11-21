@@ -9,7 +9,7 @@
 #include "piece.hpp"
 
 
-enum MoveCategory {ALL, CAPTURES};
+enum MoveCategory {ALL, TACTICAL};
 
 class MoveGenerator {
     public:

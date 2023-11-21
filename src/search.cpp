@@ -39,7 +39,7 @@ void Search::iterative_deepening_search() {
 
         // alpha-beta function
         // evaluate the position at the current depth
-        const int evaluation = search(info.depth, alpha, beta, principal_variation);
+        const int evaluation = alpha_beta(info.depth, alpha, beta, principal_variation);
 
         // if the search has not been terminated
         // then we can use the result from the search at this depth 
@@ -62,8 +62,9 @@ void Search::iterative_deepening_search() {
     UCI::bestmove(best_move);
 }
 
-// alpha-beta evaluation function
-int Search::search(int depth, int alpha, int beta, std::vector<Move>& principal_variation) {
+int Search::alpha_beta(int depth, int alpha, int beta, std::vector<Move>& principal_variation) {
+    const Color player = board.game_state.player_to_move;
+
     // check if the search should terminate
     check_termination();
 
@@ -73,14 +74,21 @@ int Search::search(int depth, int alpha, int beta, std::vector<Move>& principal_
         return 0;
     }
 
+    // if player is in check, it's a good idea to look one move further
+    // because there could be tactics available
+    // after the opponent moves out of the check
+    const bool is_in_check = move_gen.is_in_check(player);
+    if (is_in_check) {
+        depth++;
+    }
+
     // after the search has concluded, 
     // see if there are any winning/losing captures in the position
     // that might change the evaluation of the position
     if (depth == 0) {
-        return search_captures(alpha, beta, principal_variation);
+        return quiescence(alpha, beta, principal_variation);
     }
 
-    const Color player = board.game_state.player_to_move;
     std::vector<Move> pseudo_legal_moves = move_gen.get_pseudo_legal_moves(ALL);
     int legal_moves_found = 0;
     for (const Move& move : pseudo_legal_moves) {
@@ -113,7 +121,7 @@ int Search::search(int depth, int alpha, int beta, std::vector<Move>& principal_
             board.is_draw_by_fifty_move_rule();
         if (!is_draw) {
             // call search function again and decrease the depth
-            evaluation = -search(depth - 1, -beta, -alpha, variation);
+            evaluation = -alpha_beta(depth - 1, -beta, -alpha, variation);
         }
 
 
@@ -146,11 +154,9 @@ int Search::search(int depth, int alpha, int beta, std::vector<Move>& principal_
 
         // if there were no legal moves and the player is in check
         // it means that it must be checkmate
-        if (move_gen.is_in_check(player)) {
-            // if it is checkmate return large negative value + ply_to_mate
-            // to score faster checkmates higher
-            const int ply_to_mate = info.depth - depth;
-            return -CHECKMATE + ply_to_mate;
+        if (is_in_check) {
+            // score faster checkmates higher
+            return -CHECKMATE + info.ply_from_root;
         }
 
         // otherwise it is stalemate
@@ -161,7 +167,7 @@ int Search::search(int depth, int alpha, int beta, std::vector<Move>& principal_
     return alpha;
 }
 
-int Search::search_captures(int alpha, int beta, std::vector<Move>& principal_variation) {
+int Search::quiescence(int alpha, int beta, std::vector<Move>& principal_variation) {
     check_termination();
     if (info.is_terminated) {
         return 0;
@@ -178,7 +184,7 @@ int Search::search_captures(int alpha, int beta, std::vector<Move>& principal_va
 
 
     const Color player = board.game_state.player_to_move;
-    std::vector<Move> captures = move_gen.get_pseudo_legal_moves(CAPTURES);
+    std::vector<Move> captures = move_gen.get_pseudo_legal_moves(TACTICAL);
     for (const Move& capture : captures) {
         board.make(capture);
         if (move_gen.is_in_check(player)) {
@@ -192,7 +198,7 @@ int Search::search_captures(int alpha, int beta, std::vector<Move>& principal_va
         }
 
         std::vector<Move> variation;
-        evaluation = -search_captures(-beta, -alpha, variation);
+        evaluation = -quiescence(-beta, -alpha, variation);
         board.undo();
         info.ply_from_root--;
 
