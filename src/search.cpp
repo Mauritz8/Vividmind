@@ -65,12 +65,9 @@ void Search::iterative_deepening_search() {
 int Search::alpha_beta(int depth, int alpha, int beta, std::vector<Move>& principal_variation) {
     const Color player = board.game_state.player_to_move;
 
-    // check if the search should terminate
-    check_termination();
-
     // if the search has been terminated, then return immediately
-    // it will only happen if the allocated time has been used up
-    if (info.is_terminated) {
+    if (is_terminate()) {
+        info.is_terminated = true;
         return 0;
     }
 
@@ -168,8 +165,8 @@ int Search::alpha_beta(int depth, int alpha, int beta, std::vector<Move>& princi
 }
 
 int Search::quiescence(int alpha, int beta, std::vector<Move>& principal_variation) {
-    check_termination();
-    if (info.is_terminated) {
+    if (is_terminate()) {
+        info.is_terminated = true;
         return 0;
     }
 
@@ -215,22 +212,23 @@ int Search::quiescence(int alpha, int beta, std::vector<Move>& principal_variati
     return alpha;
 }
 
-void Search::check_termination() {
+bool Search::is_terminate() {
     // don't terminate if search hasn't completed to depth 1 at least
     // because then we haven't found a best move yet
-    if (info.depth < 2) return;
+    if (info.depth < 2) return false;
 
     switch (params.search_mode) {
         case DEPTH:
             if (info.depth > params.depth) {
-                info.is_terminated = true;
+                return true;
             }
             break;
         case MOVE_TIME:
             if (info.time_elapsed() > params.allocated_time) {
-                info.is_terminated = true;
+                return true;
             }
             break;
-        case INFINITE: break;
+        case INFINITE: return false;
     }
+    return false;
 }

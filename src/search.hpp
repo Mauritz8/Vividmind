@@ -24,7 +24,7 @@ class Search {
 
         int alpha_beta(int depth, int alpha, int beta, std::vector<Move>& principal_variation);
         int quiescence(int alpha, int beta, std::vector<Move>& principal_variation);
-        void check_termination();
+        bool is_terminate();
 };
 
 #endif
