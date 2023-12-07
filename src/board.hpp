@@ -42,11 +42,11 @@ class Board {
 
     private:
         void place_pieces(const std::string& pieces);
-        void set_player_to_move(const std::string& player_to_move);
-        void set_castling_rights(const std::string& castling_rights);
-        void set_en_passant_square(const std::string& en_passant_square);
-        void set_halfmove_clock(const std::string& halfmove_clock);
-        void set_fullmove_number(const std::string& fullmove_number);
+        Color calc_player_to_move(const std::string& player_to_move);
+        std::array<Castling, 2> calc_castling_rights(const std::string& castling_rights_str);
+        std::optional<int> calc_en_passant_square(const std::string& en_passant_square);
+        int calc_halfmove_clock(const std::string& halfmove_clock);
+        int calc_fullmove_number(const std::string& fullmove_number);
 
         Piece& get_piece(Piece piece);
         void remove_piece(Piece piece);

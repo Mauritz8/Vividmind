@@ -31,11 +31,12 @@ Board Board::get_position_from_fen(const std::string& fen) {
     board.game_state.psqt[WHITE] = 0;
     board.game_state.psqt[BLACK] = 0;
     board.place_pieces(fen_parts[0]);
-    board.set_player_to_move(fen_parts[1]);
-    board.set_castling_rights(fen_parts[2]);
-    board.set_en_passant_square(fen_parts[3]);
-    board.set_halfmove_clock(fen_parts[4]);
-    board.set_fullmove_number(fen_parts[5]);
+    board.game_state.player_to_move = board.calc_player_to_move(fen_parts[1]);
+    board.game_state.castling_rights = board.calc_castling_rights(fen_parts[2]);
+    board.game_state.en_passant_square = board.calc_en_passant_square(fen_parts[3]);
+    board.game_state.halfmove_clock = board.calc_halfmove_clock(fen_parts[4]);
+    board.game_state.fullmove_number = board.calc_fullmove_number(fen_parts[5]);
+
     return board;
 }
 
@@ -64,60 +65,62 @@ void Board::place_pieces(const std::string& pieces) {
     }
 }
 
-void Board::set_player_to_move(const std::string& player_to_move) {
+Color Board::calc_player_to_move(const std::string& player_to_move) {
     if (player_to_move == "w") {
-        this->game_state.player_to_move = WHITE;
+        return WHITE;
     } else if (player_to_move == "b") {
-        this->game_state.player_to_move = BLACK;
+        return BLACK;
     } else {
         throw std::invalid_argument("Invalid FEN: " + player_to_move + " is not a valid color\n");
     }
 }
 
-void Board::set_castling_rights(const std::string& castling_rights) {
-    this->game_state.castling_rights[WHITE].kingside = false;
-    this->game_state.castling_rights[WHITE].queenside = false;
-    this->game_state.castling_rights[BLACK].kingside = false;
-    this->game_state.castling_rights[BLACK].queenside = false;
+std::array<Castling, 2> Board::calc_castling_rights(const std::string& castling_rights_str) {
+    std::array<Castling, 2> castling_rights;
+    castling_rights[WHITE].kingside = false;
+    castling_rights[WHITE].queenside = false;
+    castling_rights[BLACK].kingside = false;
+    castling_rights[BLACK].queenside = false;
 
-    for (char ch : castling_rights) {
+    for (char ch : castling_rights_str) {
         switch (ch) {
             case 'K':
-                this->game_state.castling_rights[WHITE].kingside = true;
+                castling_rights[WHITE].kingside = true;
                 break;
             case 'Q':
-                this->game_state.castling_rights[WHITE].queenside = true;
+                castling_rights[WHITE].queenside = true;
                 break;
             case 'k':
-                this->game_state.castling_rights[BLACK].kingside = true;
+                castling_rights[BLACK].kingside = true;
                 break;
             case 'q':
-                this->game_state.castling_rights[BLACK].queenside = true;
+                castling_rights[BLACK].queenside = true;
                 break;
         }
     }
+    return castling_rights;
 }
 
-void Board::set_en_passant_square(const std::string& en_passant_square) {
+std::optional<int> Board::calc_en_passant_square(const std::string& en_passant_square) {
     if (en_passant_square.size() != 2) {
-        return;
+        return {};
     } 
     const int x = en_passant_square[0] - 'a';
     const int y = 8 - (en_passant_square[1] - '0');
-    this->game_state.en_passant_square = x + y * 8;
+    return x + y * 8;
 }
 
-void Board::set_halfmove_clock(const std::string& halfmove_clock) {
+int Board::calc_halfmove_clock(const std::string& halfmove_clock) {
     try {
-        game_state.halfmove_clock = std::stoi(halfmove_clock);
+        return std::stoi(halfmove_clock);
     } catch (const std::invalid_argument& e) {
         throw std::invalid_argument("Invalid FEN: not a valid halfmove clock value\n");
     }
 }
 
-void Board::set_fullmove_number(const std::string& fullmove_number) {
+int Board::calc_fullmove_number(const std::string& fullmove_number) {
     try {
-        game_state.fullmove_number =  std::stoi(fullmove_number);
+        return std::stoi(fullmove_number);
     } catch (const std::invalid_argument& e) {
         throw std::invalid_argument("Invalid FEN: not a valid fullmove number\n");
     }
