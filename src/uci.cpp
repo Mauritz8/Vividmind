@@ -66,8 +66,8 @@ void UCI::bestmove(const Move& move) {
 }
 
 void UCI::uci() {
-    std::cout << "id name Vividmind\n";
-    std::cout << "id author Mauritz Sjödin\n"; 
+    std::cout << "id name Vividmind 1.0\n";
+    std::cout << "id author Mauritz Sjodin\n";
     std::cout << "uciok\n\n";
 }
 
