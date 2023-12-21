@@ -18,7 +18,7 @@ Board Board::get_position_from_fen(const std::string& fen) {
     int i = 0;
     std::string fen_part;
     while (std::getline(fen_stream, fen_part, ' ')) {
-        fen_parts[i++] = fen_part;
+        fen_parts.at(i++) = fen_part;
     }
 
     if (i != 6) {
@@ -26,16 +26,16 @@ Board Board::get_position_from_fen(const std::string& fen) {
     }
 
     Board board;
-    board.game_state.material[WHITE] = 0;
-    board.game_state.material[BLACK] = 0;
-    board.game_state.psqt[WHITE] = 0;
-    board.game_state.psqt[BLACK] = 0;
-    board.place_pieces(fen_parts[0]);
-    board.game_state.player_to_move = board.calc_player_to_move(fen_parts[1]);
-    board.game_state.castling_rights = board.calc_castling_rights(fen_parts[2]);
-    board.game_state.en_passant_square = board.calc_en_passant_square(fen_parts[3]);
-    board.game_state.halfmove_clock = board.calc_halfmove_clock(fen_parts[4]);
-    board.game_state.fullmove_number = board.calc_fullmove_number(fen_parts[5]);
+    board.game_state.material.at(WHITE) = 0;
+    board.game_state.material.at(BLACK) = 0;
+    board.game_state.psqt.at(WHITE) = 0;
+    board.game_state.psqt.at(BLACK) = 0;
+    board.place_pieces(fen_parts.at(0));
+    board.game_state.player_to_move = board.calc_player_to_move(fen_parts.at(1));
+    board.game_state.castling_rights = board.calc_castling_rights(fen_parts.at(2));
+    board.game_state.en_passant_square = board.calc_en_passant_square(fen_parts.at(3));
+    board.game_state.halfmove_clock = board.calc_halfmove_clock(fen_parts.at(4));
+    board.game_state.fullmove_number = board.calc_fullmove_number(fen_parts.at(5));
 
     return board;
 }
@@ -48,18 +48,18 @@ void Board::place_pieces(const std::string& pieces) {
         if (isdigit(ch)) {
             const int n = (int) ch - '0';
             for (int i = 0; i < n; i++) {
-                squares[pos].pos = pos;
+                squares.at(pos).pos = pos;
                 pos++;
             }
         } else {
             Color color = islower(ch) ? BLACK : WHITE;
             Piece piece = Piece(get_piece_type(ch), color, pos);
-            Square& square = squares[pos];
-            squares[pos].pos = pos;
-            squares[pos].piece = piece;
-            this->pieces[color].push_back(piece);
-            game_state.material[color] += piece.get_value();                
-            game_state.psqt[color] += get_psqt_score(piece);
+            Square& square = squares.at(pos);
+            squares.at(pos).pos = pos;
+            squares.at(pos).piece = piece;
+            this->pieces.at(color).push_back(piece);
+            game_state.material.at(color) += piece.get_value();                
+            game_state.psqt.at(color) += get_psqt_score(piece);
             pos++;
         }
     }
@@ -77,24 +77,24 @@ Color Board::calc_player_to_move(const std::string& player_to_move) {
 
 std::array<Castling, 2> Board::calc_castling_rights(const std::string& castling_rights_str) {
     std::array<Castling, 2> castling_rights;
-    castling_rights[WHITE].kingside = false;
-    castling_rights[WHITE].queenside = false;
-    castling_rights[BLACK].kingside = false;
-    castling_rights[BLACK].queenside = false;
+    castling_rights.at(WHITE).kingside = false;
+    castling_rights.at(WHITE).queenside = false;
+    castling_rights.at(BLACK).kingside = false;
+    castling_rights.at(BLACK).queenside = false;
 
     for (char ch : castling_rights_str) {
         switch (ch) {
             case 'K':
-                castling_rights[WHITE].kingside = true;
+                castling_rights.at(WHITE).kingside = true;
                 break;
             case 'Q':
-                castling_rights[WHITE].queenside = true;
+                castling_rights.at(WHITE).queenside = true;
                 break;
             case 'k':
-                castling_rights[BLACK].kingside = true;
+                castling_rights.at(BLACK).kingside = true;
                 break;
             case 'q':
-                castling_rights[BLACK].queenside = true;
+                castling_rights.at(BLACK).queenside = true;
                 break;
         }
     }
@@ -105,8 +105,8 @@ std::optional<int> Board::calc_en_passant_square(const std::string& en_passant_s
     if (en_passant_square.size() != 2) {
         return {};
     } 
-    const int x = en_passant_square[0] - 'a';
-    const int y = 8 - (en_passant_square[1] - '0');
+    const int x = en_passant_square.at(0) - 'a';
+    const int y = 8 - (en_passant_square.at(1) - '0');
     return x + y * 8;
 }
 

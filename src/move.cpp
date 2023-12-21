@@ -33,10 +33,10 @@ std::string Move::to_uci_notation() const {
     const std::string ranks = "87654321";
 
     std::string uci_notation;
-    uci_notation += files[this->start % 8];
-    uci_notation += ranks[this->start / 8];
-    uci_notation += files[this->end % 8];
-    uci_notation += ranks[this->end / 8];
+    uci_notation += files.at(this->start % 8);
+    uci_notation += ranks.at(this->start / 8);
+    uci_notation += files.at(this->end % 8);
+    uci_notation += ranks.at(this->end / 8);
 
     if (this->promotion_piece) {
         uci_notation += tolower(get_char_representation(this->promotion_piece.value()));

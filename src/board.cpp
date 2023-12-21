@@ -7,7 +7,7 @@
 
 bool Board::operator==(const Board& other) const {
     for (int pos = 0; pos < 64; pos++) {
-        if (squares[pos].piece != other.squares[pos].piece) {
+        if (squares.at(pos).piece != other.squares.at(pos).piece) {
             return false;
         } 
     }
@@ -18,10 +18,10 @@ bool Board::operator==(const Board& other) const {
 
     std::array<Color, 2> colors = {WHITE, BLACK};
     for (Color color : colors) {
-        if (game_state.castling_rights[color].kingside != other.game_state.castling_rights[color].kingside) {
+        if (game_state.castling_rights.at(color).kingside != other.game_state.castling_rights.at(color).kingside) {
             return false;
         }
-        if (game_state.castling_rights[color].queenside != other.game_state.castling_rights[color].queenside) {
+        if (game_state.castling_rights.at(color).queenside != other.game_state.castling_rights.at(color).queenside) {
             return false;
         }
     }
@@ -31,7 +31,7 @@ bool Board::operator==(const Board& other) const {
 
 void Board::show() const {
     for (int i = 0; i < 64; i++) {
-        const std::optional<Piece>& piece = this->squares[i].piece;
+        const std::optional<Piece>& piece = this->squares.at(i).piece;
         if (piece) {
             std::cout << " " << piece->get_char_representation();
         } else {
@@ -54,7 +54,7 @@ void Board::switch_player_to_move() {
 }
 
 int Board::get_king_square(Color color) const {
-    for (Piece piece : pieces[color]) {
+    for (Piece piece : pieces.at(color)) {
         if (piece.piece_type == KING) {
             return piece.pos;
         }

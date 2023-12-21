@@ -8,14 +8,14 @@ std::vector<Move> MoveGenerator::get_king_normal_moves(const Piece& piece, MoveC
     std::vector<Move> moves;
     moves.reserve(8);
     for (int movement : movements) {
-        const int end = mailbox[mailbox64[piece.pos] + movement];
+        const int end = mailbox.at(mailbox64.at(piece.pos) + movement);
         if (end == -1) {
             continue;
         }
 
-        if (move_category == TACTICAL && board.squares[end].is_occupied_by(opponent)) {
+        if (move_category == TACTICAL && board.squares.at(end).is_occupied_by(opponent)) {
             moves.push_back(Move(piece.pos, end));
-        } else if (move_category == ALL && !board.squares[end].is_occupied_by(piece.color)) {
+        } else if (move_category == ALL && !board.squares.at(end).is_occupied_by(piece.color)) {
             moves.push_back(Move(piece.pos, end));
         }
     }
@@ -41,12 +41,12 @@ std::vector<Move> MoveGenerator::get_potential_castling_moves() const {
 
     std::vector<Move> potential_castling_moves;
     potential_castling_moves.reserve(2);
-    if (board.game_state.castling_rights[color].kingside) {
+    if (board.game_state.castling_rights.at(color).kingside) {
         const int kingside_end = color == BLACK ? 6 : 62;
         potential_castling_moves.push_back(Move(king_start, kingside_end));
     } 
 
-    if (board.game_state.castling_rights[color].queenside) {
+    if (board.game_state.castling_rights.at(color).queenside) {
         const int queenside_end = color == BLACK ? 2 : 58;
         potential_castling_moves.push_back(Move(king_start, queenside_end));
     } 
@@ -76,7 +76,7 @@ bool MoveGenerator::is_clear_path_castling(const Move& castling_move) const {
 
     int pos = castling_move.start + x_direction;
     while (pos != rook_pos) {
-        if (board.squares[pos].piece) {
+        if (board.squares.at(pos).piece) {
             return false;
         }
         pos += x_direction;

@@ -12,14 +12,14 @@ int Board::evaluate() const {
     int evaluation = 0;
 
     // calculate the material balance from white's point of view
-    const int white_material = game_state.material[WHITE];
-    const int black_material = game_state.material[BLACK];
+    const int white_material = game_state.material.at(WHITE);
+    const int black_material = game_state.material.at(BLACK);
     evaluation += white_material - black_material;
 
     // calculate the difference between the piece-square table values 
     // also from white's point of view
-    const int white_psqt = game_state.psqt[WHITE];
-    const int black_psqt = game_state.psqt[BLACK];
+    const int white_psqt = game_state.psqt.at(WHITE);
+    const int black_psqt = game_state.psqt.at(BLACK);
     evaluation += white_psqt - black_psqt;
 
     // always return the score from the view of the player to move
@@ -49,26 +49,26 @@ int Board::get_psqt_score(const Piece& piece) const {
     switch (piece.piece_type) {
         case KING: {
             if (is_lone_king(piece.color)) {
-                return KING_MATE[square];
+                return KING_MATE.at(square);
             }
             if (is_endgame()) {
-                return KING_ENDGAME_PSQT[square];
+                return KING_ENDGAME_PSQT.at(square);
             }
-            return KING_PSQT[square];
+            return KING_PSQT.at(square);
         }
-        case QUEEN: return QUEEN_PSQT[square];
-        case ROOK: return ROOK_PSQT[square];
-        case BISHOP: return BISHOP_PSQT[square];
-        case KNIGHT: return KNIGHT_PSQT[square];
-        case PAWN: return PAWN_PSQT[square];
+        case QUEEN: return QUEEN_PSQT.at(square);
+        case ROOK: return ROOK_PSQT.at(square);
+        case BISHOP: return BISHOP_PSQT.at(square);
+        case KNIGHT: return KNIGHT_PSQT.at(square);
+        case PAWN: return PAWN_PSQT.at(square);
     }
 }
 
 bool Board::is_lone_king(Color color) const {
-    return pieces[color].size() == 1;
+    return pieces.at(color).size() == 1;
 }
 
 bool Board::is_endgame() const {
-    return game_state.material[WHITE] - KING_VALUE < 1500 && 
-           game_state.material[BLACK] - KING_VALUE < 1500;
+    return game_state.material.at(WHITE) - KING_VALUE < 1500 && 
+           game_state.material.at(BLACK) - KING_VALUE < 1500;
 }

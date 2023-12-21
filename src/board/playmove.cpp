@@ -13,8 +13,8 @@ void Board::make(const Move& move) {
     game_state.en_passant_square = {};
     game_state.captured_piece = {};
 
-    Square& start = squares[move.start]; 
-    Square& end = squares[move.end]; 
+    Square& start = squares.at(move.start); 
+    Square& end = squares.at(move.end); 
 
     if (start.piece->piece_type == PAWN) {
         game_state.halfmove_clock = 0;
@@ -24,7 +24,7 @@ void Board::make(const Move& move) {
             game_state.en_passant_square = move.start + direction * 8;
         } else if (move.move_type == EN_PASSANT) {
             const int x_diff = move.end % 8 - move.start % 8;
-            Square& captured_square = squares[move.start + x_diff];
+            Square& captured_square = squares.at(move.start + x_diff);
             remove_piece(*captured_square.piece);
             captured_square.piece = {};
         } else if (move.move_type == PROMOTION) {
@@ -41,14 +41,14 @@ void Board::make(const Move& move) {
             piece_in_game_state.piece_type = promotion_piece;
             const int new_value = piece.get_value();
             const int new_psqt = get_psqt_score(piece);
-            game_state.material[piece.color] += new_value - PAWN_VALUE;
-            game_state.psqt[piece.color] += new_psqt - old_psqt;
+            game_state.material.at(piece.color) += new_value - PAWN_VALUE;
+            game_state.psqt.at(piece.color) += new_psqt - old_psqt;
         } 
     } 
 
     if (move.move_type == CASTLING) {
         Move rook_move = get_castling_rook_move(move);
-        move_piece(squares[rook_move.start], squares[rook_move.end]);
+        move_piece(squares.at(rook_move.start), squares.at(rook_move.end));
     } else {
         if (end.piece) {
             game_state.halfmove_clock = 0;
@@ -71,17 +71,17 @@ void Board::make(const Move& move) {
 
 void Board::undo() {
     Move move = history.back().next_move;
-    Square& start = squares[move.start]; 
-    Square& end = squares[move.end]; 
+    Square& start = squares.at(move.start); 
+    Square& end = squares.at(move.end); 
 
     if (move.move_type == CASTLING) {
         Move rook_move = get_castling_rook_move(move);
-        move_piece(squares[rook_move.end], squares[rook_move.start]);
+        move_piece(squares.at(rook_move.end), squares.at(rook_move.start));
     } else if (move.move_type == EN_PASSANT) {
         Piece captured_piece = *game_state.captured_piece;
-        Square& captured_square = squares[captured_piece.pos];
+        Square& captured_square = squares.at(captured_piece.pos);
         captured_square.piece = captured_piece;
-        pieces[captured_piece.color].push_back(captured_piece);
+        pieces.at(captured_piece.color).push_back(captured_piece);
         game_state.captured_piece = {};
     } else if (move.move_type == PROMOTION) {
         end.piece->piece_type = PAWN;
@@ -92,7 +92,7 @@ void Board::undo() {
     move_piece(end, start);
     if (game_state.captured_piece) {
         end.piece = game_state.captured_piece;
-        pieces[game_state.captured_piece->color].push_back(*game_state.captured_piece);
+        pieces.at(game_state.captured_piece->color).push_back(*game_state.captured_piece);
     }
 
     game_state = history.at(history.size() - 1);
@@ -120,7 +120,7 @@ Move Board::get_castling_rook_move(const Move& move) const {
 
 
 Piece& Board::get_piece(Piece piece) {
-    for (Piece& p : pieces[piece.color]) {
+    for (Piece& p : pieces.at(piece.color)) {
         if (p.pos == piece.pos) {
             return p;
         } 
@@ -129,12 +129,12 @@ Piece& Board::get_piece(Piece piece) {
 }
 
 void Board::remove_piece(Piece piece) {
-    std::vector<Piece>& pieces = this->pieces[piece.color];
+    std::vector<Piece>& pieces = this->pieces.at(piece.color);
     for (auto it = pieces.begin(); it != pieces.end(); ++it) {
         if (*it == piece) {
             pieces.erase(it); 
-            game_state.material[piece.color] -= piece.get_value();
-            game_state.psqt[piece.color] -= get_psqt_score(piece);
+            game_state.material.at(piece.color) -= piece.get_value();
+            game_state.psqt.at(piece.color) -= get_psqt_score(piece);
             game_state.captured_piece = piece;
             return;
         }
@@ -153,7 +153,7 @@ void Board::move_piece(Square& start, Square& end) {
     start.piece = {};
 
     const int psqt_new = get_psqt_score(*end.piece);
-    game_state.psqt[end.piece->color] += psqt_new - psqt_old;
+    game_state.psqt.at(end.piece->color) += psqt_new - psqt_old;
 }
 
 void Board::update_castling_rights(const Move& move) {
@@ -167,17 +167,17 @@ void Board::update_castling_rights(const Move& move) {
     const int opponent_rook2 = opponent_starting_row * 8 + 7;
 
     if (move.start == player_king) {
-        game_state.castling_rights[color].kingside = false; 
-        game_state.castling_rights[color].queenside = false; 
+        game_state.castling_rights.at(color).kingside = false; 
+        game_state.castling_rights.at(color).queenside = false; 
     } else if (move.start == player_rook1) {
-        game_state.castling_rights[color].queenside = false; 
+        game_state.castling_rights.at(color).queenside = false; 
     } else if (move.start == player_rook2) {
-        game_state.castling_rights[color].kingside = false; 
+        game_state.castling_rights.at(color).kingside = false; 
     } 
 
     if (move.end == opponent_rook1) {
-        game_state.castling_rights[get_opposite_color(color)].queenside = false; 
+        game_state.castling_rights.at(get_opposite_color(color)).queenside = false; 
     } else if (move.end == opponent_rook2) {
-        game_state.castling_rights[get_opposite_color(color)].kingside = false; 
+        game_state.castling_rights.at(get_opposite_color(color)).kingside = false; 
     }
 }
