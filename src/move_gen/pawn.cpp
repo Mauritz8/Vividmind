@@ -8,9 +8,13 @@ std::vector<Move> MoveGenerator::get_pawn_captures(const Piece& piece) const {
     std::vector<Move> moves;
     moves.reserve(2);
     for (int movement : movements) {
-        int end = mailbox[mailbox64[piece.pos] + movement];
-        const Square& square = board.squares[end];
-        if (end != -1 && square.piece && square.piece->color != piece.color) {
+        const int end = mailbox.at(mailbox64.at(piece.pos) + movement);
+        if (end == -1) {
+            continue;
+        }
+
+        const Square& square = board.squares.at(end);
+        if (square.piece && square.piece->color != piece.color) {
            moves.push_back(Move(piece.pos, end));  
         } else if (is_valid_en_passant(end)) {
             Move move = Move(piece.pos, end);
