@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "defs.hpp"
+#include "evaluation/evaluation.hpp"
 #include "move.hpp"
 #include "move_gen.hpp"
 #include "uci.hpp"
@@ -248,8 +249,9 @@ int Search::get_move_score(const Move& move) {
     const Square& start = board.squares.at(move.start);
     const Square& end = board.squares.at(move.end);
 
+    // score non-capture moves lower than captures
     if (!end.piece) {
-        return 0;
+        return -QUEEN_VALUE;
     }
     return end.piece->get_value() - start.piece->get_value();
 }
