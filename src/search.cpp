@@ -1,5 +1,6 @@
 #include "search.hpp"
 
+#include <algorithm>
 #include <chrono>
 #include <optional>
 #include <vector>
@@ -87,6 +88,8 @@ int Search::alpha_beta(int depth, int alpha, int beta, std::vector<Move>& princi
     }
 
     std::vector<Move> pseudo_legal_moves = move_gen.get_pseudo_legal_moves(ALL);
+    sort_moves(pseudo_legal_moves);
+
     int legal_moves_found = 0;
     for (const Move& move : pseudo_legal_moves) {
 
@@ -182,6 +185,7 @@ int Search::quiescence(int alpha, int beta, std::vector<Move>& principal_variati
 
     const Color player = board.game_state.player_to_move;
     std::vector<Move> captures = move_gen.get_pseudo_legal_moves(TACTICAL);
+    sort_moves(captures);
     for (const Move& capture : captures) {
         board.make(capture);
         if (move_gen.is_in_check(player)) {
@@ -231,4 +235,21 @@ bool Search::is_terminate() {
         case INFINITE: return false;
     }
     return false;
+}
+
+void Search::sort_moves(std::vector<Move>& moves) {
+    auto sort_mvv_lva = [&](Move i, Move j) {
+        return get_move_score(i) > get_move_score(j);
+    };
+    std::sort(moves.begin(), moves.end(), sort_mvv_lva);
+}
+
+int Search::get_move_score(const Move& move) {
+    const Square& start = board.squares.at(move.start);
+    const Square& end = board.squares.at(move.end);
+
+    if (!end.piece) {
+        return 0;
+    }
+    return end.piece->get_value() - start.piece->get_value();
 }
