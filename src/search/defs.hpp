@@ -48,8 +48,8 @@ struct SearchSummary {
     int depth;
     int seldepth;
     int score;
-    long nodes;
-    long time;
+    long long nodes;
+    long long time;
     std::vector<Move> pv;
 };
 
