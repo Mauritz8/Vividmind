@@ -51,9 +51,10 @@ void UCI::show(const SearchSummary& search_summary) {
         std::cout << " score cp " << search_summary.score;
     }
     std::cout << " nodes " << search_summary.nodes;
-    std::cout << " nps " << (search_summary.time == 0 
-        ? search_summary.nodes * 1000 / 1
-        : search_summary.nodes * 1000 / search_summary.time);
+    const long long nps = search_summary.time == 0 
+        ? search_summary.nodes * 1000
+        : search_summary.nodes * 1000 / search_summary.time;
+    std::cout << " nps " << nps;
     std::cout << " time " << search_summary.time;
     std::cout << " pv";
     for (const Move& move : search_summary.pv) {
