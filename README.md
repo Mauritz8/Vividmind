@@ -21,7 +21,7 @@ Vividmind is a work-in-progress chess engine written in C++. It adheres to the U
 
 
 ## Build from scratch
-
+Make sure you have CMake installed, and then run the following commands from the root directory of the project:
 ```
 mkdir build 
 cd build
