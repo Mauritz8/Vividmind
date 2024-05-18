@@ -5,11 +5,13 @@
 #include <sstream>
 #include <stdexcept>
 #include <string>
+#include <string_view>
 #include <vector>
 
 #include "defs.hpp"
 #include "move.hpp"
 #include "move_gen.hpp"
+#include "search/defs.hpp"
 
 
 UCI::UCI(Board& board) 
@@ -18,20 +20,39 @@ UCI::UCI(Board& board)
     , search(board, move_gen)
 {}
 
-void UCI::process(const std::string& input) {
-    std::istringstream input_stream(input);
-    std::string command; 
-    std::getline(input_stream, command, ' ');
+std::vector<std::string> _str_split(std::string_view str, char delim) {
+    std::vector<std::string> substrings;    
+    std::string substr = "";
+    for (char ch : str) {
+        if (ch == delim) {
+            substrings.push_back(substr);
+            substr = "";
+        } else {
+            substr += ch;
+        }
+    }
+    return substrings;
+}
 
-    if (command == "uci") {
+void UCI::process(const std::string& input) {
+    const std::vector<std::string> words = _str_split(input, ' ');
+
+    const bool is_go_perft =
+        words.size() == 3 && words.at(0) == "go" && words.at(1) == "perft";
+
+    if (input == "uci") {
         uci();
-    } else if (command == "isready") {
+    } else if (input == "isready") {
         isready();
-    } else if (command == "position") {
-        position(input_stream);
-    } else if (command == "go") {
-        go(input_stream);
-    } else if (command == "quit") {
+    } else if (words.at(0) == "position") {
+        position(input);
+    } else if (words.at(0) == "go") {
+        search.params = get_search_params(words);
+        search.iterative_deepening_search();
+    } else if (is_go_perft) {
+        int depth = std::stoi(words.at(2));
+        move_gen.divide(depth);
+    } else if (input == "quit") {
         exit(0);
     }
     std::cout.flush();
@@ -107,52 +128,39 @@ void UCI::position(std::istringstream& arguments) {
     }
 }
 
-void UCI::go(std::istringstream& arguments) {
-    search.params = SearchParams();
-
-    std::string token;
-    while (std::getline(arguments, token, ' ')) {
-        std::string argument;
-        std::getline(arguments, argument, ' ');
-
-        if (token == "wtime") {
-            search.params.game_time.wtime = std::stoi(argument);
-        } else if (token == "btime") {
-            search.params.game_time.btime = std::stoi(argument);
-        } else if (token == "winc") {
-            search.params.game_time.winc = std::stoi(argument);
-        } else if (token == "binc") {
-            search.params.game_time.binc = std::stoi(argument);
-        } else if (token == "movestogo") {
-            search.params.game_time.moves_to_go = std::stoi(argument);
+SearchParams UCI::get_search_params(const std::vector<std::string>& words) const {
+    SearchParams search_params = SearchParams();
+    for (int i = 1; i < words.size() - 2; i += 2) {
+        std::string name = words.at(i);
+        std::string value = words.at(i + 1);
+        if (name == "wtime") {
+            search_params.game_time.wtime = std::stoi(value);
+        } else if (name == "btime") {
+            search_params.game_time.btime = std::stoi(value);
+        } else if (name == "winc") {
+            search_params.game_time.winc = std::stoi(value);
+        } else if (name == "binc") {
+            search_params.game_time.binc = std::stoi(value);
+        } else if (name == "movestogo") {
+            search_params.game_time.moves_to_go = std::stoi(value);
+        } else if (name == "depth") {
+            int depth = std::stoi(value);
+            search_params.search_mode = DEPTH;
+            search_params.depth = depth;
+        } else if (name == "movetime") {
+            int movetime =  std::stoi(value);
+            search_params.search_mode = MOVE_TIME;
+            search_params.allocated_time = movetime - MOVE_OVERHEAD;
         }
-        
-
-        else if (token == "perft") {
-            int depth =  std::stoi(argument);
-            move_gen.divide(depth);
-            return;
-        }
-
-        else if (token == "depth") {
-            int depth =  std::stoi(argument);
-            search.params.search_mode = DEPTH;
-            search.params.depth = depth;
-        } else if (token == "movetime") {
-            int movetime =  std::stoi(argument);
-            search.params.search_mode = MOVE_TIME;
-            search.params.allocated_time = movetime - MOVE_OVERHEAD;
-        }
-    }
     
-    if (search.params.game_time.wtime != 0 &&
-        search.params.game_time.btime != 0) 
-    {
-        search.params.search_mode = MOVE_TIME;
-        search.params.allocated_time = search.calc_allocated_time();
+        if (search_params.game_time.wtime != 0 &&
+            search_params.game_time.btime != 0) 
+        {
+            search_params.search_mode = MOVE_TIME;
+            search_params.allocated_time = search.calc_allocated_time();
+        }
     }
-
-    search.iterative_deepening_search();
+    return search_params;
 }
 
 

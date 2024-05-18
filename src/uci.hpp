@@ -3,6 +3,7 @@
 
 #include <sstream>
 #include <string>
+#include <vector>
 
 #include "board.hpp"
 #include "move_gen.hpp"
@@ -27,7 +28,7 @@ class UCI {
         static void uci();
         static void isready();
         void position(std::istringstream& arguments);
-        void go(std::istringstream& arguments);
+        SearchParams get_search_params(const std::vector<std::string>& arguments) const;
 
         void make_moves(std::istringstream& moves);
         bool make_move(const std::string& move);
