@@ -8,6 +8,15 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 add_compile_options(-O3 -march=native -flto)
 
 
+include(FetchContent)
+FetchContent_Declare(
+  fmt
+  GIT_REPOSITORY https://github.com/fmtlib/fmt
+  GIT_TAG 10.2.0
+)
+FetchContent_MakeAvailable(fmt)
+
+
 set(COMMON_SOURCES
     src/board/draw.cpp
     src/board/fen.cpp
@@ -34,7 +43,7 @@ add_executable(vividmind
 target_include_directories(vividmind PRIVATE
     src/
 )
-target_link_libraries(vividmind -lfmt)
+target_link_libraries(vividmind fmt::fmt)
 
 
 add_executable(tests
@@ -45,4 +54,4 @@ target_include_directories(tests PRIVATE
     tests/
     src/
 )
-target_link_libraries(tests -lfmt)
+target_link_libraries(tests fmt::fmt)
