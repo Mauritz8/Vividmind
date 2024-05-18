@@ -81,7 +81,8 @@ std::string UCI::show(const SearchSummary &ss) {
                                 ? fmt::format("mate {}", sign * mate_in_x)
                                 : fmt::format("cp {}", ss.score);
 
-  const long long nps =ss.time == 0 ? ss.nodes * 1000 : ss.nodes * 1000 / ss.time;
+  const long long nps =
+      ss.time == 0 ? ss.nodes * 1000 : ss.nodes * 1000 / ss.time;
   const std::string pv =
       std::accumulate(ss.pv.begin(), ss.pv.end(), std::string(""),
                       [](std::string acc, const Move &m) {
