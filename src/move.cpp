@@ -1,45 +1,45 @@
-#include "utils.hpp"
 #include "move.hpp"
 #include "piece.hpp"
-
+#include "utils.hpp"
 
 Move::Move(int start, int end) {
-    this->start = start;
-    this->end = end;
-    this->move_type = NORMAL;
+  this->start = start;
+  this->end = end;
+  this->move_type = NORMAL;
 }
 
-Move::Move(const Move& move) {
-    this->start = move.start;
-    this->end = move.end;
-    this->move_type = move.move_type;
-    this->promotion_piece = move.promotion_piece;
+Move::Move(const Move &move) {
+  this->start = move.start;
+  this->end = move.end;
+  this->move_type = move.move_type;
+  this->promotion_piece = move.promotion_piece;
 }
 
-Move Move::operator=(const Move& move) {
-    this->start = move.start;
-    this->end = move.end;
-    this->move_type = move.move_type;
-    this->promotion_piece = move.promotion_piece;
-    return *this;
+Move Move::operator=(const Move &move) {
+  this->start = move.start;
+  this->end = move.end;
+  this->move_type = move.move_type;
+  this->promotion_piece = move.promotion_piece;
+  return *this;
 }
 
-bool Move::operator==(const Move& move) const {
-    return move.start == start && move.end == end;
+bool Move::operator==(const Move &move) const {
+  return move.start == start && move.end == end;
 }
 
 std::string Move::to_uci_notation() const {
-    const std::string files = "abcdefgh";
-    const std::string ranks = "87654321";
+  const std::string files = "abcdefgh";
+  const std::string ranks = "87654321";
 
-    std::string uci_notation;
-    uci_notation += files.at(this->start % 8);
-    uci_notation += ranks.at(this->start / 8);
-    uci_notation += files.at(this->end % 8);
-    uci_notation += ranks.at(this->end / 8);
+  std::string uci_notation;
+  uci_notation += files.at(this->start % 8);
+  uci_notation += ranks.at(this->start / 8);
+  uci_notation += files.at(this->end % 8);
+  uci_notation += ranks.at(this->end / 8);
 
-    if (this->promotion_piece) {
-        uci_notation += tolower(get_char_representation(this->promotion_piece.value()));
-    }
-    return uci_notation;
+  if (this->promotion_piece) {
+    uci_notation +=
+        tolower(get_char_representation(this->promotion_piece.value()));
+  }
+  return uci_notation;
 }

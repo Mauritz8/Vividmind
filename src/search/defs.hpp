@@ -6,53 +6,51 @@
 
 #include "move.hpp"
 
-
-enum SearchMode {DEPTH, MOVE_TIME, INFINITE};
+enum SearchMode { DEPTH, MOVE_TIME, INFINITE };
 
 struct GameTime {
-    int wtime;
-    int btime;
-    int winc;
-    int binc;
-    int moves_to_go;
+  int wtime;
+  int btime;
+  int winc;
+  int binc;
+  int moves_to_go;
 };
 
 struct SearchParams {
-    int depth;
-    int allocated_time;
-    GameTime game_time;
-    SearchMode search_mode;
+  int depth;
+  int allocated_time;
+  GameTime game_time;
+  SearchMode search_mode;
 
-    SearchParams();
+  SearchParams();
 };
 
 // all the collected info during a search will be stored in this struct
 struct SearchInfo {
 
-    // keep track of when the search started,
-    // so that it can stop if the allocated time runs out
-    std::chrono::time_point<std::chrono::high_resolution_clock> start_time; 
+  // keep track of when the search started,
+  // so that it can stop if the allocated time runs out
+  std::chrono::time_point<std::chrono::high_resolution_clock> start_time;
 
-    int depth;
-    int ply_from_root;
-    int seldepth;
-    long nodes;
-    bool is_terminated;
+  int depth;
+  int ply_from_root;
+  int seldepth;
+  long nodes;
+  bool is_terminated;
 
-    SearchInfo();
+  SearchInfo();
 
-    int time_elapsed() const;
+  int time_elapsed() const;
 };
 
 struct SearchSummary {
-    int depth;
-    int seldepth;
-    int score;
-    long long nodes;
-    long long time;
-    std::vector<Move> pv;
+  int depth;
+  int seldepth;
+  int score;
+  long long nodes;
+  long long time;
+  std::vector<Move> pv;
 };
-
 
 const int MAX_PLY = 100;
 const int DRAW = 0;
