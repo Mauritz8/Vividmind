@@ -31,6 +31,10 @@ jobs:
       # Build your program with the given configuration
       run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
 
+    - name: Verify formatting
+      run: find ./src -iname '*.cpp' -o -iname '*.hpp' | xargs clang-format --style=file --dry-run --Werror
+
+
     - name: Test
       working-directory: ${{github.workspace}}/build
       run: ./tests
