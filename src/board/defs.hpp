@@ -2,6 +2,7 @@
 #define BOARD_DEFS_HPP
 
 #include <array>
+#include <string>
 
 #include "move.hpp"
 #include "piece.hpp"
@@ -23,6 +24,9 @@ struct GameState {
     std::optional<Piece> captured_piece;
     Move next_move;
 };
+
+const std::string STARTING_POSITION_FEN =
+    "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
 const std::array<int, 120> mailbox = {
     -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,

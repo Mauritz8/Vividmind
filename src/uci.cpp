@@ -1,13 +1,16 @@
 #include "uci.hpp"
 
+#include <algorithm>
 #include <cmath>
 #include <iostream>
+#include <numeric>
 #include <sstream>
 #include <stdexcept>
 #include <string>
 #include <string_view>
 #include <vector>
 
+#include "board/defs.hpp"
 #include "defs.hpp"
 #include "move.hpp"
 #include "move_gen.hpp"
@@ -31,12 +34,16 @@ std::vector<std::string> _str_split(std::string_view str, char delim) {
             substr += ch;
         }
     }
+    if (substr != "") substrings.push_back(substr);
     return substrings;
 }
 
 void UCI::process(const std::string& input) {
     const std::vector<std::string> words = _str_split(input, ' ');
 
+    const bool is_position =
+        words.size() >= 2 && words.at(0) == "position" &&
+        (words.at(1) == "startpos" || words.at(1) == "fen");
     const bool is_go_perft =
         words.size() == 3 && words.at(0) == "go" && words.at(1) == "perft";
 
@@ -44,16 +51,29 @@ void UCI::process(const std::string& input) {
         uci();
     } else if (input == "isready") {
         isready();
-    } else if (words.at(0) == "position") {
-        position(input);
-    } else if (words.at(0) == "go") {
-        search.params = get_search_params(words);
-        search.iterative_deepening_search();
+    } else if (is_position) {
+        const std::string fen = get_fen(words);
+        try {
+          board = Board::get_position_from_fen(fen);
+        } catch (const std::invalid_argument& e) {
+          std::cout << e.what(); 
+        }
+        auto moves_it = std::find(words.begin(), words.end(), "moves");
+        if (moves_it != words.end()) {
+            std::for_each(moves_it + 1, words.end(), [&](const std::string& move_uci) {
+                make_move(move_uci);
+            });
+        }
     } else if (is_go_perft) {
         int depth = std::stoi(words.at(2));
         move_gen.divide(depth);
+    } else if (words.at(0) == "go") {
+        search.params = get_search_params(words);
+        search.iterative_deepening_search();
     } else if (input == "quit") {
         exit(0);
+    } else {
+      std::cout << "invalid input: " << input << "\n";
     }
     std::cout.flush();
 }
@@ -98,39 +118,23 @@ void UCI::isready() {
     std::cout << "readyok\n\n";
 }
 
-void UCI::position(std::istringstream& arguments) {
-    std::string token;
-    std::getline(arguments, token, ' ');
-    if (token == "startpos") {
-        board = Board::get_starting_position();
-    } else if (token == "fen") {
-        std::string fen;
-        std::string fen_part;
+std::string UCI::get_fen(const std::vector<std::string>& words) const {
+    if (words.at(1) == "startpos") {
+        return STARTING_POSITION_FEN;
+    } 
 
-        int i = 0;
-        while (i < 6 && std::getline(arguments, fen_part, ' ')) {
-            fen += fen_part;
-            if (i < 5) {
-                fen += ' ';
-            }
-            i++;
-        }
-        try {
-            board = Board::get_position_from_fen(fen);
-        } catch (const std::invalid_argument& e) {
-            std::cout << e.what(); 
-        }
-    } else return;
-
-    std::getline(arguments, token, ' ');
-    if (token == "moves") {
-        make_moves(arguments);
-    }
+    auto join = [](std::string str1, std::string str2) {
+        return str1 + " " + str2;
+    };
+    auto moves_it = std::find(words.begin(), words.end(), "moves");
+    std::string fen =
+        std::accumulate(words.begin() + 2, moves_it, std::string(""), join);
+    return fen.substr(1);
 }
 
 SearchParams UCI::get_search_params(const std::vector<std::string>& words) const {
     SearchParams search_params = SearchParams();
-    for (int i = 1; i < words.size() - 2; i += 2) {
+    for (int i = 1; i < words.size() - 1; i += 2) {
         std::string name = words.at(i);
         std::string value = words.at(i + 1);
         if (name == "wtime") {
@@ -161,17 +165,6 @@ SearchParams UCI::get_search_params(const std::vector<std::string>& words) const
         }
     }
     return search_params;
-}
-
-
-void UCI::make_moves(std::istringstream& moves) {
-    std::string move_uci;
-    while (std::getline(moves, move_uci, ' ')) {
-        const bool is_legal = make_move(move_uci);
-        if (!is_legal) {
-            return;
-        }
-    }
 }
 
 bool UCI::make_move(const std::string& move_uci) {

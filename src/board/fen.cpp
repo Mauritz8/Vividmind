@@ -4,11 +4,12 @@
 #include <stdexcept>
 #include <string>
 
+#include "board/defs.hpp"
 #include "utils.hpp"
 
 
 Board Board::get_starting_position() {
-    return get_position_from_fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+    return get_position_from_fen(STARTING_POSITION_FEN);
 }
 
 Board Board::get_position_from_fen(const std::string& fen) {

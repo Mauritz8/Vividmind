@@ -28,9 +28,9 @@ class UCI {
         static void uci();
         static void isready();
         void position(std::istringstream& arguments);
-        SearchParams get_search_params(const std::vector<std::string>& arguments) const;
+        std::string get_fen(const std::vector<std::string>& words) const;
+        SearchParams get_search_params(const std::vector<std::string>& words) const;
 
-        void make_moves(std::istringstream& moves);
         bool make_move(const std::string& move);
 };
 
