@@ -34,6 +34,7 @@ add_executable(vividmind
 target_include_directories(vividmind PRIVATE
     src/
 )
+target_link_libraries(vividmind -lfmt)
 
 
 add_executable(tests
@@ -44,3 +45,4 @@ target_include_directories(tests PRIVATE
     tests/
     src/
 )
+target_link_libraries(tests -lfmt)

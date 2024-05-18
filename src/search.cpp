@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <chrono>
+#include <fmt/core.h>
 #include <optional>
 #include <vector>
 
@@ -56,12 +57,12 @@ void Search::iterative_deepening_search() {
             };
             best_move = search_summary.pv.at(0);
 
-            UCI::show(search_summary);
+            fmt::print(UCI::show(search_summary));
         }
 
     }
     // always finish a search by outputting the best move
-    UCI::bestmove(best_move);
+    fmt::print(UCI::bestmove(best_move));
 }
 
 int Search::alpha_beta(int depth, int alpha, int beta, std::vector<Move>& principal_variation) {

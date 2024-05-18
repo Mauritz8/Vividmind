@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <fmt/core.h>
 #include <iostream>
 #include <numeric>
 #include <sstream>
@@ -48,9 +49,10 @@ void UCI::process(const std::string& input) {
         words.size() == 3 && words.at(0) == "go" && words.at(1) == "perft";
 
     if (input == "uci") {
-        uci();
+      fmt::print("id name {} {}\nid author {}\nuciok\n\n", NAME, VERSION,
+                 AUTHOR);
     } else if (input == "isready") {
-        isready();
+        fmt::print("readyok\n\n");
     } else if (is_position) {
         const std::string fen = get_fen(words);
         try {
@@ -73,49 +75,33 @@ void UCI::process(const std::string& input) {
     } else if (input == "quit") {
         exit(0);
     } else {
-      std::cout << "invalid input: " << input << "\n";
+        fmt::print("invalid input: {}\n", input);
     }
-    std::cout.flush();
 }
 
-void UCI::show(const SearchSummary& search_summary) {
-    std::cout << "info";
-    std::cout << " depth " << search_summary.depth;
-    std::cout << " seldepth " << search_summary.seldepth;
-    std::cout << " multipv 1";
-    if (std::abs(search_summary.score) > CHECKMATE_THRESHOLD) {
-        const int ply = CHECKMATE - std::abs(search_summary.score);
-        const int mate_in_x = std::ceil(ply / 2.0);
-        const int sign = search_summary.score > 0 ? 1 : -1;
-        std::cout << " score mate " << sign * mate_in_x;
-    } else {
-        std::cout << " score cp " << search_summary.score;
-    }
-    std::cout << " nodes " << search_summary.nodes;
-    const long long nps = search_summary.time == 0 
-        ? search_summary.nodes * 1000
-        : search_summary.nodes * 1000 / search_summary.time;
-    std::cout << " nps " << nps;
-    std::cout << " time " << search_summary.time;
-    std::cout << " pv";
-    for (const Move& move : search_summary.pv) {
-        std::cout << " " << move.to_uci_notation();
-    }
-    std::cout << std::endl;
+std::string UCI::show(const SearchSummary& ss) {
+    const int ply = CHECKMATE - std::abs(ss.score);
+    const int mate_in_x = std::ceil(ply / 2.0);
+    const int sign = ss.score > 0 ? 1 : -1;
+    const std::string score = std::abs(ss.score) > CHECKMATE_THRESHOLD
+        ? fmt::format("mate {}", sign * mate_in_x)
+        : fmt::format("cp {}", ss.score);
+
+    const long long nps = ss.time == 0 
+        ? ss.nodes * 1000
+        : ss.nodes * 1000 / ss.time;
+    const std::string pv = std::accumulate(ss.pv.begin(), ss.pv.end(), std::string(""), [](std::string acc, const Move& m) {
+        return acc + " " + m.to_uci_notation(); 
+    });
+
+    return fmt::format("info depth {} seldepth {} multipv 1 score {} nodes {} "
+                       "nps {} time {} pv{}\n",
+                       ss.depth, ss.seldepth, score, ss.nodes, nps, ss.time,
+                       pv);
 }
 
-void UCI::bestmove(const Move& move) {
-    std::cout << "bestmove " << move.to_uci_notation() << "\n";
-}
-
-void UCI::uci() {
-    std::cout << "id name " << NAME << " " << VERSION << "\n";
-    std::cout << "id author " << AUTHOR << "\n";
-    std::cout << "uciok\n\n";
-}
-
-void UCI::isready() {
-    std::cout << "readyok\n\n";
+std::string UCI::bestmove(const Move& move) {
+    return fmt::format("bestmove {}\n", move.to_uci_notation());
 }
 
 std::string UCI::get_fen(const std::vector<std::string>& words) const {

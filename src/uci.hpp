@@ -15,8 +15,8 @@ class UCI {
         UCI(Board& board);
 
         void process(const std::string& input);
-        static void show(const SearchSummary& search_summary);
-        static void bestmove(const Move& move);
+        static std::string show(const SearchSummary& search_summary);
+        static std::string bestmove(const Move& move);
 
     private:
         Board& board;
@@ -25,9 +25,6 @@ class UCI {
 
         static const int MOVE_OVERHEAD = 50;
 
-        static void uci();
-        static void isready();
-        void position(std::istringstream& arguments);
         std::string get_fen(const std::vector<std::string>& words) const;
         SearchParams get_search_params(const std::vector<std::string>& words) const;
 
