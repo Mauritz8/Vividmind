@@ -26,7 +26,7 @@ public:
 
   bool operator==(const Board &board) const;
 
-  void show() const;
+  std::string to_string() const;
   void switch_player_to_move();
   int get_king_square(Color color) const;
 

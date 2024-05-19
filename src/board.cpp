@@ -2,6 +2,7 @@
 
 #include <array>
 #include <iostream>
+#include <numeric>
 #include <vector>
 
 bool Board::operator==(const Board &other) const {
@@ -30,20 +31,16 @@ bool Board::operator==(const Board &other) const {
   return true;
 }
 
-void Board::show() const {
-  for (int i = 0; i < 64; i++) {
-    const std::optional<Piece> &piece = this->squares.at(i).piece;
-    if (piece) {
-      std::cout << " " << piece->get_char_representation();
-    } else {
-      std::cout << " _";
-    }
-
-    if ((i + 1) % 8 == 0) {
-      std::cout << "\n";
-    }
-  }
-  std::cout << "\n";
+std::string Board::to_string() const {
+  auto to_str = [](std::string str, Square square) {
+    bool last_col = (square.pos + 1) % 8 == 0;
+    return str + " " +
+           (square.piece ? square.piece->get_char_representation() : '_') +
+           (last_col ? "\n" : "");
+  };
+  std::string board =
+      std::accumulate(squares.begin(), squares.end(), std::string(""), to_str);
+  return board + "\n";
 }
 
 void Board::switch_player_to_move() {
