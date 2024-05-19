@@ -19,7 +19,6 @@ public:
 
 private:
   Board &board;
-  MoveGenerator move_gen;
   Search search;
 
   static const int MOVE_OVERHEAD = 50;

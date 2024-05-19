@@ -12,8 +12,7 @@
 #include "move_gen.hpp"
 #include "uci.hpp"
 
-Search::Search(Board &board, MoveGenerator &move_gen)
-    : board(board), move_gen(move_gen) {}
+Search::Search(Board &board) : board(board) {}
 
 void Search::iterative_deepening_search() {
   // initialize alpha/beta to the value of immediate checkmate
@@ -73,7 +72,7 @@ int Search::alpha_beta(int depth, int alpha, int beta,
   // if player is in check, it's a good idea to look one move further
   // because there could be tactics available
   // after the opponent moves out of the check
-  const bool is_in_check = move_gen.is_in_check(player);
+  const bool is_in_check = movegen::is_in_check(board, player);
   if (is_in_check) {
     depth++;
   }
@@ -85,7 +84,8 @@ int Search::alpha_beta(int depth, int alpha, int beta,
     return quiescence(alpha, beta, principal_variation);
   }
 
-  std::vector<Move> pseudo_legal_moves = move_gen.get_pseudo_legal_moves(ALL);
+  std::vector<Move> pseudo_legal_moves =
+      movegen::get_pseudo_legal_moves(board, ALL);
   sort_moves(pseudo_legal_moves);
 
   int legal_moves_found = 0;
@@ -94,7 +94,7 @@ int Search::alpha_beta(int depth, int alpha, int beta,
     board.make(move);
     // if the move leaves the king in check, it was not legal
     // so go to the next move
-    if (move_gen.is_in_check(player)) {
+    if (movegen::is_in_check(board, player)) {
       board.undo();
       continue;
     }
@@ -180,11 +180,11 @@ int Search::quiescence(int alpha, int beta,
   }
 
   const Color player = board.game_state.player_to_move;
-  std::vector<Move> captures = move_gen.get_pseudo_legal_moves(TACTICAL);
+  std::vector<Move> captures = movegen::get_pseudo_legal_moves(board, TACTICAL);
   sort_moves(captures);
   for (const Move &capture : captures) {
     board.make(capture);
-    if (move_gen.is_in_check(player)) {
+    if (movegen::is_in_check(board, player)) {
       board.undo();
       continue;
     }

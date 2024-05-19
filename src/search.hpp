@@ -13,14 +13,13 @@ public:
   SearchParams params;
   SearchInfo info;
 
-  Search(Board &board, MoveGenerator &move_gen);
+  Search(Board &board);
 
   void iterative_deepening_search();
   int calc_allocated_time() const;
 
 private:
   Board &board;
-  MoveGenerator &move_gen;
 
   int alpha_beta(int depth, int alpha, int beta,
                  std::vector<Move> &principal_variation);

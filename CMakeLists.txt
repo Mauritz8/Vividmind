@@ -23,8 +23,6 @@ set(COMMON_SOURCES
     src/board/playmove.cpp
     src/board.cpp
     src/evaluation/evaluation.cpp
-    src/move_gen/king.cpp
-    src/move_gen/pawn.cpp
     src/move_gen.cpp
     src/search/defs.cpp
     src/search/time_management.cpp

@@ -33,7 +33,6 @@ int main() {
 
         const std::string fen = tokens.at(0);
         Board board = fen::get_position(fen);
-        MoveGenerator move_gen(board);
         std::cout << "Test " << i + 1 << "\n";
         std::cout << "FEN: " << fen <<"\n";
         for (int i = 1; i < tokens.size(); i++) {
@@ -45,7 +44,7 @@ int main() {
             const int expected_nodes = std::stoi(token.substr(split_index)); 
 
             const auto start = std::chrono::high_resolution_clock::now();
-            const int actual_nodes = move_gen.perft(depth);
+            const int actual_nodes = movegen::perft(board, depth);
             const auto finished = std::chrono::high_resolution_clock::now();
             const int duration = std::chrono::duration_cast<std::chrono::milliseconds>(finished - start).count();
             total_duration += duration;
