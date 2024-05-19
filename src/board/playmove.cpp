@@ -65,7 +65,7 @@ void Board::make(const Move &move) {
   if (game_state.player_to_move == BLACK) {
     game_state.fullmove_number++;
   }
-  switch_player_to_move();
+  game_state.player_to_move = get_opposite_color(game_state.player_to_move);
 }
 
 void Board::undo() {

@@ -55,14 +55,6 @@ std::string Board::to_string() const {
   return board + "\n";
 }
 
-void Board::switch_player_to_move() {
-  if (this->game_state.player_to_move == WHITE) {
-    this->game_state.player_to_move = BLACK;
-  } else {
-    this->game_state.player_to_move = WHITE;
-  }
-}
-
 int Board::get_king_square(Color color) const {
   for (Piece piece : pieces.at(color)) {
     if (piece.piece_type == KING) {
