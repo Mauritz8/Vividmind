@@ -39,3 +39,9 @@ PieceType get_piece_type(char char_representation) {
   }
   throw std::invalid_argument("invalid piece type");
 }
+
+int get_mirrored_pos(int pos) {
+  const int x = pos % 8;
+  const int y = pos / 8;
+  return x + (7 - y) * 8;
+}

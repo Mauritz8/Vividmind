@@ -2,6 +2,7 @@
 
 #include "board.hpp"
 #include "piece.hpp"
+#include "utils.hpp"
 
 // the evaluation function is very straight forward
 // it only considers material and piece-square tables
@@ -47,10 +48,29 @@ int Piece::get_value() const {
   }
 }
 
+int Board::get_psqt_score_static(Piece piece) {
+  const int square =
+      piece.color == WHITE ? piece.pos : get_mirrored_pos(piece.pos);
+  switch (piece.piece_type) {
+  case KING: {
+    return KING_PSQT.at(square);
+  }
+  case QUEEN:
+    return QUEEN_PSQT.at(square);
+  case ROOK:
+    return ROOK_PSQT.at(square);
+  case BISHOP:
+    return BISHOP_PSQT.at(square);
+  case KNIGHT:
+    return KNIGHT_PSQT.at(square);
+  case PAWN:
+    return PAWN_PSQT.at(square);
+  }
+}
+
 int Board::get_psqt_score(const Piece &piece) const {
-  const int x = piece.pos % 8;
-  const int y = piece.pos / 8;
-  const int square = piece.color == WHITE ? piece.pos : x + (7 - y) * 8;
+  const int square =
+      piece.color == WHITE ? piece.pos : get_mirrored_pos(piece.pos);
   switch (piece.piece_type) {
   case KING: {
     if (is_lone_king(piece.color)) {

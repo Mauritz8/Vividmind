@@ -1,6 +1,8 @@
 #include "board.hpp"
 
+#include <algorithm>
 #include <array>
+#include <numeric>
 #include <sstream>
 #include <stdexcept>
 #include <string>
@@ -28,20 +30,51 @@ Board Board::get_position_from_fen(const std::string &fen) {
   }
 
   Board board;
-  board.game_state.material.at(WHITE) = 0;
-  board.game_state.material.at(BLACK) = 0;
-  board.game_state.psqt.at(WHITE) = 0;
-  board.game_state.psqt.at(BLACK) = 0;
-  board.squares = board.get_squares(fen_parts.at(0));
-  board.game_state.player_to_move = board.calc_player_to_move(fen_parts.at(1));
-  board.game_state.castling_rights =
-      board.calc_castling_rights(fen_parts.at(2));
-  board.game_state.en_passant_square =
-      board.calc_en_passant_square(fen_parts.at(3));
-  board.game_state.halfmove_clock = board.calc_halfmove_clock(fen_parts.at(4));
-  board.game_state.fullmove_number =
-      board.calc_fullmove_number(fen_parts.at(5));
+  std::array<Square, 64> squares = board.get_squares(fen_parts.at(0));
 
+  std::vector<Piece> pieces;
+  for (Square s : squares) {
+    if (s.piece) {
+      pieces.push_back(*s.piece);
+    }
+  }
+
+  std::vector<Piece> white_pieces;
+  std::copy_if(pieces.begin(), pieces.end(), std::back_inserter(white_pieces),
+               [](Piece p) { return p.color == WHITE; });
+
+  std::vector<Piece> black_pieces;
+  std::copy_if(pieces.begin(), pieces.end(), std::back_inserter(black_pieces),
+               [](Piece p) { return p.color == BLACK; });
+
+  int white_material =
+      std::accumulate(white_pieces.begin(), white_pieces.end(), 0,
+                      [](int v, Piece p) { return v + p.get_value(); });
+  int black_material =
+      std::accumulate(black_pieces.begin(), black_pieces.end(), 0,
+                      [](int v, Piece p) { return v + p.get_value(); });
+  int white_psqt = std::accumulate(
+      white_pieces.begin(), white_pieces.end(), 0,
+      [](int v, Piece p) { return v + get_psqt_score_static(p); });
+  int black_psqt = std::accumulate(
+      black_pieces.begin(), black_pieces.end(), 0,
+      [](int m, Piece p) { return m + get_psqt_score_static(p); });
+
+  GameState game_state = {
+      .player_to_move = board.calc_player_to_move(fen_parts.at(1)),
+      .castling_rights = board.calc_castling_rights(fen_parts.at(2)),
+      .en_passant_square = board.calc_en_passant_square(fen_parts.at(3)),
+      .halfmove_clock = board.calc_halfmove_clock(fen_parts.at(4)),
+      .fullmove_number = board.calc_fullmove_number(fen_parts.at(5)),
+      .material = {white_material, black_material},
+      .psqt = {white_psqt, black_psqt},
+      .captured_piece = std::nullopt,
+  };
+
+  board.squares = squares;
+  board.pieces = {white_pieces, black_pieces};
+  board.game_state = game_state;
+  board.history = {};
   return board;
 }
 
@@ -62,9 +95,6 @@ std::array<Square, 64> Board::get_squares(std::string_view pieces) {
       Color color = islower(ch) ? BLACK : WHITE;
       Piece piece = Piece(get_piece_type(ch), color, pos);
       squares.at(pos) = Square(pos, piece);
-      this->pieces.at(color).push_back(piece);
-      game_state.material.at(color) += piece.get_value();
-      game_state.psqt.at(color) += get_psqt_score(piece);
       pos++;
     }
   }
