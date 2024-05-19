@@ -54,8 +54,9 @@ std::array<Square, 64> Board::get_squares(std::string_view pieces) {
 
     if (isdigit(ch)) {
       const int n = (int)ch - '0';
-      for (int _ = 0; _ < n; pos++) {
+      for (int _ = 0; _ < n; _++) {
         squares.at(pos) = Square(pos);
+        pos++;
       }
     } else {
       Color color = islower(ch) ? BLACK : WHITE;
