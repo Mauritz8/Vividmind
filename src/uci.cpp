@@ -17,28 +17,13 @@
 #include "move.hpp"
 #include "move_gen.hpp"
 #include "search/defs.hpp"
+#include "utils.hpp"
 
 UCI::UCI(Board &board)
     : board(board), move_gen(board), search(board, move_gen) {}
 
-std::vector<std::string> _str_split(std::string_view str, char delim) {
-  std::vector<std::string> substrings;
-  std::string substr = "";
-  for (char ch : str) {
-    if (ch == delim) {
-      substrings.push_back(substr);
-      substr = "";
-    } else {
-      substr += ch;
-    }
-  }
-  if (substr != "")
-    substrings.push_back(substr);
-  return substrings;
-}
-
 void UCI::process(const std::string &input) {
-  const std::vector<std::string> words = _str_split(input, ' ');
+  const std::vector<std::string> words = str_split(input, ' ');
 
   const bool is_position = words.size() >= 2 && words.at(0) == "position" &&
                            (words.at(1) == "startpos" || words.at(1) == "fen");

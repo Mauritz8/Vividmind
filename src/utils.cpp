@@ -1,6 +1,7 @@
 #include "utils.hpp"
 
 #include <stdexcept>
+#include <vector>
 
 Color get_opposite_color(Color color) { return color == WHITE ? BLACK : WHITE; }
 
@@ -44,4 +45,20 @@ int get_mirrored_pos(int pos) {
   const int x = pos % 8;
   const int y = pos / 8;
   return x + (7 - y) * 8;
+}
+
+std::vector<std::string> str_split(std::string_view str, char delim) {
+  std::vector<std::string> substrings;
+  std::string substr = "";
+  for (char ch : str) {
+    if (ch == delim) {
+      substrings.push_back(substr);
+      substr = "";
+    } else {
+      substr += ch;
+    }
+  }
+  if (substr != "")
+    substrings.push_back(substr);
+  return substrings;
 }

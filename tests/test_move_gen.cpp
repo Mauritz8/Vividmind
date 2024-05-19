@@ -16,9 +16,6 @@ struct Test {
 };
 
 int main() {
-    Board board;
-    MoveGenerator move_gen(board);
-
     int total_duration = 0;
     std::vector<Test> failed_tests;
     const int nr_tests = test_positions.size();
@@ -35,7 +32,8 @@ int main() {
         }
 
         const std::string fen = tokens.at(0);
-        board = fen::get_position(fen);
+        Board board = fen::get_position(fen);
+        MoveGenerator move_gen(board);
         std::cout << "Test " << i + 1 << "\n";
         std::cout << "FEN: " << fen <<"\n";
         for (int i = 1; i < tokens.size(); i++) {

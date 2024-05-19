@@ -20,7 +20,9 @@ public:
   GameState game_state;
   std::vector<GameState> history;
 
-  Board() {}
+  Board(std::array<Square, 64> squares,
+        std::array<std::vector<Piece>, 2> pieces, GameState game_state,
+        std::vector<GameState> history);
 
   static Board get_starting_position();
 

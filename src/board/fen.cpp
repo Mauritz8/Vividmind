@@ -7,6 +7,7 @@
 #include <stdexcept>
 #include <string>
 #include <string_view>
+#include <vector>
 
 #include "board/defs.hpp"
 #include "evaluation/evaluation.hpp"
@@ -15,7 +16,7 @@
 
 namespace fen {
 
-int get_psqt_score_static(Piece piece) {
+int get_psqt_score(Piece piece) {
   const int square =
       piece.color == WHITE ? piece.pos : get_mirrored_pos(piece.pos);
   switch (piece.piece_type) {
@@ -123,23 +124,13 @@ std::array<Square, 64> get_squares(std::string_view pieces) {
   return squares;
 }
 
-Board get_position(const std::string &fen) {
-  std::istringstream fen_stream(fen);
-  std::array<std::string, 6> fen_parts;
-
-  int i = 0;
-  std::string fen_part;
-  while (std::getline(fen_stream, fen_part, ' ')) {
-    fen_parts.at(i++) = fen_part;
-  }
-
-  if (i != 6) {
+Board get_position(std::string_view fen) {
+  std::vector<std::string> fen_parts = str_split(fen, ' ');
+  if (fen_parts.size() != 6) {
     throw std::invalid_argument("Invalid FEN: Does not contain six parts\n");
   }
 
-  Board board;
   std::array<Square, 64> squares = get_squares(fen_parts.at(0));
-
   std::vector<Piece> pieces;
   for (Square s : squares) {
     if (s.piece) {
@@ -161,12 +152,12 @@ Board get_position(const std::string &fen) {
   int black_material =
       std::accumulate(black_pieces.begin(), black_pieces.end(), 0,
                       [](int v, Piece p) { return v + p.get_value(); });
-  int white_psqt = std::accumulate(
-      white_pieces.begin(), white_pieces.end(), 0,
-      [](int v, Piece p) { return v + get_psqt_score_static(p); });
-  int black_psqt = std::accumulate(
-      black_pieces.begin(), black_pieces.end(), 0,
-      [](int m, Piece p) { return m + get_psqt_score_static(p); });
+  int white_psqt =
+      std::accumulate(white_pieces.begin(), white_pieces.end(), 0,
+                      [](int v, Piece p) { return v + get_psqt_score(p); });
+  int black_psqt =
+      std::accumulate(black_pieces.begin(), black_pieces.end(), 0,
+                      [](int m, Piece p) { return m + get_psqt_score(p); });
 
   GameState game_state = {
       .player_to_move = calc_player_to_move(fen_parts.at(1)),
@@ -179,10 +170,6 @@ Board get_position(const std::string &fen) {
       .captured_piece = std::nullopt,
   };
 
-  board.squares = squares;
-  board.pieces = {white_pieces, black_pieces};
-  board.game_state = game_state;
-  board.history = {};
-  return board;
+  return Board(squares, {white_pieces, black_pieces}, game_state, {});
 }
 } // namespace fen

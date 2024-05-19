@@ -1,10 +1,17 @@
 #include "board.hpp"
+#include "board/defs.hpp"
 #include "board/fen.hpp"
 
 #include <array>
 #include <iostream>
 #include <numeric>
 #include <vector>
+
+Board::Board(std::array<Square, 64> squares,
+             std::array<std::vector<Piece>, 2> pieces, GameState game_state,
+             std::vector<GameState> history)
+    : squares(squares), pieces(pieces), game_state(game_state),
+      history(history) {}
 
 Board Board::get_starting_position() {
   return fen::get_position(STARTING_POSITION_FEN);
