@@ -1,7 +1,9 @@
 #include "board.hpp"
 #include "board/defs.hpp"
 #include "board/fen.hpp"
+#include "fmt/core.h"
 
+#include <algorithm>
 #include <array>
 #include <iostream>
 #include <numeric>
@@ -56,11 +58,12 @@ std::string Board::to_string() const {
 }
 
 int Board::get_king_square(Color color) const {
-  for (Piece piece : pieces.at(color)) {
-    if (piece.piece_type == KING) {
-      return piece.pos;
-    }
+  auto is_king = [](Piece p) { return p.piece_type == KING; };
+  auto king =
+      std::find_if(pieces.at(color).begin(), pieces.at(color).end(), is_king);
+  if (king != pieces.at(color).end()) {
+    return king->pos;
   }
-  std::string color_str = color == WHITE ? "white" : "black";
-  throw std::invalid_argument("No " + color_str + " king on the board");
+  throw std::invalid_argument(fmt::format("No {} king on the board",
+                                          color == WHITE ? "white" : "black"));
 }
