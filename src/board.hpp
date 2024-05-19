@@ -4,6 +4,7 @@
 #include <array>
 #include <optional>
 #include <string>
+#include <string_view>
 #include <vector>
 
 #include "board/defs.hpp"
@@ -40,7 +41,7 @@ public:
   int evaluate() const;
 
 private:
-  void place_pieces(const std::string &pieces);
+  std::array<Square, 64> get_squares(std::string_view pieces);
   Color calc_player_to_move(const std::string &player_to_move);
   std::array<Castling, 2>
   calc_castling_rights(const std::string &castling_rights_str);

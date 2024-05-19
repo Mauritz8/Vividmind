@@ -1,8 +1,10 @@
 #include "board.hpp"
 
+#include <array>
 #include <sstream>
 #include <stdexcept>
 #include <string>
+#include <string_view>
 
 #include "board/defs.hpp"
 #include "utils.hpp"
@@ -30,7 +32,7 @@ Board Board::get_position_from_fen(const std::string &fen) {
   board.game_state.material.at(BLACK) = 0;
   board.game_state.psqt.at(WHITE) = 0;
   board.game_state.psqt.at(BLACK) = 0;
-  board.place_pieces(fen_parts.at(0));
+  board.squares = board.get_squares(fen_parts.at(0));
   board.game_state.player_to_move = board.calc_player_to_move(fen_parts.at(1));
   board.game_state.castling_rights =
       board.calc_castling_rights(fen_parts.at(2));
@@ -43,7 +45,8 @@ Board Board::get_position_from_fen(const std::string &fen) {
   return board;
 }
 
-void Board::place_pieces(const std::string &pieces) {
+std::array<Square, 64> Board::get_squares(std::string_view pieces) {
+  std::array<Square, 64> squares;
   int pos = 0;
   for (const char ch : pieces) {
     if (ch == '/')
@@ -51,22 +54,20 @@ void Board::place_pieces(const std::string &pieces) {
 
     if (isdigit(ch)) {
       const int n = (int)ch - '0';
-      for (int i = 0; i < n; i++) {
-        squares.at(pos).pos = pos;
-        pos++;
+      for (int _ = 0; _ < n; pos++) {
+        squares.at(pos) = Square(pos);
       }
     } else {
       Color color = islower(ch) ? BLACK : WHITE;
       Piece piece = Piece(get_piece_type(ch), color, pos);
-      Square &square = squares.at(pos);
-      squares.at(pos).pos = pos;
-      squares.at(pos).piece = piece;
+      squares.at(pos) = Square(pos, piece);
       this->pieces.at(color).push_back(piece);
       game_state.material.at(color) += piece.get_value();
       game_state.psqt.at(color) += get_psqt_score(piece);
       pos++;
     }
   }
+  return squares;
 }
 
 Color Board::calc_player_to_move(const std::string &player_to_move) {
