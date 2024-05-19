@@ -23,7 +23,6 @@ public:
   Board() {}
 
   static Board get_starting_position();
-  static Board get_position_from_fen(const std::string &fen);
 
   bool operator==(const Board &board) const;
 
@@ -41,22 +40,12 @@ public:
   int evaluate() const;
 
 private:
-  std::array<Square, 64> get_squares(std::string_view pieces);
-  Color calc_player_to_move(const std::string &player_to_move);
-  std::array<Castling, 2>
-  calc_castling_rights(const std::string &castling_rights_str);
-  std::optional<int>
-  calc_en_passant_square(const std::string &en_passant_square);
-  int calc_halfmove_clock(const std::string &halfmove_clock);
-  int calc_fullmove_number(const std::string &fullmove_number);
-
   Piece &get_piece(Piece piece);
   void remove_piece(Piece piece);
   void move_piece(Square &from, Square &to);
   void update_castling_rights(const Move &move);
   Move get_castling_rook_move(const Move &move) const;
 
-  static int get_psqt_score_static(Piece piece);
   int get_psqt_score(const Piece &piece) const;
   bool is_lone_king(Color color) const;
   bool is_endgame() const;

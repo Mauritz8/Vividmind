@@ -12,6 +12,7 @@
 #include <vector>
 
 #include "board/defs.hpp"
+#include "board/fen.hpp"
 #include "defs.hpp"
 #include "move.hpp"
 #include "move_gen.hpp"
@@ -51,7 +52,7 @@ void UCI::process(const std::string &input) {
   } else if (is_position) {
     const std::string fen = get_fen(words);
     try {
-      board = Board::get_position_from_fen(fen);
+      board = fen::get_position(fen);
     } catch (const std::invalid_argument &e) {
       std::cout << e.what();
     }

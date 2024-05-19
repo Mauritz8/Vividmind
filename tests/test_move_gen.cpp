@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "board.hpp"
+#include "board/fen.hpp"
 #include "move_gen.hpp"
 #include "test_positions.hpp"
 
@@ -34,7 +35,7 @@ int main() {
         }
 
         const std::string fen = tokens.at(0);
-        board = board.get_position_from_fen(fen);
+        board = fen::get_position(fen);
         std::cout << "Test " << i + 1 << "\n";
         std::cout << "FEN: " << fen <<"\n";
         for (int i = 1; i < tokens.size(); i++) {

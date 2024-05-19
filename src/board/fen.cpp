@@ -9,13 +9,121 @@
 #include <string_view>
 
 #include "board/defs.hpp"
+#include "evaluation/evaluation.hpp"
+#include "fen.hpp"
 #include "utils.hpp"
 
-Board Board::get_starting_position() {
-  return get_position_from_fen(STARTING_POSITION_FEN);
+namespace fen {
+
+int get_psqt_score_static(Piece piece) {
+  const int square =
+      piece.color == WHITE ? piece.pos : get_mirrored_pos(piece.pos);
+  switch (piece.piece_type) {
+  case KING: {
+    return KING_PSQT.at(square);
+  }
+  case QUEEN:
+    return QUEEN_PSQT.at(square);
+  case ROOK:
+    return ROOK_PSQT.at(square);
+  case BISHOP:
+    return BISHOP_PSQT.at(square);
+  case KNIGHT:
+    return KNIGHT_PSQT.at(square);
+  case PAWN:
+    return PAWN_PSQT.at(square);
+  }
 }
 
-Board Board::get_position_from_fen(const std::string &fen) {
+Color calc_player_to_move(const std::string &player_to_move) {
+  if (player_to_move == "w") {
+    return WHITE;
+  } else if (player_to_move == "b") {
+    return BLACK;
+  } else {
+    throw std::invalid_argument("Invalid FEN: " + player_to_move +
+                                " is not a valid color\n");
+  }
+}
+
+std::array<Castling, 2>
+calc_castling_rights(const std::string &castling_rights_str) {
+  std::array<Castling, 2> castling_rights;
+  castling_rights.at(WHITE).kingside = false;
+  castling_rights.at(WHITE).queenside = false;
+  castling_rights.at(BLACK).kingside = false;
+  castling_rights.at(BLACK).queenside = false;
+
+  for (char ch : castling_rights_str) {
+    switch (ch) {
+    case 'K':
+      castling_rights.at(WHITE).kingside = true;
+      break;
+    case 'Q':
+      castling_rights.at(WHITE).queenside = true;
+      break;
+    case 'k':
+      castling_rights.at(BLACK).kingside = true;
+      break;
+    case 'q':
+      castling_rights.at(BLACK).queenside = true;
+      break;
+    }
+  }
+  return castling_rights;
+}
+
+std::optional<int>
+calc_en_passant_square(const std::string &en_passant_square) {
+  if (en_passant_square.size() != 2) {
+    return {};
+  }
+  const int x = en_passant_square.at(0) - 'a';
+  const int y = 8 - (en_passant_square.at(1) - '0');
+  return x + y * 8;
+}
+
+int calc_halfmove_clock(const std::string &halfmove_clock) {
+  try {
+    return std::stoi(halfmove_clock);
+  } catch (const std::invalid_argument &e) {
+    throw std::invalid_argument(
+        "Invalid FEN: not a valid halfmove clock value\n");
+  }
+}
+
+int calc_fullmove_number(const std::string &fullmove_number) {
+  try {
+    return std::stoi(fullmove_number);
+  } catch (const std::invalid_argument &e) {
+    throw std::invalid_argument("Invalid FEN: not a valid fullmove number\n");
+  }
+}
+
+std::array<Square, 64> get_squares(std::string_view pieces) {
+  std::array<Square, 64> squares;
+  int pos = 0;
+  for (const char ch : pieces) {
+    if (ch == '/')
+      continue;
+
+    if (isdigit(ch)) {
+      const int n = (int)ch - '0';
+      for (int _ = 0; _ < n; _++) {
+        squares.at(pos) = Square(pos);
+        pos++;
+      }
+    } else {
+      Color color = islower(ch) ? BLACK : WHITE;
+      Piece piece = Piece(get_piece_type(ch), color, pos);
+      squares.at(pos) = Square(pos, piece);
+      pos++;
+    }
+  }
+  return squares;
+}
+
+Board get_position(const std::string &fen) {
   std::istringstream fen_stream(fen);
   std::array<std::string, 6> fen_parts;
 
@@ -30,7 +138,7 @@ Board Board::get_position_from_fen(const std::string &fen) {
   }
 
   Board board;
-  std::array<Square, 64> squares = board.get_squares(fen_parts.at(0));
+  std::array<Square, 64> squares = get_squares(fen_parts.at(0));
 
   std::vector<Piece> pieces;
   for (Square s : squares) {
@@ -61,11 +169,11 @@ Board Board::get_position_from_fen(const std::string &fen) {
       [](int m, Piece p) { return m + get_psqt_score_static(p); });
 
   GameState game_state = {
-      .player_to_move = board.calc_player_to_move(fen_parts.at(1)),
-      .castling_rights = board.calc_castling_rights(fen_parts.at(2)),
-      .en_passant_square = board.calc_en_passant_square(fen_parts.at(3)),
-      .halfmove_clock = board.calc_halfmove_clock(fen_parts.at(4)),
-      .fullmove_number = board.calc_fullmove_number(fen_parts.at(5)),
+      .player_to_move = calc_player_to_move(fen_parts.at(1)),
+      .castling_rights = calc_castling_rights(fen_parts.at(2)),
+      .en_passant_square = calc_en_passant_square(fen_parts.at(3)),
+      .halfmove_clock = calc_halfmove_clock(fen_parts.at(4)),
+      .fullmove_number = calc_fullmove_number(fen_parts.at(5)),
       .material = {white_material, black_material},
       .psqt = {white_psqt, black_psqt},
       .captured_piece = std::nullopt,
@@ -77,91 +185,4 @@ Board Board::get_position_from_fen(const std::string &fen) {
   board.history = {};
   return board;
 }
-
-std::array<Square, 64> Board::get_squares(std::string_view pieces) {
-  std::array<Square, 64> squares;
-  int pos = 0;
-  for (const char ch : pieces) {
-    if (ch == '/')
-      continue;
-
-    if (isdigit(ch)) {
-      const int n = (int)ch - '0';
-      for (int _ = 0; _ < n; _++) {
-        squares.at(pos) = Square(pos);
-        pos++;
-      }
-    } else {
-      Color color = islower(ch) ? BLACK : WHITE;
-      Piece piece = Piece(get_piece_type(ch), color, pos);
-      squares.at(pos) = Square(pos, piece);
-      pos++;
-    }
-  }
-  return squares;
-}
-
-Color Board::calc_player_to_move(const std::string &player_to_move) {
-  if (player_to_move == "w") {
-    return WHITE;
-  } else if (player_to_move == "b") {
-    return BLACK;
-  } else {
-    throw std::invalid_argument("Invalid FEN: " + player_to_move +
-                                " is not a valid color\n");
-  }
-}
-
-std::array<Castling, 2>
-Board::calc_castling_rights(const std::string &castling_rights_str) {
-  std::array<Castling, 2> castling_rights;
-  castling_rights.at(WHITE).kingside = false;
-  castling_rights.at(WHITE).queenside = false;
-  castling_rights.at(BLACK).kingside = false;
-  castling_rights.at(BLACK).queenside = false;
-
-  for (char ch : castling_rights_str) {
-    switch (ch) {
-    case 'K':
-      castling_rights.at(WHITE).kingside = true;
-      break;
-    case 'Q':
-      castling_rights.at(WHITE).queenside = true;
-      break;
-    case 'k':
-      castling_rights.at(BLACK).kingside = true;
-      break;
-    case 'q':
-      castling_rights.at(BLACK).queenside = true;
-      break;
-    }
-  }
-  return castling_rights;
-}
-
-std::optional<int>
-Board::calc_en_passant_square(const std::string &en_passant_square) {
-  if (en_passant_square.size() != 2) {
-    return {};
-  }
-  const int x = en_passant_square.at(0) - 'a';
-  const int y = 8 - (en_passant_square.at(1) - '0');
-  return x + y * 8;
-}
-
-int Board::calc_halfmove_clock(const std::string &halfmove_clock) {
-  try {
-    return std::stoi(halfmove_clock);
-  } catch (const std::invalid_argument &e) {
-    throw std::invalid_argument(
-        "Invalid FEN: not a valid halfmove clock value\n");
-  }
-}
-
-int Board::calc_fullmove_number(const std::string &fullmove_number) {
-  try {
-    return std::stoi(fullmove_number);
-  } catch (const std::invalid_argument &e) {
-    throw std::invalid_argument("Invalid FEN: not a valid fullmove number\n");
-  }
-}
+} // namespace fen

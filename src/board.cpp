@@ -1,9 +1,14 @@
 #include "board.hpp"
+#include "board/fen.hpp"
 
 #include <array>
 #include <iostream>
 #include <numeric>
 #include <vector>
+
+Board Board::get_starting_position() {
+  return fen::get_position(STARTING_POSITION_FEN);
+}
 
 bool Board::operator==(const Board &other) const {
   for (int pos = 0; pos < 64; pos++) {
