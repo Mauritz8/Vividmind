@@ -1,5 +1,4 @@
-#ifndef PIECE_HPP
-#define PIECE_HPP
+#pragma once
 
 #include "defs.hpp"
 
@@ -17,5 +16,3 @@ public:
   char get_char_representation() const;
   int get_value() const;
 };
-
-#endif

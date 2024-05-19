@@ -1,5 +1,4 @@
-#ifndef PSQT_HPP
-#define PSQT_HPP
+#pragma once
 
 #include <array>
 
@@ -72,5 +71,3 @@ const std::array<int, 64> KING_MATE = {
     -50, -50, -30, 30,  30,  30,  30,  -30, -50, -50, -30, -30, -30,
     -30, -30, -30, -50, -50, -50, -50, -50, -50, -50, -50, -50,
 };
-
-#endif

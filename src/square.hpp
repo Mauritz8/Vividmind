@@ -1,5 +1,4 @@
-#ifndef SQUARE_HPP
-#define SQUARE_HPP
+#pragma once
 
 #include <optional>
 
@@ -17,5 +16,3 @@ public:
 
   bool is_occupied_by(Color color) const;
 };
-
-#endif

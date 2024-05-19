@@ -1,5 +1,4 @@
-#ifndef UCI_HPP
-#define UCI_HPP
+#pragma once
 
 #include <sstream>
 #include <string>
@@ -28,5 +27,3 @@ private:
 
   bool make_move(const std::string &move);
 };
-
-#endif

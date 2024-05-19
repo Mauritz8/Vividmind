@@ -1,5 +1,4 @@
-#ifndef SEARCH_DEFS_HPP
-#define SEARCH_DEFS_HPP
+#pragma once
 
 #include <chrono>
 #include <vector>
@@ -56,5 +55,3 @@ const int MAX_PLY = 100;
 const int DRAW = 0;
 const int CHECKMATE = 50000;
 const int CHECKMATE_THRESHOLD = 49000;
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef DEFS_HPP
-#define DEFS_HPP
+#pragma once
 
 #include <string>
 
@@ -9,5 +8,3 @@ enum Color { WHITE, BLACK };
 const std::string NAME = "Vividmind";
 const std::string VERSION = "1.1.2";
 const std::string AUTHOR = "Mauritz Sjodin";
-
-#endif

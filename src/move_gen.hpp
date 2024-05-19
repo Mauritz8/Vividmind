@@ -1,5 +1,4 @@
-#ifndef MOVE_GEN_HPP
-#define MOVE_GEN_HPP
+#pragma once
 
 #include "board.hpp"
 
@@ -12,5 +11,3 @@ int perft(Board &board, int depth);
 void divide(Board &board, int depth);
 bool is_in_check(const Board &board, Color color);
 }; // namespace movegen
-
-#endif

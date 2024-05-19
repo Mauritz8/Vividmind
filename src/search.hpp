@@ -1,5 +1,4 @@
-#ifndef SEARCH_HPP
-#define SEARCH_HPP
+#pragma once
 
 #include <vector>
 
@@ -28,5 +27,3 @@ private:
   void sort_moves(std::vector<Move> &moves);
   int get_move_score(const Move &move);
 };
-
-#endif

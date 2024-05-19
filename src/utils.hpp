@@ -1,5 +1,4 @@
-#ifndef UTILS_HPP
-#define UTILS_HPP
+#pragma once
 
 #include "defs.hpp"
 #include <vector>
@@ -9,5 +8,3 @@ char get_char_representation(PieceType piece_type);
 PieceType get_piece_type(char char_representation);
 int get_mirrored_pos(int pos);
 std::vector<std::string> str_split(std::string_view str, char delim);
-
-#endif

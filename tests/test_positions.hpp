@@ -1,5 +1,4 @@
-#ifndef TEST_POSITIONS_HPP
-#define TEST_POSITIONS_HPP
+#pragma once
 
 #include <array>
 #include <string>
@@ -195,5 +194,3 @@ const std::array<std::string, 156> test_positions = {
     "1k6/8/8/8/R7/1n6/8/R3K3 b Q - 0 1 ;D5 346695",                                                                                                                                                    
     "r3k3/8/1N6/r7/8/8/8/1K6 w q - 0 1 ;D5 346695",                       
 };
-
-#endif

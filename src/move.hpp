@@ -1,5 +1,4 @@
-#ifndef MOVE_HPP
-#define MOVE_HPP
+#pragma once
 
 #include <optional>
 #include <string>
@@ -30,5 +29,3 @@ public:
 
   std::string to_uci_notation() const;
 };
-
-#endif

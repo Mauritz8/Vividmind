@@ -1,5 +1,4 @@
-#ifndef BOARD_HPP
-#define BOARD_HPP
+#pragma once
 
 #include <array>
 #include <optional>
@@ -52,5 +51,3 @@ private:
   bool is_lone_king(Color color) const;
   bool is_endgame() const;
 };
-
-#endif
