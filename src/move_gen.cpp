@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "board/defs.hpp"
+#include "fmt/core.h"
 #include "move.hpp"
 #include "square.hpp"
 #include "utils.hpp"
@@ -440,10 +441,10 @@ void divide(Board &board, int depth) {
     }
     const int nodes = perft(board, depth - 1);
     nodes_searched += nodes;
-    std::cout << move.to_uci_notation() << ": " << nodes << "\n";
+    fmt::println("{}: {}", move.to_uci_notation(), nodes);
     board.undo();
   }
-  std::cout << "\nNodes searched: " << nodes_searched << "\n";
+  fmt::println("\nNodes searched: {}", nodes_searched);
 }
 
 } // namespace movegen

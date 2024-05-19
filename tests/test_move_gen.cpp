@@ -5,6 +5,7 @@
 
 #include "board.hpp"
 #include "board/fen.hpp"
+#include "fmt/core.h"
 #include "move_gen.hpp"
 #include "test_positions.hpp"
 
@@ -33,8 +34,8 @@ int main() {
 
         const std::string fen = tokens.at(0);
         Board board = fen::get_position(fen);
-        std::cout << "Test " << i + 1 << "\n";
-        std::cout << "FEN: " << fen <<"\n";
+        fmt::println("Test {}", i + 1);
+        fmt::println("FEN: {}", fen);
         for (int i = 1; i < tokens.size(); i++) {
             std::string token = tokens.at(i);
             const size_t split_index = token.find(' ');
@@ -49,26 +50,23 @@ int main() {
             const int duration = std::chrono::duration_cast<std::chrono::milliseconds>(finished - start).count();
             total_duration += duration;
             const bool is_successful = actual_nodes == expected_nodes;
-            std::cout << "depth " << depth << ": found ";
-            std::cout << actual_nodes << "/" << expected_nodes << " moves"; 
-            std::cout << " - " << (is_successful ? "[OK]" : "[FAIL]");
-            std::cout << " (" << "" << duration << " ms)" << "\n";
-
+            fmt::println("depth {}: found {}/{} moves - {} ({} ms)", depth,
+                         actual_nodes, expected_nodes,
+                         is_successful ? "[OK]" : "[FAIL]", duration);
             if (!is_successful) {
                 failed_tests.push_back(Test{fen, depth, expected_nodes, actual_nodes});
             }
         }
-        std::cout << "\n";
+        fmt::print("\n");
     }
 
     const int nr_failed_tests = failed_tests.size();
-    std::cout << "\n\nFinished in " << total_duration / 1000 << " s\n";
-    std::cout << nr_tests - nr_failed_tests << "/" << nr_tests << " tests were successful\n\n";
+    fmt::println("\n\nFinished in {} s", total_duration / 1000);
+    fmt::println("{}/{} tests were successful\n", nr_tests - nr_failed_tests, nr_tests);
     if (nr_failed_tests > 0) {
-        std::cout << "Failed tests:\n";
+        fmt::println("Failed tests:");
         for (Test test : failed_tests) {
-            std::cout << "FEN: " << test.fen << "(depth " << test.depth << " found ";
-            std::cout << test.actual_nodes << "/" << test.expected_nodes << " moves)\n"; 
+            fmt::println("FEN: {} (depth {} found {}/{} moves)", test.fen, test.depth, test.actual_nodes, test.expected_nodes);
         }
         return 1;
     }

@@ -30,15 +30,15 @@ void UCI::process(const std::string &input) {
       words.size() == 3 && words.at(0) == "go" && words.at(1) == "perft";
 
   if (input == "uci") {
-    fmt::print("id name {} {}\nid author {}\nuciok\n\n", NAME, VERSION, AUTHOR);
+    fmt::println("id name {} {}\nid author {}\nuciok\n", NAME, VERSION, AUTHOR);
   } else if (input == "isready") {
-    fmt::print("readyok\n\n");
+    fmt::println("readyok\n");
   } else if (is_position) {
     const std::string fen = get_fen(words);
     try {
       board = fen::get_position(fen);
     } catch (const std::invalid_argument &e) {
-      std::cout << e.what();
+      fmt::println(e.what());
     }
     auto moves_it = std::find(words.begin(), words.end(), "moves");
     if (moves_it != words.end()) {
@@ -54,7 +54,7 @@ void UCI::process(const std::string &input) {
   } else if (input == "quit") {
     exit(0);
   } else {
-    fmt::print("invalid input: {}\n", input);
+    fmt::println("invalid input: {}", input);
   }
 }
 
@@ -74,12 +74,12 @@ std::string UCI::show(const SearchSummary &ss) {
                       });
 
   return fmt::format("info depth {} seldepth {} multipv 1 score {} nodes {} "
-                     "nps {} time {} pv{}\n",
+                     "nps {} time {} pv{}",
                      ss.depth, ss.seldepth, score, ss.nodes, nps, ss.time, pv);
 }
 
 std::string UCI::bestmove(const Move &move) {
-  return fmt::format("bestmove {}\n", move.to_uci_notation());
+  return fmt::format("bestmove {}", move.to_uci_notation());
 }
 
 std::string UCI::get_fen(const std::vector<std::string> &words) const {
