@@ -136,12 +136,12 @@ UCI::get_search_params(const std::vector<std::string> &words) const {
       search_params.search_mode = MOVE_TIME;
       search_params.allocated_time = movetime - MOVE_OVERHEAD;
     }
+  }
 
-    if (search_params.game_time.wtime != 0 &&
-        search_params.game_time.btime != 0) {
-      search_params.search_mode = MOVE_TIME;
-      search_params.allocated_time = search.calc_allocated_time();
-    }
+  if (search_params.game_time.wtime != 0 &&
+      search_params.game_time.btime != 0) {
+    search_params.search_mode = MOVE_TIME;
+    search_params.allocated_time = search.calc_allocated_time();
   }
   return search_params;
 }
