@@ -70,7 +70,7 @@ std::string UCI::show(const SearchSummary &ss) {
   const std::string pv =
       std::accumulate(ss.pv.begin(), ss.pv.end(), std::string(""),
                       [](std::string acc, const Move &m) {
-                        return acc + " " + m.to_uci_notation();
+                        return fmt::format("{} {}", acc, m.to_uci_notation());
                       });
 
   return fmt::format("info depth {} seldepth {} multipv 1 score {} nodes {} "
@@ -88,7 +88,7 @@ std::string UCI::get_fen(const std::vector<std::string> &words) const {
   }
 
   auto join = [](std::string str1, std::string str2) {
-    return str1 + " " + str2;
+    return fmt::format("{} {}", str1, str2);
   };
   auto moves_it = std::find(words.begin(), words.end(), "moves");
   std::string fen =

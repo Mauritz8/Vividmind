@@ -12,6 +12,7 @@
 #include "board/defs.hpp"
 #include "evaluation/evaluation.hpp"
 #include "fen.hpp"
+#include "fmt/core.h"
 #include "utils.hpp"
 
 namespace fen {
@@ -42,8 +43,8 @@ Color calc_player_to_move(const std::string &player_to_move) {
   } else if (player_to_move == "b") {
     return BLACK;
   } else {
-    throw std::invalid_argument("Invalid FEN: " + player_to_move +
-                                " is not a valid color\n");
+    throw std::invalid_argument(
+        fmt::format("Invalid FEN: {} is not a valid color\n", player_to_move));
   }
 }
 

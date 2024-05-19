@@ -46,15 +46,15 @@ bool Board::operator==(const Board &other) const {
 }
 
 std::string Board::to_string() const {
-  auto to_str = [](std::string str, Square square) {
-    bool last_col = (square.pos + 1) % 8 == 0;
-    return str + " " +
-           (square.piece ? square.piece->get_char_representation() : '_') +
-           (last_col ? "\n" : "");
+  auto to_str = [](std::string str, Square s) {
+    bool last_col = (s.pos + 1) % 8 == 0;
+    return fmt::format("{} {}{}", str,
+                       s.piece ? s.piece->get_char_representation() : '_',
+                       last_col ? "\n" : "");
   };
   std::string board =
       std::accumulate(squares.begin(), squares.end(), std::string(""), to_str);
-  return board + "\n";
+  return board;
 }
 
 int Board::get_king_square(Color color) const {
