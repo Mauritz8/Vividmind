@@ -9,9 +9,11 @@
 #include "defs.hpp"
 #include "evaluation/evaluation.hpp"
 #include "move.hpp"
+#include "search/defs.hpp"
 #include "uci.hpp"
 
-Search::Search(Board &board) : board(board) {}
+Search::Search(Board &board, SearchParams &params)
+    : board(board), params(params) {}
 
 void Search::iterative_deepening_search() {
   // initialize alpha/beta to the value of immediate checkmate

@@ -17,9 +17,10 @@
 #include "move.hpp"
 #include "perft.hpp"
 #include "search/defs.hpp"
+#include "search/time_management.hpp"
 #include "utils.hpp"
 
-UCI::UCI(Board &board) : board(board), search(board) {}
+UCI::UCI(Board &board) : board(board) {}
 
 void UCI::process(const std::string &input) {
   const std::vector<std::string> words = str_split(input, ' ');
@@ -49,7 +50,8 @@ void UCI::process(const std::string &input) {
     int depth = std::stoi(words.at(2));
     divide(board, depth);
   } else if (words.at(0) == "go") {
-    search.params = get_search_params(words);
+    SearchParams params = get_search_params(words);
+    Search search = Search(board, params);
     search.iterative_deepening_search();
   } else if (input == "quit") {
     exit(0);
@@ -126,7 +128,9 @@ UCI::get_search_params(const std::vector<std::string> &words) const {
   if (search_params.game_time.wtime != 0 &&
       search_params.game_time.btime != 0) {
     search_params.search_mode = MOVE_TIME;
-    search_params.allocated_time = search.calc_allocated_time();
+    search_params.allocated_time = calc_allocated_time(
+        board.get_player_to_move(), search_params.game_time.wtime,
+        search_params.game_time.btime);
   }
   return search_params;
 }

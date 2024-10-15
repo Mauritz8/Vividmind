@@ -1,9 +1,10 @@
-#include "search.hpp"
+#include "time_management.hpp"
 
-int Search::calc_allocated_time() const {
-  const int allocated_time = board.get_player_to_move() == WHITE
-                                 ? params.game_time.wtime / 20
-                                 : params.game_time.btime / 20;
+int calc_allocated_time(Color player_to_move, int white_remaining_time,
+                        int black_remaining_time) {
+  const int allocated_time = player_to_move == WHITE
+                                 ? white_remaining_time / 20
+                                 : black_remaining_time / 20;
 
   return allocated_time == 0 ? 1 : allocated_time;
 }

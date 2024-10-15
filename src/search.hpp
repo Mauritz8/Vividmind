@@ -8,13 +8,12 @@
 
 class Search {
 public:
-  SearchParams params;
+  const SearchParams params;
   SearchInfo info;
 
-  Search(Board &board);
+  Search(Board &board, SearchParams &params);
 
   void iterative_deepening_search();
-  int calc_allocated_time() const;
 
 private:
   Board &board;
