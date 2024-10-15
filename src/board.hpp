@@ -46,6 +46,12 @@ private:
   void update_castling_rights(const Move &move);
   Move get_castling_rook_move(const Move &move) const;
 
+  void make_normal(const Move &move);
+  void make_en_passant(const Move &move);
+  void make_pawn_two_squares_forward(const Move &move);
+  void make_castling(const Move &move);
+  void make_promotion(const Move &move);
+
   int get_psqt_score(const Piece &piece) const;
   bool is_lone_king(Color color) const;
   bool is_endgame() const;

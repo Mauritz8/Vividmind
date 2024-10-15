@@ -3,6 +3,7 @@
 #include <stdexcept>
 
 #include "evaluation/evaluation.hpp"
+#include "move.hpp"
 #include "utils.hpp"
 
 void Board::make(const Move &move) {
@@ -12,56 +13,30 @@ void Board::make(const Move &move) {
   game_state.en_passant_square = {};
   game_state.captured_piece = {};
 
-  Square &start = squares.at(move.start);
-  Square &end = squares.at(move.end);
-
+  const Square &start = squares.at(move.start);
   if (start.piece->piece_type == PAWN) {
     game_state.halfmove_clock = 0;
-
-    if (move.move_type == PAWN_TWO_SQUARES_FORWARD) {
-      const int direction = start.piece->color == BLACK ? 1 : -1;
-      game_state.en_passant_square = move.start + direction * 8;
-    } else if (move.move_type == EN_PASSANT) {
-      const int x_diff = move.end % 8 - move.start % 8;
-      Square &captured_square = squares.at(move.start + x_diff);
-      remove_piece(*captured_square.piece);
-      captured_square.piece = {};
-    } else if (move.move_type == PROMOTION) {
-      if (end.piece) {
-        remove_piece(*end.piece);
-      }
-
-      Piece &piece = *start.piece;
-      Piece &piece_in_game_state = get_piece(piece);
-      PieceType promotion_piece = *move.promotion_piece;
-
-      const int old_psqt = get_psqt_score(piece);
-      piece.piece_type = promotion_piece;
-      piece_in_game_state.piece_type = promotion_piece;
-      const int new_value = piece.get_value();
-      const int new_psqt = get_psqt_score(piece);
-      game_state.material.at(piece.color) += new_value - PAWN_VALUE;
-      game_state.psqt.at(piece.color) += new_psqt - old_psqt;
-    }
   }
-
-  if (move.move_type == CASTLING) {
-    Move rook_move = get_castling_rook_move(move);
-    move_piece(squares.at(rook_move.start), squares.at(rook_move.end));
-  } else {
-    if (end.piece) {
-      game_state.halfmove_clock = 0;
-      remove_piece(*end.piece);
-    } else {
-      game_state.halfmove_clock++;
-    }
+  switch (move.move_type) {
+  case PAWN_TWO_SQUARES_FORWARD:
+    make_pawn_two_squares_forward(move);
+    break;
+  case EN_PASSANT:
+    make_en_passant(move);
+    break;
+  case PROMOTION:
+    make_promotion(move);
+    break;
+  case CASTLING:
+    make_castling(move);
+    break;
+  case NORMAL:
+    make_normal(move);
+    break;
   }
-
-  move_piece(start, end);
 
   update_castling_rights(move);
 
-  // increment the fullmove number after every time black moves
   if (game_state.player_to_move == BLACK) {
     game_state.fullmove_number++;
   }
@@ -97,6 +72,70 @@ void Board::undo() {
 
   game_state = history.at(history.size() - 1);
   history.pop_back();
+}
+
+void Board::make_normal(const Move &move) {
+  Square &start = squares.at(move.start);
+  Square &end = squares.at(move.end);
+
+  if (end.piece) {
+    game_state.halfmove_clock = 0;
+    remove_piece(*end.piece);
+  } else {
+    game_state.halfmove_clock++;
+  }
+  move_piece(start, end);
+}
+
+void Board::make_castling(const Move &move) {
+  Square &start = squares.at(move.start);
+  Square &end = squares.at(move.end);
+
+  Move rook_move = get_castling_rook_move(move);
+  move_piece(squares.at(rook_move.start), squares.at(rook_move.end));
+  move_piece(start, end);
+}
+
+void Board::make_pawn_two_squares_forward(const Move &move) {
+  Square &start = squares.at(move.start);
+  Square &end = squares.at(move.end);
+
+  const int direction = start.piece->color == BLACK ? 1 : -1;
+  game_state.en_passant_square = move.start + direction * 8;
+  move_piece(start, end);
+}
+
+void Board::make_en_passant(const Move &move) {
+  const int x_diff = move.end % 8 - move.start % 8;
+  Square &captured_square = squares.at(move.start + x_diff);
+  remove_piece(*captured_square.piece);
+  captured_square.piece = {};
+
+  Square &start = squares.at(move.start);
+  Square &end = squares.at(move.end);
+  move_piece(start, end);
+}
+
+void Board::make_promotion(const Move &move) {
+  Square &start = squares.at(move.start);
+  Square &end = squares.at(move.end);
+
+  if (end.piece) {
+    remove_piece(*end.piece);
+  }
+
+  Piece &piece = *start.piece;
+  Piece &piece_in_game_state = get_piece(piece);
+  PieceType promotion_piece = *move.promotion_piece;
+
+  const int old_psqt = get_psqt_score(piece);
+  piece.piece_type = promotion_piece;
+  piece_in_game_state.piece_type = promotion_piece;
+  const int new_value = piece.get_value();
+  const int new_psqt = get_psqt_score(piece);
+  game_state.material.at(piece.color) += new_value - PAWN_VALUE;
+  game_state.psqt.at(piece.color) += new_psqt - old_psqt;
+  move_piece(start, end);
 }
 
 Move Board::get_castling_rook_move(const Move &move) const {
