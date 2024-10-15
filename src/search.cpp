@@ -53,11 +53,11 @@ void Search::iterative_deepening_search() {
                                       .pv = principal_variation};
       best_move = search_summary.pv.at(0);
 
-      fmt::println(UCI::show(search_summary));
+      fmt::println(uci::show(search_summary));
     }
   }
   // always finish a search by outputting the best move
-  fmt::println(UCI::bestmove(best_move));
+  fmt::println(uci::bestmove(best_move));
 }
 
 int Search::alpha_beta(int depth, int alpha, int beta,

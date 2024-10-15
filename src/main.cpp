@@ -6,12 +6,11 @@
 
 int main() {
   Board board = Board::get_starting_position();
-  UCI uci = UCI(board);
 
   std::string input;
   while (true) {
     std::getline(std::cin, input);
-    uci.process(input);
+    uci::process(input, board);
   }
 
   return 0;
