@@ -9,7 +9,6 @@
 #include "defs.hpp"
 #include "evaluation/evaluation.hpp"
 #include "move.hpp"
-#include "move_gen.hpp"
 #include "uci.hpp"
 
 Search::Search(Board &board) : board(board) {}
@@ -61,7 +60,7 @@ void Search::iterative_deepening_search() {
 
 int Search::alpha_beta(int depth, int alpha, int beta,
                        std::vector<Move> &principal_variation) {
-  const Color player = board.game_state.player_to_move;
+  const Color player = board.get_player_to_move();
 
   // if the search has been terminated, then return immediately
   if (is_terminate()) {
@@ -72,7 +71,7 @@ int Search::alpha_beta(int depth, int alpha, int beta,
   // if player is in check, it's a good idea to look one move further
   // because there could be tactics available
   // after the opponent moves out of the check
-  const bool is_in_check = movegen::is_in_check(board, player);
+  const bool is_in_check = board.is_in_check(player);
   if (is_in_check) {
     depth++;
   }
@@ -84,8 +83,7 @@ int Search::alpha_beta(int depth, int alpha, int beta,
     return quiescence(alpha, beta, principal_variation);
   }
 
-  std::vector<Move> pseudo_legal_moves =
-      movegen::get_pseudo_legal_moves(board, ALL);
+  std::vector<Move> pseudo_legal_moves = board.get_pseudo_legal_moves(ALL);
   sort_moves(pseudo_legal_moves);
 
   int legal_moves_found = 0;
@@ -94,7 +92,7 @@ int Search::alpha_beta(int depth, int alpha, int beta,
     board.make(move);
     // if the move leaves the king in check, it was not legal
     // so go to the next move
-    if (movegen::is_in_check(board, player)) {
+    if (board.is_in_check(player)) {
       board.undo();
       continue;
     }
@@ -179,12 +177,12 @@ int Search::quiescence(int alpha, int beta,
     alpha = evaluation;
   }
 
-  const Color player = board.game_state.player_to_move;
-  std::vector<Move> captures = movegen::get_pseudo_legal_moves(board, TACTICAL);
+  const Color player = board.get_player_to_move();
+  std::vector<Move> captures = board.get_pseudo_legal_moves(TACTICAL);
   sort_moves(captures);
   for (const Move &capture : captures) {
     board.make(capture);
-    if (movegen::is_in_check(board, player)) {
+    if (board.is_in_check(player)) {
       board.undo();
       continue;
     }
@@ -243,8 +241,8 @@ void Search::sort_moves(std::vector<Move> &moves) {
 }
 
 int Search::get_move_score(const Move &move) {
-  const Square &start = board.squares.at(move.start);
-  const Square &end = board.squares.at(move.end);
+  const Square &start = board.get_square(move.start);
+  const Square &end = board.get_square(move.end);
 
   // score non-capture moves lower than captures
   if (!end.piece) {

@@ -1,7 +1,7 @@
 #include "board.hpp"
 
 bool Board::is_insufficient_material() const {
-  for (const std::vector<Piece> &pieces : pieces) {
+  for (const std::vector<Piece> &pieces : game_state.pieces) {
     for (Piece piece : pieces) {
       if (piece.piece_type == PAWN || piece.piece_type == ROOK ||
           piece.piece_type == QUEEN) {

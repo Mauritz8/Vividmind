@@ -4,7 +4,6 @@
 
 #include "board.hpp"
 #include "move.hpp"
-#include "move_gen.hpp"
 #include "search/defs.hpp"
 
 class Search {

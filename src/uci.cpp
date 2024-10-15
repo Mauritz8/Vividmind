@@ -15,7 +15,6 @@
 #include "board/fen.hpp"
 #include "defs.hpp"
 #include "move.hpp"
-#include "move_gen.hpp"
 #include "search/defs.hpp"
 #include "utils.hpp"
 
@@ -47,7 +46,7 @@ void UCI::process(const std::string &input) {
     }
   } else if (is_go_perft) {
     int depth = std::stoi(words.at(2));
-    movegen::divide(board, depth);
+    board.divide(depth);
   } else if (words.at(0) == "go") {
     search.params = get_search_params(words);
     search.iterative_deepening_search();
@@ -132,13 +131,13 @@ UCI::get_search_params(const std::vector<std::string> &words) const {
 }
 
 bool UCI::make_move(const std::string &move_uci) {
-  const Color player = board.game_state.player_to_move;
+  const Color player = board.get_player_to_move();
   const std::vector<Move> pseudo_legal_moves =
-      movegen::get_pseudo_legal_moves(board, ALL);
+      board.get_pseudo_legal_moves(ALL);
   for (const Move &move : pseudo_legal_moves) {
     if (move.to_uci_notation() == move_uci) {
       board.make(move);
-      if (movegen::is_in_check(board, player)) {
+      if (board.is_in_check(player)) {
         board.undo();
         return false;
       }

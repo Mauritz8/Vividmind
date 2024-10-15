@@ -3,6 +3,8 @@
 #include "board.hpp"
 #include "piece.hpp"
 #include "utils.hpp"
+#include <algorithm>
+#include <numeric>
 
 int Board::evaluate() const {
   const int white_material = game_state.material.at(WHITE);
@@ -32,15 +34,15 @@ int Piece::get_value() const {
   }
 }
 
-int Board::get_psqt_score(const Piece &piece) const {
+int get_psqt_score(const Piece &piece, bool is_lone_king, bool is_endgame) {
   const int square =
       piece.color == WHITE ? piece.pos : get_mirrored_pos(piece.pos);
   switch (piece.piece_type) {
   case KING: {
-    if (is_lone_king(piece.color)) {
+    if (is_lone_king) {
       return KING_MATE.at(square);
     }
-    if (is_endgame()) {
+    if (is_endgame) {
       return KING_ENDGAME_PSQT.at(square);
     }
     return KING_PSQT.at(square);
@@ -58,8 +60,12 @@ int Board::get_psqt_score(const Piece &piece) const {
   }
 }
 
+int Board::get_psqt_score(const Piece &piece) const {
+  return ::get_psqt_score(piece, is_lone_king(piece.color), is_endgame());
+}
+
 bool Board::is_lone_king(Color color) const {
-  return pieces.at(color).size() == 1;
+  return game_state.pieces.at(color).size() == 1;
 }
 
 bool Board::is_endgame() const {

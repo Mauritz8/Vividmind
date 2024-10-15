@@ -1,5 +1,7 @@
 #pragma once
 
+#include "piece.hpp"
+
 #include <array>
 
 const int KING_VALUE = 100000;
@@ -8,6 +10,8 @@ const int ROOK_VALUE = 500;
 const int BISHOP_VALUE = 300;
 const int KNIGHT_VALUE = 300;
 const int PAWN_VALUE = 100;
+
+int get_psqt_score(const Piece &piece, bool is_lone_king, bool is_endgame);
 
 const std::array<int, 64> KING_PSQT = {
     -30, -40, -40, -50, -50, -40, -40, -30, -30, -40, -40, -50, -50,

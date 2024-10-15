@@ -55,7 +55,7 @@ void Board::undo() {
     Piece captured_piece = *game_state.captured_piece;
     Square &captured_square = squares.at(captured_piece.pos);
     captured_square.piece = captured_piece;
-    pieces.at(captured_piece.color).push_back(captured_piece);
+    game_state.pieces.at(captured_piece.color).push_back(captured_piece);
     game_state.captured_piece = {};
   } else if (move.move_type == PROMOTION) {
     end.piece->piece_type = PAWN;
@@ -66,7 +66,7 @@ void Board::undo() {
   move_piece(end, start);
   if (game_state.captured_piece) {
     end.piece = game_state.captured_piece;
-    pieces.at(game_state.captured_piece->color)
+    game_state.pieces.at(game_state.captured_piece->color)
         .push_back(*game_state.captured_piece);
   }
 
@@ -158,7 +158,7 @@ Move Board::get_castling_rook_move(const Move &move) const {
 }
 
 Piece &Board::get_piece(Piece piece) {
-  for (Piece &p : pieces.at(piece.color)) {
+  for (Piece &p : game_state.pieces.at(piece.color)) {
     if (p.pos == piece.pos) {
       return p;
     }
@@ -167,7 +167,7 @@ Piece &Board::get_piece(Piece piece) {
 }
 
 void Board::remove_piece(Piece piece) {
-  std::vector<Piece> &pieces = this->pieces.at(piece.color);
+  std::vector<Piece> &pieces = this->game_state.pieces.at(piece.color);
   for (auto it = pieces.begin(); it != pieces.end(); ++it) {
     if (*it == piece) {
       pieces.erase(it);

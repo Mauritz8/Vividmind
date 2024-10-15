@@ -139,38 +139,15 @@ Board get_position(std::string_view fen) {
     }
   }
 
-  std::vector<Piece> white_pieces;
-  std::copy_if(pieces.begin(), pieces.end(), std::back_inserter(white_pieces),
-               [](Piece p) { return p.color == WHITE; });
+  const Color player_to_move = calc_player_to_move(fen_parts.at(1));
+  const std::array<Castling, 2> castling_rights =
+      calc_castling_rights(fen_parts.at(2));
+  const std::optional<int> en_passant_square =
+      calc_en_passant_square(fen_parts.at(3));
+  const int halfmove_clock = calc_halfmove_clock(fen_parts.at(4));
+  const int fullmove_number = calc_fullmove_number(fen_parts.at(5));
 
-  std::vector<Piece> black_pieces;
-  std::copy_if(pieces.begin(), pieces.end(), std::back_inserter(black_pieces),
-               [](Piece p) { return p.color == BLACK; });
-
-  int white_material =
-      std::accumulate(white_pieces.begin(), white_pieces.end(), 0,
-                      [](int v, Piece p) { return v + p.get_value(); });
-  int black_material =
-      std::accumulate(black_pieces.begin(), black_pieces.end(), 0,
-                      [](int v, Piece p) { return v + p.get_value(); });
-  int white_psqt =
-      std::accumulate(white_pieces.begin(), white_pieces.end(), 0,
-                      [](int v, Piece p) { return v + get_psqt_score(p); });
-  int black_psqt =
-      std::accumulate(black_pieces.begin(), black_pieces.end(), 0,
-                      [](int m, Piece p) { return m + get_psqt_score(p); });
-
-  GameState game_state = {
-      .player_to_move = calc_player_to_move(fen_parts.at(1)),
-      .castling_rights = calc_castling_rights(fen_parts.at(2)),
-      .en_passant_square = calc_en_passant_square(fen_parts.at(3)),
-      .halfmove_clock = calc_halfmove_clock(fen_parts.at(4)),
-      .fullmove_number = calc_fullmove_number(fen_parts.at(5)),
-      .material = {white_material, black_material},
-      .psqt = {white_psqt, black_psqt},
-      .captured_piece = std::nullopt,
-  };
-
-  return Board(squares, {white_pieces, black_pieces}, game_state, {});
+  return Board(pieces, player_to_move, castling_rights, en_passant_square,
+               halfmove_clock, fullmove_number);
 }
 } // namespace fen

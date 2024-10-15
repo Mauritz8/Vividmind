@@ -2,6 +2,7 @@
 
 #include <array>
 #include <string>
+#include <vector>
 
 #include "move.hpp"
 #include "piece.hpp"
@@ -17,11 +18,14 @@ struct GameState {
   std::optional<int> en_passant_square;
   int halfmove_clock;
   int fullmove_number;
+  std::array<std::vector<Piece>, 2> pieces;
   std::array<int, 2> material;
   std::array<int, 2> psqt;
   std::optional<Piece> captured_piece;
   Move next_move;
 };
+
+enum MoveCategory { ALL, TACTICAL };
 
 const std::string STARTING_POSITION_FEN =
     "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";

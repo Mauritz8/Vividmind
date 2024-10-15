@@ -5,7 +5,6 @@
 #include <vector>
 
 #include "board.hpp"
-#include "move_gen.hpp"
 #include "search.hpp"
 
 class UCI {
