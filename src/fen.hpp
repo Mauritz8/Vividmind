@@ -1,6 +1,6 @@
 #pragma once
 
-#include "board.hpp"
+#include "board/board.hpp"
 #include <string_view>
 
 namespace fen {

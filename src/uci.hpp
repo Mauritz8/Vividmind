@@ -2,8 +2,8 @@
 
 #include <string>
 
-#include "board.hpp"
-#include "search.hpp"
+#include "board/board.hpp"
+#include "search/search.hpp"
 
 namespace uci {
 void process(const std::string &input, Board &board);

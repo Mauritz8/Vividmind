@@ -1,7 +1,7 @@
 #pragma once
 
-#include "board.hpp"
-#include "piece.hpp"
+#include "../board/board.hpp"
+#include "../board/piece.hpp"
 #include <array>
 
 const int KING_VALUE = 100000;

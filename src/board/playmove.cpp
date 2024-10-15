@@ -2,7 +2,7 @@
 
 #include <stdexcept>
 
-#include "evaluation/evaluation.hpp"
+#include "../evaluation/evaluation.hpp"
 #include "move.hpp"
 #include "utils.hpp"
 

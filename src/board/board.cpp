@@ -1,6 +1,6 @@
 #include "board.hpp"
+#include "../fen.hpp"
 #include "board/defs.hpp"
-#include "board/fen.hpp"
 #include "evaluation/evaluation.hpp"
 #include "fmt/core.h"
 

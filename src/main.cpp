@@ -1,7 +1,7 @@
 #include <iostream>
 #include <string>
 
-#include "board.hpp"
+#include "board/board.hpp"
 #include "uci.hpp"
 
 int main() {

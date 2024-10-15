@@ -12,8 +12,8 @@
 #include <vector>
 
 #include "board/defs.hpp"
-#include "board/fen.hpp"
 #include "defs.hpp"
+#include "fen.hpp"
 #include "move.hpp"
 #include "perft.hpp"
 #include "search/defs.hpp"

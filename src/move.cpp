@@ -2,7 +2,6 @@
 #include "board/defs.hpp"
 #include "defs.hpp"
 #include "fmt/core.h"
-#include "piece.hpp"
 #include "utils.hpp"
 
 Move::Move(int start, int end) {

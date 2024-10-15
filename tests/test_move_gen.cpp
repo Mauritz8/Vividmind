@@ -3,8 +3,8 @@
 #include <string>
 #include <vector>
 
-#include "board.hpp"
-#include "board/fen.hpp"
+#include "board/board.hpp"
+#include "fen.hpp"
 #include "fmt/core.h"
 #include "perft.hpp"
 #include "test_positions.hpp"

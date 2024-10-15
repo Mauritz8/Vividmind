@@ -19,19 +19,19 @@ FetchContent_MakeAvailable(fmt)
 
 
 set(COMMON_SOURCES
+    src/board/board.cpp
+    src/board/square.cpp
+    src/board/piece.cpp
     src/board/draw.cpp
-    src/board/fen.cpp
     src/board/playmove.cpp
-    src/board.cpp
+    src/board/move_gen.cpp
     src/evaluation/evaluation.cpp
-    src/move_gen.cpp
     src/search/defs.cpp
     src/search/time_management.cpp
-    src/search.cpp
+    src/search/search.cpp
+    src/fen.cpp
     src/move.cpp
     src/perft.cpp
-    src/piece.cpp
-    src/square.cpp
     src/uci.cpp
     src/utils.cpp
 )

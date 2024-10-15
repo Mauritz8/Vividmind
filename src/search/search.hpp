@@ -2,7 +2,7 @@
 
 #include <vector>
 
-#include "board.hpp"
+#include "../board/board.hpp"
 #include "move.hpp"
 #include "search/defs.hpp"
 
