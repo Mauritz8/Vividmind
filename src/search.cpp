@@ -166,7 +166,7 @@ int Search::quiescence(int alpha, int beta,
   }
 
   info.nodes++;
-  int evaluation = board.evaluate();
+  int evaluation = evaluate(board);
   if (evaluation >= beta) {
     return beta;
   }

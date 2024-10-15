@@ -6,15 +6,10 @@
 #include <algorithm>
 #include <numeric>
 
-int Board::evaluate() const {
-  const int white_material = game_state.material.at(WHITE);
-  const int black_material = game_state.material.at(BLACK);
-  const int white_psqt = game_state.psqt.at(WHITE);
-  const int black_psqt = game_state.psqt.at(BLACK);
-
-  const int evaluation =
-      white_material - black_material + white_psqt - black_psqt;
-  return game_state.player_to_move == BLACK ? -evaluation : evaluation;
+int evaluate(const Board &board) {
+  const int evaluation = board.get_material(WHITE) - board.get_material(BLACK) +
+                         board.get_psqt(WHITE) - board.get_psqt(BLACK);
+  return board.get_player_to_move() == BLACK ? -evaluation : evaluation;
 }
 
 int Piece::get_value() const {

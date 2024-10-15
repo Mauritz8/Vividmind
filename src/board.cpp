@@ -107,6 +107,14 @@ const Color Board::get_player_to_move() const {
   return game_state.player_to_move;
 }
 
+const int Board::get_material(Color color) const {
+  return game_state.material.at(color);
+}
+
+const int Board::get_psqt(Color color) const {
+  return game_state.psqt.at(color);
+}
+
 std::string Board::to_string() const {
   auto to_str = [](std::string str, Square s) {
     bool last_col = (s.pos + 1) % 8 == 0;

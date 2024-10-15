@@ -26,6 +26,8 @@ public:
   const Square &get_square(int pos) const;
   const std::vector<Piece> &get_pieces(Color color) const;
   const Color get_player_to_move() const;
+  const int get_material(Color color) const;
+  const int get_psqt(Color color) const;
 
   std::string to_string() const;
 
@@ -34,8 +36,6 @@ public:
 
   bool is_draw() const;
   bool is_in_check(Color color) const;
-
-  int evaluate() const;
 
   std::vector<Move> get_pseudo_legal_moves(MoveCategory move_category) const;
 
