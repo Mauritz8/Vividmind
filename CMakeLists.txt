@@ -6,6 +6,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 add_compile_options(-O3 -march=native -flto)
+add_link_options(-flto)
 
 
 include(FetchContent)
