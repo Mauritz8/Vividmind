@@ -102,27 +102,25 @@ int calc_fullmove_number(const std::string &fullmove_number) {
   }
 }
 
-std::array<Square, 64> get_squares(std::string_view pieces) {
-  std::array<Square, 64> squares;
+std::vector<Piece> get_pieces(std::string_view pieces_str) {
+  std::vector<Piece> pieces;
   int pos = 0;
-  for (const char ch : pieces) {
-    if (ch == '/')
+  for (const char ch : pieces_str) {
+    if (ch == '/') {
       continue;
+    }
 
     if (isdigit(ch)) {
       const int n = (int)ch - '0';
-      for (int _ = 0; _ < n; _++) {
-        squares.at(pos) = Square(pos);
-        pos++;
-      }
+      pos += n;
     } else {
       Color color = islower(ch) ? BLACK : WHITE;
       Piece piece = Piece(get_piece_type(ch), color, pos);
-      squares.at(pos) = Square(pos, piece);
+      pieces.push_back(piece);
       pos++;
     }
   }
-  return squares;
+  return pieces;
 }
 
 Board get_position(std::string_view fen) {
@@ -131,14 +129,7 @@ Board get_position(std::string_view fen) {
     throw std::invalid_argument("Invalid FEN: Does not contain six parts\n");
   }
 
-  std::array<Square, 64> squares = get_squares(fen_parts.at(0));
-  std::vector<Piece> pieces;
-  for (Square s : squares) {
-    if (s.piece) {
-      pieces.push_back(*s.piece);
-    }
-  }
-
+  std::vector<Piece> pieces = get_pieces(fen_parts.at(0));
   const Color player_to_move = calc_player_to_move(fen_parts.at(1));
   const std::array<Castling, 2> castling_rights =
       calc_castling_rights(fen_parts.at(2));
