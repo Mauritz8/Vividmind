@@ -6,6 +6,7 @@
 #include "board.hpp"
 #include "board/fen.hpp"
 #include "fmt/core.h"
+#include "perft.hpp"
 #include "test_positions.hpp"
 
 struct Test {
@@ -45,7 +46,7 @@ int main() {
       const int expected_nodes = std::stoi(token.substr(split_index));
 
       const auto start = std::chrono::high_resolution_clock::now();
-      const int actual_nodes = board.perft(depth);
+      const int actual_nodes = perft(board, depth);
       const auto finished = std::chrono::high_resolution_clock::now();
       const int duration =
           std::chrono::duration_cast<std::chrono::milliseconds>(finished -

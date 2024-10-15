@@ -28,21 +28,16 @@ public:
   const Color get_player_to_move() const;
 
   std::string to_string() const;
-  int get_king_square(Color color) const;
 
   void make(const Move &move);
   void undo();
 
-  bool is_insufficient_material() const;
-  bool is_threefold_repetition() const;
-  bool is_draw_by_fifty_move_rule() const;
+  bool is_draw() const;
+  bool is_in_check(Color color) const;
 
   int evaluate() const;
 
   std::vector<Move> get_pseudo_legal_moves(MoveCategory move_category) const;
-  int perft(int depth);
-  void divide(int depth);
-  bool is_in_check(Color color) const;
 
 private:
   std::array<Square, 64> squares;
@@ -65,6 +60,11 @@ private:
   bool is_lone_king(Color color) const;
   bool is_endgame() const;
 
+  bool is_insufficient_material() const;
+  bool is_threefold_repetition() const;
+  bool is_draw_by_fifty_move_rule() const;
+
+  int get_king_square(Color color) const;
   bool is_valid_en_passant(int capture_pos) const;
   std::vector<Move> get_pawn_captures(const Piece &piece) const;
   std::vector<Move> get_king_normal_moves(const Piece &piece,

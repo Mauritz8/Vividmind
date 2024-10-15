@@ -15,6 +15,7 @@
 #include "board/fen.hpp"
 #include "defs.hpp"
 #include "move.hpp"
+#include "perft.hpp"
 #include "search/defs.hpp"
 #include "utils.hpp"
 
@@ -46,7 +47,7 @@ void UCI::process(const std::string &input) {
     }
   } else if (is_go_perft) {
     int depth = std::stoi(words.at(2));
-    board.divide(depth);
+    divide(board, depth);
   } else if (words.at(0) == "go") {
     search.params = get_search_params(words);
     search.iterative_deepening_search();

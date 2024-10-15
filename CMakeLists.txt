@@ -29,6 +29,7 @@ set(COMMON_SOURCES
     src/search/time_management.cpp
     src/search.cpp
     src/move.cpp
+    src/perft.cpp
     src/piece.cpp
     src/square.cpp
     src/uci.cpp

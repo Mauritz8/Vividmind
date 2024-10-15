@@ -110,10 +110,7 @@ int Search::alpha_beta(int depth, int alpha, int beta,
     int evaluation = DRAW;
 
     // if it's not a draw we must search further
-    const bool is_draw = board.is_insufficient_material() ||
-                         board.is_threefold_repetition() ||
-                         board.is_draw_by_fifty_move_rule();
-    if (!is_draw) {
+    if (!board.is_draw()) {
       // call search function again and decrease the depth
       evaluation = -alpha_beta(depth - 1, -beta, -alpha, variation);
     }
