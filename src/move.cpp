@@ -1,4 +1,7 @@
 #include "move.hpp"
+#include "board/defs.hpp"
+#include "defs.hpp"
+#include "fmt/core.h"
 #include "piece.hpp"
 #include "utils.hpp"
 
@@ -28,18 +31,11 @@ bool Move::operator==(const Move &move) const {
 }
 
 std::string Move::to_uci_notation() const {
-  const std::string files = "abcdefgh";
-  const std::string ranks = "87654321";
+  std::string promotion_piece_str =
+      promotion_piece
+          ? std::string(1, tolower(get_char_representation(*promotion_piece)))
+          : "";
 
-  std::string uci_notation;
-  uci_notation += files.at(this->start % 8);
-  uci_notation += ranks.at(this->start / 8);
-  uci_notation += files.at(this->end % 8);
-  uci_notation += ranks.at(this->end / 8);
-
-  if (this->promotion_piece) {
-    uci_notation +=
-        tolower(get_char_representation(this->promotion_piece.value()));
-  }
-  return uci_notation;
+  return fmt::format("{}{}{}", SQUARES.at(start), SQUARES.at(end),
+                     promotion_piece_str);
 }
