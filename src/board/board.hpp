@@ -23,8 +23,7 @@ public:
 
   bool operator==(const Board &board) const;
 
-  const Square &get_square(int pos) const;
-  const std::vector<Piece> &get_pieces(Color color) const;
+  const std::optional<Piece> &get_piece(int pos) const;
   const Color get_player_to_move() const;
   const int get_material(Color color) const;
   const int get_psqt(Color color) const;

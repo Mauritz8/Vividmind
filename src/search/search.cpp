@@ -240,12 +240,12 @@ void Search::sort_moves(std::vector<Move> &moves) {
 }
 
 int Search::get_move_score(const Move &move) {
-  const Square &start = board.get_square(move.start);
-  const Square &end = board.get_square(move.end);
+  const std::optional<Piece> &start_piece = board.get_piece(move.start);
+  const std::optional<Piece> &end_piece = board.get_piece(move.end);
 
   // score non-capture moves lower than captures
-  if (!end.piece) {
+  if (!start_piece) {
     return -QUEEN_VALUE;
   }
-  return end.piece->get_value() - start.piece->get_value();
+  return end_piece->get_value() - start_piece->get_value();
 }

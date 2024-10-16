@@ -73,7 +73,7 @@ Board Board::get_starting_position() {
 
 bool Board::operator==(const Board &other) const {
   for (int pos = 0; pos < 64; pos++) {
-    if (squares.at(pos).piece != other.get_square(pos).piece) {
+    if (squares.at(pos).piece != other.squares.at(pos).piece) {
       return false;
     }
   }
@@ -97,10 +97,8 @@ bool Board::operator==(const Board &other) const {
   return true;
 }
 
-const Square &Board::get_square(int pos) const { return squares.at(pos); }
-
-const std::vector<Piece> &Board::get_pieces(Color color) const {
-  return game_state.pieces.at(color);
+const std::optional<Piece> &Board::get_piece(int pos) const {
+  return squares.at(pos).piece;
 }
 
 const Color Board::get_player_to_move() const {

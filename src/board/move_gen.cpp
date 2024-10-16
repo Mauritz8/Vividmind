@@ -29,7 +29,7 @@ std::vector<Move> Board::get_pawn_captures(const Piece &piece) const {
       continue;
     }
 
-    const Square &square = get_square(end);
+    const Square &square = squares.at(end);
     if (square.piece && square.piece->color != piece.color) {
       moves.push_back(Move(piece.pos, end));
     } else if (is_valid_en_passant(end)) {
@@ -54,10 +54,10 @@ Board::get_king_normal_moves(const Piece &piece,
       continue;
     }
 
-    if (move_category == TACTICAL && get_square(end).is_occupied_by(opponent)) {
+    if (move_category == TACTICAL && squares.at(end).is_occupied_by(opponent)) {
       moves.push_back(Move(piece.pos, end));
     } else if (move_category == ALL &&
-               !get_square(end).is_occupied_by(piece.color)) {
+               !squares.at(end).is_occupied_by(piece.color)) {
       moves.push_back(Move(piece.pos, end));
     }
   }
@@ -71,7 +71,7 @@ bool Board::is_clear_path_castling(const Move &castling_move) const {
 
   int pos = castling_move.start + x_direction;
   while (pos != rook_pos) {
-    if (get_square(pos).piece) {
+    if (squares.at(pos).piece) {
       return false;
     }
     pos += x_direction;
@@ -107,7 +107,7 @@ Board::get_pseudo_legal_moves_direction(const Piece &piece, int x_direction,
   const int step = x_direction + y_direction * 10;
   int pos = mailbox.at(mailbox64.at(piece.pos) + step);
   while (pos != -1) {
-    const Square &end = get_square(pos);
+    const Square &end = squares.at(pos);
     if (end.piece) {
       if (end.piece->color != piece.color) {
         moves.push_back(Move(piece.pos, pos));
@@ -197,10 +197,10 @@ Board::get_knight_pseudo_legal_moves(const Piece &piece,
       continue;
     }
 
-    if (move_category == TACTICAL && get_square(end).is_occupied_by(opponent)) {
+    if (move_category == TACTICAL && squares.at(end).is_occupied_by(opponent)) {
       moves.push_back(Move(piece.pos, end));
     } else if (move_category == ALL &&
-               !get_square(end).is_occupied_by(piece.color)) {
+               !squares.at(end).is_occupied_by(piece.color)) {
       moves.push_back(Move(piece.pos, end));
     }
   }
@@ -220,13 +220,13 @@ Board::get_pawn_pseudo_legal_moves(const Piece &piece,
   const bool is_promotion_move = y == about_to_promote_row;
   if (move_category == ALL || move_category == TACTICAL && is_promotion_move) {
     const int end1 = start + 8 * direction;
-    if (!get_square(end1).piece) {
+    if (!squares.at(end1).piece) {
       moves.push_back(Move(start, end1));
 
       const int starting_row = piece.color == BLACK ? 1 : 6;
       if (start / 8 == starting_row) {
         const int end2 = start + 16 * direction;
-        if (!get_square(end2).piece) {
+        if (!squares.at(end2).piece) {
           Move move = Move(start, end2);
           move.move_type = PAWN_TWO_SQUARES_FORWARD;
           moves.push_back(move);
@@ -264,7 +264,7 @@ bool Board::is_attacked_by(int pos, Color color) const {
   const std::vector<Move> &rook_moves =
       get_rook_pseudo_legal_moves(piece, TACTICAL);
   for (const Move &move : rook_moves) {
-    const PieceType piece_type = get_square(move.end).piece->piece_type;
+    const PieceType piece_type = squares.at(move.end).piece->piece_type;
     if (piece_type == ROOK || piece_type == QUEEN) {
       return true;
     }
@@ -273,7 +273,7 @@ bool Board::is_attacked_by(int pos, Color color) const {
   const std::vector<Move> &bishop_moves =
       get_bishop_pseudo_legal_moves(piece, TACTICAL);
   for (const Move &move : bishop_moves) {
-    const PieceType piece_type = get_square(move.end).piece->piece_type;
+    const PieceType piece_type = squares.at(move.end).piece->piece_type;
     if (piece_type == BISHOP || piece_type == QUEEN) {
       return true;
     }
@@ -282,14 +282,14 @@ bool Board::is_attacked_by(int pos, Color color) const {
   const std::vector<Move> &knight_moves =
       get_knight_pseudo_legal_moves(piece, TACTICAL);
   for (const Move &move : knight_moves) {
-    if (get_square(move.end).piece->piece_type == KNIGHT) {
+    if (squares.at(move.end).piece->piece_type == KNIGHT) {
       return true;
     }
   }
 
   const std::vector<Move> pawn_captures = get_pawn_captures(piece);
   for (const Move &move : pawn_captures) {
-    if (get_square(move.end).piece->piece_type == PAWN &&
+    if (squares.at(move.end).piece->piece_type == PAWN &&
         game_state.en_passant_square != move.end) {
       return true;
     }
@@ -297,7 +297,7 @@ bool Board::is_attacked_by(int pos, Color color) const {
 
   const std::vector<Move> king_moves = get_king_normal_moves(piece, TACTICAL);
   for (const Move &move : king_moves) {
-    if (get_square(move.end).piece->piece_type == KING) {
+    if (squares.at(move.end).piece->piece_type == KING) {
       return true;
     }
   }
@@ -389,7 +389,8 @@ Board::get_pseudo_legal_moves(const Piece &piece,
 
 std::vector<Move>
 Board::get_pseudo_legal_moves(MoveCategory move_category) const {
-  const std::vector<Piece> &pieces = get_pieces(game_state.player_to_move);
+  const std::vector<Piece> &pieces =
+      game_state.pieces.at(game_state.player_to_move);
   std::vector<Move> moves;
   for (Piece piece : pieces) {
     std::vector<Move> piece_moves =
