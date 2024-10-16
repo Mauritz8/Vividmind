@@ -9,7 +9,7 @@
 #include "defs.hpp"
 #include "evaluation/evaluation.hpp"
 #include "move.hpp"
-#include "search/defs.hpp"
+#include "search/search_defs.hpp"
 #include "uci.hpp"
 
 Search::Search(Board &board, SearchParams &params)

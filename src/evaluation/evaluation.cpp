@@ -1,7 +1,7 @@
 #include "evaluation.hpp"
 
-#include "../board/board.hpp"
-#include "../board/piece.hpp"
+#include "board/board.hpp"
+#include "board/piece.hpp"
 #include "utils.hpp"
 #include <algorithm>
 #include <numeric>

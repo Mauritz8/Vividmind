@@ -11,12 +11,12 @@
 #include <string_view>
 #include <vector>
 
-#include "board/defs.hpp"
+#include "board/board_defs.hpp"
 #include "defs.hpp"
 #include "fen.hpp"
 #include "move.hpp"
 #include "perft.hpp"
-#include "search/defs.hpp"
+#include "search/search_defs.hpp"
 #include "search/time_management.hpp"
 #include "utils.hpp"
 

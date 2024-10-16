@@ -1,4 +1,4 @@
-#include "defs.hpp"
+#include "search_defs.hpp"
 
 SearchParams::SearchParams() {
   depth = MAX_PLY;

@@ -2,9 +2,9 @@
 
 #include <vector>
 
-#include "../board/board.hpp"
+#include "board/board.hpp"
 #include "move.hpp"
-#include "search/defs.hpp"
+#include "search/search_defs.hpp"
 
 class Search {
 public:

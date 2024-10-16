@@ -26,7 +26,7 @@ set(COMMON_SOURCES
     src/board/playmove.cpp
     src/board/move_gen.cpp
     src/evaluation/evaluation.cpp
-    src/search/defs.cpp
+    src/search/search_defs.cpp
     src/search/time_management.cpp
     src/search/search.cpp
     src/fen.cpp

@@ -4,7 +4,7 @@
 #include <iostream>
 #include <vector>
 
-#include "board/defs.hpp"
+#include "board/board_defs.hpp"
 #include "fmt/core.h"
 #include "move.hpp"
 #include "square.hpp"

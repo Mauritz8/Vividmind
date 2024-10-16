@@ -6,7 +6,7 @@
 #include <string_view>
 #include <vector>
 
-#include "board/defs.hpp"
+#include "board_defs.hpp"
 #include "defs.hpp"
 #include "move.hpp"
 #include "piece.hpp"

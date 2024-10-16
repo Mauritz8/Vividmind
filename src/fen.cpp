@@ -9,7 +9,7 @@
 #include <string_view>
 #include <vector>
 
-#include "board/defs.hpp"
+#include "board/board_defs.hpp"
 #include "evaluation/evaluation.hpp"
 #include "fen.hpp"
 #include "fmt/core.h"
