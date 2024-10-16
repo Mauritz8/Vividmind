@@ -1,5 +1,4 @@
 #include "move.hpp"
-#include "board/board_defs.hpp"
 #include "defs.hpp"
 #include "fmt/core.h"
 #include "utils.hpp"

@@ -6,27 +6,27 @@
 #include <string_view>
 #include <vector>
 
-#include "board_defs.hpp"
+#include "mailbox_board_defs.hpp"
 #include "defs.hpp"
 #include "move.hpp"
 #include "piece.hpp"
 #include "square.hpp"
 
-class Board {
+class MailboxBoard {
 public:
-  Board(std::vector<Piece> pieces, Color player_to_move,
+  MailboxBoard(std::vector<Piece> pieces, Color player_to_move,
         std::array<Castling, 2> castling_rights,
         std::optional<int> en_passant_square, int halfmove_clock,
         int fullmove_number);
 
-  static Board get_starting_position();
+  static MailboxBoard get_starting_position();
 
-  bool operator==(const Board &board) const;
+  bool operator==(const MailboxBoard &board) const;
 
   const std::optional<Piece> &get_piece(int pos) const;
-  const Color get_player_to_move() const;
-  const int get_material(Color color) const;
-  const int get_psqt(Color color) const;
+  Color get_player_to_move() const;
+  int get_material(Color color) const;
+  int get_psqt(Color color) const;
 
   std::string to_string() const;
 

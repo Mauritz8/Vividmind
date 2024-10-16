@@ -2,7 +2,7 @@
 
 #include <vector>
 
-#include "board/board.hpp"
+#include "mailbox_board/mailbox_board.hpp"
 #include "move.hpp"
 #include "search/search_defs.hpp"
 
@@ -11,12 +11,12 @@ public:
   const SearchParams params;
   SearchInfo info;
 
-  Search(Board &board, SearchParams &params);
+  Search(MailboxBoard &board, SearchParams &params);
 
   void iterative_deepening_search();
 
 private:
-  Board &board;
+  MailboxBoard &board;
 
   int alpha_beta(int depth, int alpha, int beta,
                  std::vector<Move> &principal_variation);

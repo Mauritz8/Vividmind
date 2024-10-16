@@ -1,11 +1,11 @@
-#include "board.hpp"
+#include "mailbox_board.hpp"
 
-bool Board::is_draw() const {
+bool MailboxBoard::is_draw() const {
   return is_insufficient_material() || is_threefold_repetition() ||
          is_draw_by_fifty_move_rule();
 }
 
-bool Board::is_insufficient_material() const {
+bool MailboxBoard::is_insufficient_material() const {
   for (const std::vector<Piece> &pieces : game_state.pieces) {
     for (Piece piece : pieces) {
       if (piece.piece_type == PAWN || piece.piece_type == ROOK ||
@@ -20,8 +20,8 @@ bool Board::is_insufficient_material() const {
 // this will only check if the same position repeats twice
 // because otherwise it will do one repetition in a lot of positions,
 // before it realizes that it has to do something else
-bool Board::is_threefold_repetition() const {
-  Board old_board = *this;
+bool MailboxBoard::is_threefold_repetition() const {
+  MailboxBoard old_board = *this;
   const int history_size = history.size();
   for (int _ = 0; _ < history_size - 1; _++) {
 
@@ -39,6 +39,6 @@ bool Board::is_threefold_repetition() const {
   return false;
 }
 
-bool Board::is_draw_by_fifty_move_rule() const {
+bool MailboxBoard::is_draw_by_fifty_move_rule() const {
   return game_state.halfmove_clock > 100;
 }

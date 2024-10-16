@@ -1,23 +1,23 @@
-#include "board.hpp"
+#include "mailbox_board.hpp"
 
 #include <array>
 #include <iostream>
 #include <vector>
 
-#include "board/board_defs.hpp"
+#include "mailbox_board/mailbox_board_defs.hpp"
 #include "fmt/core.h"
 #include "move.hpp"
 #include "square.hpp"
 #include "utils.hpp"
 
-bool Board::is_valid_en_passant(int capture_pos) const {
+bool MailboxBoard::is_valid_en_passant(int capture_pos) const {
   if (!game_state.en_passant_square.has_value()) {
     return false;
   }
   return capture_pos == game_state.en_passant_square.value();
 }
 
-std::vector<Move> Board::get_pawn_captures(const Piece &piece) const {
+std::vector<Move> MailboxBoard::get_pawn_captures(const Piece &piece) const {
   const int direction = piece.color == BLACK ? 1 : -1;
   const std::array<int, 2> movements = {9 * direction, 11 * direction};
 
@@ -42,7 +42,7 @@ std::vector<Move> Board::get_pawn_captures(const Piece &piece) const {
 }
 
 std::vector<Move>
-Board::get_king_normal_moves(const Piece &piece,
+MailboxBoard::get_king_normal_moves(const Piece &piece,
                              MoveCategory move_category) const {
   std::array<int, 8> movements = {11, -11, 10, -10, 9, -9, 1, -1};
   const Color opponent = get_opposite_color(piece.color);
@@ -64,7 +64,7 @@ Board::get_king_normal_moves(const Piece &piece,
   return moves;
 }
 
-bool Board::is_clear_path_castling(const Move &castling_move) const {
+bool MailboxBoard::is_clear_path_castling(const Move &castling_move) const {
   const int x_direction = castling_move.end - castling_move.start > 0 ? 1 : -1;
   const int rook_pos =
       x_direction == 1 ? castling_move.end + 1 : castling_move.end - 2;
@@ -79,7 +79,7 @@ bool Board::is_clear_path_castling(const Move &castling_move) const {
   return true;
 }
 
-std::vector<Move> Board::get_potential_castling_moves() const {
+std::vector<Move> MailboxBoard::get_potential_castling_moves() const {
   const Color color = game_state.player_to_move;
   const int king_start = color == BLACK ? 4 : 60;
 
@@ -99,7 +99,7 @@ std::vector<Move> Board::get_potential_castling_moves() const {
 }
 
 std::vector<Move>
-Board::get_pseudo_legal_moves_direction(const Piece &piece, int x_direction,
+MailboxBoard::get_pseudo_legal_moves_direction(const Piece &piece, int x_direction,
                                         int y_direction,
                                         MoveCategory move_category) const {
   std::vector<Move> moves;
@@ -125,7 +125,7 @@ Board::get_pseudo_legal_moves_direction(const Piece &piece, int x_direction,
 }
 
 std::vector<Move>
-Board::get_bishop_pseudo_legal_moves(const Piece &piece,
+MailboxBoard::get_bishop_pseudo_legal_moves(const Piece &piece,
                                      MoveCategory move_category) const {
   std::vector<Move> moves;
 
@@ -147,7 +147,7 @@ Board::get_bishop_pseudo_legal_moves(const Piece &piece,
 }
 
 std::vector<Move>
-Board::get_rook_pseudo_legal_moves(const Piece &piece,
+MailboxBoard::get_rook_pseudo_legal_moves(const Piece &piece,
                                    MoveCategory move_category) const {
   std::vector<Move> moves;
 
@@ -169,7 +169,7 @@ Board::get_rook_pseudo_legal_moves(const Piece &piece,
 }
 
 std::vector<Move>
-Board::get_queen_pseudo_legal_moves(const Piece &piece,
+MailboxBoard::get_queen_pseudo_legal_moves(const Piece &piece,
                                     MoveCategory move_category) const {
   std::vector<Move> moves;
 
@@ -185,7 +185,7 @@ Board::get_queen_pseudo_legal_moves(const Piece &piece,
 }
 
 std::vector<Move>
-Board::get_knight_pseudo_legal_moves(const Piece &piece,
+MailboxBoard::get_knight_pseudo_legal_moves(const Piece &piece,
                                      MoveCategory move_category) const {
   const std::array<int, 8> movements = {21, -21, 19, -19, 12, -12, 8, -8};
   const Color opponent = get_opposite_color(piece.color);
@@ -208,7 +208,7 @@ Board::get_knight_pseudo_legal_moves(const Piece &piece,
 }
 
 std::vector<Move>
-Board::get_pawn_pseudo_legal_moves(const Piece &piece,
+MailboxBoard::get_pawn_pseudo_legal_moves(const Piece &piece,
                                    MoveCategory move_category) const {
   std::vector<Move> moves;
   moves.reserve(4);
@@ -258,7 +258,7 @@ Board::get_pawn_pseudo_legal_moves(const Piece &piece,
   return moves;
 }
 
-bool Board::is_attacked_by(int pos, Color color) const {
+bool MailboxBoard::is_attacked_by(int pos, Color color) const {
   const Piece &piece = Piece(KING, get_opposite_color(color), pos);
 
   const std::vector<Move> &rook_moves =
@@ -304,7 +304,7 @@ bool Board::is_attacked_by(int pos, Color color) const {
   return false;
 }
 
-bool Board::passes_through_check_when_castling(
+bool MailboxBoard::passes_through_check_when_castling(
     const Move &castling_move) const {
   const int direction = castling_move.end - castling_move.start > 0 ? 1 : -1;
   const Color player = game_state.player_to_move;
@@ -322,7 +322,7 @@ bool Board::passes_through_check_when_castling(
   return false;
 }
 
-bool Board::is_valid_castling(const Move &move) const {
+bool MailboxBoard::is_valid_castling(const Move &move) const {
   if (!is_clear_path_castling(move)) {
     return false;
   }
@@ -336,7 +336,7 @@ bool Board::is_valid_castling(const Move &move) const {
   return true;
 }
 
-std::vector<Move> Board::get_castling_moves() const {
+std::vector<Move> MailboxBoard::get_castling_moves() const {
   std::vector<Move> castling_moves = get_potential_castling_moves();
   for (auto it = castling_moves.begin(); it != castling_moves.end();) {
     if (!is_valid_castling(*it)) {
@@ -350,7 +350,7 @@ std::vector<Move> Board::get_castling_moves() const {
 }
 
 std::vector<Move>
-Board::get_king_pseudo_legal_moves(const Piece &piece,
+MailboxBoard::get_king_pseudo_legal_moves(const Piece &piece,
                                    MoveCategory move_category) const {
   std::vector<Move> moves = get_king_normal_moves(piece, move_category);
   moves.reserve(10);
@@ -362,7 +362,7 @@ Board::get_king_pseudo_legal_moves(const Piece &piece,
 }
 
 std::vector<Move>
-Board::get_pseudo_legal_moves(const Piece &piece,
+MailboxBoard::get_pseudo_legal_moves(const Piece &piece,
                               MoveCategory move_category) const {
   switch (piece.piece_type) {
   case KING: {
@@ -388,7 +388,7 @@ Board::get_pseudo_legal_moves(const Piece &piece,
 }
 
 std::vector<Move>
-Board::get_pseudo_legal_moves(MoveCategory move_category) const {
+MailboxBoard::get_pseudo_legal_moves(MoveCategory move_category) const {
   const std::vector<Piece> &pieces =
       game_state.pieces.at(game_state.player_to_move);
   std::vector<Move> moves;
@@ -401,6 +401,6 @@ Board::get_pseudo_legal_moves(MoveCategory move_category) const {
   return moves;
 }
 
-bool Board::is_in_check(Color color) const {
+bool MailboxBoard::is_in_check(Color color) const {
   return is_attacked_by(get_king_square(color), get_opposite_color(color));
 }

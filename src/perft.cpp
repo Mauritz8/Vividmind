@@ -1,7 +1,7 @@
 #include "perft.hpp"
 #include "fmt/core.h"
 
-int perft(Board &board, int depth) {
+int perft(MailboxBoard &board, int depth) {
   if (depth == 0) {
     return 1;
   }
@@ -21,7 +21,7 @@ int perft(Board &board, int depth) {
   return nodes;
 }
 
-void divide(Board &board, int depth) {
+void divide(MailboxBoard &board, int depth) {
   int nodes_searched = 0;
   const Color player = board.get_player_to_move();
   std::vector<Move> pseudo_legal_moves = board.get_pseudo_legal_moves(ALL);

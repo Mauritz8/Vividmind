@@ -1,6 +1,6 @@
-#include "board.hpp"
+#include "mailbox_board.hpp"
 #include "fen.hpp"
-#include "board/board_defs.hpp"
+#include "mailbox_board/mailbox_board_defs.hpp"
 #include "evaluation/evaluation.hpp"
 #include "fmt/core.h"
 
@@ -10,7 +10,7 @@
 #include <numeric>
 #include <vector>
 
-Board::Board(std::vector<Piece> pieces, Color player_to_move,
+MailboxBoard::MailboxBoard(std::vector<Piece> pieces, Color player_to_move,
              std::array<Castling, 2> castling_rights,
              std::optional<int> en_passant_square, int halfmove_clock,
              int fullmove_number)
@@ -67,11 +67,11 @@ Board::Board(std::vector<Piece> pieces, Color player_to_move,
   };
 }
 
-Board Board::get_starting_position() {
+MailboxBoard MailboxBoard::get_starting_position() {
   return fen::get_position(STARTING_POSITION_FEN);
 }
 
-bool Board::operator==(const Board &other) const {
+bool MailboxBoard::operator==(const MailboxBoard &other) const {
   for (int pos = 0; pos < 64; pos++) {
     if (squares.at(pos).piece != other.squares.at(pos).piece) {
       return false;
@@ -97,23 +97,23 @@ bool Board::operator==(const Board &other) const {
   return true;
 }
 
-const std::optional<Piece> &Board::get_piece(int pos) const {
+const std::optional<Piece> &MailboxBoard::get_piece(int pos) const {
   return squares.at(pos).piece;
 }
 
-const Color Board::get_player_to_move() const {
+Color MailboxBoard::get_player_to_move() const {
   return game_state.player_to_move;
 }
 
-const int Board::get_material(Color color) const {
+int MailboxBoard::get_material(Color color) const {
   return game_state.material.at(color);
 }
 
-const int Board::get_psqt(Color color) const {
+int MailboxBoard::get_psqt(Color color) const {
   return game_state.psqt.at(color);
 }
 
-std::string Board::to_string() const {
+std::string MailboxBoard::to_string() const {
   auto to_str = [](std::string str, Square s) {
     bool last_col = (s.pos + 1) % 8 == 0;
     return fmt::format("{} {}{}", str,
@@ -125,7 +125,7 @@ std::string Board::to_string() const {
   return board;
 }
 
-int Board::get_king_square(Color color) const {
+int MailboxBoard::get_king_square(Color color) const {
   auto is_king = [](Piece p) { return p.piece_type == KING; };
   const std::vector pieces = game_state.pieces.at(color);
   auto king = std::find_if(pieces.begin(), pieces.end(), is_king);

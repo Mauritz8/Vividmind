@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 
-#include "board/board.hpp"
+#include "mailbox_board/mailbox_board.hpp"
 #include "fen.hpp"
 #include "fmt/core.h"
 #include "perft.hpp"
@@ -34,7 +34,7 @@ int main() {
     }
 
     const std::string fen = tokens.at(0);
-    Board board = fen::get_position(fen);
+    MailboxBoard board = fen::get_position(fen);
     fmt::println("Test {}", i + 1);
     fmt::println("FEN: {}", fen);
     for (int i = 1; i < tokens.size(); i++) {

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "board/board.hpp"
+#include "mailbox_board/mailbox_board.hpp"
 
-int perft(Board &board, int depth);
-void divide(Board &board, int depth);
+int perft(MailboxBoard &board, int depth);
+void divide(MailboxBoard &board, int depth);

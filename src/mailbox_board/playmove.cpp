@@ -1,4 +1,4 @@
-#include "board.hpp"
+#include "mailbox_board.hpp"
 
 #include <stdexcept>
 
@@ -6,7 +6,7 @@
 #include "move.hpp"
 #include "utils.hpp"
 
-void Board::make(const Move &move) {
+void MailboxBoard::make(const Move &move) {
   game_state.next_move = move;
   history.push_back(game_state);
 
@@ -43,7 +43,7 @@ void Board::make(const Move &move) {
   game_state.player_to_move = get_opposite_color(game_state.player_to_move);
 }
 
-void Board::undo() {
+void MailboxBoard::undo() {
   Move move = history.back().next_move;
   Square &start = squares.at(move.start);
   Square &end = squares.at(move.end);
@@ -74,7 +74,7 @@ void Board::undo() {
   history.pop_back();
 }
 
-void Board::make_normal(const Move &move) {
+void MailboxBoard::make_normal(const Move &move) {
   Square &start = squares.at(move.start);
   Square &end = squares.at(move.end);
 
@@ -87,7 +87,7 @@ void Board::make_normal(const Move &move) {
   move_piece(start, end);
 }
 
-void Board::make_castling(const Move &move) {
+void MailboxBoard::make_castling(const Move &move) {
   Square &start = squares.at(move.start);
   Square &end = squares.at(move.end);
 
@@ -96,7 +96,7 @@ void Board::make_castling(const Move &move) {
   move_piece(start, end);
 }
 
-void Board::make_pawn_two_squares_forward(const Move &move) {
+void MailboxBoard::make_pawn_two_squares_forward(const Move &move) {
   Square &start = squares.at(move.start);
   Square &end = squares.at(move.end);
 
@@ -105,7 +105,7 @@ void Board::make_pawn_two_squares_forward(const Move &move) {
   move_piece(start, end);
 }
 
-void Board::make_en_passant(const Move &move) {
+void MailboxBoard::make_en_passant(const Move &move) {
   const int x_diff = move.end % 8 - move.start % 8;
   Square &captured_square = squares.at(move.start + x_diff);
   remove_piece(*captured_square.piece);
@@ -116,7 +116,7 @@ void Board::make_en_passant(const Move &move) {
   move_piece(start, end);
 }
 
-void Board::make_promotion(const Move &move) {
+void MailboxBoard::make_promotion(const Move &move) {
   Square &start = squares.at(move.start);
   Square &end = squares.at(move.end);
 
@@ -138,7 +138,7 @@ void Board::make_promotion(const Move &move) {
   move_piece(start, end);
 }
 
-Move Board::get_castling_rook_move(const Move &move) const {
+Move MailboxBoard::get_castling_rook_move(const Move &move) const {
   const int row = move.start / 8;
   const int move_direction = move.end - move.start;
 
@@ -157,7 +157,7 @@ Move Board::get_castling_rook_move(const Move &move) const {
   return rook_move;
 }
 
-Piece &Board::get_piece(Piece piece) {
+Piece &MailboxBoard::get_piece(Piece piece) {
   for (Piece &p : game_state.pieces.at(piece.color)) {
     if (p.pos == piece.pos) {
       return p;
@@ -166,7 +166,7 @@ Piece &Board::get_piece(Piece piece) {
   throw std::invalid_argument("could not find piece");
 }
 
-void Board::remove_piece(Piece piece) {
+void MailboxBoard::remove_piece(Piece piece) {
   std::vector<Piece> &pieces = this->game_state.pieces.at(piece.color);
   for (auto it = pieces.begin(); it != pieces.end(); ++it) {
     if (*it == piece) {
@@ -179,7 +179,7 @@ void Board::remove_piece(Piece piece) {
   }
 }
 
-void Board::move_piece(Square &start, Square &end) {
+void MailboxBoard::move_piece(Square &start, Square &end) {
   Piece &piece_in_game_state = get_piece(*start.piece);
   piece_in_game_state.pos = end.pos;
 
@@ -193,7 +193,7 @@ void Board::move_piece(Square &start, Square &end) {
   game_state.psqt.at(end.piece->color) += psqt_new - psqt_old;
 }
 
-void Board::update_castling_rights(const Move &move) {
+void MailboxBoard::update_castling_rights(const Move &move) {
   const Color color = game_state.player_to_move;
   const int player_starting_row = color == WHITE ? 7 : 0;
   const int opponent_starting_row = color == WHITE ? 0 : 7;
