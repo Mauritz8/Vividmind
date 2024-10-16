@@ -1,6 +1,7 @@
 #pragma once
 
 #include <array>
+#include <optional>
 #include <vector>
 
 #include "bitboards_board.hpp"
@@ -15,6 +16,13 @@ struct GameState {
   std::optional<int> en_passant_square;
   int halfmove_clock;
   int fullmove_number;
+  std::optional<Piece> captured_piece;
+  Move next_move;
+};
+
+struct BitboardIndex {
+  Color color;
+  PieceType piece_type;
 };
 
 class BitboardsBoard : public Board {
@@ -24,9 +32,9 @@ public:
                  std::optional<int> en_passant_square, int halfmove_clock,
                  int fullmove_number);
 
-  bool operator==(const BitboardsBoard &board) const;
+  bool operator==(const BitboardsBoard &other) const;
 
-  const std::optional<Piece> &get_piece(int pos) const override;
+  std::optional<PieceType> get_piece_type(int pos) const override;
   Color get_player_to_move() const override;
   int get_material(Color color) const override;
   int get_psqt(Color color) const override;
@@ -45,6 +53,8 @@ public:
 private:
   std::array<std::array<u_int64_t, 6>, 2> bitboards_pieces;
   GameState game_state;
+  std::vector<GameState> history;
 
   std::optional<PieceType> get_piece_on_pos(int pos) const;
+  std::optional<BitboardIndex> find_bitboard_with_piece(int pos) const;
 };
