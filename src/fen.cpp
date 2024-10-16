@@ -8,10 +8,10 @@
 #include <string_view>
 #include <vector>
 
+#include "bitboards_board/bitboards_board.hpp"
 #include "evaluation/evaluation.hpp"
 #include "fen.hpp"
 #include "fmt/core.h"
-#include "mailbox_board/mailbox_board.hpp"
 #include "utils.hpp"
 
 namespace fen {
@@ -137,8 +137,8 @@ std::unique_ptr<Board> get_position(std::string_view fen) {
   const int halfmove_clock = calc_halfmove_clock(fen_parts.at(4));
   const int fullmove_number = calc_fullmove_number(fen_parts.at(5));
 
-  return std::make_unique<MailboxBoard>(
-      MailboxBoard(pieces, player_to_move, castling_rights, en_passant_square,
+  return std::make_unique<BitboardsBoard>(
+      BitboardsBoard(pieces, player_to_move, castling_rights, en_passant_square,
                    halfmove_clock, fullmove_number));
 }
 } // namespace fen
