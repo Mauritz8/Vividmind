@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 
-#include "mailbox_board/mailbox_board.hpp"
+#include "bitboards_board/bitboards_board.hpp"
 #include "fen.hpp"
 #include "fmt/core.h"
 #include "perft.hpp"
@@ -34,7 +34,7 @@ int main() {
     }
 
     const std::string fen = tokens.at(0);
-    MailboxBoard board = fen::get_position(fen);
+    std::unique_ptr<Board> board = fen::get_position(fen);
     fmt::println("Test {}", i + 1);
     fmt::println("FEN: {}", fen);
     for (int i = 1; i < tokens.size(); i++) {

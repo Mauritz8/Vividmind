@@ -32,8 +32,11 @@ jobs:
       run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
 
     - name: Verify formatting
-      run: find ./src ./tests -name '*.cpp' -o -name '*.hpp' | grep -v ./src/board/defs.hpp | grep -v ./src/evaluation/evaluation.hpp | xargs clang-format --style=file --dry-run --Werror
-
+      run: find ./src ./tests -name '*.cpp' -o -name '*.hpp' \
+        | -not -path './src/defs.hpp' \
+        | -not -path './src/mailbox_board/mailbox_board_defs.hpp' \
+        | -not -path './src/evaluation/evaluation.hpp' \
+        | xargs clang-format --style=file --dry-run --Werror
 
     - name: Test
       working-directory: ${{github.workspace}}/build

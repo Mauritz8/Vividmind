@@ -4,8 +4,8 @@
 #include <iostream>
 #include <vector>
 
-#include "mailbox_board/mailbox_board_defs.hpp"
 #include "fmt/core.h"
+#include "mailbox_board/mailbox_board_defs.hpp"
 #include "move.hpp"
 #include "square.hpp"
 #include "utils.hpp"
@@ -43,7 +43,7 @@ std::vector<Move> MailboxBoard::get_pawn_captures(const Piece &piece) const {
 
 std::vector<Move>
 MailboxBoard::get_king_normal_moves(const Piece &piece,
-                             MoveCategory move_category) const {
+                                    MoveCategory move_category) const {
   std::array<int, 8> movements = {11, -11, 10, -10, 9, -9, 1, -1};
   const Color opponent = get_opposite_color(piece.color);
   std::vector<Move> moves;
@@ -98,10 +98,9 @@ std::vector<Move> MailboxBoard::get_potential_castling_moves() const {
   return potential_castling_moves;
 }
 
-std::vector<Move>
-MailboxBoard::get_pseudo_legal_moves_direction(const Piece &piece, int x_direction,
-                                        int y_direction,
-                                        MoveCategory move_category) const {
+std::vector<Move> MailboxBoard::get_pseudo_legal_moves_direction(
+    const Piece &piece, int x_direction, int y_direction,
+    MoveCategory move_category) const {
   std::vector<Move> moves;
 
   const int step = x_direction + y_direction * 10;
@@ -126,7 +125,7 @@ MailboxBoard::get_pseudo_legal_moves_direction(const Piece &piece, int x_directi
 
 std::vector<Move>
 MailboxBoard::get_bishop_pseudo_legal_moves(const Piece &piece,
-                                     MoveCategory move_category) const {
+                                            MoveCategory move_category) const {
   std::vector<Move> moves;
 
   std::vector<Move> up_right =
@@ -148,7 +147,7 @@ MailboxBoard::get_bishop_pseudo_legal_moves(const Piece &piece,
 
 std::vector<Move>
 MailboxBoard::get_rook_pseudo_legal_moves(const Piece &piece,
-                                   MoveCategory move_category) const {
+                                          MoveCategory move_category) const {
   std::vector<Move> moves;
 
   std::vector<Move> up =
@@ -170,7 +169,7 @@ MailboxBoard::get_rook_pseudo_legal_moves(const Piece &piece,
 
 std::vector<Move>
 MailboxBoard::get_queen_pseudo_legal_moves(const Piece &piece,
-                                    MoveCategory move_category) const {
+                                           MoveCategory move_category) const {
   std::vector<Move> moves;
 
   std::vector<Move> bishop_moves =
@@ -186,7 +185,7 @@ MailboxBoard::get_queen_pseudo_legal_moves(const Piece &piece,
 
 std::vector<Move>
 MailboxBoard::get_knight_pseudo_legal_moves(const Piece &piece,
-                                     MoveCategory move_category) const {
+                                            MoveCategory move_category) const {
   const std::array<int, 8> movements = {21, -21, 19, -19, 12, -12, 8, -8};
   const Color opponent = get_opposite_color(piece.color);
   std::vector<Move> moves;
@@ -209,7 +208,7 @@ MailboxBoard::get_knight_pseudo_legal_moves(const Piece &piece,
 
 std::vector<Move>
 MailboxBoard::get_pawn_pseudo_legal_moves(const Piece &piece,
-                                   MoveCategory move_category) const {
+                                          MoveCategory move_category) const {
   std::vector<Move> moves;
   moves.reserve(4);
   const int direction = game_state.player_to_move == BLACK ? 1 : -1;
@@ -351,7 +350,7 @@ std::vector<Move> MailboxBoard::get_castling_moves() const {
 
 std::vector<Move>
 MailboxBoard::get_king_pseudo_legal_moves(const Piece &piece,
-                                   MoveCategory move_category) const {
+                                          MoveCategory move_category) const {
   std::vector<Move> moves = get_king_normal_moves(piece, move_category);
   moves.reserve(10);
   if (move_category == ALL) {
@@ -363,7 +362,7 @@ MailboxBoard::get_king_pseudo_legal_moves(const Piece &piece,
 
 std::vector<Move>
 MailboxBoard::get_pseudo_legal_moves(const Piece &piece,
-                              MoveCategory move_category) const {
+                                     MoveCategory move_category) const {
   switch (piece.piece_type) {
   case KING: {
     return get_king_pseudo_legal_moves(piece, move_category);

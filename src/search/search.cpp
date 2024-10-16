@@ -12,7 +12,7 @@
 #include "search/search_defs.hpp"
 #include "uci.hpp"
 
-Search::Search(MailboxBoard &board, SearchParams &params)
+Search::Search(std::unique_ptr<Board> &board, SearchParams &params)
     : board(board), params(params) {}
 
 void Search::iterative_deepening_search() {
@@ -62,7 +62,7 @@ void Search::iterative_deepening_search() {
 
 int Search::alpha_beta(int depth, int alpha, int beta,
                        std::vector<Move> &principal_variation) {
-  const Color player = board.get_player_to_move();
+  const Color player = board->get_player_to_move();
 
   // if the search has been terminated, then return immediately
   if (is_terminate()) {
@@ -73,7 +73,7 @@ int Search::alpha_beta(int depth, int alpha, int beta,
   // if player is in check, it's a good idea to look one move further
   // because there could be tactics available
   // after the opponent moves out of the check
-  const bool is_in_check = board.is_in_check(player);
+  const bool is_in_check = board->is_in_check(player);
   if (is_in_check) {
     depth++;
   }
@@ -85,17 +85,17 @@ int Search::alpha_beta(int depth, int alpha, int beta,
     return quiescence(alpha, beta, principal_variation);
   }
 
-  std::vector<Move> pseudo_legal_moves = board.get_pseudo_legal_moves(ALL);
+  std::vector<Move> pseudo_legal_moves = board->get_pseudo_legal_moves(ALL);
   sort_moves(pseudo_legal_moves);
 
   int legal_moves_found = 0;
   for (const Move &move : pseudo_legal_moves) {
 
-    board.make(move);
+    board->make(move);
     // if the move leaves the king in check, it was not legal
     // so go to the next move
-    if (board.is_in_check(player)) {
-      board.undo();
+    if (board->is_in_check(player)) {
+      board->undo();
       continue;
     }
     info.ply_from_root++;
@@ -112,12 +112,12 @@ int Search::alpha_beta(int depth, int alpha, int beta,
     int evaluation = DRAW;
 
     // if it's not a draw we must search further
-    if (!board.is_draw()) {
+    if (!board->is_draw()) {
       // call search function again and decrease the depth
       evaluation = -alpha_beta(depth - 1, -beta, -alpha, variation);
     }
 
-    board.undo();
+    board->undo();
     info.ply_from_root--;
 
     // if the evaluation is higher than beta
@@ -176,13 +176,13 @@ int Search::quiescence(int alpha, int beta,
     alpha = evaluation;
   }
 
-  const Color player = board.get_player_to_move();
-  std::vector<Move> captures = board.get_pseudo_legal_moves(TACTICAL);
+  const Color player = board->get_player_to_move();
+  std::vector<Move> captures = board->get_pseudo_legal_moves(TACTICAL);
   sort_moves(captures);
   for (const Move &capture : captures) {
-    board.make(capture);
-    if (board.is_in_check(player)) {
-      board.undo();
+    board->make(capture);
+    if (board->is_in_check(player)) {
+      board->undo();
       continue;
     }
 
@@ -193,7 +193,7 @@ int Search::quiescence(int alpha, int beta,
 
     std::vector<Move> variation;
     evaluation = -quiescence(-beta, -alpha, variation);
-    board.undo();
+    board->undo();
     info.ply_from_root--;
 
     if (evaluation >= beta) {
@@ -240,11 +240,11 @@ void Search::sort_moves(std::vector<Move> &moves) {
 }
 
 int Search::get_move_score(const Move &move) {
-  const std::optional<Piece> &start_piece = board.get_piece(move.start);
-  const std::optional<Piece> &end_piece = board.get_piece(move.end);
+  const std::optional<Piece> &start_piece = board->get_piece(move.start);
+  const std::optional<Piece> &end_piece = board->get_piece(move.end);
 
   // score non-capture moves lower than captures
-  if (!start_piece) {
+  if (!end_piece) {
     return -QUEEN_VALUE;
   }
   return end_piece->get_value() - start_piece->get_value();

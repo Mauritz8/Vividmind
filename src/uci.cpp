@@ -11,6 +11,7 @@
 #include <string_view>
 #include <vector>
 
+#include "board.hpp"
 #include "defs.hpp"
 #include "fen.hpp"
 #include "move.hpp"
@@ -37,15 +38,15 @@ std::string get_fen(const std::vector<std::string> &words) {
   return fen.substr(1);
 }
 
-bool make_move(const std::string &move_uci, MailboxBoard &board) {
-  const Color player = board.get_player_to_move();
+bool make_move(const std::string &move_uci, std::unique_ptr<Board> &board) {
+  const Color player = board->get_player_to_move();
   const std::vector<Move> pseudo_legal_moves =
-      board.get_pseudo_legal_moves(ALL);
+      board->get_pseudo_legal_moves(ALL);
   for (const Move &move : pseudo_legal_moves) {
     if (move.to_uci_notation() == move_uci) {
-      board.make(move);
-      if (board.is_in_check(player)) {
-        board.undo();
+      board->make(move);
+      if (board->is_in_check(player)) {
+        board->undo();
         return false;
       }
       return true;
@@ -91,7 +92,7 @@ SearchParams get_search_params(const std::vector<std::string> &words,
   return search_params;
 }
 
-void process(const std::string &input, MailboxBoard &board) {
+void process(const std::string &input, std::unique_ptr<Board> &board) {
   const std::vector<std::string> words = str_split(input, ' ');
 
   const bool is_position = words.size() >= 2 && words.at(0) == "position" &&
@@ -120,7 +121,7 @@ void process(const std::string &input, MailboxBoard &board) {
     int depth = std::stoi(words.at(2));
     divide(board, depth);
   } else if (words.at(0) == "go") {
-    SearchParams params = get_search_params(words, board.get_player_to_move());
+    SearchParams params = get_search_params(words, board->get_player_to_move());
     Search search = Search(board, params);
     search.iterative_deepening_search();
   } else if (input == "quit") {

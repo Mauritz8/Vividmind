@@ -1,11 +1,11 @@
 #include <iostream>
 #include <string>
 
-#include "mailbox_board/mailbox_board.hpp"
+#include "board.hpp"
 #include "uci.hpp"
 
 int main() {
-  MailboxBoard board = MailboxBoard::get_starting_position();
+  std::unique_ptr<Board> board = Board::get_starting_position();
 
   std::string input;
   while (true) {

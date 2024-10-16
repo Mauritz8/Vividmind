@@ -1,15 +1,15 @@
 #include "evaluation.hpp"
 
-#include "mailbox_board/mailbox_board.hpp"
 #include "piece.hpp"
 #include "utils.hpp"
 #include <algorithm>
 #include <numeric>
 
-int evaluate(const MailboxBoard &board) {
-  const int evaluation = board.get_material(WHITE) - board.get_material(BLACK) +
-                         board.get_psqt(WHITE) - board.get_psqt(BLACK);
-  return board.get_player_to_move() == BLACK ? -evaluation : evaluation;
+int evaluate(const std::unique_ptr<Board> &board) {
+  const int evaluation = board->get_material(WHITE) -
+                         board->get_material(BLACK) + board->get_psqt(WHITE) -
+                         board->get_psqt(BLACK);
+  return board->get_player_to_move() == BLACK ? -evaluation : evaluation;
 }
 
 int Piece::get_value() const {
@@ -53,17 +53,4 @@ int get_psqt_score(const Piece &piece, bool is_lone_king, bool is_endgame) {
   case PAWN:
     return PAWN_PSQT.at(square);
   }
-}
-
-int MailboxBoard::get_psqt_score(const Piece &piece) const {
-  return ::get_psqt_score(piece, is_lone_king(piece.color), is_endgame());
-}
-
-bool MailboxBoard::is_lone_king(Color color) const {
-  return game_state.pieces.at(color).size() == 1;
-}
-
-bool MailboxBoard::is_endgame() const {
-  return game_state.material.at(WHITE) - KING_VALUE < 1500 &&
-         game_state.material.at(BLACK) - KING_VALUE < 1500;
 }

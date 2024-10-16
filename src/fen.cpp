@@ -1,7 +1,6 @@
-#include "mailbox_board/mailbox_board.hpp"
-
 #include <algorithm>
 #include <array>
+#include <memory>
 #include <numeric>
 #include <sstream>
 #include <stdexcept>
@@ -9,10 +8,10 @@
 #include <string_view>
 #include <vector>
 
-#include "mailbox_board/mailbox_board_defs.hpp"
 #include "evaluation/evaluation.hpp"
 #include "fen.hpp"
 #include "fmt/core.h"
+#include "mailbox_board/mailbox_board.hpp"
 #include "utils.hpp"
 
 namespace fen {
@@ -123,7 +122,7 @@ std::vector<Piece> get_pieces(std::string_view pieces_str) {
   return pieces;
 }
 
-MailboxBoard get_position(std::string_view fen) {
+std::unique_ptr<Board> get_position(std::string_view fen) {
   std::vector<std::string> fen_parts = str_split(fen, ' ');
   if (fen_parts.size() != 6) {
     throw std::invalid_argument("Invalid FEN: Does not contain six parts\n");
@@ -138,7 +137,8 @@ MailboxBoard get_position(std::string_view fen) {
   const int halfmove_clock = calc_halfmove_clock(fen_parts.at(4));
   const int fullmove_number = calc_fullmove_number(fen_parts.at(5));
 
-  return MailboxBoard(pieces, player_to_move, castling_rights, en_passant_square,
-               halfmove_clock, fullmove_number);
+  return std::make_unique<MailboxBoard>(
+      MailboxBoard(pieces, player_to_move, castling_rights, en_passant_square,
+                   halfmove_clock, fullmove_number));
 }
 } // namespace fen

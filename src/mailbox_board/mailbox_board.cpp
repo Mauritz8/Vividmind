@@ -1,8 +1,8 @@
 #include "mailbox_board.hpp"
-#include "fen.hpp"
-#include "mailbox_board/mailbox_board_defs.hpp"
 #include "evaluation/evaluation.hpp"
+#include "fen.hpp"
 #include "fmt/core.h"
+#include "mailbox_board/mailbox_board_defs.hpp"
 
 #include <algorithm>
 #include <array>
@@ -11,9 +11,9 @@
 #include <vector>
 
 MailboxBoard::MailboxBoard(std::vector<Piece> pieces, Color player_to_move,
-             std::array<Castling, 2> castling_rights,
-             std::optional<int> en_passant_square, int halfmove_clock,
-             int fullmove_number)
+                           std::array<Castling, 2> castling_rights,
+                           std::optional<int> en_passant_square,
+                           int halfmove_clock, int fullmove_number)
     : history({}) {
   std::array<Square, 64> squares;
   for (int i = 0; i < 64; i++) {
@@ -65,10 +65,6 @@ MailboxBoard::MailboxBoard(std::vector<Piece> pieces, Color player_to_move,
       .psqt = {white_psqt, black_psqt},
       .captured_piece = std::nullopt,
   };
-}
-
-MailboxBoard MailboxBoard::get_starting_position() {
-  return fen::get_position(STARTING_POSITION_FEN);
 }
 
 bool MailboxBoard::operator==(const MailboxBoard &other) const {
@@ -134,4 +130,17 @@ int MailboxBoard::get_king_square(Color color) const {
   }
   throw std::invalid_argument(fmt::format("No {} king on the board",
                                           color == WHITE ? "white" : "black"));
+}
+
+int MailboxBoard::get_psqt_score(const Piece &piece) const {
+  return ::get_psqt_score(piece, is_lone_king(piece.color), is_endgame());
+}
+
+bool MailboxBoard::is_lone_king(Color color) const {
+  return game_state.pieces.at(color).size() == 1;
+}
+
+bool MailboxBoard::is_endgame() const {
+  return game_state.material.at(WHITE) - KING_VALUE < 1500 &&
+         game_state.material.at(BLACK) - KING_VALUE < 1500;
 }

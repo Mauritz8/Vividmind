@@ -1,6 +1,6 @@
 #pragma once
 
-#include "mailbox_board/mailbox_board.hpp"
+#include "board.hpp"
 #include "piece.hpp"
 #include <array>
 
@@ -102,5 +102,5 @@ const std::array<int, 64> KING_MATE = {
     -50, -50, -50, -50, -50, -50, -50, -50,
 };
 
-int evaluate(const MailboxBoard &board);
+int evaluate(const std::unique_ptr<Board> &board);
 int get_psqt_score(const Piece &piece, bool is_lone_king, bool is_endgame);

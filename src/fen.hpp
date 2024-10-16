@@ -1,8 +1,9 @@
 #pragma once
 
-#include "mailbox_board/mailbox_board.hpp"
+#include "board.hpp"
+#include <memory>
 #include <string_view>
 
 namespace fen {
-MailboxBoard get_position(std::string_view fen);
+std::unique_ptr<Board> get_position(std::string_view fen);
 } // namespace fen
