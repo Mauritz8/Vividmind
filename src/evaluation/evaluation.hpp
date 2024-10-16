@@ -103,4 +103,5 @@ const std::array<int, 64> KING_MATE = {
 };
 
 int evaluate(const std::unique_ptr<Board> &board);
+int get_piece_value(PieceType piece_type);
 int get_psqt_score(const Piece &piece, bool is_lone_king, bool is_endgame);

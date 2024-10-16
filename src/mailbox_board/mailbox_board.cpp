@@ -93,8 +93,10 @@ bool MailboxBoard::operator==(const MailboxBoard &other) const {
   return true;
 }
 
-const std::optional<Piece> &MailboxBoard::get_piece(int pos) const {
-  return squares.at(pos).piece;
+std::optional<PieceType> MailboxBoard::get_piece_type(int pos) const {
+  std::optional<Piece> piece = squares.at(pos).piece;
+  return piece.has_value() ? std::optional<PieceType>(piece.value().piece_type)
+                           : std::nullopt;
 }
 
 Color MailboxBoard::get_player_to_move() const {

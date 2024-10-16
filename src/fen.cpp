@@ -139,6 +139,6 @@ std::unique_ptr<Board> get_position(std::string_view fen) {
 
   return std::make_unique<BitboardsBoard>(
       BitboardsBoard(pieces, player_to_move, castling_rights, en_passant_square,
-                   halfmove_clock, fullmove_number));
+                     halfmove_clock, fullmove_number));
 }
 } // namespace fen

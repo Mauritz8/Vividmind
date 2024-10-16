@@ -22,7 +22,7 @@ public:
 
   bool operator==(const MailboxBoard &board) const;
 
-  const std::optional<Piece> &get_piece(int pos) const override;
+  std::optional<PieceType> get_piece_type(int pos) const override;
   Color get_player_to_move() const override;
   int get_material(Color color) const override;
   int get_psqt(Color color) const override;

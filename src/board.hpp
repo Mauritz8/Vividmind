@@ -12,7 +12,7 @@ public:
 
   static std::unique_ptr<Board> get_starting_position();
 
-  virtual const std::optional<Piece> &get_piece(int pos) const = 0;
+  virtual std::optional<PieceType> get_piece_type(int pos) const = 0;
   virtual Color get_player_to_move() const = 0;
   virtual int get_material(Color color) const = 0;
   virtual int get_psqt(Color color) const = 0;

@@ -1,6 +1,7 @@
 #include "search.hpp"
 
 #include <algorithm>
+#include <cassert>
 #include <chrono>
 #include <fmt/core.h>
 #include <optional>
@@ -51,6 +52,7 @@ void Search::iterative_deepening_search() {
                                       .nodes = info.nodes,
                                       .time = info.time_elapsed(),
                                       .pv = principal_variation};
+      assert(search_summary.pv.size() > 0);
       best_move = search_summary.pv.at(0);
 
       fmt::println(uci::show(search_summary));
@@ -240,12 +242,14 @@ void Search::sort_moves(std::vector<Move> &moves) {
 }
 
 int Search::get_move_score(const Move &move) {
-  const std::optional<Piece> &start_piece = board->get_piece(move.start);
-  const std::optional<Piece> &end_piece = board->get_piece(move.end);
+  const std::optional<PieceType> start_piece =
+      board->get_piece_type(move.start);
+  const std::optional<PieceType> end_piece = board->get_piece_type(move.end);
 
   // score non-capture moves lower than captures
   if (!end_piece) {
     return -QUEEN_VALUE;
   }
-  return end_piece->get_value() - start_piece->get_value();
+  return get_piece_value(end_piece.value()) -
+         get_piece_value(start_piece.value());
 }
