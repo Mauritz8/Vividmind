@@ -119,7 +119,7 @@ void BitboardsBoard::make(const Move &move) {
   }
   u_int64_t &piece_bitboard =
       bb_pieces.at(piece_bitboard_index.value().color)
-          .at(piece_bitboard_index.value().color);
+          .at(piece_bitboard_index.value().piece_type);
   bits::unset(piece_bitboard, move.start);
   bits::set(piece_bitboard, move.end);
 
@@ -129,8 +129,7 @@ void BitboardsBoard::make(const Move &move) {
       .en_passant_square = std::nullopt,
       .halfmove_clock = pos_data.halfmove_clock + 1,
       .fullmove_number =
-          pos_data.fullmove_number + pos_data.player_to_move == BLACK ? 1
-                                                                          : 0,
+          pos_data.fullmove_number + pos_data.player_to_move == BLACK ? 1 : 0,
       .captured_piece = std::nullopt,
       .next_move = pos_data.next_move,
   };
@@ -146,11 +145,12 @@ void BitboardsBoard::undo() {
   }
   u_int64_t &piece_bitboard =
       bb_pieces.at(piece_bitboard_index.value().color)
-          .at(piece_bitboard_index.value().color);
+          .at(piece_bitboard_index.value().piece_type);
   bits::unset(piece_bitboard, pos_data.next_move.end);
   bits::set(piece_bitboard, pos_data.next_move.start);
 
   history.pop_back();
+  pos_data = history.back();
 }
 
 bool BitboardsBoard::is_draw() const { return false; }
