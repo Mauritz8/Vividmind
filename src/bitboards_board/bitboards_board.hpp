@@ -11,7 +11,7 @@
 #include "move_gen_lookup_tables.hpp"
 #include "piece.hpp"
 
-struct GameState {
+struct PosData {
   Color player_to_move;
   std::array<Castling, 2> castling_rights;
   std::optional<int> en_passant_square;
@@ -53,8 +53,8 @@ public:
 
 private:
   std::array<std::array<u_int64_t, 6>, 2> bb_pieces;
-  GameState game_state;
-  std::vector<GameState> history;
+  PosData pos_data;
+  std::vector<PosData> history;
   MoveGenLookupTables move_gen_lookup_tables;
 
   std::optional<PieceType> get_piece_on_pos(int pos) const;

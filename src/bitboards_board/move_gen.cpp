@@ -24,7 +24,7 @@ std::vector<Move>
 BitboardsBoard::get_pseudo_legal_moves(MoveCategory move_category) const {
   std::vector<Move> moves;
 
-  std::array<u_int64_t, 6> pieces = bb_pieces[game_state.player_to_move];
+  std::array<u_int64_t, 6> pieces = bb_pieces[pos_data.player_to_move];
   u_int64_t bb_knights = pieces[KNIGHT];
 
   std::vector<Move> knight_moves =

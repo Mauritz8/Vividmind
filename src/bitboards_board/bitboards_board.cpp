@@ -22,7 +22,7 @@ BitboardsBoard::BitboardsBoard(std::vector<Piece> pieces, Color player_to_move,
     bits::set(bb_pieces.at(piece.color).at(piece.piece_type), piece.pos);
   }
 
-  this->game_state = {
+  this->pos_data = {
       .player_to_move = player_to_move,
       .castling_rights = castling_rights,
       .en_passant_square = en_passant_square,
@@ -31,6 +31,7 @@ BitboardsBoard::BitboardsBoard(std::vector<Piece> pieces, Color player_to_move,
       .captured_piece = std::nullopt,
   };
 
+  this->history = {};
   this->move_gen_lookup_tables = create_lookup_tables();
 }
 
@@ -54,7 +55,7 @@ std::optional<PieceType> BitboardsBoard::get_piece_type(int pos) const {
 }
 
 Color BitboardsBoard::get_player_to_move() const {
-  return game_state.player_to_move;
+  return pos_data.player_to_move;
 }
 
 int BitboardsBoard::get_material(Color color) const { return 0; }
@@ -108,48 +109,48 @@ BitboardsBoard::find_bitboard_with_piece(int pos) const {
 }
 
 void BitboardsBoard::make(const Move &move) {
-  /*game_state.next_move = move;*/
-  /*history.push_back(game_state);*/
-  /**/
-  /*std::optional<BitboardIndex> piece_bitboard_index =*/
-  /*    find_bitboard_with_piece(move.start);*/
-  /*if (!piece_bitboard_index.has_value()) {*/
-  /*  throw std::invalid_argument(fmt::format("No piece on pos: {}", move.start));*/
-  /*}*/
-  /*u_int64_t &piece_bitboard =*/
-  /*    bb_pieces.at(piece_bitboard_index.value().color)*/
-  /*        .at(piece_bitboard_index.value().color);*/
-  /*bits::unset(piece_bitboard, move.start);*/
-  /*bits::set(piece_bitboard, move.end);*/
-  /**/
-  /*game_state = {*/
-  /*    .player_to_move = get_opposite_color(game_state.player_to_move),*/
-  /*    .castling_rights = game_state.castling_rights,*/
-  /*    .en_passant_square = std::nullopt,*/
-  /*    .halfmove_clock = game_state.halfmove_clock + 1,*/
-  /*    .fullmove_number =*/
-  /*        game_state.fullmove_number + game_state.player_to_move == BLACK ? 1*/
-  /*                                                                        : 0,*/
-  /*    .captured_piece = std::nullopt,*/
-  /*    .next_move = game_state.next_move,*/
-  /*};*/
+  pos_data.next_move = move;
+  history.push_back(pos_data);
+
+  std::optional<BitboardIndex> piece_bitboard_index =
+      find_bitboard_with_piece(move.start);
+  if (!piece_bitboard_index.has_value()) {
+    throw std::invalid_argument(fmt::format("No piece on pos: {}", move.start));
+  }
+  u_int64_t &piece_bitboard =
+      bb_pieces.at(piece_bitboard_index.value().color)
+          .at(piece_bitboard_index.value().color);
+  bits::unset(piece_bitboard, move.start);
+  bits::set(piece_bitboard, move.end);
+
+  pos_data = {
+      .player_to_move = get_opposite_color(pos_data.player_to_move),
+      .castling_rights = pos_data.castling_rights,
+      .en_passant_square = std::nullopt,
+      .halfmove_clock = pos_data.halfmove_clock + 1,
+      .fullmove_number =
+          pos_data.fullmove_number + pos_data.player_to_move == BLACK ? 1
+                                                                          : 0,
+      .captured_piece = std::nullopt,
+      .next_move = pos_data.next_move,
+  };
 }
 
 void BitboardsBoard::undo() {
-  /*assert(history.size() >= 1);*/
-  /*std::optional<BitboardIndex> piece_bitboard_index =*/
-  /*    find_bitboard_with_piece(game_state.next_move.end);*/
-  /*if (!piece_bitboard_index.has_value()) {*/
-  /*  throw std::invalid_argument(*/
-  /*      fmt::format("No piece on pos: {}", game_state.next_move.end));*/
-  /*}*/
-  /*u_int64_t &piece_bitboard =*/
-  /*    bb_pieces.at(piece_bitboard_index.value().color)*/
-  /*        .at(piece_bitboard_index.value().color);*/
-  /*bits::unset(piece_bitboard, game_state.next_move.end);*/
-  /*bits::set(piece_bitboard, game_state.next_move.start);*/
-  /**/
-  /*history.pop_back();*/
+  assert(history.size() >= 1);
+  std::optional<BitboardIndex> piece_bitboard_index =
+      find_bitboard_with_piece(pos_data.next_move.end);
+  if (!piece_bitboard_index.has_value()) {
+    throw std::invalid_argument(
+        fmt::format("No piece on pos: {}", pos_data.next_move.end));
+  }
+  u_int64_t &piece_bitboard =
+      bb_pieces.at(piece_bitboard_index.value().color)
+          .at(piece_bitboard_index.value().color);
+  bits::unset(piece_bitboard, pos_data.next_move.end);
+  bits::set(piece_bitboard, pos_data.next_move.start);
+
+  history.pop_back();
 }
 
 bool BitboardsBoard::is_draw() const { return false; }
