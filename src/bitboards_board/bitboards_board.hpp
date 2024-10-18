@@ -8,6 +8,7 @@
 #include "board.hpp"
 #include "defs.hpp"
 #include "move.hpp"
+#include "move_gen_lookup_tables.hpp"
 #include "piece.hpp"
 
 struct GameState {
@@ -51,10 +52,15 @@ public:
   get_pseudo_legal_moves(MoveCategory move_category) const override;
 
 private:
-  std::array<std::array<u_int64_t, 6>, 2> bitboards_pieces;
+  std::array<std::array<u_int64_t, 6>, 2> bb_pieces;
   GameState game_state;
   std::vector<GameState> history;
+  MoveGenLookupTables move_gen_lookup_tables;
 
   std::optional<PieceType> get_piece_on_pos(int pos) const;
   std::optional<BitboardIndex> find_bitboard_with_piece(int pos) const;
+
+  std::vector<Move>
+  gen_moves(u_int64_t bb_start_squares,
+            std::array<u_int64_t, 64> bb_end_squares_lookup_table) const;
 };
