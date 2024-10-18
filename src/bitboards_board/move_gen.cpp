@@ -9,6 +9,9 @@ std::vector<Move> BitboardsBoard::gen_moves(
   std::optional<int> start_pos = bits::pop(bb_start_squares);
   while (start_pos.has_value()) {
     u_int64_t bb_end_squares = bb_end_squares_lookup_table[start_pos.value()];
+    for (int i = 0; i < 6; i++) {
+      bb_end_squares &= ~bb_pieces[pos_data.player_to_move][i];
+    }
     std::optional<int> end_pos = bits::pop(bb_end_squares);
     while (end_pos.has_value()) {
       Move move = Move(start_pos.value(), end_pos.value());
