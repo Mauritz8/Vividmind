@@ -117,6 +117,9 @@ void BitboardsBoard::make(const Move &move) {
   if (!piece_bitboard_index.has_value()) {
     throw std::invalid_argument(fmt::format("No piece on pos: {}", move.start));
   }
+
+  std::optional<Piece> captured_piece = remove_piece(move.end);
+
   u_int64_t &piece_bitboard =
       bb_pieces.at(piece_bitboard_index.value().color)
           .at(piece_bitboard_index.value().piece_type);
@@ -130,27 +133,52 @@ void BitboardsBoard::make(const Move &move) {
       .halfmove_clock = pos_data.halfmove_clock + 1,
       .fullmove_number =
           pos_data.fullmove_number + pos_data.player_to_move == BLACK ? 1 : 0,
-      .captured_piece = std::nullopt,
+      .captured_piece = captured_piece,
       .next_move = pos_data.next_move,
   };
 }
 
+std::optional<Piece> BitboardsBoard::remove_piece(int pos) {
+  std::optional<BitboardIndex> piece_bitboard_index =
+      find_bitboard_with_piece(pos);
+  if (!piece_bitboard_index.has_value()) {
+    return std::nullopt;
+  }
+
+  u_int64_t &piece_bitboard =
+      bb_pieces.at(piece_bitboard_index.value().color)
+          .at(piece_bitboard_index.value().piece_type);
+  bits::unset(piece_bitboard, pos);
+
+  return Piece(piece_bitboard_index.value().piece_type,
+               piece_bitboard_index.value().color, pos);
+}
+
 void BitboardsBoard::undo() {
   assert(history.size() >= 1);
+
+  const Move &move = history.back().next_move;
   std::optional<BitboardIndex> piece_bitboard_index =
-      find_bitboard_with_piece(pos_data.next_move.end);
+      find_bitboard_with_piece(move.end);
   if (!piece_bitboard_index.has_value()) {
     throw std::invalid_argument(
-        fmt::format("No piece on pos: {}", pos_data.next_move.end));
+        fmt::format("No piece on pos: {}", move.end));
   }
   u_int64_t &piece_bitboard =
       bb_pieces.at(piece_bitboard_index.value().color)
           .at(piece_bitboard_index.value().piece_type);
-  bits::unset(piece_bitboard, pos_data.next_move.end);
-  bits::set(piece_bitboard, pos_data.next_move.start);
+  bits::unset(piece_bitboard, move.end);
+  bits::set(piece_bitboard, move.start);
 
-  history.pop_back();
+  if (pos_data.captured_piece.has_value()) {
+    u_int64_t &bb_captured_piece =
+        bb_pieces.at(pos_data.captured_piece.value().color)
+            .at(pos_data.captured_piece.value().piece_type);
+    bits::set(bb_captured_piece, pos_data.captured_piece.value().pos);
+  }
+
   pos_data = history.back();
+  history.pop_back();
 }
 
 bool BitboardsBoard::is_draw() const { return false; }
