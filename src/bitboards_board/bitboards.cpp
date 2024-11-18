@@ -144,9 +144,15 @@ Bitboards create_bitboards() {
         create_bb_black_pawn_moves_straight(bb_square);
   }
 
-  return {.squares = bb_squares,
-          .knight_moves = bb_knight_moves,
-          .king_moves = bb_king_moves,
-          .pawn_moves_straight = {bb_white_pawn_moves_straight,
-                                  bb_black_pawn_moves_straight}};
+  return {
+      .squares = bb_squares,
+      .knight_moves = bb_knight_moves,
+      .king_moves = bb_king_moves,
+      .pawn_moves_straight = {bb_white_pawn_moves_straight,
+                              bb_black_pawn_moves_straight},
+      .a_file = a_file,
+      .h_file = h_file,
+      .rank_1 = rank_1,
+      .rank_8 = rank_8,
+  };
 }

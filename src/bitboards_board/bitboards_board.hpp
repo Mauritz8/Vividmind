@@ -25,6 +25,17 @@ struct BitboardIndex {
   PieceType piece_type;
 };
 
+enum Direction {
+  UP,
+  DOWN,
+  LEFT,
+  RIGHT,
+  UP_LEFT,
+  UP_RIGHT,
+  DOWN_LEFT,
+  DOWN_RIGHT,
+};
+
 class BitboardsBoard : public Board {
 public:
   BitboardsBoard(std::vector<Piece> pieces, Color player_to_move,
@@ -60,10 +71,17 @@ private:
   std::optional<BitboardIndex> find_bitboard_with_piece(int pos) const;
   std::optional<Piece> remove_piece(int pos);
 
-  std::vector<Move> gen_all_king_moves() const;
   std::vector<Move> gen_king_moves(int start) const;
-  std::vector<Move> gen_all_knight_moves() const;
   std::vector<Move> gen_knight_moves(int start) const;
-  std::vector<Move> gen_all_pawn_moves() const;
   std::vector<Move> gen_pawn_moves(int start) const;
+  std::vector<Move> gen_sliding_moves(int start, Direction direction) const;
+  std::vector<Move>
+  gen_sliding_moves_directions(int start,
+                               std::vector<Direction> directions) const;
+  std::vector<Move> gen_rook_moves(int start) const;
+  std::vector<Move> gen_bishop_moves(int start) const;
+  std::vector<Move> gen_queen_moves(int start) const;
+  std::vector<Move> gen_moves_piece(PieceType piece, int start) const;
+  std::vector<Move> gen_all_moves_piece(PieceType piece) const;
+  bool piece_on_square(u_int64_t pos_bb, Color color) const;
 };
