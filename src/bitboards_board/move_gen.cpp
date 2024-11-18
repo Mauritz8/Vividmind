@@ -7,19 +7,19 @@ std::vector<Move> BitboardsBoard::gen_moves(
     u_int64_t bb_start_squares,
     std::array<u_int64_t, 64> bb_end_squares_lookup_table) const {
   std::vector<Move> moves;
-  std::optional<int> start_pos = bits::pop(bb_start_squares);
+  std::optional<int> start_pos = bits::popLSB(bb_start_squares);
   while (start_pos.has_value()) {
     u_int64_t bb_end_squares = bb_end_squares_lookup_table[start_pos.value()];
     for (int i = 0; i < 6; i++) {
       bb_end_squares &= ~bb_pieces[pos_data.player_to_move][i];
     }
-    std::optional<int> end_pos = bits::pop(bb_end_squares);
+    std::optional<int> end_pos = bits::popLSB(bb_end_squares);
     while (end_pos.has_value()) {
       Move move = Move(start_pos.value(), end_pos.value());
       moves.push_back(move);
-      end_pos = bits::pop(bb_end_squares);
+      end_pos = bits::popLSB(bb_end_squares);
     }
-    start_pos = bits::pop(bb_start_squares);
+    start_pos = bits::popLSB(bb_start_squares);
   }
   return moves;
 }
