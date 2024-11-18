@@ -1,5 +1,6 @@
 #include "bitboards_board.hpp"
 #include "bitboards_board/bits.hpp"
+#include "defs.hpp"
 #include <sys/types.h>
 
 std::vector<Move> BitboardsBoard::gen_moves(
@@ -28,11 +29,14 @@ BitboardsBoard::get_pseudo_legal_moves(MoveCategory move_category) const {
   std::vector<Move> moves;
 
   std::array<u_int64_t, 6> pieces = bb_pieces[pos_data.player_to_move];
-  u_int64_t bb_knights = pieces[KNIGHT];
 
   std::vector<Move> knight_moves =
-      gen_moves(bb_knights, move_gen_lookup_tables.bb_knight_moves);
+      gen_moves(pieces[KNIGHT], move_gen_lookup_tables.bb_knight_moves);
   moves.insert(moves.end(), knight_moves.begin(), knight_moves.end());
+
+  std::vector<Move> king_moves =
+      gen_moves(pieces[KING], move_gen_lookup_tables.bb_king_moves);
+  moves.insert(moves.end(), king_moves.begin(), king_moves.end());
 
   return moves;
 }
