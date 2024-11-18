@@ -40,11 +40,11 @@ BitboardsBoard::get_pseudo_legal_moves(MoveCategory move_category) const {
   std::array<u_int64_t, 6> pieces = bb_pieces[pos_data.player_to_move];
 
   std::vector<Move> knight_moves =
-      gen_moves_piece(pieces[KNIGHT], move_gen_lookup_tables.bb_knight_moves);
+      gen_moves_piece(pieces[KNIGHT], bbs.knight_moves);
   moves.insert(moves.end(), knight_moves.begin(), knight_moves.end());
 
   std::vector<Move> king_moves =
-      gen_moves_piece(pieces[KING], move_gen_lookup_tables.bb_king_moves);
+      gen_moves_piece(pieces[KING], bbs.king_moves);
   moves.insert(moves.end(), king_moves.begin(), king_moves.end());
 
   return moves;

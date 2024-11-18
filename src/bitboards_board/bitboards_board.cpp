@@ -4,7 +4,6 @@
 #include "fmt/core.h"
 #include "utils.hpp"
 #include <cassert>
-#include <memory>
 #include <optional>
 #include <sys/types.h>
 
@@ -32,7 +31,7 @@ BitboardsBoard::BitboardsBoard(std::vector<Piece> pieces, Color player_to_move,
   };
 
   this->history = {};
-  this->move_gen_lookup_tables = create_lookup_tables();
+  this->bbs = create_bitboards();
 }
 
 bool BitboardsBoard::operator==(const BitboardsBoard &other) const {

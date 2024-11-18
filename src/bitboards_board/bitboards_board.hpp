@@ -4,11 +4,10 @@
 #include <optional>
 #include <vector>
 
-#include "bitboards_board.hpp"
 #include "board.hpp"
 #include "defs.hpp"
 #include "move.hpp"
-#include "move_gen_lookup_tables.hpp"
+#include "bitboards.hpp"
 #include "piece.hpp"
 
 struct PosData {
@@ -55,7 +54,7 @@ private:
   std::array<std::array<u_int64_t, 6>, 2> bb_pieces;
   PosData pos_data;
   std::vector<PosData> history;
-  MoveGenLookupTables move_gen_lookup_tables;
+  Bitboards bbs;
 
   std::optional<PieceType> get_piece_on_pos(int pos) const;
   std::optional<BitboardIndex> find_bitboard_with_piece(int pos) const;
