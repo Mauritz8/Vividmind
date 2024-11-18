@@ -61,7 +61,7 @@ private:
   std::optional<BitboardIndex> find_bitboard_with_piece(int pos) const;
   std::optional<Piece> remove_piece(int pos);
 
-  std::vector<Move>
-  gen_moves(u_int64_t bb_start_squares,
-            std::array<u_int64_t, 64> bb_end_squares_lookup_table) const;
+  std::vector<Move> gen_moves_piece(u_int64_t bb_start,
+                                    std::array<u_int64_t, 64> bbs_end) const;
+  std::vector<Move> gen_moves(int start, u_int64_t bb_end) const;
 };
