@@ -41,15 +41,21 @@ std::vector<Move> BitboardsBoard::gen_knight_moves(int start) const {
 std::vector<Move> BitboardsBoard::gen_pawn_moves(int start) const {
   std::vector<Move> moves;
 
-  u_int64_t pawn_moves_straight =
-      bbs.pawn_moves_straight[pos_data.player_to_move][start];
+  u_int64_t pawn = bbs.squares.at(start);
+  u_int64_t move_one = pos_data.player_to_move == WHITE ? pawn >> 8 : pawn << 8;
+  u_int64_t move_two =
+      pos_data.player_to_move == WHITE ? pawn >> 16 : pawn << 16;
   for (int color = 0; color < 2; color++) {
     for (int piece = 0; piece < 6; piece++) {
-      pawn_moves_straight &= ~bb_pieces[color][piece];
+      u_int64_t bb_piece = bb_pieces.at(color).at(piece);
+      u_int64_t bb_piece_one_rank_forward =
+          pos_data.player_to_move == WHITE ? bb_piece >> 8 : bb_piece << 8;
+      move_one &= ~bb_piece;
+      move_two &= ~(bb_piece | (bb_piece_one_rank_forward));
     }
   }
 
-  u_int64_t bb_end = pawn_moves_straight;
+  u_int64_t bb_end = move_one | move_two;
   std::optional<int> end_pos = bits::popLSB(bb_end);
   while (end_pos.has_value()) {
     Move move = Move(start, end_pos.value());
