@@ -221,3 +221,44 @@ BitboardsBoard::get_pseudo_legal_moves(MoveCategory move_category) const {
   }
   return moves;
 }
+
+u_int64_t BitboardsBoard::get_attacking_bb(Color color) const {
+  u_int64_t attacking_bb = 0;
+
+  std::array<PieceType, 3> non_sliding_pieces = {KING, PAWN, KNIGHT};
+  for (PieceType piece : non_sliding_pieces) {
+    std::array<u_int64_t, 64> piece_attacking_bb =
+        piece == KING   ? bbs.king_moves
+        : piece == PAWN ? bbs.pawn_captures.at(color)
+                        : bbs.knight_moves;
+    u_int64_t bb_piece = bb_pieces.at(color).at(piece);
+    std::optional<int> start_pos = bits::popLSB(bb_piece);
+    while (start_pos.has_value()) {
+      attacking_bb |= piece_attacking_bb.at(start_pos.value());
+      start_pos = bits::popLSB(bb_piece);
+    }
+  }
+
+  std::array<PieceType, 3> sliding_pieces = {BISHOP, ROOK, QUEEN};
+  for (PieceType piece : sliding_pieces) {
+    u_int64_t bb_piece = bb_pieces.at(color).at(piece);
+    std::optional<int> start_pos = bits::popLSB(bb_piece);
+    while (start_pos.has_value()) {
+      std::vector<Move> moves =
+        piece == BISHOP ? gen_bishop_moves(start_pos.value())
+        : piece == ROOK ? gen_rook_moves(start_pos.value())
+                        : gen_queen_moves(start_pos.value());
+
+      for (Move move : moves) {
+        attacking_bb |= bbs.squares.at(move.end);
+      }
+      start_pos = bits::popLSB(bb_piece);
+    }
+  }
+  return attacking_bb;
+}
+
+bool BitboardsBoard::is_in_check(Color color) const {
+  u_int64_t attacked_bb = get_attacking_bb(get_opposite_color(color));
+  return (bb_pieces.at(color).at(KING) & attacked_bb) != 0;
+}

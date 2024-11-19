@@ -84,4 +84,8 @@ private:
   std::vector<Move> gen_moves_piece(PieceType piece, int start) const;
   std::vector<Move> gen_all_moves_piece(PieceType piece) const;
   bool piece_on_square(u_int64_t pos_bb, Color color) const;
+
+  std::array<u_int64_t, 64> get_piece_attacking_bb(PieceType piece,
+                                                   Color color) const;
+  u_int64_t get_attacking_bb(Color color) const;
 };

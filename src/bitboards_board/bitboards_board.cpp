@@ -181,5 +181,3 @@ void BitboardsBoard::undo() {
 }
 
 bool BitboardsBoard::is_draw() const { return false; }
-
-bool BitboardsBoard::is_in_check(Color color) const { return false; }
