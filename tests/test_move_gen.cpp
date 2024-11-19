@@ -59,6 +59,7 @@ int main() {
                    is_successful ? "[OK]" : "[FAIL]", duration);
       if (!is_successful) {
         failed_tests.push_back(Test{fen, depth, expected_nodes, actual_nodes});
+        break;
       }
     }
     fmt::print("\n");

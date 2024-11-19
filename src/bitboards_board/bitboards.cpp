@@ -187,31 +187,33 @@ static u_int64_t create_bb_knight_moves(u_int64_t knight) {
   return bb;
 }
 
-static u_int64_t create_bb_white_pawn_moves_straight(u_int64_t pawn) {
-  u_int64_t bb = 0;
-  bb |= (pawn & ~rank_1) >> 8;
-  bb |= (pawn & rank_7) >> 16;
-  return bb;
+static u_int64_t create_bb_white_pawn_moves_one(u_int64_t pawn) {
+  return (pawn & ~rank_1) >> 8;
 }
 
-static u_int64_t create_bb_black_pawn_moves_straight(u_int64_t pawn) {
-  u_int64_t bb = 0;
-  bb |= (pawn & ~rank_8) << 8;
-  bb |= (pawn & rank_2) << 16;
-  return bb;
+static u_int64_t create_bb_white_pawn_moves_two(u_int64_t pawn) {
+  return (pawn & rank_7) >> 16; 
+}
+
+static u_int64_t create_bb_black_pawn_moves_one(u_int64_t pawn) {
+  return (pawn & ~rank_8) << 8;
+}
+
+static u_int64_t create_bb_black_pawn_moves_two(u_int64_t pawn) {
+  return (pawn & rank_2) << 16; 
 }
 
 static u_int64_t create_bb_white_pawn_captures(u_int64_t pawn) {
   u_int64_t bb = 0;
-  bb |= (pawn & ~rank_1) >> 7;
-  bb |= (pawn & ~rank_1) >> 9;
+  bb |= (pawn & ~(rank_1 | h_file)) >> 7;
+  bb |= (pawn & ~(rank_1 | a_file)) >> 9;
   return bb;
 }
 
 static u_int64_t create_bb_black_pawn_captures(u_int64_t pawn) {
   u_int64_t bb = 0;
-  bb |= (pawn & ~rank_8) << 7;
-  bb |= (pawn & ~rank_8) << 9;
+  bb |= (pawn & ~(rank_8 | a_file)) << 7;
+  bb |= (pawn & ~(rank_8 | h_file)) << 9;
   return bb;
 }
 
@@ -242,8 +244,10 @@ static u_int64_t create_bb_rook_moves(u_int64_t rook) {
 Bitboards create_bitboards() {
   std::array<u_int64_t, 64> bb_knight_moves;
   std::array<u_int64_t, 64> bb_king_moves;
-  std::array<u_int64_t, 64> bb_white_pawn_moves_straight;
-  std::array<u_int64_t, 64> bb_black_pawn_moves_straight;
+  std::array<u_int64_t, 64> bb_white_pawn_moves_one;
+  std::array<u_int64_t, 64> bb_white_pawn_moves_two;
+  std::array<u_int64_t, 64> bb_black_pawn_moves_one;
+  std::array<u_int64_t, 64> bb_black_pawn_moves_two;
   std::array<u_int64_t, 64> bb_white_pawn_captures;
   std::array<u_int64_t, 64> bb_black_pawn_captures;
   std::array<u_int64_t, 64> bb_rook_moves;
@@ -251,10 +255,10 @@ Bitboards create_bitboards() {
     u_int64_t bb_square = bb_squares[i];
     bb_knight_moves[i] = create_bb_knight_moves(bb_square);
     bb_king_moves[i] = create_bb_king_moves(bb_square);
-    bb_white_pawn_moves_straight[i] =
-        create_bb_white_pawn_moves_straight(bb_square);
-    bb_black_pawn_moves_straight[i] =
-        create_bb_black_pawn_moves_straight(bb_square);
+    bb_white_pawn_moves_one[i] = create_bb_white_pawn_moves_one(bb_square);
+    bb_white_pawn_moves_two[i] = create_bb_white_pawn_moves_two(bb_square);
+    bb_black_pawn_moves_one[i] = create_bb_black_pawn_moves_one(bb_square);
+    bb_black_pawn_moves_two[i] = create_bb_black_pawn_moves_two(bb_square);
     bb_white_pawn_captures[i] = create_bb_white_pawn_captures(bb_square);
     bb_black_pawn_captures[i] = create_bb_black_pawn_captures(bb_square);
     bb_rook_moves[i] = create_bb_rook_moves(bb_square);
@@ -264,8 +268,8 @@ Bitboards create_bitboards() {
       .squares = bb_squares,
       .knight_moves = bb_knight_moves,
       .king_moves = bb_king_moves,
-      .pawn_moves_straight = {bb_white_pawn_moves_straight,
-                              bb_black_pawn_moves_straight},
+      .pawn_moves_one = {bb_white_pawn_moves_one, bb_black_pawn_moves_one},
+      .pawn_moves_two = {bb_white_pawn_moves_two, bb_black_pawn_moves_two},
       .pawn_captures = {bb_white_pawn_captures, bb_black_pawn_captures},
       .rook_moves = bb_rook_moves,
       .a_file = a_file,

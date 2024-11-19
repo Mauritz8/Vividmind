@@ -42,9 +42,8 @@ std::vector<Move> BitboardsBoard::gen_pawn_moves(int start) const {
   std::vector<Move> moves;
 
   u_int64_t pawn = bbs.squares.at(start);
-  u_int64_t move_one = pos_data.player_to_move == WHITE ? pawn >> 8 : pawn << 8;
-  u_int64_t move_two =
-      pos_data.player_to_move == WHITE ? pawn >> 16 : pawn << 16;
+  u_int64_t move_one = bbs.pawn_moves_one.at(pos_data.player_to_move).at(start);
+  u_int64_t move_two = bbs.pawn_moves_two.at(pos_data.player_to_move).at(start);
   for (int color = 0; color < 2; color++) {
     for (int piece = 0; piece < 6; piece++) {
       u_int64_t bb_piece = bb_pieces.at(color).at(piece);
