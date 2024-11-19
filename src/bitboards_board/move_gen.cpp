@@ -55,7 +55,18 @@ std::vector<Move> BitboardsBoard::gen_pawn_moves(int start) const {
     }
   }
 
-  u_int64_t bb_end = move_one | move_two;
+  u_int64_t captures = bbs.pawn_captures.at(pos_data.player_to_move).at(start);
+  u_int64_t bb_opponent = 0;
+  for (int piece = 0; piece < 6; piece++) {
+    u_int64_t bb_piece_team = bb_pieces.at(pos_data.player_to_move).at(piece);
+    u_int64_t bb_piece_opponent =
+        bb_pieces.at(get_opposite_color(pos_data.player_to_move)).at(piece);
+    bb_opponent |= bb_piece_opponent;
+    captures &= ~bb_piece_team;
+  }
+  captures &= bb_opponent;
+
+  u_int64_t bb_end = move_one | move_two | captures;
   std::optional<int> end_pos = bits::popLSB(bb_end);
   while (end_pos.has_value()) {
     Move move = Move(start, end_pos.value());
