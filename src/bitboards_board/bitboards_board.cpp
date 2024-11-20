@@ -209,6 +209,13 @@ void BitboardsBoard::make(const Move &move) {
     u_int64_t &promotion_piece_bb =
         bb_pieces.at(pos_data.player_to_move).at(move.promotion_piece.value());
     bits::set(promotion_piece_bb, move.end);
+  } else if (move.move_type == EN_PASSANT) {
+    assert(pos_data.en_passant_square.has_value());
+    int captured_piece_square = pos_data.player_to_move == WHITE
+      ? pos_data.en_passant_square.value() + 8
+      : pos_data.en_passant_square.value() - 8;
+    captured_piece = remove_piece(captured_piece_square);
+    bits::set(piece_bb, move.end);
   } else {
     bits::set(piece_bb, move.end);
   }
@@ -216,7 +223,9 @@ void BitboardsBoard::make(const Move &move) {
   pos_data = {
       .player_to_move = get_opposite_color(pos_data.player_to_move),
       .castling_rights = updated_castling_rights(move),
-      .en_passant_square = std::nullopt,
+      .en_passant_square = move.move_type == PAWN_TWO_SQUARES_FORWARD
+                               ? std::optional<int>((move.start + move.end) / 2)
+                               : std::nullopt,
       .halfmove_clock = pos_data.halfmove_clock + 1,
       .fullmove_number =
           pos_data.fullmove_number + pos_data.player_to_move == BLACK ? 1 : 0,

@@ -136,9 +136,13 @@ std::vector<Move> BitboardsBoard::gen_pawn_moves(int start) const {
     bb_opponent |= bb_piece_opponent;
     captures &= ~bb_piece_team;
   }
-  captures &= bb_opponent;
+  u_int64_t normal_captures = captures & bb_opponent;
 
-  u_int64_t bb_end = move_one | move_two | captures;
+  u_int64_t en_passant_captures = pos_data.en_passant_square.has_value()
+    ? captures & bbs.squares.at(pos_data.en_passant_square.value())
+    : 0;
+
+  u_int64_t bb_end = move_one | normal_captures;
   std::optional<int> end_pos = bits::popLSB(bb_end);
   while (end_pos.has_value()) {
     if (end_pos.value() < 8 || end_pos.value() > 55) {
@@ -159,6 +163,22 @@ std::vector<Move> BitboardsBoard::gen_pawn_moves(int start) const {
       moves.push_back(move);
     }
     end_pos = bits::popLSB(bb_end);
+  }
+
+  end_pos = bits::popLSB(move_two);
+  while (end_pos.has_value()) {
+    Move move = Move(start, end_pos.value());
+    move.move_type = PAWN_TWO_SQUARES_FORWARD;
+    moves.push_back(move);
+    end_pos = bits::popLSB(move_two);
+  }
+
+  end_pos = bits::popLSB(en_passant_captures);
+  while (end_pos.has_value()) {
+    Move move = Move(start, end_pos.value());
+    move.move_type = EN_PASSANT;
+    moves.push_back(move);
+    end_pos = bits::popLSB(en_passant_captures);
   }
 
   return moves;
