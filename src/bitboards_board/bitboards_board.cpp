@@ -15,11 +15,18 @@ BitboardsBoard::BitboardsBoard(std::vector<Piece> pieces, Color player_to_move,
 
   for (int color = 0; color < 2; color++) {
     for (int piece = 0; piece < 6; piece++) {
-      bb_pieces.at(color).at(piece) = 0;
+      piece_bbs.at(color).at(piece) = 0;
     }
   }
   for (const Piece &piece : pieces) {
-    bits::set(bb_pieces.at(piece.color).at(piece.piece_type), piece.pos);
+    bits::set(piece_bbs.at(piece.color).at(piece.piece_type), piece.pos);
+  }
+
+  for (int color = 0; color < 2; color++) {
+    side_bbs.at(color) = 0;
+    for (int piece = 0; piece < 6; piece++) {
+      side_bbs.at(color) |= piece_bbs.at(color).at(piece);
+    }
   }
 
   this->pos_data = {
@@ -38,8 +45,8 @@ BitboardsBoard::BitboardsBoard(std::vector<Piece> pieces, Color player_to_move,
 bool BitboardsBoard::operator==(const BitboardsBoard &other) const {
   for (int color = 0; color < 2; color++) {
     for (int piece = 0; piece < 6; piece++) {
-      if (this->bb_pieces.at(color).at(piece) !=
-          other.bb_pieces.at(color).at(piece)) {
+      if (this->piece_bbs.at(color).at(piece) !=
+          other.piece_bbs.at(color).at(piece)) {
         return false;
       }
     }
@@ -66,7 +73,7 @@ std::optional<PieceType> BitboardsBoard::get_piece_on_pos(int pos) const {
   for (int color = 0; color < 2; color++) {
     for (int piece = 0; piece < 6; piece++) {
       u_int64_t bitboard_bit =
-          bits::get(bb_pieces.at(color).at(piece), pos);
+          bits::get(piece_bbs.at(color).at(piece), pos);
       if (bitboard_bit == 1) {
         return (PieceType)piece;
       }
@@ -94,7 +101,7 @@ std::optional<BitboardIndex>
 BitboardsBoard::find_bitboard_with_piece(int pos) const {
   for (int color = 0; color < 2; color++) {
     for (int piece = 0; piece < 6; piece++) {
-      u_int64_t bitboard = bb_pieces.at(color).at(piece);
+      u_int64_t bitboard = piece_bbs.at(color).at(piece);
       u_int64_t bitboard_bit = bits::get(bitboard, pos);
       if (bitboard_bit == 1) {
         BitboardIndex bitboard_index = {
@@ -112,7 +119,7 @@ std::optional<PieceType>
 BitboardsBoard::find_piece_on_pos(int pos) const {
   for (int color = 0; color < 2; color++) {
     for (int piece = 0; piece < 6; piece++) {
-      u_int64_t bitboard = bb_pieces.at(color).at(piece);
+      u_int64_t bitboard = piece_bbs.at(color).at(piece);
       u_int64_t bitboard_bit = bits::get(bitboard, pos);
       if (bitboard_bit == 1) {
         return std::optional<PieceType>((PieceType) piece);
@@ -193,21 +200,26 @@ void BitboardsBoard::make(const Move &move) {
 
   std::optional<Piece> captured_piece = remove_piece(move.end);
 
-  u_int64_t &piece_bb = bb_pieces.at(piece_bb_index.value().color)
+  u_int64_t &piece_bb = piece_bbs.at(piece_bb_index.value().color)
                             .at(piece_bb_index.value().piece_type);
-  bits::unset(piece_bb, move.start);
+  u_int64_t &side_bb = side_bbs.at(pos_data.player_to_move);
 
+  bits::unset(piece_bb, move.start);
+  bits::unset(side_bb, move.start);
+  bits::set(side_bb, move.end);
   if (move.move_type == CASTLING) {
     int kingside = move.end > move.start;
     int rook = get_castling_rook(move, pos_data.player_to_move);
     int rook_new = kingside ? rook - 2 : rook + 3;
-    u_int64_t &rook_bb = bb_pieces.at(pos_data.player_to_move).at(ROOK);
+    u_int64_t &rook_bb = piece_bbs.at(pos_data.player_to_move).at(ROOK);
     bits::unset(rook_bb, rook);
+    bits::unset(side_bb, rook);
     bits::set(rook_bb, rook_new);
+    bits::set(side_bb, rook_new);
     bits::set(piece_bb, move.end);
   } else if (move.move_type == PROMOTION) {
     u_int64_t &promotion_piece_bb =
-        bb_pieces.at(pos_data.player_to_move).at(move.promotion_piece.value());
+        piece_bbs.at(pos_data.player_to_move).at(move.promotion_piece.value());
     bits::set(promotion_piece_bb, move.end);
   } else if (move.move_type == EN_PASSANT) {
     assert(pos_data.en_passant_square.has_value());
@@ -242,10 +254,12 @@ std::optional<Piece> BitboardsBoard::remove_piece(int pos) {
   }
 
   u_int64_t &piece_bb =
-      bb_pieces.at(piece_bb_index.value().color)
+      piece_bbs.at(piece_bb_index.value().color)
           .at(piece_bb_index.value().piece_type);
+  u_int64_t &side_bb = side_bbs.at(piece_bb_index.value().color);
 
   bits::unset(piece_bb, pos);
+  bits::unset(side_bb, pos);
 
   return Piece(piece_bb_index.value().piece_type,
                piece_bb_index.value().color, pos);
@@ -261,29 +275,36 @@ void BitboardsBoard::undo() {
     throw std::invalid_argument(
         fmt::format("No piece on pos: {}", move.end));
   }
-  u_int64_t &piece_bb = bb_pieces.at(piece_bb_index.value().color)
+  u_int64_t &piece_bb = piece_bbs.at(piece_bb_index.value().color)
                             .at(piece_bb_index.value().piece_type);
+  u_int64_t &side_bb = side_bbs.at(history.back().player_to_move);
   bits::unset(piece_bb, move.end);
+  bits::unset(side_bb, move.end);
+  bits::set(side_bb, move.start);
 
   if (move.move_type == CASTLING) {
     int kingside = move.end > move.start;
     int rook = get_castling_rook(move, history.back().player_to_move);
     int rook_new = kingside ? rook - 2 : rook + 3;
-    u_int64_t &rook_bb = bb_pieces.at(history.back().player_to_move).at(ROOK);
+    u_int64_t &rook_bb = piece_bbs.at(history.back().player_to_move).at(ROOK);
     bits::unset(rook_bb, rook_new);
+    bits::unset(side_bb, rook_new);
     bits::set(rook_bb, rook);
+    bits::set(side_bb, rook);
     bits::set(piece_bb, move.start);
   } else if (move.move_type == PROMOTION) {
-    bits::set(bb_pieces.at(history.back().player_to_move).at(PAWN), move.start);
+    bits::set(piece_bbs.at(history.back().player_to_move).at(PAWN), move.start);
   } else {
     bits::set(piece_bb, move.start);
   }
 
   if (pos_data.captured_piece.has_value()) {
     u_int64_t &bb_captured_piece =
-        bb_pieces.at(pos_data.captured_piece.value().color)
+        piece_bbs.at(pos_data.captured_piece.value().color)
             .at(pos_data.captured_piece.value().piece_type);
     bits::set(bb_captured_piece, pos_data.captured_piece.value().pos);
+    bits::set(side_bbs.at(pos_data.captured_piece.value().color),
+              pos_data.captured_piece.value().pos);
   }
 
   pos_data = history.back();

@@ -62,7 +62,8 @@ public:
   get_pseudo_legal_moves(MoveCategory move_category) const override;
 
 private:
-  std::array<std::array<u_int64_t, 6>, 2> bb_pieces;
+  std::array<std::array<u_int64_t, 6>, 2> piece_bbs;
+  std::array<u_int64_t, 2> side_bbs;
   PosData pos_data;
   std::vector<PosData> history;
   Bitboards bbs;

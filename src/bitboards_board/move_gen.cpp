@@ -36,17 +36,10 @@ u_int64_t BitboardsBoard::gen_castling_moves_bb(int start) const {
           ? get_attacking_bb(get_opposite_color(pos_data.player_to_move))
           : 0;
 
-  u_int64_t pieces_bb = 0;
-  for (int piece = 0; piece < 6; piece++) {
-    if ((PieceType) piece != KING) {
-      pieces_bb |=
-        bb_pieces.at(pos_data.player_to_move).at(piece);
-    }
-  }
-  for (int piece = 0; piece < 6; piece++) {
-    pieces_bb |=
-        bb_pieces.at(get_opposite_color(pos_data.player_to_move)).at(piece);
-  }
+  u_int64_t pieces_bb =
+      (side_bbs.at(pos_data.player_to_move) &
+       ~piece_bbs.at(pos_data.player_to_move).at(KING)) |
+      side_bbs.at(get_opposite_color(pos_data.player_to_move));
 
   if (castling_rights.kingside) {
     u_int64_t no_check_bb = get_castling_check_not_allowed_bb(start, true);
@@ -70,11 +63,8 @@ u_int64_t BitboardsBoard::gen_castling_moves_bb(int start) const {
 std::vector<Move> BitboardsBoard::gen_king_moves(int start) const {
   std::vector<Move> moves;
 
-  u_int64_t normal = bbs.king_moves[start];
-  for (int i = 0; i < 6; i++) {
-    normal &= ~bb_pieces[pos_data.player_to_move][i];
-  }
-
+  u_int64_t normal =
+      bbs.king_moves.at(start) & ~side_bbs.at(pos_data.player_to_move);
 
   std::optional<int> end_pos = bits::popLSB(normal);
   while (end_pos.has_value()) {
@@ -97,10 +87,8 @@ std::vector<Move> BitboardsBoard::gen_king_moves(int start) const {
 std::vector<Move> BitboardsBoard::gen_knight_moves(int start) const {
   std::vector<Move> moves;
 
-  u_int64_t knight_moves = bbs.knight_moves[start];
-  for (int i = 0; i < 6; i++) {
-    knight_moves &= ~bb_pieces[pos_data.player_to_move][i];
-  }
+  u_int64_t knight_moves =
+      bbs.knight_moves.at(start) & ~side_bbs.at(pos_data.player_to_move);
 
   std::optional<int> end_pos = bits::popLSB(knight_moves);
   while (end_pos.has_value()) {
@@ -115,28 +103,19 @@ std::vector<Move> BitboardsBoard::gen_pawn_moves(int start) const {
   std::vector<Move> moves;
 
   u_int64_t pawn = bbs.squares.at(start);
-  u_int64_t move_one = bbs.pawn_moves_one.at(pos_data.player_to_move).at(start);
-  u_int64_t move_two = bbs.pawn_moves_two.at(pos_data.player_to_move).at(start);
-  for (int color = 0; color < 2; color++) {
-    for (int piece = 0; piece < 6; piece++) {
-      u_int64_t bb_piece = bb_pieces.at(color).at(piece);
-      u_int64_t bb_piece_one_rank_forward =
-          pos_data.player_to_move == WHITE ? bb_piece >> 8 : bb_piece << 8;
-      move_one &= ~bb_piece;
-      move_two &= ~(bb_piece | (bb_piece_one_rank_forward));
-    }
-  }
+  u_int64_t all_pieces = side_bbs.at(WHITE) | side_bbs.at(BLACK);
+  u_int64_t all_pieces_one_rank_forward =
+      pos_data.player_to_move == WHITE ? all_pieces >> 8 : all_pieces << 8;
 
-  u_int64_t captures = bbs.pawn_captures.at(pos_data.player_to_move).at(start);
-  u_int64_t bb_opponent = 0;
-  for (int piece = 0; piece < 6; piece++) {
-    u_int64_t bb_piece_team = bb_pieces.at(pos_data.player_to_move).at(piece);
-    u_int64_t bb_piece_opponent =
-        bb_pieces.at(get_opposite_color(pos_data.player_to_move)).at(piece);
-    bb_opponent |= bb_piece_opponent;
-    captures &= ~bb_piece_team;
-  }
-  u_int64_t normal_captures = captures & bb_opponent;
+  u_int64_t move_one = bbs.pawn_moves_one.at(pos_data.player_to_move).at(start)
+    & ~all_pieces;
+  u_int64_t move_two = bbs.pawn_moves_two.at(pos_data.player_to_move).at(start)
+    & ~(all_pieces | all_pieces_one_rank_forward);
+
+  u_int64_t captures = bbs.pawn_captures.at(pos_data.player_to_move).at(start)
+    & ~side_bbs.at(pos_data.player_to_move);
+  u_int64_t normal_captures =
+      captures & side_bbs.at(get_opposite_color(pos_data.player_to_move));
 
   u_int64_t en_passant_captures = pos_data.en_passant_square.has_value()
     ? captures & bbs.squares.at(pos_data.en_passant_square.value())
@@ -185,12 +164,7 @@ std::vector<Move> BitboardsBoard::gen_pawn_moves(int start) const {
 }
 
 bool BitboardsBoard::piece_on_square(u_int64_t pos_bb, Color color) const {
-  for (int piece = 0; piece < 6; piece++) {
-    if ((pos_bb & ~bb_pieces.at(color).at(piece)) == 0) {
-      return true;
-    }
-  }
-  return false;
+  return (pos_bb & side_bbs.at(color)) != 0;
 }
 
 u_int64_t BitboardsBoard::gen_sliding_moves(int start,
@@ -324,12 +298,12 @@ std::vector<Move> BitboardsBoard::gen_moves_piece(PieceType piece, int start) co
 std::vector<Move> BitboardsBoard::gen_all_moves_piece(PieceType piece) const {
   std::vector<Move> moves;
 
-  u_int64_t bb_piece = bb_pieces[pos_data.player_to_move][piece];
-  std::optional<int> start_pos = bits::popLSB(bb_piece);
+  u_int64_t piece_bb = piece_bbs.at(pos_data.player_to_move).at(piece);
+  std::optional<int> start_pos = bits::popLSB(piece_bb);
   while (start_pos.has_value()) {
     std::vector<Move> pos_moves = gen_moves_piece(piece, start_pos.value());
     moves.insert(moves.end(), pos_moves.begin(), pos_moves.end()); 
-    start_pos = bits::popLSB(bb_piece);
+    start_pos = bits::popLSB(piece_bb);
   }
   return moves;
 }
@@ -353,25 +327,25 @@ u_int64_t BitboardsBoard::get_attacking_bb(Color color) const {
         piece == KING   ? bbs.king_moves
         : piece == PAWN ? bbs.pawn_captures.at(color)
                         : bbs.knight_moves;
-    u_int64_t bb_piece = bb_pieces.at(color).at(piece);
-    std::optional<int> start_pos = bits::popLSB(bb_piece);
+    u_int64_t piece_bb = piece_bbs.at(color).at(piece);
+    std::optional<int> start_pos = bits::popLSB(piece_bb);
     while (start_pos.has_value()) {
       attacking_bb |= piece_attacking_bb.at(start_pos.value());
-      start_pos = bits::popLSB(bb_piece);
+      start_pos = bits::popLSB(piece_bb);
     }
   }
 
   std::array<PieceType, 3> sliding_pieces = {BISHOP, ROOK, QUEEN};
   for (PieceType piece : sliding_pieces) {
-    u_int64_t bb_piece = bb_pieces.at(color).at(piece);
-    std::optional<int> start_pos = bits::popLSB(bb_piece);
+    u_int64_t piece_bb = piece_bbs.at(color).at(piece);
+    std::optional<int> start_pos = bits::popLSB(piece_bb);
     while (start_pos.has_value()) {
       attacking_bb |=
           piece == BISHOP ? gen_bishop_moves(start_pos.value(), color)
           : piece == ROOK ? gen_rook_moves(start_pos.value(), color)
                           : gen_queen_moves(start_pos.value(), color);
 
-      start_pos = bits::popLSB(bb_piece);
+      start_pos = bits::popLSB(piece_bb);
     }
   }
   return attacking_bb;
@@ -379,5 +353,5 @@ u_int64_t BitboardsBoard::get_attacking_bb(Color color) const {
 
 bool BitboardsBoard::is_in_check(Color color) const {
   u_int64_t attacked_bb = get_attacking_bb(get_opposite_color(color));
-  return (bb_pieces.at(color).at(KING) & attacked_bb) != 0;
+  return (piece_bbs.at(color).at(KING) & attacked_bb) != 0;
 }
