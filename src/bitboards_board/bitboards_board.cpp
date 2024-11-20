@@ -196,7 +196,6 @@ void BitboardsBoard::make(const Move &move) {
   u_int64_t &piece_bb = bb_pieces.at(piece_bb_index.value().color)
                             .at(piece_bb_index.value().piece_type);
   bits::unset(piece_bb, move.start);
-  bits::set(piece_bb, move.end);
 
   if (move.move_type == CASTLING) {
     int kingside = move.end > move.start;
@@ -205,6 +204,13 @@ void BitboardsBoard::make(const Move &move) {
     u_int64_t &rook_bb = bb_pieces.at(pos_data.player_to_move).at(ROOK);
     bits::unset(rook_bb, rook);
     bits::set(rook_bb, rook_new);
+    bits::set(piece_bb, move.end);
+  } else if (move.move_type == PROMOTION) {
+    u_int64_t &promotion_piece_bb =
+        bb_pieces.at(pos_data.player_to_move).at(move.promotion_piece.value());
+    bits::set(promotion_piece_bb, move.end);
+  } else {
+    bits::set(piece_bb, move.end);
   }
 
   pos_data = {
@@ -249,7 +255,6 @@ void BitboardsBoard::undo() {
   u_int64_t &piece_bb = bb_pieces.at(piece_bb_index.value().color)
                             .at(piece_bb_index.value().piece_type);
   bits::unset(piece_bb, move.end);
-  bits::set(piece_bb, move.start);
 
   if (move.move_type == CASTLING) {
     int kingside = move.end > move.start;
@@ -258,6 +263,11 @@ void BitboardsBoard::undo() {
     u_int64_t &rook_bb = bb_pieces.at(history.back().player_to_move).at(ROOK);
     bits::unset(rook_bb, rook_new);
     bits::set(rook_bb, rook);
+    bits::set(piece_bb, move.start);
+  } else if (move.move_type == PROMOTION) {
+    bits::set(bb_pieces.at(history.back().player_to_move).at(PAWN), move.start);
+  } else {
+    bits::set(piece_bb, move.start);
   }
 
   if (pos_data.captured_piece.has_value()) {

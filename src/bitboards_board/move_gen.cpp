@@ -131,8 +131,23 @@ std::vector<Move> BitboardsBoard::gen_pawn_moves(int start) const {
   u_int64_t bb_end = move_one | move_two | captures;
   std::optional<int> end_pos = bits::popLSB(bb_end);
   while (end_pos.has_value()) {
-    Move move = Move(start, end_pos.value());
-    moves.push_back(move);
+    if (end_pos.value() < 8 || end_pos.value() > 55) {
+      std::array<PieceType, 4> promotion_pieces = {
+          QUEEN,
+          ROOK,
+          BISHOP,
+          KNIGHT,
+      };
+      for (PieceType p : promotion_pieces) {
+        Move move = Move(start, end_pos.value());
+        move.move_type = PROMOTION;
+        move.promotion_piece = p;
+        moves.push_back(move);
+      }
+    } else {
+      Move move = Move(start, end_pos.value());
+      moves.push_back(move);
+    }
     end_pos = bits::popLSB(bb_end);
   }
 
