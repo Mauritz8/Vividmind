@@ -81,14 +81,16 @@ private:
 
   std::vector<Move> gen_knight_moves(int start) const;
   std::vector<Move> gen_pawn_moves(int start) const;
-  std::vector<Move> gen_sliding_moves(int start, Direction direction,
-                                      Color color) const;
-  std::vector<Move>
-  gen_sliding_moves_directions(int start, std::vector<Direction> directions,
-                               Color color) const;
-  std::vector<Move> gen_rook_moves(int start, Color color) const;
-  std::vector<Move> gen_bishop_moves(int start, Color color) const;
-  std::vector<Move> gen_queen_moves(int start, Color color) const;
+  std::vector<Move> sliding_moves_bb_to_moves(int start,
+                                              u_int64_t moves_bb) const;
+  u_int64_t gen_sliding_moves(int start, Direction direction,
+                              Color color) const;
+  u_int64_t gen_sliding_moves_directions(int start,
+                                         std::vector<Direction> directions,
+                                         Color color) const;
+  u_int64_t gen_rook_moves(int start, Color color) const;
+  u_int64_t gen_bishop_moves(int start, Color color) const;
+  u_int64_t gen_queen_moves(int start, Color color) const;
   std::vector<Move> gen_moves_piece(PieceType piece, int start) const;
   std::vector<Move> gen_all_moves_piece(PieceType piece) const;
   bool piece_on_square(u_int64_t pos_bb, Color color) const;

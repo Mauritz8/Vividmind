@@ -193,13 +193,11 @@ bool BitboardsBoard::piece_on_square(u_int64_t pos_bb, Color color) const {
   return false;
 }
 
-std::vector<Move> BitboardsBoard::gen_sliding_moves(int start,
+u_int64_t BitboardsBoard::gen_sliding_moves(int start,
                                                     Direction direction,
                                                     Color color) const {
-  std::vector<Move> moves;
-
+  u_int64_t moves_bb = 0;
   u_int64_t pos_bb = bbs.squares[start];
-  int pos = start;
 
   auto stop = [&]() {
     switch (direction) {
@@ -226,35 +224,27 @@ std::vector<Move> BitboardsBoard::gen_sliding_moves(int start,
     switch (direction) {
       case UP:
         pos_bb >>= 8;
-        pos -= 8;
         break;
       case DOWN:
         pos_bb <<= 8;
-        pos += 8;
         break;
       case LEFT:
         pos_bb >>= 1;
-        pos -= 1;
         break;
       case RIGHT:
         pos_bb <<= 1;
-        pos += 1;
         break;
       case UP_LEFT:
         pos_bb >>= 9;
-        pos -= 9;
         break;
       case UP_RIGHT:
         pos_bb >>= 7;
-        pos -= 7;
         break;
       case DOWN_LEFT:
         pos_bb <<= 7;
-        pos += 7;
         break;
       case DOWN_RIGHT:
         pos_bb <<= 9;
-        pos += 9;
         break;
     }
   };
@@ -265,47 +255,49 @@ std::vector<Move> BitboardsBoard::gen_sliding_moves(int start,
       break;
     }
 
-    Move move = Move(start, pos);
-    moves.push_back(move);
+    moves_bb |= pos_bb;
 
     if (piece_on_square(pos_bb, get_opposite_color(color))) {
       break;
     }
   }
 
-  return moves;
+  return moves_bb;
 }
 
-std::vector<Move> BitboardsBoard::gen_sliding_moves_directions(
+u_int64_t BitboardsBoard::gen_sliding_moves_directions(
     int start, std::vector<Direction> directions, Color color) const {
-  std::vector<Move> moves;
+  u_int64_t moves_bb = 0;
   for (Direction direction : directions) {
-    std::vector<Move> moves_direction =
-        gen_sliding_moves(start, direction, color);
-    moves.insert(moves.end(), moves_direction.begin(), moves_direction.end());
+    moves_bb |= gen_sliding_moves(start, direction, color);
   }
-  return moves;
+  return moves_bb;
 }
 
-std::vector<Move> BitboardsBoard::gen_rook_moves(int start, Color color) const {
+u_int64_t BitboardsBoard::gen_rook_moves(int start, Color color) const {
   const std::vector<Direction> directions = {UP, DOWN, LEFT, RIGHT};
   return gen_sliding_moves_directions(start, directions, color);
 }
 
-std::vector<Move> BitboardsBoard::gen_bishop_moves(int start, Color color) const {
+u_int64_t BitboardsBoard::gen_bishop_moves(int start, Color color) const {
   const std::vector<Direction> directions = {UP_LEFT, UP_RIGHT, DOWN_LEFT,
                                          DOWN_RIGHT};
   return gen_sliding_moves_directions(start, directions, color);
 }
 
-std::vector<Move> BitboardsBoard::gen_queen_moves(int start, Color color) const {
+u_int64_t BitboardsBoard::gen_queen_moves(int start, Color color) const {
+  return gen_rook_moves(start, color) | gen_bishop_moves(start, color);
+}
+
+std::vector<Move>
+BitboardsBoard::sliding_moves_bb_to_moves(int start, u_int64_t moves_bb) const {
   std::vector<Move> moves;
-
-  std::vector<Move> rook = gen_rook_moves(start, color);
-  moves.insert(moves.end(), rook.begin(), rook.end());
-  std::vector<Move> bishop = gen_bishop_moves(start, color);
-  moves.insert(moves.end(), bishop.begin(), bishop.end());
-
+  std::optional<int> end_pos = bits::popLSB(moves_bb);
+  while (end_pos.has_value()) {
+    Move move = Move(start, end_pos.value());
+    moves.push_back(move);
+    end_pos = bits::popLSB(moves_bb);
+  }
   return moves;
 }
 
@@ -318,11 +310,14 @@ std::vector<Move> BitboardsBoard::gen_moves_piece(PieceType piece, int start) co
     case PAWN:
       return gen_pawn_moves(start);
     case ROOK:
-      return gen_rook_moves(start, pos_data.player_to_move);
+      return sliding_moves_bb_to_moves(
+          start, gen_rook_moves(start, pos_data.player_to_move));
     case BISHOP:
-      return gen_bishop_moves(start, pos_data.player_to_move);
+      return sliding_moves_bb_to_moves(
+          start, gen_bishop_moves(start, pos_data.player_to_move));
     case QUEEN:
-      return gen_queen_moves(start, pos_data.player_to_move);
+      return sliding_moves_bb_to_moves(
+          start, gen_queen_moves(start, pos_data.player_to_move));
   }
 }
 
@@ -371,14 +366,11 @@ u_int64_t BitboardsBoard::get_attacking_bb(Color color) const {
     u_int64_t bb_piece = bb_pieces.at(color).at(piece);
     std::optional<int> start_pos = bits::popLSB(bb_piece);
     while (start_pos.has_value()) {
-      std::vector<Move> moves =
-        piece == BISHOP ? gen_bishop_moves(start_pos.value(), color)
-        : piece == ROOK ? gen_rook_moves(start_pos.value(), color)
-                        : gen_queen_moves(start_pos.value(), color);
+      attacking_bb |=
+          piece == BISHOP ? gen_bishop_moves(start_pos.value(), color)
+          : piece == ROOK ? gen_rook_moves(start_pos.value(), color)
+                          : gen_queen_moves(start_pos.value(), color);
 
-      for (Move move : moves) {
-        attacking_bb |= bbs.squares.at(move.end);
-      }
       start_pos = bits::popLSB(bb_piece);
     }
   }
