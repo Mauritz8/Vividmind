@@ -2,6 +2,7 @@
 #include "bits.hpp"
 #include "defs.hpp"
 #include "fmt/core.h"
+#include "move.hpp"
 #include "utils.hpp"
 #include <cassert>
 #include <optional>
@@ -107,27 +108,92 @@ BitboardsBoard::find_bitboard_with_piece(int pos) const {
   return std::nullopt;
 }
 
+std::optional<PieceType>
+BitboardsBoard::find_piece_on_pos(int pos) const {
+  for (int color = 0; color < 2; color++) {
+    for (int piece = 0; piece < 6; piece++) {
+      u_int64_t bitboard = bb_pieces.at(color).at(piece);
+      u_int64_t bitboard_bit = bits::get(bitboard, pos);
+      if (bitboard_bit == 1) {
+        return std::optional<PieceType>((PieceType) piece);
+      }
+    }
+  }
+  return std::nullopt;
+}
+
+std::array<Castling, 2>
+BitboardsBoard::updated_castling_rights(const Move &move) const {
+  int kingside_rook;
+  int queenside_rook;
+  int king;
+  if (pos_data.player_to_move == WHITE) {
+    kingside_rook = 63;
+    queenside_rook = 56;
+    king = 60;
+  } else {
+    kingside_rook = 7;
+    queenside_rook = 0;
+    king = 4;
+  }
+  bool disable_kingside = move.start == kingside_rook || move.start == king;
+  bool disable_queenside = move.start == queenside_rook || move.start == king;
+
+  std::array<Castling, 2> castling_rights;
+  castling_rights.at(pos_data.player_to_move) = {
+      .kingside =
+          disable_kingside
+              ? false
+              : pos_data.castling_rights.at(pos_data.player_to_move).kingside,
+      .queenside =
+          disable_queenside
+              ? false
+              : pos_data.castling_rights.at(pos_data.player_to_move).queenside,
+  };
+  Color opponent = get_opposite_color(pos_data.player_to_move);
+  castling_rights.at(opponent) = pos_data.castling_rights.at(opponent);
+
+  return castling_rights;
+}
+
+int BitboardsBoard::get_castling_rook(const Move& move, Color color) const {
+    int kingside = move.end > move.start;
+    if (kingside) {
+      return color == WHITE ? 63 : 7;
+    } else {
+      return color == WHITE ? 56 : 0;
+    }
+}
+
 void BitboardsBoard::make(const Move &move) {
   pos_data.next_move = move;
   history.push_back(pos_data);
 
-  std::optional<BitboardIndex> piece_bitboard_index =
+  std::optional<BitboardIndex> piece_bb_index =
       find_bitboard_with_piece(move.start);
-  if (!piece_bitboard_index.has_value()) {
+  if (!piece_bb_index.has_value()) {
     throw std::invalid_argument(fmt::format("No piece on pos: {}", move.start));
   }
 
   std::optional<Piece> captured_piece = remove_piece(move.end);
 
-  u_int64_t &piece_bitboard =
-      bb_pieces.at(piece_bitboard_index.value().color)
-          .at(piece_bitboard_index.value().piece_type);
-  bits::unset(piece_bitboard, move.start);
-  bits::set(piece_bitboard, move.end);
+  u_int64_t &piece_bb = bb_pieces.at(piece_bb_index.value().color)
+                            .at(piece_bb_index.value().piece_type);
+  bits::unset(piece_bb, move.start);
+  bits::set(piece_bb, move.end);
+
+  if (move.move_type == CASTLING) {
+    int kingside = move.end > move.start;
+    int rook = get_castling_rook(move, pos_data.player_to_move);
+    int rook_new = kingside ? rook - 2 : rook + 3;
+    u_int64_t &rook_bb = bb_pieces.at(pos_data.player_to_move).at(ROOK);
+    bits::unset(rook_bb, rook);
+    bits::set(rook_bb, rook_new);
+  }
 
   pos_data = {
       .player_to_move = get_opposite_color(pos_data.player_to_move),
-      .castling_rights = pos_data.castling_rights,
+      .castling_rights = updated_castling_rights(move),
       .en_passant_square = std::nullopt,
       .halfmove_clock = pos_data.halfmove_clock + 1,
       .fullmove_number =
@@ -157,17 +223,25 @@ void BitboardsBoard::undo() {
   assert(history.size() >= 1);
 
   const Move &move = history.back().next_move;
-  std::optional<BitboardIndex> piece_bitboard_index =
+  std::optional<BitboardIndex> piece_bb_index =
       find_bitboard_with_piece(move.end);
-  if (!piece_bitboard_index.has_value()) {
+  if (!piece_bb_index.has_value()) {
     throw std::invalid_argument(
         fmt::format("No piece on pos: {}", move.end));
   }
-  u_int64_t &piece_bitboard =
-      bb_pieces.at(piece_bitboard_index.value().color)
-          .at(piece_bitboard_index.value().piece_type);
-  bits::unset(piece_bitboard, move.end);
-  bits::set(piece_bitboard, move.start);
+  u_int64_t &piece_bb = bb_pieces.at(piece_bb_index.value().color)
+                            .at(piece_bb_index.value().piece_type);
+  bits::unset(piece_bb, move.end);
+  bits::set(piece_bb, move.start);
+
+  if (move.move_type == CASTLING) {
+    int kingside = move.end > move.start;
+    int rook = get_castling_rook(move, history.back().player_to_move);
+    int rook_new = kingside ? rook - 2 : rook + 3;
+    u_int64_t &rook_bb = bb_pieces.at(history.back().player_to_move).at(ROOK);
+    bits::unset(rook_bb, rook_new);
+    bits::set(rook_bb, rook);
+  }
 
   if (pos_data.captured_piece.has_value()) {
     u_int64_t &bb_captured_piece =

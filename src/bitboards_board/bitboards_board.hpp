@@ -69,18 +69,25 @@ private:
 
   std::optional<PieceType> get_piece_on_pos(int pos) const;
   std::optional<BitboardIndex> find_bitboard_with_piece(int pos) const;
+  std::optional<PieceType> find_piece_on_pos(int pos) const;
   std::optional<Piece> remove_piece(int pos);
+  std::array<Castling, 2> updated_castling_rights(const Move &move) const;
+  int get_castling_rook(const Move& move, Color color) const;
 
   std::vector<Move> gen_king_moves(int start) const;
+  u_int64_t get_castling_passthrough(int start, bool kingside) const;
+  u_int64_t gen_castling_moves_bb(int start) const;
+
   std::vector<Move> gen_knight_moves(int start) const;
   std::vector<Move> gen_pawn_moves(int start) const;
-  std::vector<Move> gen_sliding_moves(int start, Direction direction) const;
+  std::vector<Move> gen_sliding_moves(int start, Direction direction,
+                                      Color color) const;
   std::vector<Move>
-  gen_sliding_moves_directions(int start,
-                               std::vector<Direction> directions) const;
-  std::vector<Move> gen_rook_moves(int start) const;
-  std::vector<Move> gen_bishop_moves(int start) const;
-  std::vector<Move> gen_queen_moves(int start) const;
+  gen_sliding_moves_directions(int start, std::vector<Direction> directions,
+                               Color color) const;
+  std::vector<Move> gen_rook_moves(int start, Color color) const;
+  std::vector<Move> gen_bishop_moves(int start, Color color) const;
+  std::vector<Move> gen_queen_moves(int start, Color color) const;
   std::vector<Move> gen_moves_piece(PieceType piece, int start) const;
   std::vector<Move> gen_all_moves_piece(PieceType piece) const;
   bool piece_on_square(u_int64_t pos_bb, Color color) const;
