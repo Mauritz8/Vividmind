@@ -75,7 +75,8 @@ private:
   int get_castling_rook(const Move& move, Color color) const;
 
   std::vector<Move> gen_king_moves(int start) const;
-  u_int64_t get_castling_passthrough(int start, bool kingside) const;
+  u_int64_t get_castling_check_not_allowed_bb(int start, bool kingside) const;
+  u_int64_t get_castling_pieces_not_allowed_bb(int start, bool kingside) const;
   u_int64_t gen_castling_moves_bb(int start) const;
 
   std::vector<Move> gen_knight_moves(int start) const;

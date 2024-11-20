@@ -5,11 +5,19 @@
 #include "utils.hpp"
 #include <sys/types.h>
 
-u_int64_t BitboardsBoard::get_castling_passthrough(int start,
+u_int64_t BitboardsBoard::get_castling_check_not_allowed_bb(int start,
                                                    bool kingside) const {
   u_int64_t bb = bbs.squares.at(start);
   return bb |= kingside ? bbs.squares.at(start + 1) | bbs.squares.at(start + 2)
     : bbs.squares.at(start - 1) | bbs.squares.at(start - 2);
+}
+
+u_int64_t
+BitboardsBoard::get_castling_pieces_not_allowed_bb(int start,
+                                                   bool kingside) const {
+  return kingside ? bbs.squares.at(start + 1) | bbs.squares.at(start + 2)
+                  : bbs.squares.at(start - 1) | bbs.squares.at(start - 2) |
+                        bbs.squares.at(start - 3);
 }
 
 u_int64_t BitboardsBoard::gen_castling_moves_bb(int start) const {
@@ -41,15 +49,17 @@ u_int64_t BitboardsBoard::gen_castling_moves_bb(int start) const {
   }
 
   if (castling_rights.kingside) {
-    u_int64_t passthrough_bb = get_castling_passthrough(start, true);      
-    if ((passthrough_bb & (attacked_bb | pieces_bb)) == 0) {
+    u_int64_t no_check_bb = get_castling_check_not_allowed_bb(start, true);
+    u_int64_t no_pieces_bb = get_castling_pieces_not_allowed_bb(start, true);
+    if (((no_check_bb & attacked_bb) | (no_pieces_bb & pieces_bb)) == 0) {
       castling |= bbs.squares.at(start + 2);
     }
   }
 
   if (castling_rights.queenside) {
-    u_int64_t passthrough_bb = get_castling_passthrough(start, false);      
-    if ((passthrough_bb & (attacked_bb | pieces_bb)) == 0) {
+    u_int64_t no_check_bb = get_castling_check_not_allowed_bb(start, false);
+    u_int64_t no_pieces_bb = get_castling_pieces_not_allowed_bb(start, false);
+    if (((no_check_bb & attacked_bb) | (no_pieces_bb & pieces_bb)) == 0) {
       castling |= bbs.squares.at(start - 2);
     }
   }
