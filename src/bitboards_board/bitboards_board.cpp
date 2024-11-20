@@ -127,31 +127,47 @@ BitboardsBoard::updated_castling_rights(const Move &move) const {
   int kingside_rook;
   int queenside_rook;
   int king;
+  int opponent_kingside_rook;
+  int opponent_queenside_rook;
   if (pos_data.player_to_move == WHITE) {
     kingside_rook = 63;
     queenside_rook = 56;
     king = 60;
+    opponent_kingside_rook = 7;
+    opponent_queenside_rook = 0;
   } else {
     kingside_rook = 7;
     queenside_rook = 0;
     king = 4;
+    opponent_kingside_rook = 63;
+    opponent_queenside_rook = 56;
   }
-  bool disable_kingside = move.start == kingside_rook || move.start == king;
-  bool disable_queenside = move.start == queenside_rook || move.start == king;
+  bool disable_kingside_player = move.start == kingside_rook || move.start == king;
+  bool disable_queenside_player = move.start == queenside_rook || move.start == king;
 
   std::array<Castling, 2> castling_rights;
   castling_rights.at(pos_data.player_to_move) = {
       .kingside =
-          disable_kingside
+          disable_kingside_player
               ? false
               : pos_data.castling_rights.at(pos_data.player_to_move).kingside,
       .queenside =
-          disable_queenside
+          disable_queenside_player
               ? false
               : pos_data.castling_rights.at(pos_data.player_to_move).queenside,
   };
+
   Color opponent = get_opposite_color(pos_data.player_to_move);
-  castling_rights.at(opponent) = pos_data.castling_rights.at(opponent);
+  bool disable_kingside_opponent = move.end == opponent_kingside_rook;
+  bool disable_queenside_opponent = move.end == opponent_queenside_rook;
+  castling_rights.at(opponent) = {
+      .kingside = disable_kingside_opponent
+                      ? false
+                      : pos_data.castling_rights.at(opponent).kingside,
+      .queenside = disable_queenside_opponent
+                      ? false
+                      : pos_data.castling_rights.at(opponent).queenside,
+  };
 
   return castling_rights;
 }
@@ -204,19 +220,20 @@ void BitboardsBoard::make(const Move &move) {
 }
 
 std::optional<Piece> BitboardsBoard::remove_piece(int pos) {
-  std::optional<BitboardIndex> piece_bitboard_index =
+  std::optional<BitboardIndex> piece_bb_index =
       find_bitboard_with_piece(pos);
-  if (!piece_bitboard_index.has_value()) {
+  if (!piece_bb_index.has_value()) {
     return std::nullopt;
   }
 
-  u_int64_t &piece_bitboard =
-      bb_pieces.at(piece_bitboard_index.value().color)
-          .at(piece_bitboard_index.value().piece_type);
-  bits::unset(piece_bitboard, pos);
+  u_int64_t &piece_bb =
+      bb_pieces.at(piece_bb_index.value().color)
+          .at(piece_bb_index.value().piece_type);
 
-  return Piece(piece_bitboard_index.value().piece_type,
-               piece_bitboard_index.value().color, pos);
+  bits::unset(piece_bb, pos);
+
+  return Piece(piece_bb_index.value().piece_type,
+               piece_bb_index.value().color, pos);
 }
 
 void BitboardsBoard::undo() {
