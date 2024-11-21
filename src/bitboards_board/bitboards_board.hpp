@@ -84,11 +84,19 @@ private:
   std::vector<Move> gen_pawn_moves(int start) const;
   std::vector<Move> sliding_moves_bb_to_moves(int start,
                                               u_int64_t moves_bb) const;
-  u_int64_t gen_sliding_moves(int start, Direction direction,
-                              Color color) const;
   u_int64_t gen_sliding_moves_directions(int start,
                                          std::vector<Direction> directions,
                                          Color color) const;
+  u_int64_t gen_sliding_moves_direction(int start, Direction direction,
+                                        Color color) const;
+  u_int64_t gen_sliding_moves_up(int start, Color color) const;
+  u_int64_t gen_sliding_moves_down(int start, Color color) const;
+  u_int64_t gen_sliding_moves_left(int start, Color color) const;
+  u_int64_t gen_sliding_moves_right(int start, Color color) const;
+  u_int64_t gen_sliding_moves_up_left(int start, Color color) const;
+  u_int64_t gen_sliding_moves_up_right(int start, Color color) const;
+  u_int64_t gen_sliding_moves_down_left(int start, Color color) const;
+  u_int64_t gen_sliding_moves_down_right(int start, Color color) const;
   u_int64_t gen_rook_moves(int start, Color color) const;
   u_int64_t gen_bishop_moves(int start, Color color) const;
   u_int64_t gen_queen_moves(int start, Color color) const;

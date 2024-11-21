@@ -167,83 +167,170 @@ bool BitboardsBoard::piece_on_square(u_int64_t pos_bb, Color color) const {
   return (pos_bb & side_bbs.at(color)) != 0;
 }
 
-u_int64_t BitboardsBoard::gen_sliding_moves(int start,
-                                                    Direction direction,
-                                                    Color color) const {
+u_int64_t BitboardsBoard::gen_sliding_moves_up(int start, Color color) const {
   u_int64_t moves_bb = 0;
-  u_int64_t pos_bb = bbs.squares[start];
+  u_int64_t pos_bb = bbs.squares.at(start);
+  while ((pos_bb & bbs.rank_1) == 0) {
+    pos_bb >>= 8;
 
-  auto stop = [&]() {
-    switch (direction) {
-      case UP:
-        return (pos_bb & ~bbs.rank_1) == 0;
-      case DOWN:
-        return (pos_bb & ~bbs.rank_8) == 0;
-      case LEFT:
-        return (pos_bb & ~bbs.a_file) == 0;
-      case RIGHT:
-        return (pos_bb & ~bbs.h_file) == 0;
-      case UP_LEFT:
-        return (pos_bb & ~(bbs.a_file | bbs.rank_1)) == 0;
-      case UP_RIGHT:
-        return (pos_bb & ~(bbs.h_file | bbs.rank_1)) == 0;
-      case DOWN_LEFT:
-        return (pos_bb & ~(bbs.a_file | bbs.rank_8)) == 0;
-      case DOWN_RIGHT:
-        return (pos_bb & ~(bbs.h_file | bbs.rank_8)) == 0;
-    }
-  };
-
-  auto go_next_pos = [&]() {
-    switch (direction) {
-      case UP:
-        pos_bb >>= 8;
-        break;
-      case DOWN:
-        pos_bb <<= 8;
-        break;
-      case LEFT:
-        pos_bb >>= 1;
-        break;
-      case RIGHT:
-        pos_bb <<= 1;
-        break;
-      case UP_LEFT:
-        pos_bb >>= 9;
-        break;
-      case UP_RIGHT:
-        pos_bb >>= 7;
-        break;
-      case DOWN_LEFT:
-        pos_bb <<= 7;
-        break;
-      case DOWN_RIGHT:
-        pos_bb <<= 9;
-        break;
-    }
-  };
-
-  while (!stop()) {
-    go_next_pos();
     if (piece_on_square(pos_bb, color)) {
-      break;
+      return moves_bb;
     }
-
     moves_bb |= pos_bb;
-
     if (piece_on_square(pos_bb, get_opposite_color(color))) {
-      break;
+      return moves_bb;
     }
   }
-
   return moves_bb;
+}
+
+u_int64_t BitboardsBoard::gen_sliding_moves_down(int start, Color color) const {
+  u_int64_t moves_bb = 0;
+  u_int64_t pos_bb = bbs.squares.at(start);
+  while ((pos_bb & bbs.rank_8) == 0) {
+    pos_bb <<= 8;
+
+    if (piece_on_square(pos_bb, color)) {
+      return moves_bb;
+    }
+    moves_bb |= pos_bb;
+    if (piece_on_square(pos_bb, get_opposite_color(color))) {
+      return moves_bb;
+    }
+  }
+  return moves_bb;
+}
+
+u_int64_t BitboardsBoard::gen_sliding_moves_left(int start, Color color) const {
+  u_int64_t moves_bb = 0;
+  u_int64_t pos_bb = bbs.squares.at(start);
+  while ((pos_bb & bbs.a_file) == 0) {
+    pos_bb >>= 1;
+
+    if (piece_on_square(pos_bb, color)) {
+      return moves_bb;
+    }
+    moves_bb |= pos_bb;
+    if (piece_on_square(pos_bb, get_opposite_color(color))) {
+      return moves_bb;
+    }
+  }
+  return moves_bb;
+}
+
+u_int64_t BitboardsBoard::gen_sliding_moves_right(int start, Color color) const {
+  u_int64_t moves_bb = 0;
+  u_int64_t pos_bb = bbs.squares.at(start);
+  while ((pos_bb & bbs.h_file) == 0) {
+    pos_bb <<= 1;
+
+    if (piece_on_square(pos_bb, color)) {
+      return moves_bb;
+    }
+    moves_bb |= pos_bb;
+    if (piece_on_square(pos_bb, get_opposite_color(color))) {
+      return moves_bb;
+    }
+  }
+  return moves_bb;
+}
+
+u_int64_t BitboardsBoard::gen_sliding_moves_up_left(int start, Color color) const {
+  u_int64_t moves_bb = 0;
+  u_int64_t pos_bb = bbs.squares.at(start);
+  while ((pos_bb & (bbs.a_file | bbs.rank_1)) == 0) {
+    pos_bb >>= 9;
+
+    if (piece_on_square(pos_bb, color)) {
+      return moves_bb;
+    }
+    moves_bb |= pos_bb;
+    if (piece_on_square(pos_bb, get_opposite_color(color))) {
+      return moves_bb;
+    }
+  }
+  return moves_bb;
+}
+
+u_int64_t BitboardsBoard::gen_sliding_moves_up_right(int start, Color color) const {
+  u_int64_t moves_bb = 0;
+  u_int64_t pos_bb = bbs.squares.at(start);
+  while ((pos_bb & (bbs.h_file | bbs.rank_1)) == 0) {
+    pos_bb >>= 7;
+
+    if (piece_on_square(pos_bb, color)) {
+      return moves_bb;
+    }
+    moves_bb |= pos_bb;
+    if (piece_on_square(pos_bb, get_opposite_color(color))) {
+      return moves_bb;
+    }
+  }
+  return moves_bb;
+}
+
+u_int64_t BitboardsBoard::gen_sliding_moves_down_left(int start, Color color) const {
+  u_int64_t moves_bb = 0;
+  u_int64_t pos_bb = bbs.squares.at(start);
+  while ((pos_bb & (bbs.a_file | bbs.rank_8)) == 0) {
+    pos_bb <<= 7;
+
+    if (piece_on_square(pos_bb, color)) {
+      return moves_bb;
+    }
+    moves_bb |= pos_bb;
+    if (piece_on_square(pos_bb, get_opposite_color(color))) {
+      return moves_bb;
+    }
+  }
+  return moves_bb;
+}
+
+u_int64_t BitboardsBoard::gen_sliding_moves_down_right(int start, Color color) const {
+  u_int64_t moves_bb = 0;
+  u_int64_t pos_bb = bbs.squares.at(start);
+  while ((pos_bb & (bbs.h_file | bbs.rank_8)) == 0) {
+    pos_bb <<= 9;
+
+    if (piece_on_square(pos_bb, color)) {
+      return moves_bb;
+    }
+    moves_bb |= pos_bb;
+    if (piece_on_square(pos_bb, get_opposite_color(color))) {
+      return moves_bb;
+    }
+  }
+  return moves_bb;
+}
+
+u_int64_t BitboardsBoard::gen_sliding_moves_direction(int start,
+                                                      Direction direction,
+                                                      Color color) const {
+  switch (direction) {
+  case UP:
+    return gen_sliding_moves_up(start, color);
+  case DOWN:
+    return gen_sliding_moves_down(start, color);
+  case LEFT:
+    return gen_sliding_moves_left(start, color);
+  case RIGHT:
+    return gen_sliding_moves_right(start, color);
+  case UP_LEFT:
+    return gen_sliding_moves_up_left(start, color);
+  case UP_RIGHT:
+    return gen_sliding_moves_up_right(start, color);
+  case DOWN_LEFT:
+    return gen_sliding_moves_down_left(start, color);
+  case DOWN_RIGHT:
+    return gen_sliding_moves_down_right(start, color);
+  }
 }
 
 u_int64_t BitboardsBoard::gen_sliding_moves_directions(
     int start, std::vector<Direction> directions, Color color) const {
   u_int64_t moves_bb = 0;
   for (Direction direction : directions) {
-    moves_bb |= gen_sliding_moves(start, direction, color);
+    moves_bb |= gen_sliding_moves_direction(start, direction, color);
   }
   return moves_bb;
 }
