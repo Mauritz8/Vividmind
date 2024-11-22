@@ -9,10 +9,8 @@ struct Bitboards {
   std::array<std::array<u_int64_t, 64>, 2> pawn_moves_two;
   std::array<std::array<u_int64_t, 64>, 2> pawn_captures;
   std::array<u_int64_t, 64> rook_moves;
-  u_int64_t a_file;
-  u_int64_t h_file;
-  u_int64_t rank_1;
-  u_int64_t rank_8;
+  std::array<u_int64_t, 8> files;
+  std::array<u_int64_t, 8> ranks;
 };
 
 Bitboards create_bitboards();

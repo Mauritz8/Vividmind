@@ -3,7 +3,10 @@
 #include "defs.hpp"
 #include "move.hpp"
 #include "utils.hpp"
+#include <cassert>
+#include <endian.h>
 #include <sys/types.h>
+#include <byteswap.h>
 
 u_int64_t BitboardsBoard::get_castling_check_not_allowed_bb(int start,
                                                    bool kingside) const {
@@ -25,7 +28,11 @@ u_int64_t BitboardsBoard::gen_castling_moves_bb(int start) const {
 
   int king_initial = pos_data.player_to_move == WHITE ? 60 : 4;
   if (start != king_initial) {
-    return castling;
+    return 0;
+  }
+
+  if (is_in_check(pos_data.player_to_move)) {
+    return 0;
   }
 
   Castling castling_rights =
@@ -167,17 +174,18 @@ bool BitboardsBoard::piece_on_square(u_int64_t pos_bb, Color color) const {
   return (pos_bb & side_bbs.at(color)) != 0;
 }
 
+bool BitboardsBoard::piece_on_square(u_int64_t pos_bb) const {
+  return (pos_bb & (side_bbs.at(WHITE) | side_bbs.at(BLACK))) != 0;
+}
+
 u_int64_t BitboardsBoard::gen_sliding_moves_up(int start, Color color) const {
   u_int64_t moves_bb = 0;
   u_int64_t pos_bb = bbs.squares.at(start);
-  while ((pos_bb & bbs.rank_1) == 0) {
+  while ((pos_bb & bbs.ranks.at(0)) == 0) {
     pos_bb >>= 8;
 
-    if (piece_on_square(pos_bb, color)) {
-      return moves_bb;
-    }
     moves_bb |= pos_bb;
-    if (piece_on_square(pos_bb, get_opposite_color(color))) {
+    if (piece_on_square(pos_bb)) {
       return moves_bb;
     }
   }
@@ -187,31 +195,60 @@ u_int64_t BitboardsBoard::gen_sliding_moves_up(int start, Color color) const {
 u_int64_t BitboardsBoard::gen_sliding_moves_down(int start, Color color) const {
   u_int64_t moves_bb = 0;
   u_int64_t pos_bb = bbs.squares.at(start);
-  while ((pos_bb & bbs.rank_8) == 0) {
+  while ((pos_bb & bbs.ranks.at(7)) == 0) {
     pos_bb <<= 8;
 
-    if (piece_on_square(pos_bb, color)) {
-      return moves_bb;
-    }
     moves_bb |= pos_bb;
-    if (piece_on_square(pos_bb, get_opposite_color(color))) {
+    if (piece_on_square(pos_bb)) {
       return moves_bb;
     }
   }
   return moves_bb;
 }
 
+u_int64_t BitboardsBoard::gen_sliding_moves_file(int start, Color color) const {
+  u_int64_t forward = 0;
+  u_int64_t reverse = 0;
+  u_int64_t occupied = side_bbs.at(WHITE) | side_bbs.at(BLACK);
+  forward = occupied & bbs.files.at(start % 8);
+  reverse = bits::reverse(forward);
+  forward -= 2 * bbs.squares.at(start);
+  reverse -= 2 * bits::reverse(bbs.squares.at(start));
+  forward ^= bits::reverse(reverse);
+  forward &= bbs.files.at(start % 8);
+  /*forward &= ~side_bbs.at(color);*/
+  return forward;
+}
+
+u_int64_t BitboardsBoard::gen_sliding_moves_rank(int start, Color color) const {
+  u_int64_t forward = 0;
+  u_int64_t reverse = 0;
+  u_int64_t occupied = side_bbs.at(WHITE) | side_bbs.at(BLACK);
+  forward = occupied & bbs.ranks.at(start / 8);
+  reverse = bits::reverse(forward);
+  forward -= 2 * bbs.squares.at(start);
+  reverse -= 2 * bits::reverse(bbs.squares.at(start));
+  forward ^= bits::reverse(reverse);
+  forward &= bbs.ranks.at(start / 8);
+  /*forward &= ~side_bbs.at(color);*/
+  return forward;
+}
+
+/*u_int64_t BitboardsBoard::gen_sliding_moves_rank(int start, Color color) const {*/
+/*  u_int64_t mask = bbs.ranks.at(start / 8);*/
+/*  u_int64_t occ = side_bbs.at(WHITE) | side_bbs.at(BLACK);*/
+/*  return (((mask & occ) - bbs.squares.at(start) * 2) ^*/
+/*        bits::reverse(bits::reverse(mask & occ) - bits::reverse(bbs.squares.at(start)) * 2)) & mask;*/
+/*}*/
+
 u_int64_t BitboardsBoard::gen_sliding_moves_left(int start, Color color) const {
   u_int64_t moves_bb = 0;
   u_int64_t pos_bb = bbs.squares.at(start);
-  while ((pos_bb & bbs.a_file) == 0) {
+  while ((pos_bb & bbs.files.at(0)) == 0) {
     pos_bb >>= 1;
 
-    if (piece_on_square(pos_bb, color)) {
-      return moves_bb;
-    }
     moves_bb |= pos_bb;
-    if (piece_on_square(pos_bb, get_opposite_color(color))) {
+    if (piece_on_square(pos_bb)) {
       return moves_bb;
     }
   }
@@ -221,14 +258,11 @@ u_int64_t BitboardsBoard::gen_sliding_moves_left(int start, Color color) const {
 u_int64_t BitboardsBoard::gen_sliding_moves_right(int start, Color color) const {
   u_int64_t moves_bb = 0;
   u_int64_t pos_bb = bbs.squares.at(start);
-  while ((pos_bb & bbs.h_file) == 0) {
+  while ((pos_bb & bbs.files.at(7)) == 0) {
     pos_bb <<= 1;
 
-    if (piece_on_square(pos_bb, color)) {
-      return moves_bb;
-    }
     moves_bb |= pos_bb;
-    if (piece_on_square(pos_bb, get_opposite_color(color))) {
+    if (piece_on_square(pos_bb)) {
       return moves_bb;
     }
   }
@@ -238,14 +272,11 @@ u_int64_t BitboardsBoard::gen_sliding_moves_right(int start, Color color) const 
 u_int64_t BitboardsBoard::gen_sliding_moves_up_left(int start, Color color) const {
   u_int64_t moves_bb = 0;
   u_int64_t pos_bb = bbs.squares.at(start);
-  while ((pos_bb & (bbs.a_file | bbs.rank_1)) == 0) {
+  while ((pos_bb & (bbs.files.at(0) | bbs.ranks.at(0))) == 0) {
     pos_bb >>= 9;
 
-    if (piece_on_square(pos_bb, color)) {
-      return moves_bb;
-    }
     moves_bb |= pos_bb;
-    if (piece_on_square(pos_bb, get_opposite_color(color))) {
+    if (piece_on_square(pos_bb)) {
       return moves_bb;
     }
   }
@@ -255,14 +286,11 @@ u_int64_t BitboardsBoard::gen_sliding_moves_up_left(int start, Color color) cons
 u_int64_t BitboardsBoard::gen_sliding_moves_up_right(int start, Color color) const {
   u_int64_t moves_bb = 0;
   u_int64_t pos_bb = bbs.squares.at(start);
-  while ((pos_bb & (bbs.h_file | bbs.rank_1)) == 0) {
+  while ((pos_bb & (bbs.files.at(7) | bbs.ranks.at(0))) == 0) {
     pos_bb >>= 7;
 
-    if (piece_on_square(pos_bb, color)) {
-      return moves_bb;
-    }
     moves_bb |= pos_bb;
-    if (piece_on_square(pos_bb, get_opposite_color(color))) {
+    if (piece_on_square(pos_bb)) {
       return moves_bb;
     }
   }
@@ -272,14 +300,11 @@ u_int64_t BitboardsBoard::gen_sliding_moves_up_right(int start, Color color) con
 u_int64_t BitboardsBoard::gen_sliding_moves_down_left(int start, Color color) const {
   u_int64_t moves_bb = 0;
   u_int64_t pos_bb = bbs.squares.at(start);
-  while ((pos_bb & (bbs.a_file | bbs.rank_8)) == 0) {
+  while ((pos_bb & (bbs.files.at(0) | bbs.ranks.at(7))) == 0) {
     pos_bb <<= 7;
 
-    if (piece_on_square(pos_bb, color)) {
-      return moves_bb;
-    }
     moves_bb |= pos_bb;
-    if (piece_on_square(pos_bb, get_opposite_color(color))) {
+    if (piece_on_square(pos_bb)) {
       return moves_bb;
     }
   }
@@ -289,14 +314,11 @@ u_int64_t BitboardsBoard::gen_sliding_moves_down_left(int start, Color color) co
 u_int64_t BitboardsBoard::gen_sliding_moves_down_right(int start, Color color) const {
   u_int64_t moves_bb = 0;
   u_int64_t pos_bb = bbs.squares.at(start);
-  while ((pos_bb & (bbs.h_file | bbs.rank_8)) == 0) {
+  while ((pos_bb & (bbs.files.at(7) | bbs.ranks.at(7))) == 0) {
     pos_bb <<= 9;
 
-    if (piece_on_square(pos_bb, color)) {
-      return moves_bb;
-    }
     moves_bb |= pos_bb;
-    if (piece_on_square(pos_bb, get_opposite_color(color))) {
+    if (piece_on_square(pos_bb)) {
       return moves_bb;
     }
   }
@@ -336,18 +358,20 @@ u_int64_t BitboardsBoard::gen_sliding_moves_directions(
 }
 
 u_int64_t BitboardsBoard::gen_rook_moves(int start, Color color) const {
-  const std::vector<Direction> directions = {UP, DOWN, LEFT, RIGHT};
-  return gen_sliding_moves_directions(start, directions, color);
+  return gen_sliding_moves_file(start, color) |
+         gen_sliding_moves_rank(start, color);
 }
 
 u_int64_t BitboardsBoard::gen_bishop_moves(int start, Color color) const {
   const std::vector<Direction> directions = {UP_LEFT, UP_RIGHT, DOWN_LEFT,
                                          DOWN_RIGHT};
-  return gen_sliding_moves_directions(start, directions, color);
+  return gen_sliding_moves_directions(start, directions, color) & ~side_bbs.at(pos_data.player_to_move);
 }
 
 u_int64_t BitboardsBoard::gen_queen_moves(int start, Color color) const {
-  return gen_rook_moves(start, color) | gen_bishop_moves(start, color);
+  const std::vector<Direction> directions = {UP, DOWN, LEFT, RIGHT, UP_LEFT, UP_RIGHT, DOWN_LEFT,
+                                         DOWN_RIGHT};
+  return gen_sliding_moves_directions(start, directions, color) & ~side_bbs.at(pos_data.player_to_move);
 }
 
 std::vector<Move>
@@ -372,7 +396,7 @@ std::vector<Move> BitboardsBoard::gen_moves_piece(PieceType piece, int start) co
       return gen_pawn_moves(start);
     case ROOK:
       return sliding_moves_bb_to_moves(
-          start, gen_rook_moves(start, pos_data.player_to_move));
+          start, gen_rook_moves(start, pos_data.player_to_move) & ~side_bbs.at(pos_data.player_to_move));
     case BISHOP:
       return sliding_moves_bb_to_moves(
           start, gen_bishop_moves(start, pos_data.player_to_move));
@@ -438,7 +462,44 @@ u_int64_t BitboardsBoard::get_attacking_bb(Color color) const {
   return attacking_bb;
 }
 
+bool BitboardsBoard::is_attacked(int pos, Color color) const {
+  Color opponent = get_opposite_color(color);
+  std::array<u_int64_t, 6> opponent_bb = piece_bbs.at(opponent);
+
+  if ((bbs.knight_moves.at(pos) & opponent_bb.at(KNIGHT)) != 0) {
+    return true;
+  }
+  if ((bbs.king_moves.at(pos) & opponent_bb.at(KING)) != 0) {
+    return true;
+  }
+  if ((bbs.pawn_captures.at(color).at(pos) & opponent_bb.at(PAWN)) != 0) {
+    return true;
+  }
+
+  std::vector<Direction> directions = {UP_LEFT, UP_RIGHT, DOWN_LEFT,
+                                         DOWN_RIGHT};
+  u_int64_t bishop_moves = gen_sliding_moves_directions(pos, directions, opponent);
+  if ((bishop_moves & opponent_bb.at(BISHOP)) != 0) {
+    return true;
+  }
+  directions = {UP, DOWN, LEFT, RIGHT};
+  u_int64_t rook_moves = gen_sliding_moves_directions(pos, directions, opponent);
+  /*fmt::println(bits::to_string(rook_moves));*/
+  /*fmt::println(bits::to_string(opponent_bb.at(ROOK)));*/
+  /*fmt::println(bits::to_string(rook_moves & opponent_bb.at(ROOK)));*/
+  if ((rook_moves & opponent_bb.at(ROOK)) != 0) {
+    return true;
+  }
+  if (((bishop_moves | rook_moves) & opponent_bb.at(QUEEN)) != 0) {
+    return true;
+  }
+
+  return false;
+}
+
 bool BitboardsBoard::is_in_check(Color color) const {
-  u_int64_t attacked_bb = get_attacking_bb(get_opposite_color(color));
-  return (piece_bbs.at(color).at(KING) & attacked_bb) != 0;
+  u_int64_t king_bb = piece_bbs.at(color).at(KING);
+  assert(king_bb != 0);
+  int king_pos = bits::popLSB(king_bb).value();
+  return is_attacked(king_pos, color);
 }

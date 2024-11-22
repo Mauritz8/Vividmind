@@ -89,6 +89,8 @@ private:
                                          Color color) const;
   u_int64_t gen_sliding_moves_direction(int start, Direction direction,
                                         Color color) const;
+  u_int64_t gen_sliding_moves_file(int start, Color color) const;
+  u_int64_t gen_sliding_moves_rank(int start, Color color) const;
   u_int64_t gen_sliding_moves_up(int start, Color color) const;
   u_int64_t gen_sliding_moves_down(int start, Color color) const;
   u_int64_t gen_sliding_moves_left(int start, Color color) const;
@@ -103,8 +105,10 @@ private:
   std::vector<Move> gen_moves_piece(PieceType piece, int start) const;
   std::vector<Move> gen_all_moves_piece(PieceType piece) const;
   bool piece_on_square(u_int64_t pos_bb, Color color) const;
+  bool piece_on_square(u_int64_t pos_bb) const;
 
   std::array<u_int64_t, 64> get_piece_attacking_bb(PieceType piece,
                                                    Color color) const;
   u_int64_t get_attacking_bb(Color color) const;
+  bool is_attacked(int pos, Color color) const;
 };
