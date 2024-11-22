@@ -39,7 +39,7 @@ BitboardsBoard::BitboardsBoard(std::vector<Piece> pieces, Color player_to_move,
   };
 
   this->history = {};
-  this->bbs = create_bitboards();
+  this->masks = create_masks();
 }
 
 bool BitboardsBoard::operator==(const BitboardsBoard &other) const {

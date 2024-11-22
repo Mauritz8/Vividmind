@@ -27,7 +27,7 @@ set(COMMON_SOURCES
     src/bitboards_board/bitboards_board.cpp
     src/bitboards_board/bits.cpp
     src/bitboards_board/move_gen.cpp
-    src/bitboards_board/bitboards.cpp
+    src/bitboards_board/masks.cpp
     src/evaluation/evaluation.cpp
     src/search/search_defs.cpp
     src/search/time_management.cpp

@@ -7,7 +7,7 @@
 #include "board.hpp"
 #include "defs.hpp"
 #include "move.hpp"
-#include "bitboards.hpp"
+#include "masks.hpp"
 #include "piece.hpp"
 
 struct PosData {
@@ -23,17 +23,6 @@ struct PosData {
 struct BitboardIndex {
   Color color;
   PieceType piece_type;
-};
-
-enum Direction {
-  UP,
-  DOWN,
-  LEFT,
-  RIGHT,
-  UP_LEFT,
-  UP_RIGHT,
-  DOWN_LEFT,
-  DOWN_RIGHT,
 };
 
 class BitboardsBoard : public Board {
@@ -66,7 +55,7 @@ private:
   std::array<u_int64_t, 2> side_bbs;
   PosData pos_data;
   std::vector<PosData> history;
-  Bitboards bbs;
+  Masks masks;
 
   std::optional<PieceType> get_piece_on_pos(int pos) const;
   std::optional<BitboardIndex> find_bitboard_with_piece(int pos) const;
@@ -75,40 +64,28 @@ private:
   std::array<Castling, 2> updated_castling_rights(const Move &move) const;
   int get_castling_rook(const Move& move, Color color) const;
 
+  std::vector<Move> gen_moves_piece(PieceType piece, int start) const;
+  std::vector<Move> gen_all_moves_piece(PieceType piece) const;
+
+  std::vector<Move> gen_knight_moves(int start) const;
+  std::vector<Move> gen_pawn_moves(int start) const;
+
   std::vector<Move> gen_king_moves(int start) const;
   u_int64_t get_castling_check_not_allowed_bb(int start, bool kingside) const;
   u_int64_t get_castling_pieces_not_allowed_bb(int start, bool kingside) const;
   u_int64_t gen_castling_moves_bb(int start) const;
 
-  std::vector<Move> gen_knight_moves(int start) const;
-  std::vector<Move> gen_pawn_moves(int start) const;
-  std::vector<Move> sliding_moves_bb_to_moves(int start,
-                                              u_int64_t moves_bb) const;
-  u_int64_t gen_sliding_moves_directions(int start,
-                                         std::vector<Direction> directions,
-                                         Color color) const;
-  u_int64_t gen_sliding_moves_direction(int start, Direction direction,
-                                        Color color) const;
-  u_int64_t gen_sliding_moves_file(int start, Color color) const;
-  u_int64_t gen_sliding_moves_rank(int start, Color color) const;
-  u_int64_t gen_sliding_moves_up(int start, Color color) const;
-  u_int64_t gen_sliding_moves_down(int start, Color color) const;
-  u_int64_t gen_sliding_moves_left(int start, Color color) const;
-  u_int64_t gen_sliding_moves_right(int start, Color color) const;
-  u_int64_t gen_sliding_moves_up_left(int start, Color color) const;
-  u_int64_t gen_sliding_moves_up_right(int start, Color color) const;
-  u_int64_t gen_sliding_moves_down_left(int start, Color color) const;
-  u_int64_t gen_sliding_moves_down_right(int start, Color color) const;
-  u_int64_t gen_rook_moves(int start, Color color) const;
-  u_int64_t gen_bishop_moves(int start, Color color) const;
-  u_int64_t gen_queen_moves(int start, Color color) const;
-  std::vector<Move> gen_moves_piece(PieceType piece, int start) const;
-  std::vector<Move> gen_all_moves_piece(PieceType piece) const;
-  bool piece_on_square(u_int64_t pos_bb, Color color) const;
-  bool piece_on_square(u_int64_t pos_bb) const;
+  u_int64_t gen_rook_attacks(int start, u_int64_t occupied) const;
+  u_int64_t gen_bishop_attacks(int start, u_int64_t occupied) const;
+  u_int64_t gen_queen_attacks(int start, u_int64_t occupied) const;
 
-  std::array<u_int64_t, 64> get_piece_attacking_bb(PieceType piece,
-                                                   Color color) const;
+  u_int64_t gen_file_attacks(int start, u_int64_t occupied) const;
+  u_int64_t gen_rank_attacks(int start, u_int64_t occupied) const;
+  u_int64_t gen_diag_attacks(int start, u_int64_t occupied) const;
+  u_int64_t gen_antidiag_attacks(int start, u_int64_t occupied) const;
+  u_int64_t gen_sliding_attacks(int start, u_int64_t occupied,
+                              u_int64_t mask) const;
+
   u_int64_t get_attacking_bb(Color color) const;
-  bool is_attacked(int pos, Color color) const;
+  bool is_attacking(int pos, Color color) const;
 };
