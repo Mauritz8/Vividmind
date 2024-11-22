@@ -1,12 +1,12 @@
 #include "bitboards_board.hpp"
 #include "bits.hpp"
 #include "defs.hpp"
+#include "evaluation/evaluation.hpp"
 #include "fmt/core.h"
 #include "move.hpp"
 #include "utils.hpp"
 #include <cassert>
 #include <optional>
-#include <sys/types.h>
 
 BitboardsBoard::BitboardsBoard(std::vector<Piece> pieces, Color player_to_move,
                                std::array<Castling, 2> castling_rights,
@@ -65,9 +65,38 @@ Color BitboardsBoard::get_player_to_move() const {
   return pos_data.player_to_move;
 }
 
-int BitboardsBoard::get_material(Color color) const { return 0; }
+int BitboardsBoard::get_material(Color color) const {
+  int material = 0;
+  for (int piece = 0; piece < 6; piece++) {
+    int value = get_piece_value((PieceType) piece);  
+    u_int64_t piece_bb = piece_bbs.at(color).at(piece);
+    material += bits::nr_bits_set(piece_bb) * value;
+  }
+  return material;
+}
 
-int BitboardsBoard::get_psqt(Color color) const { return 0; }
+bool BitboardsBoard::is_lone_king(Color color) const {
+  return bits::nr_bits_set(side_bbs.at(color)) == 1;
+}
+
+bool BitboardsBoard::is_endgame() const {
+  return get_material(WHITE) - KING_VALUE < 1500 &&
+         get_material(BLACK) - KING_VALUE < 1500;
+}
+
+int BitboardsBoard::get_psqt(Color color) const {
+  int psqt = 0;
+  for (int piece = 0; piece < 6; piece++) {
+    u_int64_t piece_bb = piece_bbs.at(color).at(piece);
+    std::optional<int> pos = bits::popLSB(piece_bb);
+    while (pos.has_value()) {
+      psqt += get_psqt_score((PieceType)piece, pos.value(), color,
+                             is_lone_king(color), is_endgame());
+      pos = bits::popLSB(piece_bb);
+    }
+  }
+  return psqt;
+}
 
 std::optional<PieceType> BitboardsBoard::get_piece_on_pos(int pos) const {
   for (int color = 0; color < 2; color++) {
@@ -311,4 +340,5 @@ void BitboardsBoard::undo() {
   history.pop_back();
 }
 
+// TODO: implement draws
 bool BitboardsBoard::is_draw() const { return false; }

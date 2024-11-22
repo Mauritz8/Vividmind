@@ -47,11 +47,13 @@ MailboxBoard::MailboxBoard(std::vector<Piece> pieces, Color player_to_move,
       white_material - KING_VALUE < 1500 && black_material - KING_VALUE < 1500;
   int white_psqt = std::accumulate(
       white_pieces.begin(), white_pieces.end(), 0, [&](int v, Piece p) {
-        return v + ::get_psqt_score(p, is_lone_king(p.color), is_endgame);
+        return v + ::get_psqt_score(p.piece_type, p.pos, p.color,
+                                    is_lone_king(p.color), is_endgame);
       });
   int black_psqt = std::accumulate(
       black_pieces.begin(), black_pieces.end(), 0, [&](int m, Piece p) {
-        return m + ::get_psqt_score(p, is_lone_king(p.color), is_endgame);
+        return m + ::get_psqt_score(p.piece_type, p.pos, p.color,
+                                    is_lone_king(p.color), is_endgame);
       });
 
   this->game_state = {
@@ -135,7 +137,8 @@ int MailboxBoard::get_king_square(Color color) const {
 }
 
 int MailboxBoard::get_psqt_score(const Piece &piece) const {
-  return ::get_psqt_score(piece, is_lone_king(piece.color), is_endgame());
+  return ::get_psqt_score(piece.piece_type, piece.pos, piece.color,
+                          is_lone_king(piece.color), is_endgame());
 }
 
 bool MailboxBoard::is_lone_king(Color color) const {

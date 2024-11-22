@@ -1,40 +1,16 @@
-#include <algorithm>
 #include <array>
 #include <memory>
-#include <numeric>
-#include <sstream>
 #include <stdexcept>
 #include <string>
 #include <string_view>
 #include <vector>
 
 #include "bitboards_board/bitboards_board.hpp"
-#include "evaluation/evaluation.hpp"
 #include "fen.hpp"
 #include "fmt/core.h"
 #include "utils.hpp"
 
 namespace fen {
-
-int get_psqt_score(Piece piece) {
-  const int square =
-      piece.color == WHITE ? piece.pos : get_mirrored_pos(piece.pos);
-  switch (piece.piece_type) {
-  case KING: {
-    return KING_PSQT.at(square);
-  }
-  case QUEEN:
-    return QUEEN_PSQT.at(square);
-  case ROOK:
-    return ROOK_PSQT.at(square);
-  case BISHOP:
-    return BISHOP_PSQT.at(square);
-  case KNIGHT:
-    return KNIGHT_PSQT.at(square);
-  case PAWN:
-    return PAWN_PSQT.at(square);
-  }
-}
 
 Color calc_player_to_move(const std::string &player_to_move) {
   if (player_to_move == "w") {

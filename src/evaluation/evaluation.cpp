@@ -2,8 +2,6 @@
 
 #include "piece.hpp"
 #include "utils.hpp"
-#include <algorithm>
-#include <numeric>
 
 int evaluate(const std::unique_ptr<Board> &board) {
   const int evaluation = board->get_material(WHITE) -
@@ -46,10 +44,10 @@ int get_piece_value(PieceType piece_type) {
   }
 }
 
-int get_psqt_score(const Piece &piece, bool is_lone_king, bool is_endgame) {
-  const int square =
-      piece.color == WHITE ? piece.pos : get_mirrored_pos(piece.pos);
-  switch (piece.piece_type) {
+int get_psqt_score(PieceType piece_type, int pos, Color color,
+                   bool is_lone_king, bool is_endgame) {
+  const int square = color == WHITE ? pos : get_mirrored_pos(pos);
+  switch (piece_type) {
   case KING: {
     if (is_lone_king) {
       return KING_MATE.at(square);

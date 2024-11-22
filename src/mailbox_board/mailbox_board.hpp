@@ -3,7 +3,6 @@
 #include <array>
 #include <optional>
 #include <string>
-#include <string_view>
 #include <vector>
 
 #include "board.hpp"

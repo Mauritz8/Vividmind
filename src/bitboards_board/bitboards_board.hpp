@@ -10,6 +10,8 @@
 #include "masks.hpp"
 #include "piece.hpp"
 
+// TODO: Maybe change squares to go from a1-h8 instead of a8-h1, might be more logical
+
 struct PosData {
   Color player_to_move;
   std::array<Castling, 2> castling_rights;
@@ -64,13 +66,15 @@ private:
   std::array<Castling, 2> updated_castling_rights(const Move &move) const;
   int get_castling_rook(const Move& move, Color color) const;
 
-  std::vector<Move> gen_moves_piece(PieceType piece, int start) const;
-  std::vector<Move> gen_all_moves_piece(PieceType piece) const;
+  std::vector<Move> gen_moves_piece(PieceType piece, int start,
+                                    MoveCategory move_category) const;
+  std::vector<Move> gen_all_moves_piece(PieceType piece,
+                                        MoveCategory move_category) const;
 
   std::vector<Move> gen_knight_moves(int start) const;
-  std::vector<Move> gen_pawn_moves(int start) const;
+  std::vector<Move> gen_pawn_moves(int start, MoveCategory move_category) const;
 
-  std::vector<Move> gen_king_moves(int start) const;
+  std::vector<Move> gen_king_moves(int start, MoveCategory move_category) const;
   u_int64_t get_castling_check_not_allowed_bb(int start, bool kingside) const;
   u_int64_t get_castling_pieces_not_allowed_bb(int start, bool kingside) const;
   u_int64_t gen_castling_moves_bb(int start) const;
@@ -88,4 +92,7 @@ private:
 
   u_int64_t get_attacking_bb(Color color) const;
   bool is_attacking(int pos, Color color) const;
+
+  bool is_lone_king(Color color) const;
+  bool is_endgame() const;
 };

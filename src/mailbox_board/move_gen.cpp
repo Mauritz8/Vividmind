@@ -1,10 +1,8 @@
 #include "mailbox_board.hpp"
 
 #include <array>
-#include <iostream>
 #include <vector>
 
-#include "fmt/core.h"
 #include "mailbox_board/mailbox_board_defs.hpp"
 #include "move.hpp"
 #include "square.hpp"

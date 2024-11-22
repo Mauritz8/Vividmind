@@ -1,7 +1,6 @@
 #include "bitboards_board.hpp"
 #include "bitboards_board/bits.hpp"
 #include "defs.hpp"
-#include "fmt/core.h"
 #include "move.hpp"
 #include "utils.hpp"
 #include <cassert>
@@ -66,11 +65,13 @@ u_int64_t BitboardsBoard::gen_castling_moves_bb(int start) const {
   return castling;
 }
 
-std::vector<Move> BitboardsBoard::gen_king_moves(int start) const {
+std::vector<Move> BitboardsBoard::gen_king_moves(int start, MoveCategory move_category) const {
   std::vector<Move> moves;
 
-  u_int64_t normal =
-      masks.king_moves.at(start) & ~side_bbs.at(pos_data.player_to_move);
+  u_int64_t normal = masks.king_moves.at(start);
+  normal &= move_category == TACTICAL
+                ? side_bbs.at(get_opposite_color(pos_data.player_to_move))
+                : ~side_bbs.at(pos_data.player_to_move);
 
   std::optional<int> end_pos = bits::popLSB(normal);
   while (end_pos.has_value()) {
@@ -79,18 +80,22 @@ std::vector<Move> BitboardsBoard::gen_king_moves(int start) const {
     end_pos = bits::popLSB(normal);
   }
 
-  u_int64_t castling = gen_castling_moves_bb(start);
-  end_pos = bits::popLSB(castling);
-  while (end_pos.has_value()) {
-    Move move = Move(start, end_pos.value());
-    move.move_type = CASTLING;
-    moves.push_back(move);
+  if (move_category == ALL) {
+    u_int64_t castling = gen_castling_moves_bb(start);
     end_pos = bits::popLSB(castling);
+    while (end_pos.has_value()) {
+      Move move = Move(start, end_pos.value());
+      move.move_type = CASTLING;
+      moves.push_back(move);
+      end_pos = bits::popLSB(castling);
+    }
   }
+
   return moves;
 }
 
-std::vector<Move> BitboardsBoard::gen_pawn_moves(int start) const {
+std::vector<Move>
+BitboardsBoard::gen_pawn_moves(int start, MoveCategory move_category) const {
   std::vector<Move> moves;
 
   u_int64_t pawn = masks.squares.at(start);
@@ -115,7 +120,8 @@ std::vector<Move> BitboardsBoard::gen_pawn_moves(int start) const {
   u_int64_t bb_end = move_one | normal_captures;
   std::optional<int> end_pos = bits::popLSB(bb_end);
   while (end_pos.has_value()) {
-    if (end_pos.value() < 8 || end_pos.value() > 55) {
+    bool is_promotion = end_pos.value() < 8 || end_pos.value() > 55;
+    if (is_promotion) {
       std::array<PieceType, 4> promotion_pieces = {
           QUEEN,
           ROOK,
@@ -128,19 +134,21 @@ std::vector<Move> BitboardsBoard::gen_pawn_moves(int start) const {
         move.promotion_piece = p;
         moves.push_back(move);
       }
-    } else {
+    } else if (move_category == ALL) {
       Move move = Move(start, end_pos.value());
       moves.push_back(move);
     }
     end_pos = bits::popLSB(bb_end);
   }
 
-  end_pos = bits::popLSB(move_two);
-  while (end_pos.has_value()) {
-    Move move = Move(start, end_pos.value());
-    move.move_type = PAWN_TWO_SQUARES_FORWARD;
-    moves.push_back(move);
+  if (move_category == ALL) {
     end_pos = bits::popLSB(move_two);
+    while (end_pos.has_value()) {
+      Move move = Move(start, end_pos.value());
+      move.move_type = PAWN_TWO_SQUARES_FORWARD;
+      moves.push_back(move);
+      end_pos = bits::popLSB(move_two);
+    }
   }
 
   end_pos = bits::popLSB(en_passant_captures);
@@ -208,12 +216,14 @@ u_int64_t BitboardsBoard::gen_queen_attacks(int start, u_int64_t occupied) const
   return gen_rook_attacks(start, occupied) | gen_bishop_attacks(start, occupied);
 }
 
-std::vector<Move> BitboardsBoard::gen_moves_piece(PieceType piece, int start) const {
+std::vector<Move>
+BitboardsBoard::gen_moves_piece(PieceType piece, int start,
+                                MoveCategory move_category) const {
   if (piece == KING) {
-    return gen_king_moves(start);
+    return gen_king_moves(start, move_category);
   }
   if (piece == PAWN) {
-    return gen_pawn_moves(start);
+    return gen_pawn_moves(start, move_category);
   }
 
   u_int64_t occupied = side_bbs.at(WHITE) | side_bbs.at(BLACK);
@@ -221,25 +231,30 @@ std::vector<Move> BitboardsBoard::gen_moves_piece(PieceType piece, int start) co
                        : piece == BISHOP ? gen_bishop_attacks(start, occupied)
                        : piece == ROOK   ? gen_rook_attacks(start, occupied)
                                          : gen_queen_attacks(start, occupied);
-  attacks &= ~side_bbs.at(pos_data.player_to_move);
+  u_int64_t moves_bb =
+      move_category == TACTICAL
+          ? attacks & side_bbs.at(get_opposite_color(pos_data.player_to_move))
+          : attacks &= ~side_bbs.at(pos_data.player_to_move);
 
   std::vector<Move> moves;
-  std::optional<int> end_pos = bits::popLSB(attacks);
+  std::optional<int> end_pos = bits::popLSB(moves_bb);
   while (end_pos.has_value()) {
     Move move = Move(start, end_pos.value());
     moves.push_back(move);
-    end_pos = bits::popLSB(attacks);
+    end_pos = bits::popLSB(moves_bb);
   }
   return moves;
 }
 
-std::vector<Move> BitboardsBoard::gen_all_moves_piece(PieceType piece) const {
+std::vector<Move>
+BitboardsBoard::gen_all_moves_piece(PieceType piece,
+                                    MoveCategory move_category) const {
   std::vector<Move> moves;
 
   u_int64_t piece_bb = piece_bbs.at(pos_data.player_to_move).at(piece);
   std::optional<int> start_pos = bits::popLSB(piece_bb);
   while (start_pos.has_value()) {
-    std::vector<Move> pos_moves = gen_moves_piece(piece, start_pos.value());
+    std::vector<Move> pos_moves = gen_moves_piece(piece, start_pos.value(), move_category);
     moves.insert(moves.end(), pos_moves.begin(), pos_moves.end()); 
     start_pos = bits::popLSB(piece_bb);
   }
@@ -250,7 +265,8 @@ std::vector<Move>
 BitboardsBoard::get_pseudo_legal_moves(MoveCategory move_category) const {
   std::vector<Move> moves;
   for (int piece = 0; piece < 6; piece++) {
-    std::vector<Move> piece_moves = gen_all_moves_piece((PieceType) piece);
+    std::vector<Move> piece_moves =
+        gen_all_moves_piece((PieceType)piece, move_category);
     moves.insert(moves.end(), piece_moves.begin(), piece_moves.end());
   }
   return moves;
