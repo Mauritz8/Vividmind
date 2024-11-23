@@ -77,3 +77,13 @@ target_include_directories(move_tests PRIVATE
     src/
 )
 target_link_libraries(move_tests GTest::gtest_main fmt::fmt)
+
+add_executable(pseudo_legal_move_gen_tests
+    tests/test_gen_pseudo_legal_moves.cpp
+    ${COMMON_SOURCES}
+)
+target_include_directories(pseudo_legal_move_gen_tests PRIVATE
+    tests/
+    src/
+)
+target_link_libraries(pseudo_legal_move_gen_tests GTest::gtest_main fmt::fmt)

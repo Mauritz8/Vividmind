@@ -9,6 +9,19 @@ Move::Move(int start, int end) {
   this->move_type = NORMAL;
 }
 
+Move::Move(int start, int end, MoveType move_type) {
+  this->start = start;
+  this->end = end;
+  this->move_type = move_type;
+}
+
+Move::Move(int start, int end, PieceType promotion_piece) {
+  this->start = start;
+  this->end = end;
+  this->move_type = PROMOTION;
+  this->promotion_piece = promotion_piece;
+}
+
 Move::Move(const Move &move) {
   this->start = move.start;
   this->end = move.end;

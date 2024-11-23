@@ -117,8 +117,7 @@ BitboardsBoard::gen_pawn_moves(int start, MoveCategory move_category) const {
     ? captures & masks.squares.at(pos_data.en_passant_square.value())
     : 0;
 
-  u_int64_t bb_end = move_one | normal_captures;
-  std::optional<int> end_pos = bits::popLSB(bb_end);
+  std::optional<int> end_pos = bits::popLSB(move_one);
   while (end_pos.has_value()) {
     bool is_promotion = end_pos.value() < 8 || end_pos.value() > 55;
     if (is_promotion) {
@@ -138,7 +137,30 @@ BitboardsBoard::gen_pawn_moves(int start, MoveCategory move_category) const {
       Move move = Move(start, end_pos.value());
       moves.push_back(move);
     }
-    end_pos = bits::popLSB(bb_end);
+    end_pos = bits::popLSB(move_one);
+  }
+
+  end_pos = bits::popLSB(normal_captures);
+  while (end_pos.has_value()) {
+    bool is_promotion = end_pos.value() < 8 || end_pos.value() > 55;
+    if (is_promotion) {
+      std::array<PieceType, 4> promotion_pieces = {
+          QUEEN,
+          ROOK,
+          BISHOP,
+          KNIGHT,
+      };
+      for (PieceType p : promotion_pieces) {
+        Move move = Move(start, end_pos.value());
+        move.move_type = PROMOTION;
+        move.promotion_piece = p;
+        moves.push_back(move);
+      }
+    } else {
+      Move move = Move(start, end_pos.value());
+      moves.push_back(move);
+    }
+    end_pos = bits::popLSB(normal_captures);
   }
 
   if (move_category == ALL) {

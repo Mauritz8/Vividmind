@@ -22,6 +22,8 @@ public:
 
   Move(){};
   Move(int start, int end);
+  Move(int start, int end, MoveType move_type);
+  Move(int start, int end, PieceType promotion_piece);
   Move(const Move &move);
 
   Move operator=(const Move &move);
