@@ -5,10 +5,6 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-add_compile_options(-O3 -march=native -flto)
-add_link_options(-flto)
-
-
 include(FetchContent)
 FetchContent_Declare(
   fmt
@@ -52,38 +48,32 @@ add_executable(vividmind
     src/main.cpp
     ${COMMON_SOURCES}
 )
+target_compile_options(vividmind PUBLIC -O3 -march=native -flto)
+target_link_options(vividmind PUBLIC -flto)
 target_include_directories(vividmind PRIVATE
     src/
 )
 target_link_libraries(vividmind fmt::fmt)
 
 
-add_executable(tests
+add_executable(move_gen_tests
     tests/test_move_gen.cpp
+    ${COMMON_SOURCES}
+)
+target_compile_options(move_gen_tests PUBLIC -O3 -march=native -flto)
+target_link_options(move_gen_tests PUBLIC -flto)
+target_include_directories(move_gen_tests PRIVATE
+    tests/
+    src/
+)
+target_link_libraries(move_gen_tests fmt::fmt)
+
+add_executable(tests
+    tests/tests.cpp
     ${COMMON_SOURCES}
 )
 target_include_directories(tests PRIVATE
     tests/
     src/
 )
-target_link_libraries(tests fmt::fmt)
-
-add_executable(move_tests
-    tests/test_move.cpp
-    ${COMMON_SOURCES}
-)
-target_include_directories(move_tests PRIVATE
-    tests/
-    src/
-)
-target_link_libraries(move_tests GTest::gtest_main fmt::fmt)
-
-add_executable(pseudo_legal_move_gen_tests
-    tests/test_gen_pseudo_legal_moves.cpp
-    ${COMMON_SOURCES}
-)
-target_include_directories(pseudo_legal_move_gen_tests PRIVATE
-    tests/
-    src/
-)
-target_link_libraries(pseudo_legal_move_gen_tests GTest::gtest_main fmt::fmt)
+target_link_libraries(tests GTest::gtest_main fmt::fmt)
