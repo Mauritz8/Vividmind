@@ -24,27 +24,27 @@ BitboardsBoard::get_castling_pieces_not_allowed_bb(int start,
 u_int64_t BitboardsBoard::gen_castling_moves_bb(int start) const {
   u_int64_t castling = 0;
 
-  int king_initial = pos_data.player_to_move == WHITE ? 60 : 4;
+  int king_initial = get_player_to_move() == WHITE ? 60 : 4;
   if (start != king_initial) {
     return 0;
   }
 
-  if (is_in_check(pos_data.player_to_move)) {
+  if (is_in_check(get_player_to_move())) {
     return 0;
   }
 
   Castling castling_rights =
-      pos_data.castling_rights.at(pos_data.player_to_move);
+      history.top().castling_rights.at(get_player_to_move());
 
   u_int64_t attacked_bb =
       castling_rights.kingside || castling_rights.queenside
-          ? get_attacking_bb(get_opposite_color(pos_data.player_to_move))
+          ? get_attacking_bb(get_opposite_color(get_player_to_move()))
           : 0;
 
   u_int64_t pieces_bb =
-      (side_bbs.at(pos_data.player_to_move) &
-       ~piece_bbs.at(pos_data.player_to_move).at(KING)) |
-      side_bbs.at(get_opposite_color(pos_data.player_to_move));
+      (side_bbs.at(get_player_to_move()) &
+       ~piece_bbs.at(get_player_to_move()).at(KING)) |
+      side_bbs.at(get_opposite_color(get_player_to_move()));
 
   if (castling_rights.kingside) {
     u_int64_t no_check_bb = get_castling_check_not_allowed_bb(start, true);
@@ -70,8 +70,8 @@ std::vector<Move> BitboardsBoard::gen_king_moves(int start, MoveCategory move_ca
 
   u_int64_t normal = masks.king_moves.at(start);
   normal &= move_category == TACTICAL
-                ? side_bbs.at(get_opposite_color(pos_data.player_to_move))
-                : ~side_bbs.at(pos_data.player_to_move);
+                ? side_bbs.at(get_opposite_color(get_player_to_move()))
+                : ~side_bbs.at(get_player_to_move());
 
   std::optional<int> end_pos = bits::popLSB(normal);
   while (end_pos.has_value()) {
@@ -101,20 +101,20 @@ BitboardsBoard::gen_pawn_moves(int start, MoveCategory move_category) const {
   u_int64_t pawn = masks.squares.at(start);
   u_int64_t all_pieces = side_bbs.at(WHITE) | side_bbs.at(BLACK);
   u_int64_t all_pieces_one_rank_forward =
-      pos_data.player_to_move == WHITE ? all_pieces >> 8 : all_pieces << 8;
+      get_player_to_move() == WHITE ? all_pieces >> 8 : all_pieces << 8;
 
-  u_int64_t move_one = masks.pawn_moves_one.at(pos_data.player_to_move).at(start)
+  u_int64_t move_one = masks.pawn_moves_one.at(get_player_to_move()).at(start)
     & ~all_pieces;
-  u_int64_t move_two = masks.pawn_moves_two.at(pos_data.player_to_move).at(start)
+  u_int64_t move_two = masks.pawn_moves_two.at(get_player_to_move()).at(start)
     & ~(all_pieces | all_pieces_one_rank_forward);
 
-  u_int64_t captures = masks.pawn_captures.at(pos_data.player_to_move).at(start)
-    & ~side_bbs.at(pos_data.player_to_move);
+  u_int64_t captures = masks.pawn_captures.at(get_player_to_move()).at(start)
+    & ~side_bbs.at(get_player_to_move());
   u_int64_t normal_captures =
-      captures & side_bbs.at(get_opposite_color(pos_data.player_to_move));
+      captures & side_bbs.at(get_opposite_color(get_player_to_move()));
 
-  u_int64_t en_passant_captures = pos_data.en_passant_square.has_value()
-    ? captures & masks.squares.at(pos_data.en_passant_square.value())
+  u_int64_t en_passant_captures = get_en_passant_square().has_value()
+    ? captures & masks.squares.at(get_en_passant_square().value())
     : 0;
 
   std::optional<int> end_pos = bits::popLSB(move_one);
@@ -255,8 +255,8 @@ BitboardsBoard::gen_moves_piece(PieceType piece, int start,
                                          : gen_queen_attacks(start, occupied);
   u_int64_t moves_bb =
       move_category == TACTICAL
-          ? attacks & side_bbs.at(get_opposite_color(pos_data.player_to_move))
-          : attacks &= ~side_bbs.at(pos_data.player_to_move);
+          ? attacks & side_bbs.at(get_opposite_color(get_player_to_move()))
+          : attacks &= ~side_bbs.at(get_player_to_move());
 
   std::vector<Move> moves;
   std::optional<int> end_pos = bits::popLSB(moves_bb);
@@ -273,7 +273,7 @@ BitboardsBoard::gen_all_moves_piece(PieceType piece,
                                     MoveCategory move_category) const {
   std::vector<Move> moves;
 
-  u_int64_t piece_bb = piece_bbs.at(pos_data.player_to_move).at(piece);
+  u_int64_t piece_bb = piece_bbs.at(get_player_to_move()).at(piece);
   std::optional<int> start_pos = bits::popLSB(piece_bb);
   while (start_pos.has_value()) {
     std::vector<Move> pos_moves = gen_moves_piece(piece, start_pos.value(), move_category);

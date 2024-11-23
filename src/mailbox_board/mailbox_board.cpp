@@ -93,37 +93,37 @@ bool MailboxBoard::operator==(const MailboxBoard &other) const {
   return true;
 }
 
-std::optional<PieceType> MailboxBoard::piece_type(int pos) const {
+std::optional<PieceType> MailboxBoard::get_piece_type(int pos) const {
   std::optional<Piece> piece = squares.at(pos).piece;
   return piece.has_value() ? std::optional<PieceType>(piece.value().piece_type)
                            : std::nullopt;
 }
 
-Color MailboxBoard::player_to_move() const {
+Color MailboxBoard::get_player_to_move() const {
   return game_state.player_to_move;
 }
 
-int MailboxBoard::halfmove_clock() const {
+int MailboxBoard::get_halfmove_clock() const {
   return game_state.halfmove_clock;
 }
 
-int MailboxBoard::fullmove_number() const {
+int MailboxBoard::get_fullmove_number() const {
   return game_state.fullmove_number;
 }
 
-std::optional<int> MailboxBoard::en_passant_square() const {
+std::optional<int> MailboxBoard::get_en_passant_square() const {
   return game_state.en_passant_square;
 }
 
-std::optional<Piece> MailboxBoard::captured_piece() const {
+std::optional<Piece> MailboxBoard::get_captured_piece() const {
   return game_state.captured_piece;
 }
 
-int MailboxBoard::material(Color color) const {
+int MailboxBoard::get_material(Color color) const {
   return game_state.material.at(color);
 }
 
-int MailboxBoard::psqt(Color color) const {
+int MailboxBoard::get_psqt(Color color) const {
   return game_state.psqt.at(color);
 }
 

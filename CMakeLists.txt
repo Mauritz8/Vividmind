@@ -76,4 +76,5 @@ target_include_directories(tests PRIVATE
     tests/
     src/
 )
+target_compile_options(tests PUBLIC -g)
 target_link_libraries(tests GTest::gtest_main fmt::fmt)

@@ -2,6 +2,7 @@
 
 #include <array>
 #include <optional>
+#include <stack>
 #include <vector>
 
 #include "board.hpp"
@@ -19,15 +20,11 @@ struct PosData {
   int halfmove_clock;
   int fullmove_number;
   std::optional<Piece> captured_piece;
-  Move next_move;
   std::array<int, 2> material;
   std::array<int, 2> psqt;
 };
 
-struct BitboardIndex {
-  Color color;
-  PieceType piece_type;
-};
+const int NR_PIECES = 6;
 
 class BitboardsBoard : public Board {
 public:
@@ -38,15 +35,15 @@ public:
 
   bool operator==(const BitboardsBoard &other) const;
 
-  Color player_to_move() const override;
-  int halfmove_clock() const override;
-  int fullmove_number() const override;
-  std::optional<int> en_passant_square() const override;
-  std::optional<Piece> captured_piece() const override;
-  int material(Color color) const override;
-  int psqt(Color color) const override;
+  Color get_player_to_move() const override;
+  int get_halfmove_clock() const override;
+  int get_fullmove_number() const override;
+  std::optional<int> get_en_passant_square() const override;
+  std::optional<Piece> get_captured_piece() const override;
+  int get_material(Color color) const override;
+  int get_psqt(Color color) const override;
 
-  std::optional<PieceType> piece_type(int pos) const override;
+  std::optional<PieceType> get_piece_type(int pos) const override;
 
   std::string to_string() const override;
 
@@ -62,14 +59,17 @@ public:
 private:
   std::array<std::array<u_int64_t, 6>, 2> piece_bbs;
   std::array<u_int64_t, 2> side_bbs;
-  PosData pos_data;
-  std::vector<PosData> history;
-  Masks masks;
+  std::stack<PosData> history;
+  std::stack<Move> move_history;
+  const Masks masks;
 
-  std::optional<PieceType> get_piece_on_pos(int pos) const;
-  std::optional<BitboardIndex> find_bitboard_with_piece(int pos) const;
-  std::optional<PieceType> find_piece_on_pos(int pos) const;
-  std::optional<Piece> remove_piece(int pos);
+  std::optional<Piece> get_piece_to_be_captured(const Move &move) const;
+  std::array<int, 2>
+  updated_material(const Move &move, std::optional<Piece> captured_piece) const;
+  std::array<int, 2> updated_psqt(const Move &move,
+                                  std::optional<Piece> captured_piece) const;
+
+  std::optional<PieceType> piece_type(int pos, Color color) const;
   std::array<Castling, 2> updated_castling_rights(const Move &move) const;
   int get_castling_rook(const Move& move, Color color) const;
 
