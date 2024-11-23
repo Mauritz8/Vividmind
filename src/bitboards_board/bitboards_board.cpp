@@ -22,11 +22,29 @@ BitboardsBoard::BitboardsBoard(std::vector<Piece> pieces, Color player_to_move,
     bits::set(piece_bbs.at(piece.color).at(piece.piece_type), piece.pos);
   }
 
+  std::array<int, 2> material;
+  std::array<int, 2> psqt;
   for (int color = 0; color < 2; color++) {
     side_bbs.at(color) = 0;
+    int material_side = 0;
+    int psqt_side = 0;
     for (int piece = 0; piece < 6; piece++) {
       side_bbs.at(color) |= piece_bbs.at(color).at(piece);
+
+      PieceType piece_type = (PieceType) piece;  
+      u_int64_t piece_bb = piece_bbs.at(color).at(piece);
+      material_side +=
+          bits::nr_bits_set(piece_bb) * get_piece_value(piece_type);
+
+      std::optional<int> pos = bits::popLSB(piece_bb);
+      while (pos.has_value()) {
+        psqt_side +=
+            get_psqt_score(piece_type, pos.value(), (Color)color, false, false);
+        pos = bits::popLSB(piece_bb);
+      }
     }
+    material.at(color) = material_side;
+    psqt.at(color) = psqt_side;
   }
 
   this->pos_data = {
@@ -36,6 +54,8 @@ BitboardsBoard::BitboardsBoard(std::vector<Piece> pieces, Color player_to_move,
       .halfmove_clock = halfmove_clock,
       .fullmove_number = fullmove_number,
       .captured_piece = std::nullopt,
+      .material = material,
+      .psqt = psqt,
   };
 
   this->history = {};
@@ -54,25 +74,36 @@ bool BitboardsBoard::operator==(const BitboardsBoard &other) const {
   return true;
 }
 
-std::optional<PieceType> BitboardsBoard::get_piece_type(int pos) const {
+std::optional<PieceType> BitboardsBoard::piece_type(int pos) const {
   std::optional<BitboardIndex> bitboard = find_bitboard_with_piece(pos);
   return bitboard.has_value()
              ? std::optional<PieceType>(bitboard.value().piece_type)
              : std::nullopt;
 }
 
-Color BitboardsBoard::get_player_to_move() const {
+Color BitboardsBoard::player_to_move() const {
   return pos_data.player_to_move;
 }
 
-int BitboardsBoard::get_material(Color color) const {
-  int material = 0;
-  for (int piece = 0; piece < 6; piece++) {
-    int value = get_piece_value((PieceType) piece);  
-    u_int64_t piece_bb = piece_bbs.at(color).at(piece);
-    material += bits::nr_bits_set(piece_bb) * value;
-  }
-  return material;
+int BitboardsBoard::halfmove_clock() const {
+  return pos_data.halfmove_clock;
+}
+int BitboardsBoard::fullmove_number() const {
+  return pos_data.fullmove_number;
+}
+std::optional<int> BitboardsBoard::en_passant_square() const {
+  return pos_data.en_passant_square;
+}
+std::optional<Piece> BitboardsBoard::captured_piece() const {
+  return pos_data.captured_piece;
+}
+
+int BitboardsBoard::material(Color color) const {
+  return pos_data.material.at(color);
+}
+
+int BitboardsBoard::psqt(Color color) const {
+  return pos_data.psqt.at(color);
 }
 
 bool BitboardsBoard::is_lone_king(Color color) const {
@@ -80,22 +111,8 @@ bool BitboardsBoard::is_lone_king(Color color) const {
 }
 
 bool BitboardsBoard::is_endgame() const {
-  return get_material(WHITE) - KING_VALUE < 1500 &&
-         get_material(BLACK) - KING_VALUE < 1500;
-}
-
-int BitboardsBoard::get_psqt(Color color) const {
-  int psqt = 0;
-  for (int piece = 0; piece < 6; piece++) {
-    u_int64_t piece_bb = piece_bbs.at(color).at(piece);
-    std::optional<int> pos = bits::popLSB(piece_bb);
-    while (pos.has_value()) {
-      psqt += get_psqt_score((PieceType)piece, pos.value(), color,
-                             is_lone_king(color), is_endgame());
-      pos = bits::popLSB(piece_bb);
-    }
-  }
-  return psqt;
+  return material(WHITE) - KING_VALUE < 1500 &&
+         material(BLACK) - KING_VALUE < 1500;
 }
 
 std::optional<PieceType> BitboardsBoard::get_piece_on_pos(int pos) const {
@@ -226,6 +243,7 @@ void BitboardsBoard::make(const Move &move) {
   if (!piece_bb_index.has_value()) {
     throw std::invalid_argument(fmt::format("No piece on pos: {}", move.start));
   }
+  const PieceType piece_type = piece_bb_index.value().piece_type;
 
   std::optional<Piece> captured_piece = remove_piece(move.end);
 
@@ -235,6 +253,11 @@ void BitboardsBoard::make(const Move &move) {
 
   bits::unset(piece_bb, move.start);
   bits::unset(side_bb, move.start);
+
+  const int start_psqt = get_psqt_score(
+      piece_type, move.start, pos_data.player_to_move, false, false);
+  pos_data.psqt.at(pos_data.player_to_move) -= start_psqt;
+
   bits::set(side_bb, move.end);
   if (move.move_type == CASTLING) {
     int kingside = move.end > move.start;
@@ -246,10 +269,25 @@ void BitboardsBoard::make(const Move &move) {
     bits::set(rook_bb, rook_new);
     bits::set(side_bb, rook_new);
     bits::set(piece_bb, move.end);
+
+    int start_rook_psqt =
+        get_psqt_score(ROOK, rook, pos_data.player_to_move, false, false);
+    int end_rook_psqt =
+        get_psqt_score(ROOK, rook_new, pos_data.player_to_move, false, false);
+    int end_king_psqt = get_psqt_score(KING, move.end,
+                                  pos_data.player_to_move, false, false);
+    pos_data.psqt.at(pos_data.player_to_move) +=
+        end_king_psqt - start_rook_psqt + end_rook_psqt;
   } else if (move.move_type == PROMOTION) {
+    assert(move.promotion_piece.has_value());
     u_int64_t &promotion_piece_bb =
         piece_bbs.at(pos_data.player_to_move).at(move.promotion_piece.value());
     bits::set(promotion_piece_bb, move.end);
+    pos_data.material.at(player_to_move()) +=
+        get_piece_value(move.promotion_piece.value()) - PAWN_VALUE;
+    int end_psqt = get_psqt_score(move.promotion_piece.value(), move.end,
+                                  pos_data.player_to_move, false, false);
+    pos_data.psqt.at(pos_data.player_to_move) += end_psqt;
   } else if (move.move_type == EN_PASSANT) {
     assert(pos_data.en_passant_square.has_value());
     int captured_piece_square = pos_data.player_to_move == WHITE
@@ -257,22 +295,30 @@ void BitboardsBoard::make(const Move &move) {
       : pos_data.en_passant_square.value() - 8;
     captured_piece = remove_piece(captured_piece_square);
     bits::set(piece_bb, move.end);
+    int new_psqt = get_psqt_score(piece_type, move.end, pos_data.player_to_move,
+                                  false, false);
+    pos_data.psqt.at(pos_data.player_to_move) += new_psqt;
   } else {
     bits::set(piece_bb, move.end);
+    int new_psqt = get_psqt_score(piece_type, move.end, pos_data.player_to_move,
+                                  false, false);
+    pos_data.psqt.at(pos_data.player_to_move) += new_psqt;
   }
 
-  pos_data = {
-      .player_to_move = get_opposite_color(pos_data.player_to_move),
-      .castling_rights = updated_castling_rights(move),
-      .en_passant_square = move.move_type == PAWN_TWO_SQUARES_FORWARD
-                               ? std::optional<int>((move.start + move.end) / 2)
-                               : std::nullopt,
-      .halfmove_clock = pos_data.halfmove_clock + 1,
-      .fullmove_number =
-          pos_data.fullmove_number + pos_data.player_to_move == BLACK ? 1 : 0,
-      .captured_piece = captured_piece,
-      .next_move = pos_data.next_move,
-  };
+  pos_data.castling_rights = updated_castling_rights(move);
+
+  pos_data.en_passant_square =
+      move.move_type == PAWN_TWO_SQUARES_FORWARD
+          ? std::optional<int>((move.start + move.end) / 2)
+          : std::nullopt;
+  pos_data.halfmove_clock = piece_type == PAWN || captured_piece.has_value()
+                                ? 0
+                                : pos_data.halfmove_clock + 1;
+  pos_data.fullmove_number =
+      pos_data.fullmove_number + (pos_data.player_to_move == BLACK ? 1 : 0);
+  pos_data.captured_piece = captured_piece;
+
+  pos_data.player_to_move = get_opposite_color(pos_data.player_to_move);
 }
 
 std::optional<Piece> BitboardsBoard::remove_piece(int pos) {
@@ -282,6 +328,8 @@ std::optional<Piece> BitboardsBoard::remove_piece(int pos) {
     return std::nullopt;
   }
 
+  const Color color = piece_bb_index.value().color;
+  const PieceType piece_type = piece_bb_index.value().piece_type;
   u_int64_t &piece_bb =
       piece_bbs.at(piece_bb_index.value().color)
           .at(piece_bb_index.value().piece_type);
@@ -290,8 +338,11 @@ std::optional<Piece> BitboardsBoard::remove_piece(int pos) {
   bits::unset(piece_bb, pos);
   bits::unset(side_bb, pos);
 
-  return Piece(piece_bb_index.value().piece_type,
-               piece_bb_index.value().color, pos);
+  pos_data.material.at(color) -= get_piece_value(piece_type);
+  pos_data.psqt.at(color) -=
+      get_psqt_score(piece_type, pos, color, false, false);
+
+  return Piece(piece_type, color, pos);
 }
 
 void BitboardsBoard::undo() {

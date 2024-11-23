@@ -1,9 +1,7 @@
 #include <chrono>
-#include <iostream>
 #include <string>
 #include <vector>
 
-#include "bitboards_board/bitboards_board.hpp"
 #include "fen.hpp"
 #include "fmt/core.h"
 #include "perft.hpp"

@@ -7,7 +7,7 @@ int perft(std::unique_ptr<Board> &board, int depth) {
   }
 
   int nodes = 0;
-  const Color player = board->get_player_to_move();
+  const Color player = board->player_to_move();
   std::vector<Move> pseudo_legal_moves = board->get_pseudo_legal_moves(ALL);
   for (const Move &move : pseudo_legal_moves) {
     board->make(move);
@@ -23,7 +23,7 @@ int perft(std::unique_ptr<Board> &board, int depth) {
 
 void divide(std::unique_ptr<Board> &board, int depth) {
   int nodes_searched = 0;
-  const Color player = board->get_player_to_move();
+  const Color player = board->player_to_move();
   std::vector<Move> pseudo_legal_moves = board->get_pseudo_legal_moves(ALL);
   for (const Move &move : pseudo_legal_moves) {
     board->make(move);

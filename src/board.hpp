@@ -12,10 +12,15 @@ public:
 
   static std::unique_ptr<Board> get_starting_position();
 
-  virtual std::optional<PieceType> get_piece_type(int pos) const = 0;
-  virtual Color get_player_to_move() const = 0;
-  virtual int get_material(Color color) const = 0;
-  virtual int get_psqt(Color color) const = 0;
+  virtual Color player_to_move() const = 0;
+  virtual int halfmove_clock() const = 0;
+  virtual int fullmove_number() const = 0;
+  virtual std::optional<int> en_passant_square() const = 0;
+  virtual std::optional<Piece> captured_piece() const = 0;
+  virtual int material(Color color) const = 0;
+  virtual int psqt(Color color) const = 0;
+
+  virtual std::optional<PieceType> piece_type(int pos) const = 0;
 
   virtual std::string to_string() const = 0;
 

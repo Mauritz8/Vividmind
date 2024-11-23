@@ -3,12 +3,9 @@
 #include <algorithm>
 #include <cmath>
 #include <fmt/core.h>
-#include <iostream>
 #include <numeric>
-#include <sstream>
 #include <stdexcept>
 #include <string>
-#include <string_view>
 #include <vector>
 
 #include "board.hpp"
@@ -39,7 +36,7 @@ std::string get_fen(const std::vector<std::string> &words) {
 }
 
 bool make_move(const std::string &move_uci, std::unique_ptr<Board> &board) {
-  const Color player = board->get_player_to_move();
+  const Color player = board->player_to_move();
   const std::vector<Move> pseudo_legal_moves =
       board->get_pseudo_legal_moves(ALL);
   for (const Move &move : pseudo_legal_moves) {
@@ -121,7 +118,7 @@ void process(const std::string &input, std::unique_ptr<Board> &board) {
     int depth = std::stoi(words.at(2));
     divide(board, depth);
   } else if (words.at(0) == "go") {
-    SearchParams params = get_search_params(words, board->get_player_to_move());
+    SearchParams params = get_search_params(words, board->player_to_move());
     Search search = Search(board, params);
     search.iterative_deepening_search();
   } else if (input == "quit") {

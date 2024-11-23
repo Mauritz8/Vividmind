@@ -2,7 +2,6 @@
 
 #include <algorithm>
 #include <cassert>
-#include <chrono>
 #include <fmt/core.h>
 #include <optional>
 #include <vector>
@@ -64,7 +63,7 @@ void Search::iterative_deepening_search() {
 
 int Search::alpha_beta(int depth, int alpha, int beta,
                        std::vector<Move> &principal_variation) {
-  const Color player = board->get_player_to_move();
+  const Color player = board->player_to_move();
 
   // if the search has been terminated, then return immediately
   if (is_terminate()) {
@@ -178,7 +177,7 @@ int Search::quiescence(int alpha, int beta,
     alpha = evaluation;
   }
 
-  const Color player = board->get_player_to_move();
+  const Color player = board->player_to_move();
   std::vector<Move> captures = board->get_pseudo_legal_moves(TACTICAL);
   sort_moves(captures);
   for (const Move &capture : captures) {
@@ -243,8 +242,8 @@ void Search::sort_moves(std::vector<Move> &moves) {
 
 int Search::get_move_score(const Move &move) {
   const std::optional<PieceType> start_piece =
-      board->get_piece_type(move.start);
-  const std::optional<PieceType> end_piece = board->get_piece_type(move.end);
+      board->piece_type(move.start);
+  const std::optional<PieceType> end_piece = board->piece_type(move.end);
 
   // score non-capture moves lower than captures
   if (!end_piece) {

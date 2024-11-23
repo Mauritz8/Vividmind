@@ -17,6 +17,13 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(fmt)
 
+FetchContent_Declare(
+  googletest
+  GIT_REPOSITORY https://github.com/google/googletest
+  GIT_TAG v1.15.2
+)
+FetchContent_MakeAvailable(googletest)
+
 
 set(COMMON_SOURCES
     src/mailbox_board/mailbox_board.cpp
@@ -60,3 +67,13 @@ target_include_directories(tests PRIVATE
     src/
 )
 target_link_libraries(tests fmt::fmt)
+
+add_executable(move_tests
+    tests/test_move.cpp
+    ${COMMON_SOURCES}
+)
+target_include_directories(move_tests PRIVATE
+    tests/
+    src/
+)
+target_link_libraries(move_tests GTest::gtest_main fmt::fmt)

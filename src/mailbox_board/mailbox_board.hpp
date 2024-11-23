@@ -21,10 +21,15 @@ public:
 
   bool operator==(const MailboxBoard &board) const;
 
-  std::optional<PieceType> get_piece_type(int pos) const override;
-  Color get_player_to_move() const override;
-  int get_material(Color color) const override;
-  int get_psqt(Color color) const override;
+  Color player_to_move() const override;
+  int halfmove_clock() const override;
+  int fullmove_number() const override;
+  std::optional<int> en_passant_square() const override;
+  std::optional<Piece> captured_piece() const override;
+  int material(Color color) const override;
+  int psqt(Color color) const override;
+
+  std::optional<PieceType> piece_type(int pos) const override;
 
   std::string to_string() const override;
 

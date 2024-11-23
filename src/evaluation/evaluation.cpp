@@ -4,10 +4,9 @@
 #include "utils.hpp"
 
 int evaluate(const std::unique_ptr<Board> &board) {
-  const int evaluation = board->get_material(WHITE) -
-                         board->get_material(BLACK) + board->get_psqt(WHITE) -
-                         board->get_psqt(BLACK);
-  return board->get_player_to_move() == BLACK ? -evaluation : evaluation;
+  const int evaluation = board->material(WHITE) - board->material(BLACK) +
+                         board->psqt(WHITE) - board->psqt(BLACK);
+  return board->player_to_move() == BLACK ? -evaluation : evaluation;
 }
 
 int Piece::get_value() const {
