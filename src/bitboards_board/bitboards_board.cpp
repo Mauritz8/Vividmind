@@ -391,5 +391,40 @@ void BitboardsBoard::undo() {
   history.pop_back();
 }
 
-// TODO: implement draws
-bool BitboardsBoard::is_draw() const { return false; }
+bool BitboardsBoard::is_draw() const {
+  return is_insufficient_material() || is_threefold_repetition() ||
+    is_draw_by_fifty_move_rule();
+}
+
+bool BitboardsBoard::is_insufficient_material() const {
+  std::array<PieceType, 3> pieces = {QUEEN, ROOK, PAWN};
+  for (PieceType p : pieces) {
+    for (int color = 0; color < 2; color++) {
+      if (piece_bbs.at(color).at(p) != 0) {
+        return false;
+      }
+    }
+  }
+  return true;
+}
+
+bool BitboardsBoard::is_draw_by_fifty_move_rule() const {
+  return pos_data.halfmove_clock > 100;
+}
+
+bool BitboardsBoard::is_threefold_repetition() const {
+  BitboardsBoard old_board = *this;
+  const int history_size = history.size();
+  for (int _ = 0; _ < history_size - 1; _++) {
+
+    if (old_board.pos_data.halfmove_clock == 0) {
+      return false;
+    }
+
+    old_board.undo();
+    if (*this == old_board) {
+      return true;
+    }
+  }
+  return false;
+}

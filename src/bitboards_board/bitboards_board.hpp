@@ -102,4 +102,8 @@ private:
 
   bool is_lone_king(Color color) const;
   bool is_endgame() const;
+
+  bool is_insufficient_material() const;
+  bool is_draw_by_fifty_move_rule() const;
+  bool is_threefold_repetition() const;
 };
