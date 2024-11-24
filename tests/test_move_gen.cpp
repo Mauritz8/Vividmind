@@ -6,7 +6,7 @@
 #include <memory>
 
 static void test_fen(std::string_view fen,
-                 const std::vector<int> &expected_moves_list) {
+                     const std::vector<int> &expected_moves_list) {
   std::unique_ptr<Board> b = fen::get_position(fen);
   for (int i = 0; i < expected_moves_list.size(); i++) {
     int depth = i + 1;
@@ -26,7 +26,8 @@ TEST(MoveGenTests, Position1) {
 }
 
 TEST(MoveGenTests, Position2) {
-  std::string fen = "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1";
+  std::string fen =
+      "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1";
   std::vector<int> expected = {48, 2039, 97862};
   test_fen(fen, expected);
 }

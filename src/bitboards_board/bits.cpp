@@ -5,9 +5,7 @@
 
 namespace bits {
 
-u_int64_t get(u_int64_t bits, int n) {
-  return (bits >> n) & (u_int64_t)1;
-}
+u_int64_t get(u_int64_t bits, int n) { return (bits >> n) & (u_int64_t)1; }
 
 void set(u_int64_t &bits, int n) { bits |= (u_int64_t)1 << n; }
 
@@ -39,7 +37,8 @@ std::string to_string(u_int64_t bits) {
 // bswap on linux and __byteswap_uint64 on windows
 // https://man7.org/linux/man-pages/man3/bswap.3.html
 // https://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/byteswap-uint64-byteswap-ulong-byteswap-ushort
-// I tried it but it seems like it's not doing the same thing, I need to investigate
+// I tried it but it seems like it's not doing the same thing, I need to
+// investigate
 u_int64_t reverse(u_int64_t b) {
   b = (b & 0x5555555555555555) << 1 | ((b >> 1) & 0x5555555555555555);
   b = (b & 0x3333333333333333) << 2 | ((b >> 2) & 0x3333333333333333);
@@ -50,8 +49,6 @@ u_int64_t reverse(u_int64_t b) {
          (b >> 48);
 }
 
-int nr_bits_set(u_int64_t bits) {
-  return __builtin_popcountl(bits);
-}
+int nr_bits_set(u_int64_t bits) { return __builtin_popcountl(bits); }
 
 } // namespace bits

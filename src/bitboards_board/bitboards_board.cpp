@@ -33,7 +33,7 @@ BitboardsBoard::BitboardsBoard(std::vector<Piece> pieces, Color player_to_move,
     for (int piece = 0; piece < 6; piece++) {
       side_bbs.at(color) |= piece_bbs.at(color).at(piece);
 
-      PieceType piece_type = (PieceType) piece;  
+      PieceType piece_type = (PieceType)piece;
       u_int64_t piece_bb = piece_bbs.at(color).at(piece);
       material_side +=
           bits::nr_bits_set(piece_bb) * get_piece_value(piece_type);
@@ -82,8 +82,7 @@ bool BitboardsBoard::operator==(const BitboardsBoard &other) const {
 std::optional<PieceType> BitboardsBoard::get_piece_type(int pos) const {
   for (int color = 0; color < 2; color++) {
     for (int piece = 0; piece < 6; piece++) {
-      u_int64_t bitboard_bit =
-          bits::get(piece_bbs.at(color).at(piece), pos);
+      u_int64_t bitboard_bit = bits::get(piece_bbs.at(color).at(piece), pos);
       if (bitboard_bit == 1) {
         return (PieceType)piece;
       }
@@ -162,8 +161,10 @@ BitboardsBoard::updated_castling_rights(const Move &move) const {
     opponent_kingside_rook = 63;
     opponent_queenside_rook = 56;
   }
-  bool disable_kingside_player = move.start == kingside_rook || move.start == king;
-  bool disable_queenside_player = move.start == queenside_rook || move.start == king;
+  bool disable_kingside_player =
+      move.start == kingside_rook || move.start == king;
+  bool disable_queenside_player =
+      move.start == queenside_rook || move.start == king;
 
   std::array<Castling, 2> castling_rights;
   castling_rights.at(get_player_to_move()) = {
@@ -171,10 +172,11 @@ BitboardsBoard::updated_castling_rights(const Move &move) const {
           disable_kingside_player
               ? false
               : history.top().castling_rights.at(get_player_to_move()).kingside,
-      .queenside =
-          disable_queenside_player
-              ? false
-              : history.top().castling_rights.at(get_player_to_move()).queenside,
+      .queenside = disable_queenside_player
+                       ? false
+                       : history.top()
+                             .castling_rights.at(get_player_to_move())
+                             .queenside,
   };
 
   Color opponent = get_opposite_color(get_player_to_move());
@@ -185,20 +187,20 @@ BitboardsBoard::updated_castling_rights(const Move &move) const {
                       ? false
                       : history.top().castling_rights.at(opponent).kingside,
       .queenside = disable_queenside_opponent
-                      ? false
-                      : history.top().castling_rights.at(opponent).queenside,
+                       ? false
+                       : history.top().castling_rights.at(opponent).queenside,
   };
 
   return castling_rights;
 }
 
-int BitboardsBoard::get_castling_rook(const Move& move, Color color) const {
-    int kingside = move.end > move.start;
-    if (kingside) {
-      return color == WHITE ? 63 : 7;
-    } else {
-      return color == WHITE ? 56 : 0;
-    }
+int BitboardsBoard::get_castling_rook(const Move &move, Color color) const {
+  int kingside = move.end > move.start;
+  if (kingside) {
+    return color == WHITE ? 63 : 7;
+  } else {
+    return color == WHITE ? 56 : 0;
+  }
 }
 
 std::optional<PieceType> BitboardsBoard::piece_type(int pos,
@@ -213,7 +215,8 @@ std::optional<PieceType> BitboardsBoard::piece_type(int pos,
   return std::nullopt;
 }
 
-std::optional<Piece> BitboardsBoard::get_piece_to_be_captured(const Move &move) const {
+std::optional<Piece>
+BitboardsBoard::get_piece_to_be_captured(const Move &move) const {
   Color player = get_player_to_move();
   Color opponent = get_opposite_color(player);
   int pos = move.move_type == EN_PASSANT
@@ -268,7 +271,7 @@ BitboardsBoard::updated_psqt(const Move &move,
   if (move.move_type == CASTLING) {
     const int kingside = move.end > move.start;
     const int rook_start = get_castling_rook(move, player_to_move);
-    const int rook_end = rook_start + (kingside ? - 2 : 3);
+    const int rook_end = rook_start + (kingside ? -2 : 3);
     psqt.at(player_to_move) +=
         get_psqt_score(ROOK, rook_end, player_to_move, false, false) -
         get_psqt_score(ROOK, rook_start, player_to_move, false, false);

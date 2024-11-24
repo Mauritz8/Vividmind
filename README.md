@@ -5,7 +5,7 @@ Vividmind is a work-in-progress chess engine written in C++. It adheres to the U
 ## Features
 
 ### Engine
-* Mailbox board representation
+* Bitboard board representation
 * UCI-protocol
 
 ### Search
@@ -20,7 +20,7 @@ Vividmind is a work-in-progress chess engine written in C++. It adheres to the U
 * Piece-Square Tables
 
 
-## Build from scratch
+## Build instructions
 Make sure you have CMake installed, and then run the following commands from the root directory of the project:
 ```
 mkdir build 

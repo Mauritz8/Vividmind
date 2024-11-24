@@ -1,9 +1,9 @@
-#include <gtest/gtest.h>
 #include "board.hpp"
 #include "defs.hpp"
 #include "evaluation/evaluation.hpp"
 #include "fen.hpp"
 #include "move.hpp"
+#include <gtest/gtest.h>
 
 TEST(MoveTests, KnightMoveTest) {
   std::unique_ptr<Board> board = Board::get_starting_position();
@@ -827,9 +827,9 @@ TEST(MoveTests, PromotionMoveTest) {
   EXPECT_EQ(board->get_psqt(WHITE), white_psqt);
   EXPECT_EQ(board->get_material(BLACK),
             black_material - PAWN_VALUE + get_piece_value(promotion_piece));
-  int black_psqt_new = black_psqt -
-                       get_psqt_score(PAWN, start, BLACK, false, false) +
-                       get_psqt_score(promotion_piece, end, BLACK, false, false);
+  int black_psqt_new =
+      black_psqt - get_psqt_score(PAWN, start, BLACK, false, false) +
+      get_psqt_score(promotion_piece, end, BLACK, false, false);
   EXPECT_EQ(board->get_psqt(BLACK), black_psqt_new);
 
   board->undo();
@@ -892,9 +892,9 @@ TEST(MoveTests, PromotionCaptureMoveTest) {
             white_psqt - get_psqt_score(KNIGHT, end, WHITE, false, false));
   EXPECT_EQ(board->get_material(BLACK),
             black_material - PAWN_VALUE + get_piece_value(promotion_piece));
-  int black_psqt_new = black_psqt -
-                       get_psqt_score(PAWN, start, BLACK, false, false) +
-                       get_psqt_score(promotion_piece, end, BLACK, false, false);
+  int black_psqt_new =
+      black_psqt - get_psqt_score(PAWN, start, BLACK, false, false) +
+      get_psqt_score(promotion_piece, end, BLACK, false, false);
   EXPECT_EQ(board->get_psqt(BLACK), black_psqt_new);
 
   board->undo();

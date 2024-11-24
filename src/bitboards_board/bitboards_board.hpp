@@ -7,11 +7,12 @@
 
 #include "board.hpp"
 #include "defs.hpp"
-#include "move.hpp"
 #include "masks.hpp"
+#include "move.hpp"
 #include "piece.hpp"
 
-// TODO: Maybe change squares to go from a1-h8 instead of a8-h1, might be more logical
+// TODO: Maybe change squares to go from a1-h8 instead of a8-h1, might be more
+// logical
 
 struct PosData {
   Color player_to_move;
@@ -74,7 +75,7 @@ private:
 
   std::optional<PieceType> piece_type(int pos, Color color) const;
   std::array<Castling, 2> updated_castling_rights(const Move &move) const;
-  int get_castling_rook(const Move& move, Color color) const;
+  int get_castling_rook(const Move &move, Color color) const;
 
   std::vector<Move> gen_moves_piece(PieceType piece, int start,
                                     MoveCategory move_category) const;
@@ -98,15 +99,11 @@ private:
   u_int64_t gen_diag_attacks(int start, u_int64_t occupied) const;
   u_int64_t gen_antidiag_attacks(int start, u_int64_t occupied) const;
   u_int64_t gen_sliding_attacks(int start, u_int64_t occupied,
-                              u_int64_t mask) const;
+                                u_int64_t mask) const;
 
   u_int64_t get_attacking_bb(Color color) const;
   bool is_attacking(int pos, Color color) const;
 
   bool is_lone_king(Color color) const;
   bool is_endgame() const;
-
-  bool is_insufficient_material() const;
-  bool is_draw_by_fifty_move_rule() const;
-  bool is_threefold_repetition() const;
 };

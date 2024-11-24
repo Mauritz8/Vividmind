@@ -1,12 +1,11 @@
 #include "masks.hpp"
 #include "bitboards_board/bits.hpp"
-#include "fmt/core.h"
 #include <sys/types.h>
 
 static std::array<u_int64_t, 64> square_masks() {
   std::array<u_int64_t, 64> square_masks;
   for (u_int64_t i = 0; i < 64; i++) {
-    square_masks[i] = (u_int64_t) 1 << i;
+    square_masks[i] = (u_int64_t)1 << i;
   }
   return square_masks;
 }
@@ -61,7 +60,7 @@ const std::array<u_int64_t, 8> files = file_masks();
 const std::array<u_int64_t, 8> ranks = rank_masks();
 
 static u_int64_t king_moves_mask(u_int64_t king) {
-  u_int64_t bb = 0; 
+  u_int64_t bb = 0;
   bb |= (king & ~files.at(0)) >> 1;
   bb |= (king & ~files.at(7)) << 1;
   bb |= (king & ~ranks.at(0)) >> 8;
@@ -76,7 +75,7 @@ static u_int64_t king_moves_mask(u_int64_t king) {
 }
 
 static u_int64_t knight_moves_mask(u_int64_t knight) {
-  u_int64_t bb = 0; 
+  u_int64_t bb = 0;
 
   bb |= (knight & ~(files.at(0) | ranks.at(0) | ranks.at(1))) >> 17;
   bb |= (knight & ~(files.at(0) | ranks.at(7) | ranks.at(6))) << 15;
@@ -96,7 +95,7 @@ static u_int64_t white_pawn_moves_one_mask(u_int64_t pawn) {
 }
 
 static u_int64_t white_pawn_moves_two_mask(u_int64_t pawn) {
-  return (pawn & ranks.at(6)) >> 16; 
+  return (pawn & ranks.at(6)) >> 16;
 }
 
 static u_int64_t black_pawn_moves_one_mask(u_int64_t pawn) {
@@ -104,7 +103,7 @@ static u_int64_t black_pawn_moves_one_mask(u_int64_t pawn) {
 }
 
 static u_int64_t black_pawn_moves_two_mask(u_int64_t pawn) {
-  return (pawn & ranks.at(1)) << 16; 
+  return (pawn & ranks.at(1)) << 16;
 }
 
 static u_int64_t white_pawn_captures_mask(u_int64_t pawn) {
@@ -146,8 +145,10 @@ Masks create_masks() {
       .squares = squares,
       .knight_moves = knight_moves_masks,
       .king_moves = king_moves_masks,
-      .pawn_moves_one = {white_pawn_moves_one_masks, black_pawn_moves_one_masks},
-      .pawn_moves_two = {white_pawn_moves_two_masks, black_pawn_moves_two_masks},
+      .pawn_moves_one = {white_pawn_moves_one_masks,
+                         black_pawn_moves_one_masks},
+      .pawn_moves_two = {white_pawn_moves_two_masks,
+                         black_pawn_moves_two_masks},
       .pawn_captures = {white_pawn_captures_masks, black_pawn_captures_masks},
       .files = files,
       .ranks = ranks,
