@@ -1,5 +1,7 @@
 #include "bits.hpp"
 #include <byteswap.h>
+#include <optional>
+#include <strings.h>
 
 namespace bits {
 
@@ -12,12 +14,10 @@ void set(u_int64_t &bits, int n) { bits |= (u_int64_t)1 << n; }
 void unset(u_int64_t &bits, int n) { bits ^= (u_int64_t)1 << n; }
 
 std::optional<int> popLSB(u_int64_t &bits) {
-  for (int i = 0; i < 64; i++) {
-    u_int64_t bit = get(bits, i);
-    if (bit == 1) {
-      unset(bits, i);
-      return i;
-    }
+  const int i = ffsl(bits);
+  if (i != 0) {
+    unset(bits, i - 1);
+    return i - 1;
   }
   return std::nullopt;
 }
@@ -51,13 +51,7 @@ u_int64_t reverse(u_int64_t b) {
 }
 
 int nr_bits_set(u_int64_t bits) {
-  int res = 0;
-  std::optional<int> bit = popLSB(bits);
-  while (bit.has_value()) {
-    res++;
-    bit = popLSB(bits);
-  }
-  return res;
+  return __builtin_popcountl(bits);
 }
 
 } // namespace bits
