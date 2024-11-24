@@ -50,8 +50,11 @@ public:
   void make(const Move &move) override;
   void undo() override;
 
-  bool is_draw() const override;
   bool is_in_check(Color color) const override;
+
+  bool is_insufficient_material() const override;
+  bool is_draw_by_fifty_move_rule() const override;
+  bool is_threefold_repetition() const override;
 
   std::vector<Move>
   get_pseudo_legal_moves(MoveCategory move_category) const override;

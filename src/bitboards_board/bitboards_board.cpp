@@ -391,13 +391,13 @@ void BitboardsBoard::undo() {
   move_history.pop();
 }
 
-bool BitboardsBoard::is_draw() const {
-  return is_insufficient_material() || is_threefold_repetition() ||
-    is_draw_by_fifty_move_rule();
-}
-
 bool BitboardsBoard::is_insufficient_material() const {
-  std::array<PieceType, 3> pieces = {QUEEN, ROOK, PAWN};
+  u_int64_t all_pieces_bb = side_bbs.at(WHITE) | side_bbs.at(BLACK);
+  if (bits::nr_bits_set(all_pieces_bb) > 3) {
+    return false;
+  }
+
+  std::array<PieceType, 3> pieces = {PAWN, ROOK, QUEEN};
   for (PieceType p : pieces) {
     for (int color = 0; color < 2; color++) {
       if (piece_bbs.at(color).at(p) != 0) {
@@ -413,16 +413,14 @@ bool BitboardsBoard::is_draw_by_fifty_move_rule() const {
 }
 
 bool BitboardsBoard::is_threefold_repetition() const {
-  BitboardsBoard old_board = *this;
-  const int history_size = history.size();
-  for (int _ = 0; _ < history_size - 1; _++) {
+  if (history.top().halfmove_clock < 5) {
+    return false;
+  }
 
-    if (old_board.history.top().halfmove_clock == 0) {
-      return false;
-    }
-
-    old_board.undo();
-    if (*this == old_board) {
+  BitboardsBoard b = *this;
+  while (!(b.move_history.empty() || history.top().halfmove_clock == 0)) {
+    b.undo();
+    if (*this == b) {
       return true;
     }
   }

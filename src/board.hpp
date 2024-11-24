@@ -27,8 +27,12 @@ public:
   virtual void make(const Move &move) = 0;
   virtual void undo() = 0;
 
-  virtual bool is_draw() const = 0;
   virtual bool is_in_check(Color color) const = 0;
+
+  bool is_draw() const;
+  virtual bool is_insufficient_material() const = 0;
+  virtual bool is_draw_by_fifty_move_rule() const = 0;
+  virtual bool is_threefold_repetition() const = 0;
 
   virtual std::vector<Move>
   get_pseudo_legal_moves(MoveCategory move_category) const = 0;

@@ -36,8 +36,11 @@ public:
   void make(const Move &move) override;
   void undo() override;
 
-  bool is_draw() const override;
   bool is_in_check(Color color) const override;
+
+  bool is_insufficient_material() const override;
+  bool is_threefold_repetition() const override;
+  bool is_draw_by_fifty_move_rule() const override;
 
   std::vector<Move>
   get_pseudo_legal_moves(MoveCategory move_category) const override;
@@ -62,10 +65,6 @@ private:
   int get_psqt_score(const Piece &piece) const;
   bool is_lone_king(Color color) const;
   bool is_endgame() const;
-
-  bool is_insufficient_material() const;
-  bool is_threefold_repetition() const;
-  bool is_draw_by_fifty_move_rule() const;
 
   int get_king_square(Color color) const;
   bool is_valid_en_passant(int capture_pos) const;

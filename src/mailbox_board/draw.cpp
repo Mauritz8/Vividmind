@@ -1,10 +1,5 @@
 #include "mailbox_board.hpp"
 
-bool MailboxBoard::is_draw() const {
-  return is_insufficient_material() || is_threefold_repetition() ||
-         is_draw_by_fifty_move_rule();
-}
-
 bool MailboxBoard::is_insufficient_material() const {
   for (const std::vector<Piece> &pieces : game_state.pieces) {
     for (Piece piece : pieces) {
