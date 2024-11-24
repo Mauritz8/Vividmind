@@ -2,6 +2,7 @@
 #include "test_move.cpp"
 #include "test_gen_pseudo_legal_moves.cpp"
 #include "test_draw.cpp"
+#include "test_move_gen.cpp"
 
 int main(int argc, char **argv) {
   testing::InitGoogleTest(&argc, argv);

@@ -55,19 +55,6 @@ target_include_directories(vividmind PRIVATE
 )
 target_link_libraries(vividmind fmt::fmt)
 
-
-add_executable(move_gen_tests
-    tests/test_move_gen.cpp
-    ${COMMON_SOURCES}
-)
-target_compile_options(move_gen_tests PUBLIC -O3 -march=native -flto)
-target_link_options(move_gen_tests PUBLIC -flto)
-target_include_directories(move_gen_tests PRIVATE
-    tests/
-    src/
-)
-target_link_libraries(move_gen_tests fmt::fmt)
-
 add_executable(tests
     tests/tests.cpp
     ${COMMON_SOURCES}
