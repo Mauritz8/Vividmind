@@ -31,7 +31,7 @@ std::vector<Move> MailboxBoard::get_pawn_captures(const Piece &piece) const {
     if (square.piece && square.piece->color != piece.color) {
       moves.push_back(Move(piece.pos, end));
     } else if (is_valid_en_passant(end)) {
-      Move move = Move(piece.pos, end);
+      Move move(piece.pos, end);
       move.move_type = EN_PASSANT;
       moves.push_back(move);
     }
@@ -224,7 +224,7 @@ MailboxBoard::get_pawn_pseudo_legal_moves(const Piece &piece,
       if (start / 8 == starting_row) {
         const int end2 = start + 16 * direction;
         if (!squares.at(end2).piece) {
-          Move move = Move(start, end2);
+          Move move(start, end2);
           move.move_type = PAWN_TWO_SQUARES_FORWARD;
           moves.push_back(move);
         }

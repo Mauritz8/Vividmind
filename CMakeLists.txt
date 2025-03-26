@@ -22,11 +22,6 @@ FetchContent_MakeAvailable(googletest)
 
 
 set(COMMON_SOURCES
-    src/mailbox_board/mailbox_board.cpp
-    src/mailbox_board/square.cpp
-    src/mailbox_board/draw.cpp
-    src/mailbox_board/playmove.cpp
-    src/mailbox_board/move_gen.cpp
     src/bitboards_board/bitboards_board.cpp
     src/bitboards_board/bits.cpp
     src/bitboards_board/move_gen.cpp

@@ -44,7 +44,7 @@ void MailboxBoard::make(const Move &move) {
 }
 
 void MailboxBoard::undo() {
-  Move move = history.back().next_move;
+  Move move(history.back().next_move);
   Square &start = squares.at(move.start);
   Square &end = squares.at(move.end);
 
@@ -153,7 +153,7 @@ Move MailboxBoard::get_castling_rook_move(const Move &move) const {
     start_x = 0;
     end_x = 3;
   }
-  Move rook_move = Move(start_x + row * 8, end_x + row * 8);
+  Move rook_move(start_x + row * 8, end_x + row * 8);
   return rook_move;
 }
 

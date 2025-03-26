@@ -77,7 +77,7 @@ BitboardsBoard::gen_king_moves(int start, MoveCategory move_category) const {
 
   std::optional<int> end_pos = bits::popLSB(normal);
   while (end_pos.has_value()) {
-    Move move = Move(start, end_pos.value());
+    Move move(start, end_pos.value());
     moves.push_back(move);
     end_pos = bits::popLSB(normal);
   }
@@ -86,8 +86,7 @@ BitboardsBoard::gen_king_moves(int start, MoveCategory move_category) const {
     u_int64_t castling = gen_castling_moves_bb(start);
     end_pos = bits::popLSB(castling);
     while (end_pos.has_value()) {
-      Move move = Move(start, end_pos.value());
-      move.move_type = CASTLING;
+      Move move(start, end_pos.value(), CASTLING);
       moves.push_back(move);
       end_pos = bits::popLSB(castling);
     }
@@ -131,13 +130,11 @@ BitboardsBoard::gen_pawn_moves(int start, MoveCategory move_category) const {
           KNIGHT,
       };
       for (PieceType p : promotion_pieces) {
-        Move move = Move(start, end_pos.value());
-        move.move_type = PROMOTION;
-        move.promotion_piece = p;
+        Move move(start, end_pos.value(), p);
         moves.push_back(move);
       }
     } else if (move_category == ALL) {
-      Move move = Move(start, end_pos.value());
+      Move move(start, end_pos.value());
       moves.push_back(move);
     }
     end_pos = bits::popLSB(move_one);
@@ -154,13 +151,11 @@ BitboardsBoard::gen_pawn_moves(int start, MoveCategory move_category) const {
           KNIGHT,
       };
       for (PieceType p : promotion_pieces) {
-        Move move = Move(start, end_pos.value());
-        move.move_type = PROMOTION;
-        move.promotion_piece = p;
+        Move move(start, end_pos.value(), p);
         moves.push_back(move);
       }
     } else {
-      Move move = Move(start, end_pos.value());
+      Move move(start, end_pos.value());
       moves.push_back(move);
     }
     end_pos = bits::popLSB(normal_captures);
@@ -169,8 +164,7 @@ BitboardsBoard::gen_pawn_moves(int start, MoveCategory move_category) const {
   if (move_category == ALL) {
     end_pos = bits::popLSB(move_two);
     while (end_pos.has_value()) {
-      Move move = Move(start, end_pos.value());
-      move.move_type = PAWN_TWO_SQUARES_FORWARD;
+      Move move(start, end_pos.value(), PAWN_TWO_SQUARES_FORWARD);
       moves.push_back(move);
       end_pos = bits::popLSB(move_two);
     }
@@ -178,8 +172,7 @@ BitboardsBoard::gen_pawn_moves(int start, MoveCategory move_category) const {
 
   end_pos = bits::popLSB(en_passant_captures);
   while (end_pos.has_value()) {
-    Move move = Move(start, end_pos.value());
-    move.move_type = EN_PASSANT;
+    Move move(start, end_pos.value(), EN_PASSANT);
     moves.push_back(move);
     end_pos = bits::popLSB(en_passant_captures);
   }
@@ -268,7 +261,7 @@ BitboardsBoard::gen_moves_piece(PieceType piece, int start,
   std::vector<Move> moves;
   std::optional<int> end_pos = bits::popLSB(moves_bb);
   while (end_pos.has_value()) {
-    Move move = Move(start, end_pos.value());
+    Move move(start, end_pos.value());
     moves.push_back(move);
     end_pos = bits::popLSB(moves_bb);
   }

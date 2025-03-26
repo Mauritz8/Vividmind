@@ -23,30 +23,6 @@ char get_char_representation(PieceType piece_type) {
   throw std::invalid_argument("invalid piece type");
 }
 
-PieceType get_piece_type(char char_representation) {
-  switch (tolower(char_representation)) {
-  case 'p':
-    return PAWN;
-  case 'n':
-    return KNIGHT;
-  case 'b':
-    return BISHOP;
-  case 'r':
-    return ROOK;
-  case 'q':
-    return QUEEN;
-  case 'k':
-    return KING;
-  }
-  throw std::invalid_argument("invalid piece type");
-}
-
-int get_mirrored_pos(int pos) {
-  const int x = pos % 8;
-  const int y = pos / 8;
-  return x + (7 - y) * 8;
-}
-
 std::vector<std::string> str_split(std::string_view str, char delim) {
   std::vector<std::string> substrings;
   std::string substr = "";

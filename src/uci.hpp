@@ -3,7 +3,7 @@
 #include <string>
 
 #include "board.hpp"
-#include "search/search.hpp"
+#include "search/search_defs.hpp"
 
 namespace uci {
 void process(const std::string &input, std::unique_ptr<Board> &board);

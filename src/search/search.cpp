@@ -4,6 +4,7 @@
 #include <cassert>
 #include <fmt/core.h>
 #include <optional>
+#include <stack>
 #include <vector>
 
 #include "defs.hpp"
@@ -26,7 +27,7 @@ void Search::iterative_deepening_search() {
   info = SearchInfo();
 
   // will be updated whenever a new best move is found
-  Move best_move;
+  std::stack<Move> best_moves;
 
   // search the position at increasing depths
   // until either the final depth is reached,
@@ -52,13 +53,13 @@ void Search::iterative_deepening_search() {
                                       .time = info.time_elapsed(),
                                       .pv = principal_variation};
       assert(search_summary.pv.size() > 0);
-      best_move = search_summary.pv.at(0);
+      best_moves.push(search_summary.pv.at(0));
 
       fmt::println(uci::show(search_summary));
     }
   }
   // always finish a search by outputting the best move
-  fmt::println(uci::bestmove(best_move));
+  fmt::println(uci::bestmove(best_moves.top()));
 }
 
 int Search::alpha_beta(int depth, int alpha, int beta,

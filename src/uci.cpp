@@ -13,6 +13,7 @@
 #include "fen.hpp"
 #include "move.hpp"
 #include "perft.hpp"
+#include "search/search.hpp"
 #include "search/search_defs.hpp"
 #include "search/time_management.hpp"
 #include "utils.hpp"

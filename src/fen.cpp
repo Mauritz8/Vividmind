@@ -77,6 +77,24 @@ int calc_fullmove_number(const std::string &fullmove_number) {
   }
 }
 
+PieceType get_piece_type(char char_representation) {
+  switch (tolower(char_representation)) {
+  case 'p':
+    return PAWN;
+  case 'n':
+    return KNIGHT;
+  case 'b':
+    return BISHOP;
+  case 'r':
+    return ROOK;
+  case 'q':
+    return QUEEN;
+  case 'k':
+    return KING;
+  }
+  throw std::invalid_argument("invalid piece type");
+}
+
 std::vector<Piece> get_pieces(std::string_view pieces_str) {
   std::vector<Piece> pieces;
   int pos = 0;

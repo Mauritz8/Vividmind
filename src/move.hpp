@@ -20,13 +20,12 @@ public:
   MoveType move_type;
   std::optional<PieceType> promotion_piece;
 
-  Move(){};
   Move(int start, int end);
   Move(int start, int end, MoveType move_type);
   Move(int start, int end, PieceType promotion_piece);
   Move(const Move &move);
 
-  Move operator=(const Move &move);
+  Move &operator=(const Move &move);
   bool operator==(const Move &move) const;
 
   std::string to_uci_notation() const;

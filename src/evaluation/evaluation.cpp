@@ -44,6 +44,12 @@ int get_piece_value(PieceType piece_type) {
   }
 }
 
+int get_mirrored_pos(int pos) {
+  const int x = pos % 8;
+  const int y = pos / 8;
+  return x + (7 - y) * 8;
+}
+
 int get_psqt_score(PieceType piece_type, int pos, Color color,
                    bool is_lone_king, bool is_endgame) {
   const int square = color == WHITE ? pos : get_mirrored_pos(pos);

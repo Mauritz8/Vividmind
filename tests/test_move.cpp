@@ -15,7 +15,7 @@ TEST(MoveTests, KnightMoveTest) {
 
   int start = g1;
   int end = f3;
-  Move move = Move(start, end);
+  Move move(start, end);
   EXPECT_TRUE(board->get_piece_type(start).has_value());
   EXPECT_EQ(board->get_piece_type(start).value(), KNIGHT);
   EXPECT_FALSE(board->get_piece_type(end).has_value());
@@ -73,7 +73,7 @@ TEST(MoveTests, BishopMoveTest) {
 
   int start = e2;
   int end = c4;
-  Move move = Move(start, end);
+  Move move(start, end);
   EXPECT_TRUE(board->get_piece_type(start).has_value());
   EXPECT_EQ(board->get_piece_type(start).value(), BISHOP);
   EXPECT_FALSE(board->get_piece_type(end).has_value());
@@ -131,7 +131,7 @@ TEST(MoveTests, RookMoveTest) {
 
   int start = a1;
   int end = d1;
-  Move move = Move(start, end);
+  Move move(start, end);
   EXPECT_TRUE(board->get_piece_type(start).has_value());
   EXPECT_EQ(board->get_piece_type(start).value(), ROOK);
   EXPECT_FALSE(board->get_piece_type(end).has_value());
@@ -189,7 +189,7 @@ TEST(MoveTests, QueenMoveTest) {
 
   int start = f3;
   int end = f4;
-  Move move = Move(start, end);
+  Move move(start, end);
   EXPECT_TRUE(board->get_piece_type(start).has_value());
   EXPECT_EQ(board->get_piece_type(start).value(), QUEEN);
   EXPECT_FALSE(board->get_piece_type(end).has_value());
@@ -247,7 +247,7 @@ TEST(MoveTests, CaptureMoveTest) {
 
   int start = e5;
   int end = g6;
-  Move move = Move(start, end);
+  Move move(start, end);
   EXPECT_TRUE(board->get_piece_type(start).has_value());
   EXPECT_EQ(board->get_piece_type(start).value(), KNIGHT);
   EXPECT_TRUE(board->get_piece_type(end).has_value());
@@ -309,7 +309,7 @@ TEST(MoveTests, KingMoveTest) {
 
   int start = e1;
   int end = f1;
-  Move move = Move(start, end);
+  Move move(start, end);
   EXPECT_TRUE(board->get_piece_type(start).has_value());
   EXPECT_EQ(board->get_piece_type(start).value(), KING);
   EXPECT_FALSE(board->get_piece_type(end).has_value());
@@ -369,8 +369,7 @@ TEST(MoveTests, CastlingKingsideTest) {
   int king_end = g1;
   int rook_start = h1;
   int rook_end = f1;
-  Move move = Move(king_start, king_end);
-  move.move_type = CASTLING;
+  Move move(king_start, king_end, CASTLING);
   EXPECT_TRUE(board->get_piece_type(king_start).has_value());
   EXPECT_EQ(board->get_piece_type(king_start).value(), KING);
   EXPECT_FALSE(board->get_piece_type(king_end).has_value());
@@ -441,8 +440,7 @@ TEST(MoveTests, CastlingQueensideTest) {
   int king_end = c1;
   int rook_start = a1;
   int rook_end = d1;
-  Move move = Move(king_start, king_end);
-  move.move_type = CASTLING;
+  Move move(king_start, king_end, CASTLING);
   EXPECT_TRUE(board->get_piece_type(king_start).has_value());
   EXPECT_EQ(board->get_piece_type(king_start).value(), KING);
   EXPECT_FALSE(board->get_piece_type(king_end).has_value());
@@ -510,7 +508,7 @@ TEST(MoveTests, PawnMoveOneSquareTest) {
 
   int start = e2;
   int end = e3;
-  Move move = Move(start, end);
+  Move move(start, end);
   EXPECT_TRUE(board->get_piece_type(start).has_value());
   EXPECT_EQ(board->get_piece_type(start).value(), PAWN);
   EXPECT_FALSE(board->get_piece_type(end).has_value());
@@ -567,8 +565,7 @@ TEST(MoveTests, PawnMoveTwoSquaresTest) {
 
   int start = d2;
   int end = d4;
-  Move move = Move(start, end);
-  move.move_type = PAWN_TWO_SQUARES_FORWARD;
+  Move move(start, end, PAWN_TWO_SQUARES_FORWARD);
   EXPECT_TRUE(board->get_piece_type(start).has_value());
   EXPECT_EQ(board->get_piece_type(start).value(), PAWN);
   EXPECT_FALSE(board->get_piece_type(end).has_value());
@@ -627,7 +624,7 @@ TEST(MoveTests, PawnCaptureMoveTest) {
 
   int start = e6;
   int end = d5;
-  Move move = Move(start, end);
+  Move move(start, end);
   EXPECT_TRUE(board->get_piece_type(start).has_value());
   EXPECT_EQ(board->get_piece_type(start).value(), PAWN);
   EXPECT_TRUE(board->get_piece_type(end).has_value());
@@ -689,8 +686,7 @@ TEST(MoveTests, EnPassantTest) {
 
   int start1 = e7;
   int end1 = e5;
-  Move move1 = Move(start1, end1);
-  move1.move_type = PAWN_TWO_SQUARES_FORWARD;
+  Move move1(start1, end1, PAWN_TWO_SQUARES_FORWARD);
   EXPECT_TRUE(board->get_piece_type(start1).has_value());
   EXPECT_EQ(board->get_piece_type(start1).value(), PAWN);
   EXPECT_FALSE(board->get_piece_type(end1).has_value());
@@ -723,8 +719,7 @@ TEST(MoveTests, EnPassantTest) {
 
   int start2 = d5;
   int end2 = d6;
-  Move move2 = Move(start2, end2);
-  move2.move_type = EN_PASSANT;
+  Move move2(start2, end2, EN_PASSANT);
   EXPECT_TRUE(board->get_piece_type(start2).has_value());
   EXPECT_EQ(board->get_piece_type(start2).value(), PAWN);
   EXPECT_FALSE(board->get_piece_type(end2).has_value());
@@ -798,10 +793,8 @@ TEST(MoveTests, PromotionMoveTest) {
 
   int start = g2;
   int end = g1;
-  Move move = Move(start, end);
-  move.move_type = PROMOTION;
   PieceType promotion_piece = QUEEN;
-  move.promotion_piece = promotion_piece;
+  Move move(start, end, promotion_piece);
   EXPECT_TRUE(board->get_piece_type(start).has_value());
   EXPECT_EQ(board->get_piece_type(start).value(), PAWN);
   EXPECT_FALSE(board->get_piece_type(end).has_value());
@@ -860,10 +853,8 @@ TEST(MoveTests, PromotionCaptureMoveTest) {
 
   int start = g2;
   int end = f1;
-  Move move = Move(start, end);
-  move.move_type = PROMOTION;
   PieceType promotion_piece = QUEEN;
-  move.promotion_piece = promotion_piece;
+  Move move(start, end, promotion_piece);
   EXPECT_TRUE(board->get_piece_type(start).has_value());
   EXPECT_EQ(board->get_piece_type(start).value(), PAWN);
   EXPECT_TRUE(board->get_piece_type(end).has_value());
