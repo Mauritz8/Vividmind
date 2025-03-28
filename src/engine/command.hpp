@@ -1,6 +1,6 @@
 #pragma once
 
-enum CommandType { GoInfinite, GoDepth, GoMoveTime, GoGameTime, GoPerft, Stop };
+enum CommandType { GoInfinite, GoDepth, GoMoveTime, GoGameTime, GoPerft };
 
 struct GameTime {
   int wtime;
@@ -26,7 +26,6 @@ public:
   static Command go_game_time(int white_time, int black_time, int white_inc,
                             int black_inc, int moves_to_go);
   static Command go_perft(int depth);
-  static Command stop();
 
 private:
 

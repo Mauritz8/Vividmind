@@ -14,7 +14,7 @@
 #include "uci.hpp"
 
 Search::Search(std::unique_ptr<Board> &board, SearchParams &params,
-               bool &stop)
+               std::atomic<bool> &stop)
     : board(board), params(params), stop(stop) {}
 
 void Search::iterative_deepening_search() {

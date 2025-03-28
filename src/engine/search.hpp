@@ -1,5 +1,6 @@
 #pragma once
 
+#include <atomic>
 #include <vector>
 
 #include "board.hpp"
@@ -12,13 +13,13 @@ public:
   SearchInfo info;
 
   Search(std::unique_ptr<Board> &board, SearchParams &params,
-         bool &stop);
+         std::atomic<bool> &stop);
 
   void iterative_deepening_search();
 
 private:
   std::unique_ptr<Board> &board;
-  bool &stop;
+  std::atomic<bool> &stop;
 
   int alpha_beta(int depth, int alpha, int beta,
                  std::vector<Move> &principal_variation);

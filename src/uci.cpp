@@ -100,7 +100,7 @@ Command get_go_command(const std::vector<std::string> &words) {
   return Command::go_infinite();
 }
 
-void process(const std::string &input, int write_descriptor) {
+void process(const std::string &input, int write_descriptor, std::atomic<bool> &stop) {
 
   const std::vector<std::string> words = str_split(input, ' ');
 
@@ -127,8 +127,7 @@ void process(const std::string &input, int write_descriptor) {
     Command command = get_go_command(words);
     write(write_descriptor, &command, sizeof(command));
   } else if (input == "stop") {
-    Command command = Command::stop();
-    write(write_descriptor, &command, sizeof(command));
+    stop = true;
   } else if (input == "quit") {
     exit(0);
   } else {
