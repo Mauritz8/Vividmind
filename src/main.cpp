@@ -21,8 +21,7 @@ int main() {
   }
 
   std::thread t1(read_input, pipefd[1]);
-  Engine engine = Engine();
-  std::thread t2(&Engine::run, &engine, pipefd[0]);
+  std::thread t2(engine::run, pipefd[0]);
 
   t1.join();
   t2.join();

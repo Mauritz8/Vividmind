@@ -2,11 +2,11 @@
 #include "search/command.hpp"
 #include "search/search.hpp"
 #include "search/search_defs.hpp"
+#include <memory>
 #include <unistd.h>
 
-Engine::Engine() : board(Board::get_starting_position()) {}
-
-SearchParams Engine::get_search_params(Command &command) const {
+namespace engine {
+SearchParams get_search_params(Command &command) {
   SearchParams params = SearchParams();
   switch (command.type) {
   case GoInfinite:
@@ -30,7 +30,8 @@ SearchParams Engine::get_search_params(Command &command) const {
   return params;
 }
 
-void Engine::run(int read_descriptor) {
+void run(int read_descriptor) {
+  std::unique_ptr<Board> board = Board::get_starting_position();
   Command command;
   while (true) {
     read(read_descriptor, &command, sizeof(command));
@@ -40,3 +41,5 @@ void Engine::run(int read_descriptor) {
     search.iterative_deepening_search();
   }
 }
+
+}; // namespace engine
