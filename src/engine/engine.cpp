@@ -5,6 +5,7 @@
 #include "engine/time_management.hpp"
 #include "perft.hpp"
 #include <memory>
+#include <thread>
 #include <unistd.h>
 
 namespace engine {
@@ -32,23 +33,53 @@ SearchParams get_search_params(Command &command, Color player_to_move) {
   return params;
 }
 
-void run(int read_descriptor) {
-  std::unique_ptr<Board> board = Board::get_starting_position();
+void loop(int read_descriptor, int write_descriptor, bool &stop, std::unique_ptr<Board> &board) {
   Command command;
   while (true) {
     read(read_descriptor, &command, sizeof(command));
 
     switch (command.type) {
+    case Stop:
+      stop = true;
+      break;
     case GoPerft:
       divide(board, command.arg.integer);
       break;
-    default:
+    case GoInfinite:
+    case GoDepth:
+    case GoGameTime:
+    case GoMoveTime:
       SearchParams params =
           get_search_params(command, board->get_player_to_move());
-      Search search = Search(board, params);
-      search.iterative_deepening_search();
+      write(write_descriptor, &params, sizeof(params));
+      break;
     }
   }
+}
+
+void run_search(int read_descriptor, bool &stop, std::unique_ptr<Board> &board) {
+  SearchParams params;
+  while (true) {
+    read(read_descriptor, &params, sizeof(SearchParams));
+    Search search = Search(board, params, stop);
+    search.iterative_deepening_search();
+  }
+}
+
+void run(int read_descriptor) {
+  std::unique_ptr<Board> board = Board::get_starting_position();
+  bool stop = false;
+
+  int pipefd[2];
+  if (pipe(pipefd) == -1) {
+    exit(1);
+  }
+
+  std::thread t1(loop, read_descriptor, pipefd[1], std::ref(stop), std::ref(board));
+  std::thread t2(run_search, pipefd[0], std::ref(stop), std::ref(board));
+
+  t1.join();
+  t2.join();
 }
 
 }; // namespace engine

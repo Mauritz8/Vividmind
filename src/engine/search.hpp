@@ -11,12 +11,14 @@ public:
   const SearchParams params;
   SearchInfo info;
 
-  Search(std::unique_ptr<Board> &board, SearchParams &params);
+  Search(std::unique_ptr<Board> &board, SearchParams &params,
+         bool &stop);
 
   void iterative_deepening_search();
 
 private:
   std::unique_ptr<Board> &board;
+  bool &stop;
 
   int alpha_beta(int depth, int alpha, int beta,
                  std::vector<Move> &principal_variation);

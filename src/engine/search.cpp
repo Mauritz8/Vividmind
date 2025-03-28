@@ -13,8 +13,9 @@
 #include "engine/search_defs.hpp"
 #include "uci.hpp"
 
-Search::Search(std::unique_ptr<Board> &board, SearchParams &params)
-    : board(board), params(params) {}
+Search::Search(std::unique_ptr<Board> &board, SearchParams &params,
+               bool &stop)
+    : board(board), params(params), stop(stop) {}
 
 void Search::iterative_deepening_search() {
   // initialize alpha/beta to the value of immediate checkmate
@@ -216,6 +217,10 @@ bool Search::is_terminate() {
   // because then we haven't found a best move yet
   if (info.depth < 2)
     return false;
+
+  if (stop) {
+    return true;
+  }
 
   switch (params.search_mode) {
   case DEPTH:

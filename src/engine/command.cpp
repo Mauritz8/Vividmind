@@ -45,3 +45,8 @@ Command Command::go_game_time(int white_time, int black_time, int white_inc,
 Command Command::go_perft(int depth) {
   return Command(CommandType::GoPerft, depth);
 }
+
+Command Command::stop() {
+  return Command(CommandType::Stop);
+}
+

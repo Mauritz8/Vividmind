@@ -126,6 +126,9 @@ void process(const std::string &input, int write_descriptor) {
   } else if (words.at(0) == "go") {
     Command command = get_go_command(words);
     write(write_descriptor, &command, sizeof(command));
+  } else if (input == "stop") {
+    Command command = Command::stop();
+    write(write_descriptor, &command, sizeof(command));
   } else if (input == "quit") {
     exit(0);
   } else {
