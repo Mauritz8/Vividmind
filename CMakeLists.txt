@@ -27,11 +27,11 @@ set(COMMON_SOURCES
     src/bitboards_board/move_gen.cpp
     src/bitboards_board/masks.cpp
     src/evaluation/evaluation.cpp
-    src/search/search_defs.cpp
-    src/search/time_management.cpp
-    src/search/search.cpp
-    src/search/engine.cpp
-    src/search/command.cpp
+    src/engine/search_defs.cpp
+    src/engine/time_management.cpp
+    src/engine/search.cpp
+    src/engine/engine.cpp
+    src/engine/command.cpp
     src/board.cpp
     src/piece.cpp
     src/fen.cpp

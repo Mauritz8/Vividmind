@@ -13,8 +13,8 @@
 #include "defs.hpp"
 #include "fen.hpp"
 #include "move.hpp"
-#include "search/command.hpp"
-#include "search/search_defs.hpp"
+#include "engine/command.hpp"
+#include "engine/search_defs.hpp"
 #include "utils.hpp"
 
 namespace uci {

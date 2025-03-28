@@ -4,7 +4,7 @@
 
 #include "board.hpp"
 #include "move.hpp"
-#include "search/search_defs.hpp"
+#include "engine/search_defs.hpp"
 
 class Search {
 public:

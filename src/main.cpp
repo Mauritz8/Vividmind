@@ -3,7 +3,7 @@
 #include <thread>
 #include <unistd.h>
 
-#include "search/engine.hpp"
+#include "engine/engine.hpp"
 #include "uci.hpp"
 
 void read_input(int wd) {

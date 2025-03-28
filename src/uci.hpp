@@ -2,7 +2,7 @@
 
 #include <string>
 
-#include "search/search_defs.hpp"
+#include "engine/search_defs.hpp"
 
 namespace uci {
 void process(const std::string &input, int write_descriptor);

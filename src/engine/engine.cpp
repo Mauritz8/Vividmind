@@ -1,7 +1,7 @@
 #include "engine.hpp"
-#include "search/command.hpp"
-#include "search/search.hpp"
-#include "search/search_defs.hpp"
+#include "engine/command.hpp"
+#include "engine/search.hpp"
+#include "engine/search_defs.hpp"
 #include <memory>
 #include <unistd.h>
 
