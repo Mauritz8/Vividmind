@@ -7,18 +7,9 @@
 
 enum SearchMode { DEPTH, MOVE_TIME, INFINITE };
 
-struct GameTime {
-  int wtime;
-  int btime;
-  int winc;
-  int binc;
-  int moves_to_go;
-};
-
 struct SearchParams {
   int depth;
   int allocated_time;
-  GameTime game_time;
   SearchMode search_mode;
 
   SearchParams();

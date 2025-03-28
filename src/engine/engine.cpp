@@ -2,11 +2,12 @@
 #include "engine/command.hpp"
 #include "engine/search.hpp"
 #include "engine/search_defs.hpp"
+#include "engine/time_management.hpp"
 #include <memory>
 #include <unistd.h>
 
 namespace engine {
-SearchParams get_search_params(Command &command) {
+SearchParams get_search_params(Command &command, Color player_to_move) {
   SearchParams params = SearchParams();
   switch (command.type) {
   case GoInfinite:
@@ -21,7 +22,10 @@ SearchParams get_search_params(Command &command) {
     params.allocated_time = command.arg.integer;
     break;
   case GoGameTime:
-    // todo
+    params.search_mode = SearchMode::MOVE_TIME;
+    params.allocated_time =
+        calc_allocated_time(player_to_move, command.arg.game_time.wtime,
+                            command.arg.game_time.btime);
     break;
   case GoPerft:
     // todo
@@ -36,7 +40,8 @@ void run(int read_descriptor) {
   while (true) {
     read(read_descriptor, &command, sizeof(command));
 
-    SearchParams params = get_search_params(command);
+    SearchParams params =
+        get_search_params(command, board->get_player_to_move());
     Search search = Search(board, params);
     search.iterative_deepening_search();
   }

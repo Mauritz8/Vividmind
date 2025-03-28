@@ -125,7 +125,6 @@ void process(const std::string &input, int write_descriptor) {
     }
   } else if (words.at(0) == "go") {
     Command command = get_go_command(words);
-    fmt::println("command = {}", (int) command.type);
     write(write_descriptor, &command, sizeof(command));
   } else if (input == "quit") {
     exit(0);

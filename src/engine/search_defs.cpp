@@ -3,8 +3,6 @@
 SearchParams::SearchParams() {
   depth = MAX_PLY;
   allocated_time = 0;
-  game_time =
-      GameTime{.wtime = 0, .btime = 0, .winc = 0, .binc = 0, .moves_to_go = 0};
   search_mode = INFINITE;
 }
 

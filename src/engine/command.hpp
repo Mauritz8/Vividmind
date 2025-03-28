@@ -1,8 +1,17 @@
 #pragma once
 
 enum CommandType { GoInfinite, GoDepth, GoMoveTime, GoGameTime, GoPerft };
+
+struct GameTime {
+  int wtime;
+  int btime;
+  int winc;
+  int binc;
+  int moves_to_go;
+};
 union CommandArg {
   int integer;
+  GameTime game_time;
 };
 
 class Command {
@@ -22,5 +31,6 @@ private:
 
   Command(CommandType type);
   Command(CommandType type, int arg);
+  Command(CommandType type, GameTime game_time);
 
 };
