@@ -26,6 +26,7 @@ void Search::iterative_deepening_search() {
   // Create a new SearchInfo object
   // it contains all the relevant info about the search
   info = SearchInfo();
+  stop = false;
 
   // will be updated whenever a new best move is found
   std::stack<Move> best_moves;
