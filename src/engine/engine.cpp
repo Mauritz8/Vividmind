@@ -3,6 +3,7 @@
 #include "engine/search.hpp"
 #include "engine/search_defs.hpp"
 #include "engine/time_management.hpp"
+#include "perft.hpp"
 #include <memory>
 #include <unistd.h>
 
@@ -27,9 +28,6 @@ SearchParams get_search_params(Command &command, Color player_to_move) {
         calc_allocated_time(player_to_move, command.arg.game_time.wtime,
                             command.arg.game_time.btime);
     break;
-  case GoPerft:
-    // todo
-    break;
   }
   return params;
 }
@@ -40,10 +38,16 @@ void run(int read_descriptor) {
   while (true) {
     read(read_descriptor, &command, sizeof(command));
 
-    SearchParams params =
-        get_search_params(command, board->get_player_to_move());
-    Search search = Search(board, params);
-    search.iterative_deepening_search();
+    switch (command.type) {
+    case GoPerft:
+      divide(board, command.arg.integer);
+      break;
+    default:
+      SearchParams params =
+          get_search_params(command, board->get_player_to_move());
+      Search search = Search(board, params);
+      search.iterative_deepening_search();
+    }
   }
 }
 
