@@ -30,6 +30,8 @@ set(COMMON_SOURCES
     src/search/search_defs.cpp
     src/search/time_management.cpp
     src/search/search.cpp
+    src/search/engine.cpp
+    src/search/command.cpp
     src/board.cpp
     src/piece.cpp
     src/fen.cpp

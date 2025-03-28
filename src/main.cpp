@@ -1,17 +1,31 @@
 #include <iostream>
-#include <string>
+#include <sys/wait.h>
+#include <thread>
+#include <unistd.h>
 
-#include "board.hpp"
+#include "search/engine.hpp"
 #include "uci.hpp"
 
-int main() {
-  std::unique_ptr<Board> board = Board::get_starting_position();
-
+void read_input(int wd) {
   std::string input;
   while (true) {
     std::getline(std::cin, input);
-    uci::process(input, board);
+    uci::process(input, wd);
   }
+}
+
+int main() {
+  int pipefd[2];
+  if (pipe(pipefd) == -1) {
+    exit(1);
+  }
+
+  std::thread t1(read_input, pipefd[1]);
+  Engine engine = Engine();
+  std::thread t2(&Engine::run, &engine, pipefd[0]);
+
+  t1.join();
+  t2.join();
 
   return 0;
 }

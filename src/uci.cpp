@@ -6,16 +6,15 @@
 #include <numeric>
 #include <stdexcept>
 #include <string>
+#include <unistd.h>
 #include <vector>
 
 #include "board.hpp"
 #include "defs.hpp"
 #include "fen.hpp"
 #include "move.hpp"
-#include "perft.hpp"
-#include "search/search.hpp"
+#include "search/command.hpp"
 #include "search/search_defs.hpp"
-#include "search/time_management.hpp"
 #include "utils.hpp"
 
 namespace uci {
@@ -53,51 +52,60 @@ bool make_move(const std::string &move_uci, std::unique_ptr<Board> &board) {
   return false;
 }
 
-SearchParams get_search_params(const std::vector<std::string> &words,
-                               Color player_to_move) {
-  SearchParams search_params = SearchParams();
+Command get_go_command(const std::vector<std::string> &words) {
+  if (words.size() < 3) {
+    return Command::go_infinite();
+  }
+
+  std::string name = words.at(1);
+  std::string value = words.at(2);
+  if (name == "depth") {
+    int depth = std::stoi(value);
+    return Command::go_depth(depth);
+  }
+  if (name == "movetime") {
+    int movetime = std::stoi(value);
+    return Command::go_move_time(movetime);
+  }
+  if (name == "perft") {
+    int depth = std::stoi(value);
+    return Command::go_perft(depth);
+  }
+
+
+  int wtime = 0;
+  int btime = 0;
+  int winc = 0;
+  int binc = 0;
+  int moves_to_go = 0;
   for (int i = 1; i < words.size() - 1; i += 2) {
     std::string name = words.at(i);
     std::string value = words.at(i + 1);
     if (name == "wtime") {
-      search_params.game_time.wtime = std::stoi(value);
+      wtime = std::stoi(value);
     } else if (name == "btime") {
-      search_params.game_time.btime = std::stoi(value);
+      btime = std::stoi(value);
     } else if (name == "winc") {
-      search_params.game_time.winc = std::stoi(value);
+      winc = std::stoi(value);
     } else if (name == "binc") {
-      search_params.game_time.binc = std::stoi(value);
+      binc = std::stoi(value);
     } else if (name == "movestogo") {
-      search_params.game_time.moves_to_go = std::stoi(value);
-    } else if (name == "depth") {
-      int depth = std::stoi(value);
-      search_params.search_mode = DEPTH;
-      search_params.depth = depth;
-    } else if (name == "movetime") {
-      int movetime = std::stoi(value);
-      search_params.search_mode = MOVE_TIME;
-      search_params.allocated_time = movetime - MOVE_OVERHEAD;
+      moves_to_go = std::stoi(value);
     }
   }
 
-  if (search_params.game_time.wtime != 0 &&
-      search_params.game_time.btime != 0) {
-    search_params.search_mode = MOVE_TIME;
-    search_params.allocated_time =
-        calc_allocated_time(player_to_move, search_params.game_time.wtime,
-                            search_params.game_time.btime);
+  if (wtime != 0 && btime != 0) {
+    return Command::go_game_time(wtime, btime, winc, binc, moves_to_go);
   }
-  return search_params;
+  return Command::go_infinite();
 }
 
-void process(const std::string &input, std::unique_ptr<Board> &board) {
+void process(const std::string &input, int write_descriptor) {
+
   const std::vector<std::string> words = str_split(input, ' ');
 
   const bool is_position = words.size() >= 2 && words.at(0) == "position" &&
                            (words.at(1) == "startpos" || words.at(1) == "fen");
-  const bool is_go_perft =
-      words.size() == 3 && words.at(0) == "go" && words.at(1) == "perft";
-
   if (input == "uci") {
     fmt::println("id name {} {}\nid author {}\nuciok\n", NAME, VERSION, AUTHOR);
   } else if (input == "isready") {
@@ -105,23 +113,20 @@ void process(const std::string &input, std::unique_ptr<Board> &board) {
   } else if (is_position) {
     const std::string fen = get_fen(words);
     try {
-      board = fen::get_position(fen);
+      std::unique_ptr<Board> board = fen::get_position(fen);
+      auto moves_it = std::find(words.begin(), words.end(), "moves");
+      if (moves_it != words.end()) {
+        std::for_each(
+            moves_it + 1, words.end(),
+            [&](const std::string &move_uci) { make_move(move_uci, board); });
+      }
     } catch (const std::invalid_argument &e) {
       fmt::println(e.what());
     }
-    auto moves_it = std::find(words.begin(), words.end(), "moves");
-    if (moves_it != words.end()) {
-      std::for_each(
-          moves_it + 1, words.end(),
-          [&](const std::string &move_uci) { make_move(move_uci, board); });
-    }
-  } else if (is_go_perft) {
-    int depth = std::stoi(words.at(2));
-    divide(board, depth);
   } else if (words.at(0) == "go") {
-    SearchParams params = get_search_params(words, board->get_player_to_move());
-    Search search = Search(board, params);
-    search.iterative_deepening_search();
+    Command command = get_go_command(words);
+    fmt::println("command = {}", (int) command.type);
+    write(write_descriptor, &command, sizeof(command));
   } else if (input == "quit") {
     exit(0);
   } else {
