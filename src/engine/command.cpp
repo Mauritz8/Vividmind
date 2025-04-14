@@ -18,6 +18,11 @@ Command::Command(CommandType type, GameTime game_time) {
   this->arg.game_time = game_time;
 }
 
+Command::Command(CommandType type, const char *fen) {
+  this->type = type;
+  this->arg.str = fen;
+}
+
 Command Command::go_infinite() {
    return Command(CommandType::GoInfinite);
 };
@@ -44,4 +49,13 @@ Command Command::go_game_time(int white_time, int black_time, int white_inc,
 
 Command Command::go_perft(int depth) {
   return Command(CommandType::GoPerft, depth);
+}
+
+Command Command::update_board(const std::string &fen) {
+  size_t fen_size = fen.size();
+  char *str = (char *) calloc(fen_size + 1, sizeof(char));
+  for (size_t i = 0; i < fen_size; i++) {
+    str[i] = fen.at(i);
+  }
+  return Command(CommandType::UpdateBoard, str);
 }

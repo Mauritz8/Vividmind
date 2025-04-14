@@ -3,31 +3,40 @@
 #include "engine/search.hpp"
 #include "engine/search_defs.hpp"
 #include "engine/time_management.hpp"
+#include "fen.hpp"
+#include "fmt/core.h"
 #include "perft.hpp"
 #include <memory>
+#include <stdexcept>
 #include <unistd.h>
 
 namespace engine {
 SearchParams get_search_params(Command &command, Color player_to_move) {
   SearchParams params = SearchParams();
   switch (command.type) {
-  case GoInfinite:
+  case GoInfinite: {
     params.search_mode = SearchMode::INFINITE;
     break;
-  case GoDepth:
+  }
+  case GoDepth: {
     params.search_mode = SearchMode::DEPTH;
     params.depth = command.arg.integer;
     break;
-  case GoMoveTime:
+  }
+  case GoMoveTime: {
     params.search_mode = SearchMode::MOVE_TIME;
-    params.allocated_time = command.arg.integer;
+    // to ensure a move is returned before the allocated time runs out
+    int move_overhead = 50;
+    params.allocated_time = command.arg.integer - move_overhead;
     break;
-  case GoGameTime:
+  }
+  case GoGameTime: {
     params.search_mode = SearchMode::MOVE_TIME;
     params.allocated_time =
         calc_allocated_time(player_to_move, command.arg.game_time.wtime,
                             command.arg.game_time.btime);
     break;
+  }
   }
   return params;
 }
@@ -40,6 +49,13 @@ void run(int read_descriptor, std::atomic<bool> &stop) {
     read(read_descriptor, &command, sizeof(command));
 
     switch (command.type) {
+    case UpdateBoard:
+      try {
+        board = fen::get_position(command.arg.str);
+      } catch (const std::invalid_argument &e) {
+        fmt::println(e.what());
+      }
+      break;
     case GoPerft:
       divide(board, command.arg.integer);
       break;

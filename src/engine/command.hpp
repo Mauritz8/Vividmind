@@ -1,6 +1,15 @@
 #pragma once
 
-enum CommandType { GoInfinite, GoDepth, GoMoveTime, GoGameTime, GoPerft };
+#include <string>
+
+enum CommandType {
+  GoInfinite,
+  GoDepth,
+  GoMoveTime,
+  GoGameTime,
+  GoPerft,
+  UpdateBoard
+};
 
 struct GameTime {
   int wtime;
@@ -12,6 +21,7 @@ struct GameTime {
 union CommandArg {
   int integer;
   GameTime game_time;
+  const char *str;
 };
 
 class Command {
@@ -26,11 +36,13 @@ public:
   static Command go_game_time(int white_time, int black_time, int white_inc,
                             int black_inc, int moves_to_go);
   static Command go_perft(int depth);
+  static Command update_board(const std::string &fen);
 
 private:
 
   Command(CommandType type);
   Command(CommandType type, int arg);
   Command(CommandType type, GameTime game_time);
+  Command(CommandType type, const char *fen);
 
 };

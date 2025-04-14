@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cmath>
 #include <fmt/core.h>
+#include <memory>
 #include <numeric>
 #include <stdexcept>
 #include <string>
@@ -11,15 +12,12 @@
 
 #include "board.hpp"
 #include "defs.hpp"
-#include "fen.hpp"
 #include "move.hpp"
 #include "engine/command.hpp"
 #include "engine/search_defs.hpp"
 #include "utils.hpp"
 
 namespace uci {
-
-const int MOVE_OVERHEAD = 50;
 
 std::string get_fen(const std::vector<std::string> &words) {
   if (words.at(1) == "startpos") {
@@ -101,28 +99,16 @@ Command get_go_command(const std::vector<std::string> &words) {
 }
 
 void process(const std::string &input, int write_descriptor, std::atomic<bool> &stop) {
-
   const std::vector<std::string> words = str_split(input, ' ');
 
-  const bool is_position = words.size() >= 2 && words.at(0) == "position" &&
-                           (words.at(1) == "startpos" || words.at(1) == "fen");
   if (input == "uci") {
     fmt::println("id name {} {}\nid author {}\nuciok\n", NAME, VERSION, AUTHOR);
   } else if (input == "isready") {
     fmt::println("readyok\n");
-  } else if (is_position) {
+  } else if (words.at(0) == "position") {
     const std::string fen = get_fen(words);
-    try {
-      std::unique_ptr<Board> board = fen::get_position(fen);
-      auto moves_it = std::find(words.begin(), words.end(), "moves");
-      if (moves_it != words.end()) {
-        std::for_each(
-            moves_it + 1, words.end(),
-            [&](const std::string &move_uci) { make_move(move_uci, board); });
-      }
-    } catch (const std::invalid_argument &e) {
-      fmt::println(e.what());
-    }
+    Command command = Command::update_board(fen);
+    write(write_descriptor, &command, sizeof(command));
   } else if (words.at(0) == "go") {
     Command command = get_go_command(words);
     write(write_descriptor, &command, sizeof(command));
