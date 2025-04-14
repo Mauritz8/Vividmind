@@ -3,7 +3,9 @@
 #include <algorithm>
 #include <cassert>
 #include <fmt/core.h>
+#include <iostream>
 #include <optional>
+#include <ostream>
 #include <stack>
 #include <vector>
 
@@ -58,10 +60,12 @@ void Search::iterative_deepening_search() {
       best_moves.push(search_summary.pv.at(0));
 
       fmt::println(uci::show(search_summary));
+      std::flush(std::cout);
     }
   }
   // always finish a search by outputting the best move
   fmt::println(uci::bestmove(best_moves.top()));
+  std::flush(std::cout);
 }
 
 int Search::alpha_beta(int depth, int alpha, int beta,
