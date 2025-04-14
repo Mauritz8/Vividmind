@@ -13,16 +13,15 @@ const int BISHOP_VALUE = 350;
 const int KNIGHT_VALUE = 300;
 const int PAWN_VALUE = 100;
 
-// TODO: these values don't make sense to me
 const std::array<int, 64> KING_PSQT = {
     -30, -40, -40, -50, -50, -40, -40, -30,
     -30, -40, -40, -50, -50, -40, -40, -30,
     -30, -40, -40, -50, -50, -40, -40, -30,
     -30, -40, -40, -50, -50, -40, -40, -30,
-    -20, -30, -30, -40, -40,  10, -30, -20,
-    -10, -20, -20, -20, -20,  10, -20, -10,
-     20,  20,   0,   0,   0,   0,   5,  20,
-     20,  30,  10,   0,   0,  10,  30,  20,
+    -20, -30, -30, -40, -40, -30, -30, -20,
+    -10, -20, -20, -20, -20, -20, -20, -10,
+     20,  20,   0, -10, -10,   0,  20,  20,
+     20,  30,  10, -10,   0,  10,  30,  20,
 };
 
 const std::array<int, 64> KING_ENDGAME_PSQT = {
@@ -91,7 +90,7 @@ const std::array<int, 64> ROOK_PSQT = {
     0,   0,   0,   5,   5,   0,   0,   0,
 };
 
-// used when there is only the king left
+// used when only the king is left
 // in order to force the king to the edge of the board
 // and eventually mate
 const std::array<int, 64> KING_MATE = {
