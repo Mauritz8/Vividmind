@@ -4,8 +4,8 @@
 #include <vector>
 
 #include "board.hpp"
-#include "move.hpp"
 #include "engine/search_defs.hpp"
+#include "move.hpp"
 
 class Search {
 public:

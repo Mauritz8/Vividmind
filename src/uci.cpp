@@ -9,9 +9,9 @@
 #include <vector>
 
 #include "defs.hpp"
-#include "move.hpp"
 #include "engine/command.hpp"
 #include "engine/search_defs.hpp"
+#include "move.hpp"
 #include "utils.hpp"
 
 namespace uci {
@@ -59,7 +59,6 @@ Command get_go_command(const std::vector<std::string> &words) {
     return Command::go_perft(depth);
   }
 
-
   int wtime = 0;
   int btime = 0;
   int winc = 0;
@@ -87,7 +86,8 @@ Command get_go_command(const std::vector<std::string> &words) {
   return Command::go_infinite();
 }
 
-void process(const std::string &input, int write_descriptor, std::atomic<bool> &stop) {
+void process(const std::string &input, int write_descriptor,
+             std::atomic<bool> &stop) {
   const std::vector<std::string> words = str_split(input, ' ');
 
   if (input == "uci") {

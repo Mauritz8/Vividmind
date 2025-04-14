@@ -42,16 +42,14 @@ public:
   static Command go_depth(int depth);
   static Command go_move_time(int move_time);
   static Command go_game_time(int white_time, int black_time, int white_inc,
-                            int black_inc, int moves_to_go);
+                              int black_inc, int moves_to_go);
   static Command go_perft(int depth);
   static Command update_board(const std::string &fen,
-      const std::vector<std::string> moves);
+                              const std::vector<std::string> moves);
 
 private:
-
   Command(CommandType type);
   Command(CommandType type, int arg);
   Command(CommandType type, GameTime game_time);
   Command(CommandType type, Position position);
-
 };

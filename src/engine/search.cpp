@@ -10,9 +10,9 @@
 #include <vector>
 
 #include "defs.hpp"
+#include "engine/search_defs.hpp"
 #include "evaluation/evaluation.hpp"
 #include "move.hpp"
-#include "engine/search_defs.hpp"
 #include "uci.hpp"
 
 Search::Search(std::unique_ptr<Board> &board, SearchParams &params,

@@ -77,11 +77,9 @@ void run(int read_descriptor, std::atomic<bool> &stop) {
     case GoGameTime: {
       SearchParams params = SearchParams();
       params.search_mode = SearchMode::MOVE_TIME;
-      params.allocated_time = calc_allocated_time(
-        board->get_player_to_move(),
-        command.arg.game_time.wtime,
-        command.arg.game_time.btime
-      );
+      params.allocated_time = calc_allocated_time(board->get_player_to_move(),
+                                                  command.arg.game_time.wtime,
+                                                  command.arg.game_time.btime);
       Search search = Search(board, params, stop);
       search.iterative_deepening_search();
       break;
