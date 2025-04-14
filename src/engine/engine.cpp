@@ -11,6 +11,25 @@
 #include <unistd.h>
 
 namespace engine {
+bool make_move(const char *move_uci, std::unique_ptr<Board> &board) {
+  const Color player = board->get_player_to_move();
+  const std::vector<Move> pseudo_legal_moves =
+      board->get_pseudo_legal_moves(ALL);
+  for (const Move &move : pseudo_legal_moves) {
+    if (move.to_uci_notation() == std::string(move_uci)) {
+      board->make(move);
+      if (board->is_in_check(player)) {
+        board->undo();
+        throw std::invalid_argument(fmt::format(
+            "Illegal move: {} puts the player in check\n", move_uci));
+      }
+      return true;
+    }
+  }
+  throw std::invalid_argument(
+      fmt::format("Illegal move: {} is not a legal move\n", move_uci));
+}
+
 void run(int read_descriptor, std::atomic<bool> &stop) {
   std::unique_ptr<Board> board = Board::get_starting_position();
 
@@ -20,11 +39,20 @@ void run(int read_descriptor, std::atomic<bool> &stop) {
 
     switch (command.type) {
     case UpdateBoard: {
+      Position position = command.arg.position;
       try {
-        board = fen::get_position(command.arg.str);
+        board = fen::get_position(position.fen);
+        for (size_t i = 0; i < position.moves_size; i++) {
+          make_move(position.moves[i], board);
+        }
       } catch (const std::invalid_argument &e) {
         fmt::println(e.what());
       }
+      free(position.fen);
+      for (size_t i = 0; i < position.moves_size; i++) {
+        free(position.moves[i]);
+      }
+      free(position.moves);
       break;
     }
     case GoPerft: {

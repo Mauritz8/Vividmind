@@ -1,4 +1,5 @@
 #include "command.hpp"
+#include <vector>
 
 Command::Command() {
   this->type = CommandType::GoInfinite;
@@ -18,9 +19,9 @@ Command::Command(CommandType type, GameTime game_time) {
   this->arg.game_time = game_time;
 }
 
-Command::Command(CommandType type, const char *fen) {
+Command::Command(CommandType type, Position position) {
   this->type = type;
-  this->arg.str = fen;
+  this->arg.position = position;
 }
 
 Command Command::go_infinite() {
@@ -51,11 +52,29 @@ Command Command::go_perft(int depth) {
   return Command(CommandType::GoPerft, depth);
 }
 
-Command Command::update_board(const std::string &fen) {
-  size_t fen_size = fen.size();
-  char *str = (char *) calloc(fen_size + 1, sizeof(char));
-  for (size_t i = 0; i < fen_size; i++) {
-    str[i] = fen.at(i);
+static char *str_to_c_str(const std::string_view str) {
+  size_t str_size = str.size();
+  char *c_str = (char *) calloc(str_size + 1, sizeof(char));
+  for (size_t i = 0; i < str_size; i++) {
+    c_str[i] = str.at(i);
   }
-  return Command(CommandType::UpdateBoard, str);
+  return c_str;
+}
+
+Command Command::update_board(
+    const std::string &fen,
+    const std::vector<std::string> moves)
+{
+  size_t moves_size = moves.size();
+  char **moves_c_array = (char **) calloc(moves_size, sizeof(char *));
+  for (size_t i = 0; i < moves_size; i++) {
+    moves_c_array[i] = str_to_c_str(moves.at(i));
+  }
+  
+  Position position = {
+    .fen = str_to_c_str(fen),
+    .moves = moves_c_array,
+    .moves_size = moves_size,
+  };
+  return Command(CommandType::UpdateBoard, position);
 }

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <vector>
 
 enum CommandType {
   GoInfinite,
@@ -18,10 +19,17 @@ struct GameTime {
   int binc;
   int moves_to_go;
 };
+
+struct Position {
+  char *fen;
+  char **moves;
+  size_t moves_size;
+};
+
 union CommandArg {
   int integer;
   GameTime game_time;
-  const char *str;
+  Position position;
 };
 
 class Command {
@@ -36,13 +44,14 @@ public:
   static Command go_game_time(int white_time, int black_time, int white_inc,
                             int black_inc, int moves_to_go);
   static Command go_perft(int depth);
-  static Command update_board(const std::string &fen);
+  static Command update_board(const std::string &fen,
+      const std::vector<std::string> moves);
 
 private:
 
   Command(CommandType type);
   Command(CommandType type, int arg);
   Command(CommandType type, GameTime game_time);
-  Command(CommandType type, const char *fen);
+  Command(CommandType type, Position position);
 
 };

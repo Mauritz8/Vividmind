@@ -3,14 +3,11 @@
 #include <algorithm>
 #include <cmath>
 #include <fmt/core.h>
-#include <memory>
 #include <numeric>
-#include <stdexcept>
 #include <string>
 #include <unistd.h>
 #include <vector>
 
-#include "board.hpp"
 #include "defs.hpp"
 #include "move.hpp"
 #include "engine/command.hpp"
@@ -19,7 +16,7 @@
 
 namespace uci {
 
-std::string get_fen(const std::vector<std::string> &words) {
+std::string get_position_fen(const std::vector<std::string> &words) {
   if (words.at(1) == "startpos") {
     return STARTING_POSITION_FEN;
   }
@@ -33,21 +30,13 @@ std::string get_fen(const std::vector<std::string> &words) {
   return fen.substr(1);
 }
 
-bool make_move(const std::string &move_uci, std::unique_ptr<Board> &board) {
-  const Color player = board->get_player_to_move();
-  const std::vector<Move> pseudo_legal_moves =
-      board->get_pseudo_legal_moves(ALL);
-  for (const Move &move : pseudo_legal_moves) {
-    if (move.to_uci_notation() == move_uci) {
-      board->make(move);
-      if (board->is_in_check(player)) {
-        board->undo();
-        return false;
-      }
-      return true;
-    }
+std::vector<std::string>
+get_position_moves(const std::vector<std::string> &words) {
+  auto moves_it = std::find(words.begin(), words.end(), "moves");
+  if (moves_it == words.end()) {
+    return {};
   }
-  return false;
+  return std::vector<std::string>(moves_it + 1, words.end());
 }
 
 Command get_go_command(const std::vector<std::string> &words) {
@@ -106,8 +95,9 @@ void process(const std::string &input, int write_descriptor, std::atomic<bool> &
   } else if (input == "isready") {
     fmt::println("readyok\n");
   } else if (words.at(0) == "position") {
-    const std::string fen = get_fen(words);
-    Command command = Command::update_board(fen);
+    const std::string fen = get_position_fen(words);
+    const std::vector<std::string> moves = get_position_moves(words);
+    Command command = Command::update_board(fen, moves);
     write(write_descriptor, &command, sizeof(command));
   } else if (words.at(0) == "go") {
     Command command = get_go_command(words);
