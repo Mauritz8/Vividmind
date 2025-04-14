@@ -62,3 +62,12 @@ target_include_directories(tests PRIVATE
 )
 target_compile_options(tests PUBLIC -g)
 target_link_libraries(tests GTest::gtest_main fmt::fmt)
+
+add_custom_target(format-check
+    COMMAND ${CMAKE_SOURCE_DIR}/scripts/format-check.sh
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+)
+add_custom_target(format
+    COMMAND ${CMAKE_SOURCE_DIR}/scripts/format.sh
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+)
