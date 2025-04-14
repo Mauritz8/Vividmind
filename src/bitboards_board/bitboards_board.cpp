@@ -263,6 +263,8 @@ BitboardsBoard::updated_psqt(const Move &move,
   const PieceType new_piece_type =
       move.move_type == PROMOTION ? move.promotion_piece.value() : piece_type;
 
+  // TODO: calculate actual values for is_endgame and is_line_king
+  // instead of always passing false
   std::array<int, 2> psqt;
   psqt.at(player_to_move) =
       get_psqt(player_to_move) -
@@ -284,6 +286,8 @@ BitboardsBoard::updated_psqt(const Move &move,
                             captured_piece.value().pos,
                             captured_piece.value().color, false, false)
            : 0);
+  // TODO: check if it is the endgame after a capture happens,
+  // if so update the king's psqt value to use different psqt table
   return psqt;
 }
 

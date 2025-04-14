@@ -1,7 +1,6 @@
 #include "evaluation.hpp"
 
 #include "piece.hpp"
-#include "utils.hpp"
 
 int evaluate(const std::unique_ptr<Board> &board) {
   const int evaluation = board->get_material(WHITE) -

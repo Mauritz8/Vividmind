@@ -6,10 +6,14 @@
 const int KING_VALUE = 100000;
 const int QUEEN_VALUE = 900;
 const int ROOK_VALUE = 500;
+
+// TODO: reconsider what the bishop's value should be
 const int BISHOP_VALUE = 350;
+
 const int KNIGHT_VALUE = 300;
 const int PAWN_VALUE = 100;
 
+// TODO: these values don't make sense to me
 const std::array<int, 64> KING_PSQT = {
     -30, -40, -40, -50, -50, -40, -40, -30,
     -30, -40, -40, -50, -50, -40, -40, -30,
