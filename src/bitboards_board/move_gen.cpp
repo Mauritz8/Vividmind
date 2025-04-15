@@ -4,7 +4,6 @@
 #include "move.hpp"
 #include "utils.hpp"
 #include <cassert>
-#include <sys/types.h>
 
 uint64_t
 BitboardsBoard::get_castling_check_not_allowed_bb(int start,
@@ -44,8 +43,8 @@ uint64_t BitboardsBoard::gen_castling_moves_bb(int start) const {
           : 0;
 
   uint64_t pieces_bb = (side_bbs.at(get_player_to_move()) &
-                         ~piece_bbs.at(get_player_to_move()).at(KING)) |
-                        side_bbs.at(get_opposite_color(get_player_to_move()));
+                        ~piece_bbs.at(get_player_to_move()).at(KING)) |
+                       side_bbs.at(get_opposite_color(get_player_to_move()));
 
   if (castling_rights.kingside) {
     uint64_t no_check_bb = get_castling_check_not_allowed_bb(start, true);
@@ -101,10 +100,10 @@ void BitboardsBoard::gen_pawn_moves(int start, MoveCategory move_category,
   uint64_t move_one =
       masks.pawn_moves_one.at(get_player_to_move()).at(start) & ~all_pieces;
   uint64_t move_two = masks.pawn_moves_two.at(get_player_to_move()).at(start) &
-                       ~(all_pieces | all_pieces_one_rank_forward);
+                      ~(all_pieces | all_pieces_one_rank_forward);
 
   uint64_t captures = masks.pawn_captures.at(get_player_to_move()).at(start) &
-                       ~side_bbs.at(get_player_to_move());
+                      ~side_bbs.at(get_player_to_move());
   uint64_t normal_captures =
       captures & side_bbs.at(get_opposite_color(get_player_to_move()));
 
@@ -173,7 +172,7 @@ void BitboardsBoard::gen_pawn_moves(int start, MoveCategory move_category,
 }
 
 uint64_t BitboardsBoard::gen_sliding_attacks(int start, uint64_t occupied,
-                                              uint64_t mask) const {
+                                             uint64_t mask) const {
   uint64_t forward = 0;
   uint64_t reverse = 0;
   forward = occupied & mask;
@@ -185,20 +184,17 @@ uint64_t BitboardsBoard::gen_sliding_attacks(int start, uint64_t occupied,
   return forward;
 }
 
-uint64_t BitboardsBoard::gen_file_attacks(int start,
-                                           uint64_t occupied) const {
+uint64_t BitboardsBoard::gen_file_attacks(int start, uint64_t occupied) const {
   int file = start % 8;
   return gen_sliding_attacks(start, occupied, masks.files.at(file));
 }
 
-uint64_t BitboardsBoard::gen_rank_attacks(int start,
-                                           uint64_t occupied) const {
+uint64_t BitboardsBoard::gen_rank_attacks(int start, uint64_t occupied) const {
   int rank = start / 8;
   return gen_sliding_attacks(start, occupied, masks.ranks.at(rank));
 }
 
-uint64_t BitboardsBoard::gen_diag_attacks(int start,
-                                           uint64_t occupied) const {
+uint64_t BitboardsBoard::gen_diag_attacks(int start, uint64_t occupied) const {
   int file = start % 8;
   int rank = start / 8;
   int diag = file + rank;
@@ -206,26 +202,24 @@ uint64_t BitboardsBoard::gen_diag_attacks(int start,
 }
 
 uint64_t BitboardsBoard::gen_antidiag_attacks(int start,
-                                               uint64_t occupied) const {
+                                              uint64_t occupied) const {
   int file = start % 8;
   int rank = start / 8;
   int diag = file - rank + 7;
   return gen_sliding_attacks(start, occupied, masks.antidiags.at(diag));
 }
 
-uint64_t BitboardsBoard::gen_rook_attacks(int start,
-                                           uint64_t occupied) const {
+uint64_t BitboardsBoard::gen_rook_attacks(int start, uint64_t occupied) const {
   return gen_file_attacks(start, occupied) | gen_rank_attacks(start, occupied);
 }
 
 uint64_t BitboardsBoard::gen_bishop_attacks(int start,
-                                             uint64_t occupied) const {
+                                            uint64_t occupied) const {
   return gen_diag_attacks(start, occupied) |
          gen_antidiag_attacks(start, occupied);
 }
 
-uint64_t BitboardsBoard::gen_queen_attacks(int start,
-                                            uint64_t occupied) const {
+uint64_t BitboardsBoard::gen_queen_attacks(int start, uint64_t occupied) const {
   return gen_rook_attacks(start, occupied) |
          gen_bishop_attacks(start, occupied);
 }
@@ -244,9 +238,9 @@ void BitboardsBoard::gen_moves_piece(PieceType piece, int start,
 
   uint64_t occupied = side_bbs.at(WHITE) | side_bbs.at(BLACK);
   uint64_t attacks = piece == KNIGHT   ? masks.knight_moves.at(start)
-                      : piece == BISHOP ? gen_bishop_attacks(start, occupied)
-                      : piece == ROOK   ? gen_rook_attacks(start, occupied)
-                                        : gen_queen_attacks(start, occupied);
+                     : piece == BISHOP ? gen_bishop_attacks(start, occupied)
+                     : piece == ROOK   ? gen_rook_attacks(start, occupied)
+                                       : gen_queen_attacks(start, occupied);
   uint64_t moves_bb =
       move_category == TACTICAL
           ? attacks & side_bbs.at(get_opposite_color(get_player_to_move()))

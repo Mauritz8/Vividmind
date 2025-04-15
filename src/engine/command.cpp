@@ -24,17 +24,11 @@ Command::Command(CommandType type, Position position) {
   this->type = type;
   this->arg.position = position;
 }
-Command Command::uci() {
-  return Command(CommandType::UCI);
-}
+Command Command::uci() { return Command(CommandType::UCI); }
 
-Command Command::is_ready() {
-  return Command(CommandType::IsReady);
-}
+Command Command::is_ready() { return Command(CommandType::IsReady); }
 
-Command Command::quit() {
-  return Command(CommandType::Quit);
-}
+Command Command::quit() { return Command(CommandType::Quit); }
 
 static char *str_to_c_str(const std::string_view str) {
   size_t str_size = str.size();

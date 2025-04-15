@@ -6,7 +6,9 @@
 #include "fen.hpp"
 #include "fmt/core.h"
 #include "perft.hpp"
+#include <iostream>
 #include <memory>
+#include <ostream>
 #include <stdexcept>
 #include <unistd.h>
 
@@ -30,7 +32,7 @@ bool make_move(const char *move_uci, std::unique_ptr<Board> &board) {
       fmt::format("Illegal move: {} is not a legal move\n", move_uci));
 }
 
-void execute_command(Command command, std::atomic<bool> &stop,
+void execute_command(const Command &command, std::atomic<bool> &stop,
                      std::unique_ptr<Board> &board) {
   switch (command.type) {
   case UCI: {
@@ -107,5 +109,6 @@ void execute_command(Command command, std::atomic<bool> &stop,
     break;
   }
   }
+  std::flush(std::cout);
 }
 }; // namespace engine

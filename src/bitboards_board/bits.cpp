@@ -10,7 +10,7 @@ void set(uint64_t &bits, int n) { bits |= (uint64_t)1 << n; }
 
 void unset(uint64_t &bits, int n) { bits ^= (uint64_t)1 << n; }
 
-//https://www.chessprogramming.org/BitScan#DeBruijnMultiplation
+// https://www.chessprogramming.org/BitScan#DeBruijnMultiplation
 const int index64[64] = {
   0,  1,  48,  2, 57, 49, 28,  3,
   61, 58, 50, 42, 38, 29, 17,  4,

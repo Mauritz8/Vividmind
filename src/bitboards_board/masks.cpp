@@ -1,6 +1,4 @@
 #include "masks.hpp"
-#include "bitboards_board/bits.hpp"
-#include <sys/types.h>
 
 static std::array<uint64_t, 64> square_masks() {
   std::array<uint64_t, 64> square_masks;

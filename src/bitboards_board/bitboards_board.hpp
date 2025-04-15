@@ -101,7 +101,7 @@ private:
   uint64_t gen_diag_attacks(int start, uint64_t occupied) const;
   uint64_t gen_antidiag_attacks(int start, uint64_t occupied) const;
   uint64_t gen_sliding_attacks(int start, uint64_t occupied,
-                                uint64_t mask) const;
+                               uint64_t mask) const;
 
   uint64_t get_attacking_bb(Color color) const;
   bool is_attacking(int pos, Color color) const;

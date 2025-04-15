@@ -1,7 +1,6 @@
 #pragma once
 
 #include <array>
-#include <sys/types.h>
 #include <stdint.h>
 
 struct Masks {

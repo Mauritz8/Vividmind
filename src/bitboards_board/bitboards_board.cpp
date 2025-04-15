@@ -7,7 +7,6 @@
 #include "utils.hpp"
 #include <cassert>
 #include <optional>
-#include <sys/types.h>
 
 BitboardsBoard::BitboardsBoard(std::vector<Piece> pieces, Color player_to_move,
                                std::array<Castling, 2> castling_rights,
