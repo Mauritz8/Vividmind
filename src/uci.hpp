@@ -1,13 +1,12 @@
 #pragma once
 
-#include <atomic>
 #include <string>
 
+#include "engine/command.hpp"
 #include "engine/search_defs.hpp"
 
 namespace uci {
-void process(const std::string &input, int write_descriptor,
-             std::atomic<bool> &stop);
+Command process(const std::string &input);
 std::string show(const SearchSummary &search_summary);
 std::string bestmove(const Move &move);
 }; // namespace uci

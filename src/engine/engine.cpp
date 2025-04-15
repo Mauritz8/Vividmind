@@ -30,71 +30,82 @@ bool make_move(const char *move_uci, std::unique_ptr<Board> &board) {
       fmt::format("Illegal move: {} is not a legal move\n", move_uci));
 }
 
-void run(int read_descriptor, std::atomic<bool> &stop) {
-  std::unique_ptr<Board> board = Board::get_starting_position();
-
-  Command command;
-  while (true) {
-    read(read_descriptor, &command, sizeof(command));
-
-    switch (command.type) {
-    case UpdateBoard: {
-      Position position = command.arg.position;
-      try {
-        board = fen::get_position(position.fen);
-        for (size_t i = 0; i < position.moves_size; i++) {
-          make_move(position.moves[i], board);
-        }
-      } catch (const std::invalid_argument &e) {
-        fmt::println(e.what());
-      }
-      free(position.fen);
+void execute_command(Command command, std::atomic<bool> &stop,
+                     std::unique_ptr<Board> &board) {
+  switch (command.type) {
+  case UCI: {
+    fmt::println("id name {} {}\nid author {}\nuciok\n", NAME, VERSION, AUTHOR);
+    break;
+  }
+  case IsReady: {
+    fmt::println("readyok\n");
+    break;
+  }
+  case Invalid: {
+    fmt::println("invalid input: {}", command.arg.str);
+    free(command.arg.str);
+    break;
+  }
+  case Quit: {
+    exit(0);
+    break;
+  }
+  case UpdateBoard: {
+    Position position = command.arg.position;
+    try {
+      board = fen::get_position(position.fen);
       for (size_t i = 0; i < position.moves_size; i++) {
-        free(position.moves[i]);
+        make_move(position.moves[i], board);
       }
-      free(position.moves);
-      break;
+    } catch (const std::invalid_argument &e) {
+      fmt::println(e.what());
     }
-    case GoPerft: {
-      divide(board, command.arg.integer);
-      break;
+    free(position.fen);
+    for (size_t i = 0; i < position.moves_size; i++) {
+      free(position.moves[i]);
     }
-    case GoInfinite: {
-      SearchParams params = SearchParams();
-      params.search_mode = SearchMode::INFINITE;
-      Search search = Search(board, params, stop);
-      search.iterative_deepening_search();
-      break;
-    }
-    case GoDepth: {
-      SearchParams params = SearchParams();
-      params.search_mode = SearchMode::DEPTH;
-      params.depth = command.arg.integer;
-      Search search = Search(board, params, stop);
-      search.iterative_deepening_search();
-      break;
-    }
-    case GoGameTime: {
-      SearchParams params = SearchParams();
-      params.search_mode = SearchMode::MOVE_TIME;
-      params.allocated_time = calc_allocated_time(board->get_player_to_move(),
-                                                  command.arg.game_time.wtime,
-                                                  command.arg.game_time.btime);
-      Search search = Search(board, params, stop);
-      search.iterative_deepening_search();
-      break;
-    }
-    case GoMoveTime: {
-      SearchParams params = SearchParams();
-      params.search_mode = SearchMode::MOVE_TIME;
-      // to ensure a move is returned before the allocated time runs out
-      int move_overhead = 50;
-      params.allocated_time = command.arg.integer - move_overhead;
-      Search search = Search(board, params, stop);
-      search.iterative_deepening_search();
-      break;
-    }
-    }
+    free(position.moves);
+    break;
+  }
+  case GoPerft: {
+    divide(board, command.arg.integer);
+    break;
+  }
+  case GoInfinite: {
+    SearchParams params = SearchParams();
+    params.search_mode = SearchMode::INFINITE;
+    Search search = Search(board, params, stop);
+    search.iterative_deepening_search();
+    break;
+  }
+  case GoDepth: {
+    SearchParams params = SearchParams();
+    params.search_mode = SearchMode::DEPTH;
+    params.depth = command.arg.integer;
+    Search search = Search(board, params, stop);
+    search.iterative_deepening_search();
+    break;
+  }
+  case GoGameTime: {
+    SearchParams params = SearchParams();
+    params.search_mode = SearchMode::MOVE_TIME;
+    params.allocated_time = calc_allocated_time(board->get_player_to_move(),
+                                                command.arg.game_time.wtime,
+                                                command.arg.game_time.btime);
+    Search search = Search(board, params, stop);
+    search.iterative_deepening_search();
+    break;
+  }
+  case GoMoveTime: {
+    SearchParams params = SearchParams();
+    params.search_mode = SearchMode::MOVE_TIME;
+    // to ensure a move is returned before the allocated time runs out
+    int move_overhead = 50;
+    params.allocated_time = command.arg.integer - move_overhead;
+    Search search = Search(board, params, stop);
+    search.iterative_deepening_search();
+    break;
+  }
   }
 }
 }; // namespace engine

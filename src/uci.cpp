@@ -5,7 +5,6 @@
 #include <fmt/core.h>
 #include <numeric>
 #include <string>
-#include <unistd.h>
 #include <vector>
 
 #include "defs.hpp"
@@ -86,28 +85,23 @@ Command get_go_command(const std::vector<std::string> &words) {
   return Command::go_infinite();
 }
 
-void process(const std::string &input, int write_descriptor,
-             std::atomic<bool> &stop) {
+Command process(const std::string &input) {
   const std::vector<std::string> words = str_split(input, ' ');
 
   if (input == "uci") {
-    fmt::println("id name {} {}\nid author {}\nuciok\n", NAME, VERSION, AUTHOR);
+    return Command::uci();
   } else if (input == "isready") {
-    fmt::println("readyok\n");
+    return Command::is_ready();
   } else if (words.at(0) == "position") {
     const std::string fen = get_position_fen(words);
     const std::vector<std::string> moves = get_position_moves(words);
-    Command command = Command::update_board(fen, moves);
-    write(write_descriptor, &command, sizeof(command));
+    return Command::update_board(fen, moves);
   } else if (words.at(0) == "go") {
-    Command command = get_go_command(words);
-    write(write_descriptor, &command, sizeof(command));
-  } else if (input == "stop") {
-    stop = true;
+    return get_go_command(words);
   } else if (input == "quit") {
-    exit(0);
+    return Command::quit();
   } else {
-    fmt::println("invalid input: {}", input);
+    return Command::invalid(input);
   }
 }
 
@@ -132,6 +126,6 @@ std::string show(const SearchSummary &ss) {
 }
 
 std::string bestmove(const Move &move) {
-  return fmt::format("bestmove {}", move.to_uci_notation());
+  return fmt::format("bestmove {}\n", move.to_uci_notation());
 }
 } // namespace uci

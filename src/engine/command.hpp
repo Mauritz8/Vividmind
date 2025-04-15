@@ -4,12 +4,16 @@
 #include <vector>
 
 enum CommandType {
+  UCI,
+  IsReady,
+  Quit,
+  Invalid,
   GoInfinite,
   GoDepth,
   GoMoveTime,
   GoGameTime,
   GoPerft,
-  UpdateBoard
+  UpdateBoard,
 };
 
 struct GameTime {
@@ -28,6 +32,7 @@ struct Position {
 
 union CommandArg {
   int integer;
+  char *str;
   GameTime game_time;
   Position position;
 };
@@ -38,6 +43,11 @@ public:
   union CommandArg arg;
 
   Command();
+
+  static Command uci();
+  static Command is_ready();
+  static Command quit();
+  static Command invalid(std::string_view str);
   static Command go_infinite();
   static Command go_depth(int depth);
   static Command go_move_time(int move_time);
@@ -50,6 +60,7 @@ public:
 private:
   Command(CommandType type);
   Command(CommandType type, int arg);
+  Command(CommandType type, char *arg);
   Command(CommandType type, GameTime game_time);
   Command(CommandType type, Position position);
 };
