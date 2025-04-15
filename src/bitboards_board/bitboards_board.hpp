@@ -77,15 +77,17 @@ private:
   std::array<Castling, 2> updated_castling_rights(const Move &move) const;
   int get_castling_rook(const Move &move, Color color) const;
 
-  std::vector<Move> gen_moves_piece(PieceType piece, int start,
-                                    MoveCategory move_category) const;
-  std::vector<Move> gen_all_moves_piece(PieceType piece,
-                                        MoveCategory move_category) const;
+  void gen_moves_piece(PieceType piece, int start, MoveCategory move_category,
+                       std::vector<Move> &moves) const;
+  void gen_all_moves_piece(PieceType piece, MoveCategory move_category,
+                           std::vector<Move> &moves) const;
 
   std::vector<Move> gen_knight_moves(int start) const;
-  std::vector<Move> gen_pawn_moves(int start, MoveCategory move_category) const;
+  void gen_pawn_moves(int start, MoveCategory move_category,
+                      std::vector<Move> &moves) const;
 
-  std::vector<Move> gen_king_moves(int start, MoveCategory move_category) const;
+  void gen_king_moves(int start, MoveCategory move_category,
+                      std::vector<Move> &moves) const;
   u_int64_t get_castling_check_not_allowed_bb(int start, bool kingside) const;
   u_int64_t get_castling_pieces_not_allowed_bb(int start, bool kingside) const;
   u_int64_t gen_castling_moves_bb(int start) const;
