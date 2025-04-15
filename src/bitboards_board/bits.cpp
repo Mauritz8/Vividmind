@@ -5,11 +5,11 @@
 
 namespace bits {
 
-u_int64_t get(u_int64_t bits, int n) { return (bits >> n) & (u_int64_t)1; }
+uint64_t get(uint64_t bits, int n) { return (bits >> n) & (uint64_t)1; }
 
-void set(u_int64_t &bits, int n) { bits |= (u_int64_t)1 << n; }
+void set(uint64_t &bits, int n) { bits |= (uint64_t)1 << n; }
 
-void unset(u_int64_t &bits, int n) { bits ^= (u_int64_t)1 << n; }
+void unset(uint64_t &bits, int n) { bits ^= (uint64_t)1 << n; }
 
 std::optional<int> popLSB(u_int64_t &bits) {
   const int i = ffsl(bits);
@@ -20,11 +20,11 @@ std::optional<int> popLSB(u_int64_t &bits) {
   return std::nullopt;
 }
 
-std::string to_string(u_int64_t bits) {
+std::string to_string(uint64_t bits) {
   std::string out;
   for (int row = 7; row >= 0; row--) {
     for (int col = 7; col >= 0; col--) {
-      u_int64_t bit = get(bits, row * 8 + col);
+      uint64_t bit = get(bits, row * 8 + col);
       out += bit == 1 ? "1" : "0";
     }
     out += " ";
@@ -39,7 +39,7 @@ std::string to_string(u_int64_t bits) {
 // https://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/byteswap-uint64-byteswap-ulong-byteswap-ushort
 // I tried it but it seems like it's not doing the same thing, I need to
 // investigate
-u_int64_t reverse(u_int64_t b) {
+uint64_t reverse(uint64_t b) {
   b = (b & 0x5555555555555555) << 1 | ((b >> 1) & 0x5555555555555555);
   b = (b & 0x3333333333333333) << 2 | ((b >> 2) & 0x3333333333333333);
   b = (b & 0x0f0f0f0f0f0f0f0f) << 4 | ((b >> 4) & 0x0f0f0f0f0f0f0f0f);

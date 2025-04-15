@@ -3,13 +3,14 @@
 #include <optional>
 #include <string>
 #include <sys/types.h>
+#include <stdint.h>
 
 namespace bits {
-u_int64_t get(u_int64_t bits, int n);
-void set(u_int64_t &bits, int n);
-void unset(u_int64_t &bits, int n);
-std::optional<int> popLSB(u_int64_t &bits);
-std::string to_string(u_int64_t bits);
-u_int64_t reverse(u_int64_t bits);
-int nr_bits_set(u_int64_t bits);
+uint64_t get(uint64_t bits, int n);
+void set(uint64_t &bits, int n);
+void unset(uint64_t &bits, int n);
+std::optional<int> popLSB(uint64_t &bits);
+std::string to_string(uint64_t bits);
+uint64_t reverse(uint64_t bits);
+int nr_bits_set(uint64_t bits);
 } // namespace bits

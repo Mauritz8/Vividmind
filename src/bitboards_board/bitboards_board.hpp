@@ -61,8 +61,8 @@ public:
   get_pseudo_legal_moves(MoveCategory move_category) const override;
 
 private:
-  std::array<std::array<u_int64_t, 6>, 2> piece_bbs;
-  std::array<u_int64_t, 2> side_bbs;
+  std::array<std::array<uint64_t, 6>, 2> piece_bbs;
+  std::array<uint64_t, 2> side_bbs;
   std::stack<PosData> history;
   std::stack<Move> move_history;
   const Masks masks;
@@ -88,22 +88,22 @@ private:
 
   void gen_king_moves(int start, MoveCategory move_category,
                       std::vector<Move> &moves) const;
-  u_int64_t get_castling_check_not_allowed_bb(int start, bool kingside) const;
-  u_int64_t get_castling_pieces_not_allowed_bb(int start, bool kingside) const;
-  u_int64_t gen_castling_moves_bb(int start) const;
+  uint64_t get_castling_check_not_allowed_bb(int start, bool kingside) const;
+  uint64_t get_castling_pieces_not_allowed_bb(int start, bool kingside) const;
+  uint64_t gen_castling_moves_bb(int start) const;
 
-  u_int64_t gen_rook_attacks(int start, u_int64_t occupied) const;
-  u_int64_t gen_bishop_attacks(int start, u_int64_t occupied) const;
-  u_int64_t gen_queen_attacks(int start, u_int64_t occupied) const;
+  uint64_t gen_rook_attacks(int start, uint64_t occupied) const;
+  uint64_t gen_bishop_attacks(int start, uint64_t occupied) const;
+  uint64_t gen_queen_attacks(int start, uint64_t occupied) const;
 
-  u_int64_t gen_file_attacks(int start, u_int64_t occupied) const;
-  u_int64_t gen_rank_attacks(int start, u_int64_t occupied) const;
-  u_int64_t gen_diag_attacks(int start, u_int64_t occupied) const;
-  u_int64_t gen_antidiag_attacks(int start, u_int64_t occupied) const;
-  u_int64_t gen_sliding_attacks(int start, u_int64_t occupied,
-                                u_int64_t mask) const;
+  uint64_t gen_file_attacks(int start, uint64_t occupied) const;
+  uint64_t gen_rank_attacks(int start, uint64_t occupied) const;
+  uint64_t gen_diag_attacks(int start, uint64_t occupied) const;
+  uint64_t gen_antidiag_attacks(int start, uint64_t occupied) const;
+  uint64_t gen_sliding_attacks(int start, uint64_t occupied,
+                                uint64_t mask) const;
 
-  u_int64_t get_attacking_bb(Color color) const;
+  uint64_t get_attacking_bb(Color color) const;
   bool is_attacking(int pos, Color color) const;
 
   bool is_lone_king(Color color) const;

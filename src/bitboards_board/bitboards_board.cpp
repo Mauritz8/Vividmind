@@ -34,7 +34,7 @@ BitboardsBoard::BitboardsBoard(std::vector<Piece> pieces, Color player_to_move,
       side_bbs.at(color) |= piece_bbs.at(color).at(piece);
 
       PieceType piece_type = (PieceType)piece;
-      u_int64_t piece_bb = piece_bbs.at(color).at(piece);
+      uint64_t piece_bb = piece_bbs.at(color).at(piece);
       material_side +=
           bits::nr_bits_set(piece_bb) * get_piece_value(piece_type);
 
@@ -82,7 +82,7 @@ bool BitboardsBoard::operator==(const BitboardsBoard &other) const {
 std::optional<PieceType> BitboardsBoard::get_piece_type(int pos) const {
   for (int color = 0; color < 2; color++) {
     for (int piece = 0; piece < 6; piece++) {
-      u_int64_t bitboard_bit = bits::get(piece_bbs.at(color).at(piece), pos);
+      uint64_t bitboard_bit = bits::get(piece_bbs.at(color).at(piece), pos);
       if (bitboard_bit == 1) {
         return (PieceType)piece;
       }
@@ -205,9 +205,9 @@ int BitboardsBoard::get_castling_rook(const Move &move, Color color) const {
 
 std::optional<PieceType> BitboardsBoard::piece_type(int pos,
                                                     Color color) const {
-  std::array<u_int64_t, NR_PIECES> side_bb = piece_bbs.at(color);
+  std::array<uint64_t, NR_PIECES> side_bb = piece_bbs.at(color);
   for (int piece = 0; piece < NR_PIECES; piece++) {
-    u_int64_t piece_bb = side_bb.at(piece);
+    uint64_t piece_bb = side_bb.at(piece);
     if (bits::get(piece_bb, pos) == 1) {
       return (PieceType)piece;
     }
@@ -321,8 +321,8 @@ void BitboardsBoard::make(const Move &move) {
   history.push(new_pos_data);
   move_history.push(move);
 
-  u_int64_t &piece_bb = piece_bbs.at(player_to_move).at(piece_type);
-  u_int64_t &side_bb = side_bbs.at(player_to_move);
+  uint64_t &piece_bb = piece_bbs.at(player_to_move).at(piece_type);
+  uint64_t &side_bb = side_bbs.at(player_to_move);
 
   bits::unset(piece_bb, move.start);
   bits::unset(side_bb, move.start);
@@ -331,7 +331,7 @@ void BitboardsBoard::make(const Move &move) {
     const int kingside = move.end > move.start;
     const int rook = get_castling_rook(move, player_to_move);
     const int rook_new = kingside ? rook - 2 : rook + 3;
-    u_int64_t &rook_bb = piece_bbs.at(player_to_move).at(ROOK);
+    uint64_t &rook_bb = piece_bbs.at(player_to_move).at(ROOK);
     bits::unset(rook_bb, rook);
     bits::unset(side_bb, rook);
     bits::set(rook_bb, rook_new);
@@ -339,7 +339,7 @@ void BitboardsBoard::make(const Move &move) {
     bits::set(piece_bb, move.end);
   } else if (move.move_type == PROMOTION) {
     assert(move.promotion_piece.has_value());
-    u_int64_t &promotion_piece_bb =
+    uint64_t &promotion_piece_bb =
         piece_bbs.at(player_to_move).at(move.promotion_piece.value());
     bits::set(promotion_piece_bb, move.end);
   } else {
@@ -364,8 +364,8 @@ void BitboardsBoard::undo() {
   assert(piece_type_opt.has_value());
   const PieceType piece_type = piece_type_opt.value();
 
-  u_int64_t &piece_bb = piece_bbs.at(move_played_by).at(piece_type);
-  u_int64_t &side_bb = side_bbs.at(move_played_by);
+  uint64_t &piece_bb = piece_bbs.at(move_played_by).at(piece_type);
+  uint64_t &side_bb = side_bbs.at(move_played_by);
 
   bits::unset(piece_bb, move.end);
   bits::unset(side_bb, move.end);
@@ -375,7 +375,7 @@ void BitboardsBoard::undo() {
     int kingside = move.end > move.start;
     int rook = get_castling_rook(move, move_played_by);
     int rook_new = kingside ? rook - 2 : rook + 3;
-    u_int64_t &rook_bb = piece_bbs.at(move_played_by).at(ROOK);
+    uint64_t &rook_bb = piece_bbs.at(move_played_by).at(ROOK);
     bits::unset(rook_bb, rook_new);
     bits::unset(side_bb, rook_new);
     bits::set(rook_bb, rook);
@@ -399,7 +399,7 @@ void BitboardsBoard::undo() {
 }
 
 bool BitboardsBoard::is_insufficient_material() const {
-  u_int64_t all_pieces_bb = side_bbs.at(WHITE) | side_bbs.at(BLACK);
+  uint64_t all_pieces_bb = side_bbs.at(WHITE) | side_bbs.at(BLACK);
   if (bits::nr_bits_set(all_pieces_bb) > 3) {
     return false;
   }
