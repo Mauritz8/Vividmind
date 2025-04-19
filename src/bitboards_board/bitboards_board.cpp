@@ -7,6 +7,7 @@
 #include "utils.hpp"
 #include <cassert>
 #include <optional>
+#include <stdint.h>
 
 BitboardsBoard::BitboardsBoard(std::vector<Piece> pieces, Color player_to_move,
                                std::array<Castling, 2> castling_rights,
@@ -431,4 +432,16 @@ bool BitboardsBoard::is_threefold_repetition() const {
     }
   }
   return false;
+}
+
+int BitboardsBoard::get_doubled_pawns(Color color) const {
+  uint64_t pawn_bb = piece_bbs.at(color).at(PieceType::PAWN);
+  int doubled_pawns = 0;
+  for (int i = 0; i < 8; i++) {
+    uint64_t pawns_file = pawn_bb & masks.files.at(i);
+    if (bits::nr_bits_set(pawns_file) > 1) {
+      doubled_pawns++;
+    }
+  }
+  return doubled_pawns;
 }

@@ -19,6 +19,7 @@ public:
   virtual std::optional<Piece> get_captured_piece() const = 0;
   virtual int get_material(Color color) const = 0;
   virtual int get_psqt(Color color) const = 0;
+  virtual int get_doubled_pawns(Color color) const = 0;
 
   virtual std::optional<PieceType> get_piece_type(int pos) const = 0;
 

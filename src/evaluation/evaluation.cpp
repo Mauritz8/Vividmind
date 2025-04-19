@@ -3,9 +3,12 @@
 #include "piece.hpp"
 
 int evaluate(const std::unique_ptr<Board> &board) {
-  const int evaluation = board->get_material(WHITE) -
-                         board->get_material(BLACK) + board->get_psqt(WHITE) -
-                         board->get_psqt(BLACK);
+  const int material = board->get_material(WHITE) - board->get_material(BLACK);
+  const int psqt = board->get_psqt(WHITE) - board->get_psqt(BLACK);
+  const int doubled_pawns =
+      board->get_doubled_pawns(WHITE) - board->get_doubled_pawns(BLACK);
+
+  const int evaluation = material + psqt - doubled_pawns * 30;
   return board->get_player_to_move() == BLACK ? -evaluation : evaluation;
 }
 

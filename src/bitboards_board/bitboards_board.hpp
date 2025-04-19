@@ -43,6 +43,7 @@ public:
   std::optional<Piece> get_captured_piece() const override;
   int get_material(Color color) const override;
   int get_psqt(Color color) const override;
+  int get_doubled_pawns(Color color) const override;
 
   std::optional<PieceType> get_piece_type(int pos) const override;
 
