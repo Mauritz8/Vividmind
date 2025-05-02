@@ -1,6 +1,6 @@
+#include "bitboards_board/bitboards_board.hpp"
 #include <atomic>
 #include <iostream>
-#include <memory>
 #include <thread>
 
 #ifdef _WIN32
@@ -10,7 +10,6 @@
 #include <unistd.h>
 #endif
 
-#include "board.hpp"
 #include "engine/command.hpp"
 #include "engine/engine.hpp"
 #include "uci.hpp"
@@ -45,7 +44,7 @@ void read_input(int wd, std::atomic<bool> &stop) {
 
 #ifdef _WIN32
 void run_engine(HANDLE rd, std::atomic<bool> &stop) {
-  std::unique_ptr<Board> board = Board::get_starting_position();
+  BitboardsBoard board = BitboardsBoard::get_starting_position();
   Command command;
   while (true) {
     ReadFile(rd, &command, sizeof(command), NULL, NULL);
@@ -54,7 +53,7 @@ void run_engine(HANDLE rd, std::atomic<bool> &stop) {
 }
 #else
 void run_engine(int rd, std::atomic<bool> &stop) {
-  std::unique_ptr<Board> board = Board::get_starting_position();
+  BitboardsBoard board = BitboardsBoard::get_starting_position();
   Command command;
   while (true) {
     read(rd, &command, sizeof(command));

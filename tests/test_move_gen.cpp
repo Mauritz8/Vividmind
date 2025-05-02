@@ -1,13 +1,12 @@
-#include "board.hpp"
+#include "bitboards_board/bitboards_board.hpp"
 #include "fen.hpp"
 #include "fmt/core.h"
 #include "perft.hpp"
 #include <gtest/gtest.h>
-#include <memory>
 
 static void test_fen(std::string_view fen,
                      const std::vector<int> &expected_moves_list) {
-  std::unique_ptr<Board> b = fen::get_position(fen);
+  BitboardsBoard b = fen::get_position(fen);
   for (int i = 0; i < expected_moves_list.size(); i++) {
     int depth = i + 1;
     int expected_moves = expected_moves_list.at(i);

@@ -1,5 +1,4 @@
 #include <array>
-#include <memory>
 #include <stdexcept>
 #include <string>
 #include <string_view>
@@ -116,7 +115,7 @@ std::vector<Piece> get_pieces(std::string_view pieces_str) {
   return pieces;
 }
 
-std::unique_ptr<Board> get_position(std::string_view fen) {
+BitboardsBoard get_position(std::string_view fen) {
   std::vector<std::string> fen_parts = str_split(fen, ' ');
   if (fen_parts.size() != 6) {
     throw std::invalid_argument("Invalid FEN: Does not contain six parts\n");
@@ -131,8 +130,7 @@ std::unique_ptr<Board> get_position(std::string_view fen) {
   const int halfmove_clock = calc_halfmove_clock(fen_parts.at(4));
   const int fullmove_number = calc_fullmove_number(fen_parts.at(5));
 
-  return std::make_unique<BitboardsBoard>(
-      BitboardsBoard(pieces, player_to_move, castling_rights, en_passant_square,
-                     halfmove_clock, fullmove_number));
+  return BitboardsBoard(pieces, player_to_move, castling_rights,
+                        en_passant_square, halfmove_clock, fullmove_number);
 }
 } // namespace fen

@@ -2,6 +2,7 @@
 #include "bits.hpp"
 #include "defs.hpp"
 #include "evaluation/evaluation.hpp"
+#include "fen.hpp"
 #include "fmt/core.h"
 #include "move.hpp"
 #include "utils.hpp"
@@ -67,6 +68,18 @@ BitboardsBoard::BitboardsBoard(std::vector<Piece> pieces, Color player_to_move,
   this->move_history = moves;
 }
 
+BitboardsBoard BitboardsBoard::get_starting_position() {
+  return fen::get_position(STARTING_POSITION_FEN);
+}
+
+BitboardsBoard BitboardsBoard::operator=(BitboardsBoard other) {
+  piece_bbs = other.piece_bbs;
+  side_bbs = other.side_bbs;
+  history = other.history;
+  move_history = other.move_history;
+  return *this;
+}
+
 bool BitboardsBoard::operator==(const BitboardsBoard &other) const {
   for (int color = 0; color < 2; color++) {
     for (int piece = 0; piece < 6; piece++) {
@@ -77,6 +90,11 @@ bool BitboardsBoard::operator==(const BitboardsBoard &other) const {
     }
   }
   return true;
+}
+
+bool BitboardsBoard::is_draw() const {
+  return is_insufficient_material() || is_threefold_repetition() ||
+         is_draw_by_fifty_move_rule();
 }
 
 std::optional<PieceType> BitboardsBoard::get_piece_type(int pos) const {

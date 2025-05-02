@@ -5,7 +5,6 @@
 #include <stack>
 #include <vector>
 
-#include "board.hpp"
 #include "defs.hpp"
 #include "masks.hpp"
 #include "move.hpp"
@@ -27,39 +26,42 @@ struct PosData {
 
 const int NR_PIECES = 6;
 
-class BitboardsBoard : public Board {
+class BitboardsBoard {
 public:
   BitboardsBoard(std::vector<Piece> pieces, Color player_to_move,
                  std::array<Castling, 2> castling_rights,
                  std::optional<int> en_passant_square, int halfmove_clock,
                  int fullmove_number);
 
+  static BitboardsBoard get_starting_position();
+
+  BitboardsBoard operator=(BitboardsBoard other);
   bool operator==(const BitboardsBoard &other) const;
 
-  Color get_player_to_move() const override;
-  int get_halfmove_clock() const override;
-  int get_fullmove_number() const override;
-  std::optional<int> get_en_passant_square() const override;
-  std::optional<Piece> get_captured_piece() const override;
-  int get_material(Color color) const override;
-  int get_psqt(Color color) const override;
-  int get_doubled_pawns(Color color) const override;
+  Color get_player_to_move() const;
+  int get_halfmove_clock() const;
+  int get_fullmove_number() const;
+  std::optional<int> get_en_passant_square() const;
+  std::optional<Piece> get_captured_piece() const;
+  int get_material(Color color) const;
+  int get_psqt(Color color) const;
+  int get_doubled_pawns(Color color) const;
 
-  std::optional<PieceType> get_piece_type(int pos) const override;
+  std::optional<PieceType> get_piece_type(int pos) const;
 
-  std::string to_string() const override;
+  std::string to_string() const;
 
-  void make(const Move &move) override;
-  void undo() override;
+  void make(const Move &move);
+  void undo();
 
-  bool is_in_check(Color color) const override;
+  bool is_in_check(Color color) const;
 
-  bool is_insufficient_material() const override;
-  bool is_draw_by_fifty_move_rule() const override;
-  bool is_threefold_repetition() const override;
+  std::vector<Move> get_pseudo_legal_moves(MoveCategory move_category) const;
 
-  std::vector<Move>
-  get_pseudo_legal_moves(MoveCategory move_category) const override;
+  bool is_draw() const;
+  bool is_insufficient_material() const;
+  bool is_draw_by_fifty_move_rule() const;
+  bool is_threefold_repetition() const;
 
 private:
   std::array<std::array<uint64_t, 6>, 2> piece_bbs;

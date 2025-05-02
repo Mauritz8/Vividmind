@@ -32,7 +32,6 @@ set(COMMON_SOURCES
     src/engine/search.cpp
     src/engine/engine.cpp
     src/engine/command.cpp
-    src/board.cpp
     src/piece.cpp
     src/fen.cpp
     src/move.cpp
@@ -60,7 +59,7 @@ target_include_directories(tests PRIVATE
     tests/
     src/
 )
-target_compile_options(tests PUBLIC -g)
+target_compile_options(tests PUBLIC)
 target_link_libraries(tests GTest::gtest_main fmt::fmt)
 
 add_custom_target(run-tests

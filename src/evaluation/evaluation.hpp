@@ -1,6 +1,6 @@
 #pragma once
 
-#include "board.hpp"
+#include "bitboards_board/bitboards_board.hpp"
 #include <array>
 
 const int KING_VALUE = 100000;
@@ -104,7 +104,7 @@ const std::array<int, 64> KING_MATE = {
     -50, -50, -50, -50, -50, -50, -50, -50,
 };
 
-int evaluate(const std::unique_ptr<Board> &board);
+int evaluate(const BitboardsBoard &board);
 int get_piece_value(PieceType piece_type);
 int get_psqt_score(PieceType piece_type, int pos, Color color,
                    bool is_lone_king, bool is_endgame);

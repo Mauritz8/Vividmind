@@ -1,9 +1,8 @@
 #pragma once
 
-#include "board.hpp"
-#include <memory>
+#include "bitboards_board/bitboards_board.hpp"
 #include <string_view>
 
 namespace fen {
-std::unique_ptr<Board> get_position(std::string_view fen);
+BitboardsBoard get_position(std::string_view fen);
 } // namespace fen

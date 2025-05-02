@@ -3,7 +3,7 @@
 #include <atomic>
 #include <vector>
 
-#include "board.hpp"
+#include "bitboards_board/bitboards_board.hpp"
 #include "engine/search_defs.hpp"
 #include "move.hpp"
 
@@ -12,13 +12,12 @@ public:
   const SearchParams params;
   SearchInfo info;
 
-  Search(std::unique_ptr<Board> &board, SearchParams &params,
-         std::atomic<bool> &stop);
+  Search(BitboardsBoard &board, SearchParams &params, std::atomic<bool> &stop);
 
   void iterative_deepening_search();
 
 private:
-  std::unique_ptr<Board> &board;
+  BitboardsBoard &board;
   std::atomic<bool> &stop;
 
   int alpha_beta(int depth, int alpha, int beta,
