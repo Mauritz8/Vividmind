@@ -1,6 +1,6 @@
 #pragma once
 
-#include "bitboards_board/bitboards_board.hpp"
+#include "board/board.hpp"
 
-int perft(BitboardsBoard &board, int depth);
-void divide(BitboardsBoard &board, int depth);
+int perft(Board &board, int depth);
+void divide(Board &board, int depth);

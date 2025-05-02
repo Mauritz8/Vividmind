@@ -1,7 +1,7 @@
 #!/bin/bash
 
 find ./src ./tests -name '*.cpp' \
-      -not -path './src/bitboards_board/bits.cpp' \
+      -not -path './src/board/bits.cpp' \
       -o -name '*.hpp' \
       -not -path './src/defs.hpp' \
       -not -path './src/mailbox_board/mailbox_board_defs.hpp' \

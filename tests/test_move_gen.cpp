@@ -1,4 +1,4 @@
-#include "bitboards_board/bitboards_board.hpp"
+#include "board/board.hpp"
 #include "fen.hpp"
 #include "fmt/core.h"
 #include "perft.hpp"
@@ -6,7 +6,7 @@
 
 static void test_fen(std::string_view fen,
                      const std::vector<int> &expected_moves_list) {
-  BitboardsBoard b = fen::get_position(fen);
+  Board b = fen::get_position(fen);
   for (int i = 0; i < expected_moves_list.size(); i++) {
     int depth = i + 1;
     int expected_moves = expected_moves_list.at(i);

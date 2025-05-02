@@ -22,10 +22,10 @@ FetchContent_MakeAvailable(googletest)
 
 
 set(COMMON_SOURCES
-    src/bitboards_board/bitboards_board.cpp
-    src/bitboards_board/bits.cpp
-    src/bitboards_board/move_gen.cpp
-    src/bitboards_board/masks.cpp
+    src/board/board.cpp
+    src/board/bits.cpp
+    src/board/move_gen.cpp
+    src/board/masks.cpp
     src/evaluation/evaluation.cpp
     src/engine/search_defs.cpp
     src/engine/time_management.cpp

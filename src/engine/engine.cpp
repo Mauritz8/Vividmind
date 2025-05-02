@@ -1,5 +1,5 @@
 #include "engine.hpp"
-#include "bitboards_board/bitboards_board.hpp"
+#include "board/board.hpp"
 #include "engine/command.hpp"
 #include "engine/search.hpp"
 #include "engine/search_defs.hpp"
@@ -13,7 +13,7 @@
 #include <unistd.h>
 
 namespace engine {
-bool make_move(const char *move_uci, BitboardsBoard &board) {
+bool make_move(const char *move_uci, Board &board) {
   const Color player = board.get_player_to_move();
   const std::vector<Move> pseudo_legal_moves =
       board.get_pseudo_legal_moves(ALL);
@@ -33,7 +33,7 @@ bool make_move(const char *move_uci, BitboardsBoard &board) {
 }
 
 void execute_command(const Command &command, std::atomic<bool> &stop,
-                     BitboardsBoard &board) {
+                     Board &board) {
   switch (command.type) {
   case UCI: {
     fmt::println("id name {} {}\nid author {}\nuciok\n", NAME, VERSION, AUTHOR);

@@ -4,7 +4,7 @@
 #include <string_view>
 #include <vector>
 
-#include "bitboards_board/bitboards_board.hpp"
+#include "board/board.hpp"
 #include "fen.hpp"
 #include "fmt/core.h"
 #include "utils.hpp"
@@ -115,7 +115,7 @@ std::vector<Piece> get_pieces(std::string_view pieces_str) {
   return pieces;
 }
 
-BitboardsBoard get_position(std::string_view fen) {
+Board get_position(std::string_view fen) {
   std::vector<std::string> fen_parts = str_split(fen, ' ');
   if (fen_parts.size() != 6) {
     throw std::invalid_argument("Invalid FEN: Does not contain six parts\n");
@@ -130,7 +130,7 @@ BitboardsBoard get_position(std::string_view fen) {
   const int halfmove_clock = calc_halfmove_clock(fen_parts.at(4));
   const int fullmove_number = calc_fullmove_number(fen_parts.at(5));
 
-  return BitboardsBoard(pieces, player_to_move, castling_rights,
-                        en_passant_square, halfmove_clock, fullmove_number);
+  return Board(pieces, player_to_move, castling_rights, en_passant_square,
+               halfmove_clock, fullmove_number);
 }
 } // namespace fen

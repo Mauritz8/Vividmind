@@ -26,17 +26,17 @@ struct PosData {
 
 const int NR_PIECES = 6;
 
-class BitboardsBoard {
+class Board {
 public:
-  BitboardsBoard(std::vector<Piece> pieces, Color player_to_move,
-                 std::array<Castling, 2> castling_rights,
-                 std::optional<int> en_passant_square, int halfmove_clock,
-                 int fullmove_number);
+  Board(std::vector<Piece> pieces, Color player_to_move,
+        std::array<Castling, 2> castling_rights,
+        std::optional<int> en_passant_square, int halfmove_clock,
+        int fullmove_number);
 
-  static BitboardsBoard get_starting_position();
+  static Board get_starting_position();
 
-  BitboardsBoard operator=(BitboardsBoard other);
-  bool operator==(const BitboardsBoard &other) const;
+  Board operator=(Board other);
+  bool operator==(const Board &other) const;
 
   Color get_player_to_move() const;
   int get_halfmove_clock() const;

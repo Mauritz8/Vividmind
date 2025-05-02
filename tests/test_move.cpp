@@ -1,4 +1,4 @@
-#include "bitboards_board/bitboards_board.hpp"
+#include "board/board.hpp"
 #include "defs.hpp"
 #include "evaluation/evaluation.hpp"
 #include "fen.hpp"
@@ -6,7 +6,7 @@
 #include <gtest/gtest.h>
 
 TEST(MoveTests, KnightMoveTest) {
-  BitboardsBoard board = BitboardsBoard::get_starting_position();
+  Board board = Board::get_starting_position();
 
   int white_material = board.get_material(WHITE);
   int white_psqt = board.get_psqt(WHITE);
@@ -63,7 +63,7 @@ TEST(MoveTests, KnightMoveTest) {
 }
 
 TEST(MoveTests, BishopMoveTest) {
-  BitboardsBoard board = fen::get_position(
+  Board board = fen::get_position(
       "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1");
 
   int white_material = board.get_material(WHITE);
@@ -121,7 +121,7 @@ TEST(MoveTests, BishopMoveTest) {
 }
 
 TEST(MoveTests, RookMoveTest) {
-  BitboardsBoard board = fen::get_position(
+  Board board = fen::get_position(
       "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1");
 
   int white_material = board.get_material(WHITE);
@@ -179,7 +179,7 @@ TEST(MoveTests, RookMoveTest) {
 }
 
 TEST(MoveTests, QueenMoveTest) {
-  BitboardsBoard board = fen::get_position(
+  Board board = fen::get_position(
       "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1");
 
   int white_material = board.get_material(WHITE);
@@ -237,7 +237,7 @@ TEST(MoveTests, QueenMoveTest) {
 }
 
 TEST(MoveTests, CaptureMoveTest) {
-  BitboardsBoard board = fen::get_position(
+  Board board = fen::get_position(
       "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1");
 
   int white_material = board.get_material(WHITE);
@@ -299,7 +299,7 @@ TEST(MoveTests, CaptureMoveTest) {
 }
 
 TEST(MoveTests, KingMoveTest) {
-  BitboardsBoard board = fen::get_position(
+  Board board = fen::get_position(
       "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1");
 
   int white_material = board.get_material(WHITE);
@@ -357,7 +357,7 @@ TEST(MoveTests, KingMoveTest) {
 }
 
 TEST(MoveTests, CastlingKingsideTest) {
-  BitboardsBoard board = fen::get_position(
+  Board board = fen::get_position(
       "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1");
 
   int white_material = board.get_material(WHITE);
@@ -428,7 +428,7 @@ TEST(MoveTests, CastlingKingsideTest) {
 }
 
 TEST(MoveTests, CastlingQueensideTest) {
-  BitboardsBoard board = fen::get_position(
+  Board board = fen::get_position(
       "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1");
 
   int white_material = board.get_material(WHITE);
@@ -499,7 +499,7 @@ TEST(MoveTests, CastlingQueensideTest) {
 }
 
 TEST(MoveTests, PawnMoveOneSquareTest) {
-  BitboardsBoard board = BitboardsBoard::get_starting_position();
+  Board board = Board::get_starting_position();
 
   int white_material = board.get_material(WHITE);
   int white_psqt = board.get_psqt(WHITE);
@@ -556,7 +556,7 @@ TEST(MoveTests, PawnMoveOneSquareTest) {
 }
 
 TEST(MoveTests, PawnMoveTwoSquaresTest) {
-  BitboardsBoard board = BitboardsBoard::get_starting_position();
+  Board board = Board::get_starting_position();
 
   int white_material = board.get_material(WHITE);
   int white_psqt = board.get_psqt(WHITE);
@@ -614,7 +614,7 @@ TEST(MoveTests, PawnMoveTwoSquaresTest) {
 }
 
 TEST(MoveTests, PawnCaptureMoveTest) {
-  BitboardsBoard board = fen::get_position("2k5/8/4p3/3P4/8/2K5/8/8 b - - 0 1");
+  Board board = fen::get_position("2k5/8/4p3/3P4/8/2K5/8/8 b - - 0 1");
 
   int white_material = board.get_material(WHITE);
   int white_psqt = board.get_psqt(WHITE);
@@ -675,7 +675,7 @@ TEST(MoveTests, PawnCaptureMoveTest) {
 }
 
 TEST(MoveTests, EnPassantTest) {
-  BitboardsBoard board = fen::get_position("2k5/4p3/8/3P4/8/2K5/8/8 b - - 0 1");
+  Board board = fen::get_position("2k5/4p3/8/3P4/8/2K5/8/8 b - - 0 1");
 
   int white_material = board.get_material(WHITE);
   int white_psqt = board.get_psqt(WHITE);
@@ -781,7 +781,7 @@ TEST(MoveTests, EnPassantTest) {
 }
 
 TEST(MoveTests, PromotionMoveTest) {
-  BitboardsBoard board = fen::get_position("8/8/8/4k3/8/8/6p1/3K1N2 b - - 0 1");
+  Board board = fen::get_position("8/8/8/4k3/8/8/6p1/3K1N2 b - - 0 1");
 
   int white_material = board.get_material(WHITE);
   int white_psqt = board.get_psqt(WHITE);
@@ -840,7 +840,7 @@ TEST(MoveTests, PromotionMoveTest) {
 }
 
 TEST(MoveTests, PromotionCaptureMoveTest) {
-  BitboardsBoard board = fen::get_position("8/8/8/4k3/8/8/6p1/3K1N2 b - - 0 1");
+  Board board = fen::get_position("8/8/8/4k3/8/8/6p1/3K1N2 b - - 0 1");
 
   int white_material = board.get_material(WHITE);
   int white_psqt = board.get_psqt(WHITE);

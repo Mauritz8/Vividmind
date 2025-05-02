@@ -1,4 +1,4 @@
-#include "bitboards_board/bitboards_board.hpp"
+#include "board/board.hpp"
 #include "fen.hpp"
 #include "fmt/core.h"
 #include <gtest/gtest.h>
@@ -11,7 +11,7 @@ TEST(DrawTests, TestInsufficientMaterial) {
   };
 
   for (std::string fen : fens) {
-    BitboardsBoard b = fen::get_position(fen);
+    Board b = fen::get_position(fen);
     EXPECT_TRUE(b.is_insufficient_material())
         << fmt::format("{} should be draw by insufficent material", fen);
   }
@@ -25,14 +25,14 @@ TEST(DrawTests, TestNotInsufficientMaterial) {
   };
 
   for (std::string fen : fens) {
-    BitboardsBoard b = fen::get_position(fen);
+    Board b = fen::get_position(fen);
     EXPECT_FALSE(b.is_insufficient_material())
         << fmt::format("{} should not be draw by insufficent material", fen);
   }
 }
 
 TEST(DrawTests, TestFiftyMoveRule) {
-  BitboardsBoard b = fen::get_position("1r6/8/3k4/8/8/3K4/8/5R2 w - - 0 1");
+  Board b = fen::get_position("1r6/8/3k4/8/8/3K4/8/5R2 w - - 0 1");
 
   std::vector<Move> white_rook_moves = {
       Move(f1, f2), Move(f2, f3), Move(f3, f4), Move(f4, f5),
@@ -78,7 +78,7 @@ TEST(DrawTests, TestFiftyMoveRule) {
 }
 
 TEST(DrawTests, TestThreefoldRepetitionConsecutiveMoves) {
-  BitboardsBoard b = fen::get_position("5k2/8/6r1/8/3Q4/8/4K3/8 w - - 0 1");
+  Board b = fen::get_position("5k2/8/6r1/8/3Q4/8/4K3/8 w - - 0 1");
 
   std::vector<Move> moves = {
       Move(d4, d8),
@@ -97,7 +97,7 @@ TEST(DrawTests, TestThreefoldRepetitionConsecutiveMoves) {
 }
 
 TEST(DrawTests, TestThreefoldRepetitionNonConsecutiveMoves) {
-  BitboardsBoard b = fen::get_position("5k2/8/6r1/8/3Q4/8/4K3/8 w - - 0 1");
+  Board b = fen::get_position("5k2/8/6r1/8/3Q4/8/4K3/8 w - - 0 1");
 
   std::vector<Move> moves = {
       Move(d4, d8),

@@ -1,12 +1,11 @@
-#include "bitboards_board.hpp"
-#include "bitboards_board/bits.hpp"
+#include "board.hpp"
+#include "board/bits.hpp"
 #include "defs.hpp"
 #include "move.hpp"
 #include "utils.hpp"
 #include <cassert>
 
-uint64_t
-BitboardsBoard::get_castling_check_not_allowed_bb(int start,
+uint64_t Board::get_castling_check_not_allowed_bb(int start,
                                                   bool kingside) const {
   uint64_t bb = masks.squares.at(start);
   return bb |= kingside
@@ -14,15 +13,14 @@ BitboardsBoard::get_castling_check_not_allowed_bb(int start,
                    : masks.squares.at(start - 1) | masks.squares.at(start - 2);
 }
 
-uint64_t
-BitboardsBoard::get_castling_pieces_not_allowed_bb(int start,
+uint64_t Board::get_castling_pieces_not_allowed_bb(int start,
                                                    bool kingside) const {
   return kingside ? masks.squares.at(start + 1) | masks.squares.at(start + 2)
                   : masks.squares.at(start - 1) | masks.squares.at(start - 2) |
                         masks.squares.at(start - 3);
 }
 
-uint64_t BitboardsBoard::gen_castling_moves_bb(int start) const {
+uint64_t Board::gen_castling_moves_bb(int start) const {
   uint64_t castling = 0;
 
   int king_initial = get_player_to_move() == WHITE ? 60 : 4;
@@ -65,8 +63,8 @@ uint64_t BitboardsBoard::gen_castling_moves_bb(int start) const {
   return castling;
 }
 
-void BitboardsBoard::gen_king_moves(int start, MoveCategory move_category,
-                                    std::vector<Move> &moves) const {
+void Board::gen_king_moves(int start, MoveCategory move_category,
+                           std::vector<Move> &moves) const {
   uint64_t normal = masks.king_moves.at(start);
   normal &= move_category == TACTICAL
                 ? side_bbs.at(get_opposite_color(get_player_to_move()))
@@ -90,8 +88,8 @@ void BitboardsBoard::gen_king_moves(int start, MoveCategory move_category,
   }
 }
 
-void BitboardsBoard::gen_pawn_moves(int start, MoveCategory move_category,
-                                    std::vector<Move> &moves) const {
+void Board::gen_pawn_moves(int start, MoveCategory move_category,
+                           std::vector<Move> &moves) const {
   uint64_t pawn = masks.squares.at(start);
   uint64_t all_pieces = side_bbs.at(WHITE) | side_bbs.at(BLACK);
   uint64_t all_pieces_one_rank_forward =
@@ -171,8 +169,8 @@ void BitboardsBoard::gen_pawn_moves(int start, MoveCategory move_category,
   }
 }
 
-uint64_t BitboardsBoard::gen_sliding_attacks(int start, uint64_t occupied,
-                                             uint64_t mask) const {
+uint64_t Board::gen_sliding_attacks(int start, uint64_t occupied,
+                                    uint64_t mask) const {
   uint64_t forward = 0;
   uint64_t reverse = 0;
   forward = occupied & mask;
@@ -184,49 +182,47 @@ uint64_t BitboardsBoard::gen_sliding_attacks(int start, uint64_t occupied,
   return forward;
 }
 
-uint64_t BitboardsBoard::gen_file_attacks(int start, uint64_t occupied) const {
+uint64_t Board::gen_file_attacks(int start, uint64_t occupied) const {
   int file = start % 8;
   return gen_sliding_attacks(start, occupied, masks.files.at(file));
 }
 
-uint64_t BitboardsBoard::gen_rank_attacks(int start, uint64_t occupied) const {
+uint64_t Board::gen_rank_attacks(int start, uint64_t occupied) const {
   int rank = start / 8;
   return gen_sliding_attacks(start, occupied, masks.ranks.at(rank));
 }
 
-uint64_t BitboardsBoard::gen_diag_attacks(int start, uint64_t occupied) const {
+uint64_t Board::gen_diag_attacks(int start, uint64_t occupied) const {
   int file = start % 8;
   int rank = start / 8;
   int diag = file + rank;
   return gen_sliding_attacks(start, occupied, masks.diags.at(diag));
 }
 
-uint64_t BitboardsBoard::gen_antidiag_attacks(int start,
-                                              uint64_t occupied) const {
+uint64_t Board::gen_antidiag_attacks(int start, uint64_t occupied) const {
   int file = start % 8;
   int rank = start / 8;
   int diag = file - rank + 7;
   return gen_sliding_attacks(start, occupied, masks.antidiags.at(diag));
 }
 
-uint64_t BitboardsBoard::gen_rook_attacks(int start, uint64_t occupied) const {
+uint64_t Board::gen_rook_attacks(int start, uint64_t occupied) const {
   return gen_file_attacks(start, occupied) | gen_rank_attacks(start, occupied);
 }
 
-uint64_t BitboardsBoard::gen_bishop_attacks(int start,
-                                            uint64_t occupied) const {
+uint64_t Board::gen_bishop_attacks(int start, uint64_t occupied) const {
   return gen_diag_attacks(start, occupied) |
          gen_antidiag_attacks(start, occupied);
 }
 
-uint64_t BitboardsBoard::gen_queen_attacks(int start, uint64_t occupied) const {
+uint64_t Board::gen_queen_attacks(int start, uint64_t occupied) const {
   return gen_rook_attacks(start, occupied) |
          gen_bishop_attacks(start, occupied);
 }
 
-void BitboardsBoard::gen_moves_piece(PieceType piece, int start,
-                                     MoveCategory move_category,
-                                     std::vector<Move> &moves) const {
+void Board::gen_moves_piece(PieceType piece, int start,
+                            MoveCategory move_category,
+                            std::vector<Move> &moves) const {
   if (piece == KING) {
     gen_king_moves(start, move_category, moves);
     return;
@@ -254,9 +250,8 @@ void BitboardsBoard::gen_moves_piece(PieceType piece, int start,
   }
 }
 
-void BitboardsBoard::gen_all_moves_piece(PieceType piece,
-                                         MoveCategory move_category,
-                                         std::vector<Move> &moves) const {
+void Board::gen_all_moves_piece(PieceType piece, MoveCategory move_category,
+                                std::vector<Move> &moves) const {
   uint64_t piece_bb = piece_bbs.at(get_player_to_move()).at(piece);
   std::optional<int> start_pos = bits::popLSB(piece_bb);
   while (start_pos.has_value()) {
@@ -266,7 +261,7 @@ void BitboardsBoard::gen_all_moves_piece(PieceType piece,
 }
 
 std::vector<Move>
-BitboardsBoard::get_pseudo_legal_moves(MoveCategory move_category) const {
+Board::get_pseudo_legal_moves(MoveCategory move_category) const {
   std::vector<Move> moves;
   for (int piece = 0; piece < 6; piece++) {
     gen_all_moves_piece((PieceType)piece, move_category, moves);
@@ -274,7 +269,7 @@ BitboardsBoard::get_pseudo_legal_moves(MoveCategory move_category) const {
   return moves;
 }
 
-uint64_t BitboardsBoard::get_attacking_bb(Color color) const {
+uint64_t Board::get_attacking_bb(Color color) const {
   uint64_t attacking = 0;
 
   std::array<PieceType, 3> non_sliding_pieces = {KING, PAWN, KNIGHT};
@@ -309,7 +304,7 @@ uint64_t BitboardsBoard::get_attacking_bb(Color color) const {
   return attacking;
 }
 
-bool BitboardsBoard::is_attacking(int pos, Color color) const {
+bool Board::is_attacking(int pos, Color color) const {
   std::array<uint64_t, 6> pieces_bb = piece_bbs.at(color);
 
   if ((masks.knight_moves.at(pos) & pieces_bb.at(KNIGHT)) != 0) {
@@ -339,7 +334,7 @@ bool BitboardsBoard::is_attacking(int pos, Color color) const {
   return false;
 }
 
-bool BitboardsBoard::is_in_check(Color color) const {
+bool Board::is_in_check(Color color) const {
   uint64_t king_bb = piece_bbs.at(color).at(KING);
   assert(king_bb != 0);
   int king_pos = bits::popLSB(king_bb).value();

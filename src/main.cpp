@@ -1,4 +1,4 @@
-#include "bitboards_board/bitboards_board.hpp"
+#include "board/board.hpp"
 #include <atomic>
 #include <iostream>
 #include <thread>
@@ -44,7 +44,7 @@ void read_input(int wd, std::atomic<bool> &stop) {
 
 #ifdef _WIN32
 void run_engine(HANDLE rd, std::atomic<bool> &stop) {
-  BitboardsBoard board = BitboardsBoard::get_starting_position();
+  Board board = Board::get_starting_position();
   Command command;
   while (true) {
     ReadFile(rd, &command, sizeof(command), NULL, NULL);
@@ -53,7 +53,7 @@ void run_engine(HANDLE rd, std::atomic<bool> &stop) {
 }
 #else
 void run_engine(int rd, std::atomic<bool> &stop) {
-  BitboardsBoard board = BitboardsBoard::get_starting_position();
+  Board board = Board::get_starting_position();
   Command command;
   while (true) {
     read(rd, &command, sizeof(command));

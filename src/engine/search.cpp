@@ -9,15 +9,14 @@
 #include <stack>
 #include <vector>
 
-#include "bitboards_board/bitboards_board.hpp"
+#include "board/board.hpp"
 #include "defs.hpp"
 #include "engine/search_defs.hpp"
 #include "evaluation/evaluation.hpp"
 #include "move.hpp"
 #include "uci.hpp"
 
-Search::Search(BitboardsBoard &board, SearchParams &params,
-               std::atomic<bool> &stop)
+Search::Search(Board &board, SearchParams &params, std::atomic<bool> &stop)
     : board(board), params(params), stop(stop) {}
 
 void Search::iterative_deepening_search() {

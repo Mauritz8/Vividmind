@@ -1,8 +1,8 @@
 #include "perft.hpp"
-#include "bitboards_board/bitboards_board.hpp"
+#include "board/board.hpp"
 #include "fmt/core.h"
 
-int perft(BitboardsBoard &board, int depth) {
+int perft(Board &board, int depth) {
   if (depth == 0) {
     return 1;
   }
@@ -22,7 +22,7 @@ int perft(BitboardsBoard &board, int depth) {
   return nodes;
 }
 
-void divide(BitboardsBoard &board, int depth) {
+void divide(Board &board, int depth) {
   int nodes_searched = 0;
   const Color player = board.get_player_to_move();
   std::vector<Move> pseudo_legal_moves = board.get_pseudo_legal_moves(ALL);

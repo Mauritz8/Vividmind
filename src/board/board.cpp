@@ -1,4 +1,4 @@
-#include "bitboards_board.hpp"
+#include "board.hpp"
 #include "bits.hpp"
 #include "defs.hpp"
 #include "evaluation/evaluation.hpp"
@@ -10,10 +10,10 @@
 #include <optional>
 #include <stdint.h>
 
-BitboardsBoard::BitboardsBoard(std::vector<Piece> pieces, Color player_to_move,
-                               std::array<Castling, 2> castling_rights,
-                               std::optional<int> en_passant_square,
-                               int halfmove_clock, int fullmove_number)
+Board::Board(std::vector<Piece> pieces, Color player_to_move,
+             std::array<Castling, 2> castling_rights,
+             std::optional<int> en_passant_square, int halfmove_clock,
+             int fullmove_number)
     : masks(create_masks()) {
 
   for (int color = 0; color < 2; color++) {
@@ -68,11 +68,11 @@ BitboardsBoard::BitboardsBoard(std::vector<Piece> pieces, Color player_to_move,
   this->move_history = moves;
 }
 
-BitboardsBoard BitboardsBoard::get_starting_position() {
+Board Board::get_starting_position() {
   return fen::get_position(STARTING_POSITION_FEN);
 }
 
-BitboardsBoard BitboardsBoard::operator=(BitboardsBoard other) {
+Board Board::operator=(Board other) {
   piece_bbs = other.piece_bbs;
   side_bbs = other.side_bbs;
   history = other.history;
@@ -80,7 +80,7 @@ BitboardsBoard BitboardsBoard::operator=(BitboardsBoard other) {
   return *this;
 }
 
-bool BitboardsBoard::operator==(const BitboardsBoard &other) const {
+bool Board::operator==(const Board &other) const {
   for (int color = 0; color < 2; color++) {
     for (int piece = 0; piece < 6; piece++) {
       if (this->piece_bbs.at(color).at(piece) !=
@@ -92,12 +92,12 @@ bool BitboardsBoard::operator==(const BitboardsBoard &other) const {
   return true;
 }
 
-bool BitboardsBoard::is_draw() const {
+bool Board::is_draw() const {
   return is_insufficient_material() || is_threefold_repetition() ||
          is_draw_by_fifty_move_rule();
 }
 
-std::optional<PieceType> BitboardsBoard::get_piece_type(int pos) const {
+std::optional<PieceType> Board::get_piece_type(int pos) const {
   for (int color = 0; color < 2; color++) {
     for (int piece = 0; piece < 6; piece++) {
       uint64_t bitboard_bit = bits::get(piece_bbs.at(color).at(piece), pos);
@@ -109,41 +109,33 @@ std::optional<PieceType> BitboardsBoard::get_piece_type(int pos) const {
   return std::nullopt;
 }
 
-Color BitboardsBoard::get_player_to_move() const {
-  return history.top().player_to_move;
-}
+Color Board::get_player_to_move() const { return history.top().player_to_move; }
 
-int BitboardsBoard::get_halfmove_clock() const {
-  return history.top().halfmove_clock;
-}
-int BitboardsBoard::get_fullmove_number() const {
-  return history.top().fullmove_number;
-}
-std::optional<int> BitboardsBoard::get_en_passant_square() const {
+int Board::get_halfmove_clock() const { return history.top().halfmove_clock; }
+int Board::get_fullmove_number() const { return history.top().fullmove_number; }
+std::optional<int> Board::get_en_passant_square() const {
   return history.top().en_passant_square;
 }
-std::optional<Piece> BitboardsBoard::get_captured_piece() const {
+std::optional<Piece> Board::get_captured_piece() const {
   return history.top().captured_piece;
 }
 
-int BitboardsBoard::get_material(Color color) const {
+int Board::get_material(Color color) const {
   return history.top().material.at(color);
 }
 
-int BitboardsBoard::get_psqt(Color color) const {
-  return history.top().psqt.at(color);
-}
+int Board::get_psqt(Color color) const { return history.top().psqt.at(color); }
 
-bool BitboardsBoard::is_lone_king(Color color) const {
+bool Board::is_lone_king(Color color) const {
   return bits::nr_bits_set(side_bbs.at(color)) == 1;
 }
 
-bool BitboardsBoard::is_endgame() const {
+bool Board::is_endgame() const {
   return get_material(WHITE) - KING_VALUE < 1500 &&
          get_material(BLACK) - KING_VALUE < 1500;
 }
 
-std::string BitboardsBoard::to_string() const {
+std::string Board::to_string() const {
   std::string board = "";
   for (int row = 0; row < 8; row++) {
     for (int col = 0; col < 8; col++) {
@@ -159,8 +151,7 @@ std::string BitboardsBoard::to_string() const {
   return board;
 }
 
-std::array<Castling, 2>
-BitboardsBoard::updated_castling_rights(const Move &move) const {
+std::array<Castling, 2> Board::updated_castling_rights(const Move &move) const {
   int kingside_rook;
   int queenside_rook;
   int king;
@@ -212,7 +203,7 @@ BitboardsBoard::updated_castling_rights(const Move &move) const {
   return castling_rights;
 }
 
-int BitboardsBoard::get_castling_rook(const Move &move, Color color) const {
+int Board::get_castling_rook(const Move &move, Color color) const {
   int kingside = move.end > move.start;
   if (kingside) {
     return color == WHITE ? 63 : 7;
@@ -221,8 +212,7 @@ int BitboardsBoard::get_castling_rook(const Move &move, Color color) const {
   }
 }
 
-std::optional<PieceType> BitboardsBoard::piece_type(int pos,
-                                                    Color color) const {
+std::optional<PieceType> Board::piece_type(int pos, Color color) const {
   std::array<uint64_t, NR_PIECES> side_bb = piece_bbs.at(color);
   for (int piece = 0; piece < NR_PIECES; piece++) {
     uint64_t piece_bb = side_bb.at(piece);
@@ -233,8 +223,7 @@ std::optional<PieceType> BitboardsBoard::piece_type(int pos,
   return std::nullopt;
 }
 
-std::optional<Piece>
-BitboardsBoard::get_piece_to_be_captured(const Move &move) const {
+std::optional<Piece> Board::get_piece_to_be_captured(const Move &move) const {
   Color player = get_player_to_move();
   Color opponent = get_opposite_color(player);
   int pos = move.move_type == EN_PASSANT
@@ -248,8 +237,8 @@ BitboardsBoard::get_piece_to_be_captured(const Move &move) const {
 }
 
 std::array<int, 2>
-BitboardsBoard::updated_material(const Move &move,
-                                 std::optional<Piece> captured_piece) const {
+Board::updated_material(const Move &move,
+                        std::optional<Piece> captured_piece) const {
   const Color player_to_move = get_player_to_move();
   const Color opponent = get_opposite_color(player_to_move);
 
@@ -269,8 +258,8 @@ BitboardsBoard::updated_material(const Move &move,
 }
 
 std::array<int, 2>
-BitboardsBoard::updated_psqt(const Move &move,
-                             std::optional<Piece> captured_piece) const {
+Board::updated_psqt(const Move &move,
+                    std::optional<Piece> captured_piece) const {
   const Color player_to_move = get_player_to_move();
   const Color opponent = get_opposite_color(player_to_move);
 
@@ -309,7 +298,7 @@ BitboardsBoard::updated_psqt(const Move &move,
   return psqt;
 }
 
-void BitboardsBoard::make(const Move &move) {
+void Board::make(const Move &move) {
 
   const Color player_to_move = get_player_to_move();
   const std::optional<PieceType> piece_type_opt =
@@ -371,7 +360,7 @@ void BitboardsBoard::make(const Move &move) {
   }
 }
 
-void BitboardsBoard::undo() {
+void Board::undo() {
   assert(move_history.size() >= 1);
 
   const Move &move = move_history.top();
@@ -416,7 +405,7 @@ void BitboardsBoard::undo() {
   move_history.pop();
 }
 
-bool BitboardsBoard::is_insufficient_material() const {
+bool Board::is_insufficient_material() const {
   uint64_t all_pieces_bb = side_bbs.at(WHITE) | side_bbs.at(BLACK);
   if (bits::nr_bits_set(all_pieces_bb) > 3) {
     return false;
@@ -433,16 +422,16 @@ bool BitboardsBoard::is_insufficient_material() const {
   return true;
 }
 
-bool BitboardsBoard::is_draw_by_fifty_move_rule() const {
+bool Board::is_draw_by_fifty_move_rule() const {
   return history.top().halfmove_clock > 100;
 }
 
-bool BitboardsBoard::is_threefold_repetition() const {
+bool Board::is_threefold_repetition() const {
   if (history.top().halfmove_clock < 5) {
     return false;
   }
 
-  BitboardsBoard b = *this;
+  Board b = *this;
   while (!(b.move_history.empty() || history.top().halfmove_clock == 0)) {
     b.undo();
     if (*this == b) {
@@ -452,7 +441,7 @@ bool BitboardsBoard::is_threefold_repetition() const {
   return false;
 }
 
-int BitboardsBoard::get_doubled_pawns(Color color) const {
+int Board::get_doubled_pawns(Color color) const {
   uint64_t pawn_bb = piece_bbs.at(color).at(PieceType::PAWN);
   int doubled_pawns = 0;
   for (int i = 0; i < 8; i++) {

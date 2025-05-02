@@ -1,9 +1,9 @@
-#include "bitboards_board/bitboards_board.hpp"
+#include "board/board.hpp"
 #include "fen.hpp"
 #include <gtest/gtest.h>
 
 TEST(Board, get_doubled_pawns) {
-  BitboardsBoard b = BitboardsBoard::get_starting_position();
+  Board b = Board::get_starting_position();
   EXPECT_EQ(b.get_doubled_pawns(WHITE), 0);
   EXPECT_EQ(b.get_doubled_pawns(BLACK), 0);
 

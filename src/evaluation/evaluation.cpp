@@ -1,9 +1,9 @@
 #include "evaluation.hpp"
 
-#include "bitboards_board/bitboards_board.hpp"
+#include "board/board.hpp"
 #include "piece.hpp"
 
-int evaluate(const BitboardsBoard &board) {
+int evaluate(const Board &board) {
   const int material = board.get_material(WHITE) - board.get_material(BLACK);
   const int psqt = board.get_psqt(WHITE) - board.get_psqt(BLACK);
   const int doubled_pawns =
