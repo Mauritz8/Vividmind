@@ -24,6 +24,9 @@ void read_input(HANDLE wd, std::atomic<bool> &stop) {
     } else {
       Command command = uci::process(input);
       WriteFile(wd, &command, sizeof(command), NULL, NULL);
+      if (command.type == CommandType::Quit) {
+        exit(0);
+      }
     }
   }
 }
@@ -37,6 +40,9 @@ void read_input(int wd, std::atomic<bool> &stop) {
     } else {
       Command command = uci::process(input);
       write(wd, &command, sizeof(command));
+      if (command.type == CommandType::Quit) {
+        exit(0);
+      }
     }
   }
 }
