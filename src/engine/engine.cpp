@@ -44,7 +44,7 @@ void execute_command(const Command &command, std::atomic<bool> &stop,
     break;
   }
   case Invalid: {
-    fmt::println("invalid input: {}", command.arg.str);
+    fmt::println("invalid input: '{}'", command.arg.str);
     free(command.arg.str);
     break;
   }

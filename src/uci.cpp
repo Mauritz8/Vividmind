@@ -92,11 +92,11 @@ Command process(const std::string &input) {
     return Command::uci();
   } else if (input == "isready") {
     return Command::is_ready();
-  } else if (words.at(0) == "position") {
+  } else if (!words.empty() && words.at(0) == "position") {
     const std::string fen = get_position_fen(words);
     const std::vector<std::string> moves = get_position_moves(words);
     return Command::update_board(fen, moves);
-  } else if (words.at(0) == "go") {
+  } else if (!words.empty() && words.at(0) == "go") {
     return get_go_command(words);
   } else if (input == "quit") {
     return Command::quit();
