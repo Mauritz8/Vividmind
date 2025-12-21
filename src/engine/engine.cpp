@@ -60,7 +60,7 @@ void execute_command(const Command &command, std::atomic<bool> &stop,
         make_move(position.moves[i], board);
       }
     } catch (const std::invalid_argument &e) {
-      fmt::println(e.what());
+      fmt::println("{}", e.what());
     }
     free(position.fen);
     for (size_t i = 0; i < position.moves_size; i++) {

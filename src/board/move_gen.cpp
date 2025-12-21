@@ -163,6 +163,8 @@ void Board::gen_pawn_moves(int start, MoveCategory move_category,
   }
 }
 
+// TODO: try
+// https://www.chessprogramming.org/Efficient_Generation_of_Sliding_Piece_Attacks#Sliding_Attacks_by_Calculation
 uint64_t Board::gen_sliding_attacks(int start, uint64_t occupied,
                                     uint64_t mask) const {
   uint64_t forward = 0;

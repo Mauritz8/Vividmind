@@ -59,12 +59,12 @@ void Search::iterative_deepening_search() {
       assert(search_summary.pv.size() > 0);
       best_moves.push(search_summary.pv.at(0));
 
-      fmt::println(uci::show(search_summary));
+      fmt::println("{}", uci::show(search_summary));
       std::flush(std::cout);
     }
   }
   // always finish a search by outputting the best move
-  fmt::println(uci::bestmove(best_moves.top()));
+  fmt::println("{}", uci::bestmove(best_moves.top()));
   std::flush(std::cout);
 }
 

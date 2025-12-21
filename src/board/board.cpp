@@ -6,6 +6,7 @@
 #include "fmt/core.h"
 #include "move.hpp"
 #include "utils.hpp"
+#include <bit>
 #include <cassert>
 #include <optional>
 #include <stdint.h>
@@ -36,8 +37,7 @@ Board::Board(std::vector<Piece> pieces, Color player_to_move,
 
       PieceType piece_type = (PieceType)piece;
       uint64_t piece_bb = piece_bbs.at(color).at(piece);
-      material_side +=
-          bits::nr_bits_set(piece_bb) * get_piece_value(piece_type);
+      material_side += std::popcount(piece_bb) * get_piece_value(piece_type);
 
       while (piece_bb != 0) {
         int pos = bits::popLSB(piece_bb);
@@ -126,7 +126,7 @@ int Board::get_material(Color color) const {
 int Board::get_psqt(Color color) const { return history.top().psqt.at(color); }
 
 bool Board::is_lone_king(Color color) const {
-  return bits::nr_bits_set(side_bbs.at(color)) == 1;
+  return std::popcount(side_bbs.at(color)) == 1;
 }
 
 bool Board::is_endgame() const {
@@ -406,7 +406,7 @@ void Board::undo() {
 
 bool Board::is_insufficient_material() const {
   uint64_t all_pieces_bb = side_bbs.at(WHITE) | side_bbs.at(BLACK);
-  if (bits::nr_bits_set(all_pieces_bb) > 3) {
+  if (std::popcount(all_pieces_bb) > 3) {
     return false;
   }
 
@@ -445,7 +445,7 @@ int Board::get_doubled_pawns(Color color) const {
   int doubled_pawns = 0;
   for (int i = 0; i < 8; i++) {
     uint64_t pawns_file = pawn_bb & masks.files.at(i);
-    if (bits::nr_bits_set(pawns_file) > 1) {
+    if (std::popcount(pawns_file) > 1) {
       doubled_pawns++;
     }
   }
