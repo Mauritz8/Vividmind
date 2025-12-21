@@ -1,17 +1,14 @@
 # Vividmind
-Vividmind is a computer program that can play chess, something also known as a chess engine.
+Vividmind is a chess engine (a computer program that can play chess).
 
 ## How strong is it?
-The best chess engines have since long surpassed the level of human play.
-Vividmind on the other hand pales in comparison and the best chess players would easily beat it.
-However, that doesn't mean that it's easy to beat, quite the opposite actually. Unless you're a very advanced player, Vividmind will be a serious challenge.
+It's not very strong in chess engine terms, but it's a tough opponent even for 
+2000+ elo players.
 
 ## How do I play against it?
-Vividmind is not meant to be used as a standalone program because it doesn't ship with a graphical user interface. 
-Instead it implements the Universal Chess Interface (UCI) which enables it to communicate with existing user interfaces.
-Today, all major chess applications have support for the UCI protocol, so to play against Vividmind you simply need to install your favorite chess application and configure it to use Vividmind.
-However, the easiest way to play against Vividmind is through lichess.org!
-Vividmind has a bot account on Lichess, so to play against it you simply need to go to it's profile page [lichess.org/@/Vividmind](https://lichess.org/@/Vividmind) and send it a challenge.
+Send it a challenge on Lichess: [lichess.org/@/Vividmind](https://lichess.org/@/Vividmind).
+Vividmind implements the Universal Chess Interface (UCI) protocol so you can
+also play against it offline in your favorite chess application.
 
 ## Build instructions
 First, you need to create the build directory if it doesn't already exist: 
