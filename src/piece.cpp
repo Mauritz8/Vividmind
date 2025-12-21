@@ -1,7 +1,5 @@
 #include "piece.hpp"
 
-#include "utils.hpp"
-
 Piece::Piece(PieceType piece_type, Color color, int pos) {
   this->piece_type = piece_type;
   this->color = color;
@@ -14,7 +12,3 @@ bool Piece::operator==(Piece piece) const {
 }
 
 bool Piece::operator!=(Piece piece) const { return !(*this == piece); }
-
-char Piece::get_char_representation() const {
-  return ::get_char_representation(piece_type);
-}

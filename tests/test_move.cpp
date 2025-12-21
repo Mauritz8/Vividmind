@@ -816,7 +816,7 @@ TEST(MoveTests, PromotionMoveTest) {
   EXPECT_EQ(board.get_material(WHITE), white_material);
   EXPECT_EQ(board.get_psqt(WHITE), white_psqt);
   EXPECT_EQ(board.get_material(BLACK),
-            black_material - PAWN_VALUE + get_piece_value(promotion_piece));
+            black_material - PAWN_VALUE + PIECE_VALUES.at(promotion_piece));
   int black_psqt_new =
       black_psqt - get_psqt_score(PAWN, start, BLACK, false, false) +
       get_psqt_score(promotion_piece, end, BLACK, false, false);
@@ -878,7 +878,7 @@ TEST(MoveTests, PromotionCaptureMoveTest) {
   EXPECT_EQ(board.get_psqt(WHITE),
             white_psqt - get_psqt_score(KNIGHT, end, WHITE, false, false));
   EXPECT_EQ(board.get_material(BLACK),
-            black_material - PAWN_VALUE + get_piece_value(promotion_piece));
+            black_material - PAWN_VALUE + PIECE_VALUES.at(promotion_piece));
   int black_psqt_new =
       black_psqt - get_psqt_score(PAWN, start, BLACK, false, false) +
       get_psqt_score(promotion_piece, end, BLACK, false, false);

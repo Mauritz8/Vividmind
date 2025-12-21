@@ -22,13 +22,6 @@ std::string to_str(uint64_t bits) {
   return out;
 }
 
-// TODO: Using a library function should be faster
-// It would depend on the operating system,
-// bswap on linux and __byteswap_uint64 on windows
-// https://man7.org/linux/man-pages/man3/bswap.3.html
-// https://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/byteswap-uint64-byteswap-ulong-byteswap-ushort
-// I tried it but it seems like it's not doing the same thing, I need to
-// investigate
 uint64_t reverse(uint64_t b) {
   b = (b & 0x5555555555555555) << 1 | ((b >> 1) & 0x5555555555555555);
   b = (b & 0x3333333333333333) << 2 | ((b >> 2) & 0x3333333333333333);

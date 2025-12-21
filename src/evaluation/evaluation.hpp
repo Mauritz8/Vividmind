@@ -13,6 +13,9 @@ const int BISHOP_VALUE = 350;
 const int KNIGHT_VALUE = 300;
 const int PAWN_VALUE = 100;
 
+const std::array<int, NR_PIECES> PIECE_VALUES = { PAWN_VALUE, KNIGHT_VALUE,
+    BISHOP_VALUE, ROOK_VALUE, QUEEN_VALUE, KING_VALUE };
+
 const std::array<int, 64> KING_PSQT = {
     -30, -40, -40, -50, -50, -40, -40, -30,
     -30, -40, -40, -50, -50, -40, -40, -30,
@@ -105,6 +108,24 @@ const std::array<int, 64> KING_MATE = {
 };
 
 int evaluate(const Board &board);
-int get_piece_value(PieceType piece_type);
 int get_psqt_score(PieceType piece_type, int pos, Color color,
                    bool is_lone_king, bool is_endgame);
+
+// TODO: make each psqt value be the exact value of the piece 
+// at that position. So a knight should be 300 instead of 0 on a normal square 
+// and maybe 350 in if it's in the middle. That makes it more clear
+// what they mean and I don't need to keep track of material in a separate 
+// array.
+const std::array<std::array<int, 64>, NR_PIECES> PSQTs = { PAWN_PSQT,
+    KNIGHT_PSQT, BISHOP_PSQT, ROOK_PSQT, QUEEN_PSQT, KING_PSQT };
+
+const std::array<int, 64> FLIPPED_BOARD = {
+    56, 57, 58, 59, 60, 61, 62, 63, 
+    48, 49, 50, 51, 52, 53, 54, 55, 
+    40, 41, 42, 43, 44, 45, 46, 47, 
+    32, 33, 34, 35, 36, 37, 38, 39, 
+    24, 25, 26, 27, 28, 29, 30, 31, 
+    16, 17, 18, 19, 20, 21, 22, 23, 
+    8,  9,  10, 11, 12, 13, 14, 15, 
+    0,  1,  2,  3,  4,  5,  6,  7
+};

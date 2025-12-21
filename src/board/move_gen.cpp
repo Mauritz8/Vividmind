@@ -163,7 +163,9 @@ void Board::gen_pawn_moves(int start, MoveCategory move_category,
   }
 }
 
-// TODO: try
+// TODO: try and optimize move generation for sliding pieces
+// I think I can use std::byteswap instead of manual bitswap for
+// rank or file attacks.
 // https://www.chessprogramming.org/Efficient_Generation_of_Sliding_Piece_Attacks#Sliding_Attacks_by_Calculation
 uint64_t Board::gen_sliding_attacks(int start, uint64_t occupied,
                                     uint64_t mask) const {
@@ -233,6 +235,8 @@ void Board::gen_moves_piece(PieceType piece, int start,
                      : piece == BISHOP ? gen_bishop_attacks(start, occupied)
                      : piece == ROOK   ? gen_rook_attacks(start, occupied)
                                        : gen_queen_attacks(start, occupied);
+
+  // TODO: checkmate moves should be included in tactical moves
   uint64_t moves_bb =
       move_category == TACTICAL
           ? attacks & side_bbs.at(get_opposite_color(get_player_to_move()))

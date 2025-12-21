@@ -38,7 +38,7 @@ Board::Board(std::vector<Piece> pieces, Color player_to_move,
 
       PieceType piece_type = (PieceType)piece;
       uint64_t piece_bb = piece_bbs.at(color).at(piece);
-      material_side += std::popcount(piece_bb) * get_piece_value(piece_type);
+      material_side += std::popcount(piece_bb) * PIECE_VALUES.at(piece_type);
 
       while (piece_bb != 0) {
         int pos = bits::popLSB(piece_bb);
@@ -247,13 +247,13 @@ Board::updated_material(const Move &move,
   material.at(player_to_move) =
       get_material(player_to_move) +
       (move.move_type == PROMOTION
-           ? get_piece_value(move.promotion_piece.value()) -
-                 get_piece_value(PAWN)
+           ? PIECE_VALUES.at(move.promotion_piece.value()) -
+                 PIECE_VALUES.at(PAWN)
            : 0);
   material.at(opponent) =
       get_material(opponent) -
       (captured_piece.has_value()
-           ? get_piece_value(captured_piece.value().piece_type)
+           ? PIECE_VALUES.at(captured_piece.value().piece_type)
            : 0);
   return material;
 }

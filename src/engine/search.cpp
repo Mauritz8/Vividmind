@@ -272,6 +272,6 @@ int Search::get_move_score(const Move &move) {
   if (!end_piece) {
     return -QUEEN_VALUE;
   }
-  return get_piece_value(end_piece.value()) -
-         get_piece_value(start_piece.value());
+  return PIECE_VALUES.at(end_piece.value()) -
+         PIECE_VALUES.at(start_piece.value());
 }

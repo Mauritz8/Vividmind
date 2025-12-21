@@ -12,7 +12,4 @@ public:
 
   bool operator==(Piece piece) const;
   bool operator!=(Piece piece) const;
-
-  char get_char_representation() const;
-  int get_value() const;
 };
