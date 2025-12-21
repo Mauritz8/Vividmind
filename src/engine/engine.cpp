@@ -48,10 +48,6 @@ void execute_command(const Command &command, std::atomic<bool> &stop,
     free(command.arg.str);
     break;
   }
-  case Quit: {
-    exit(0);
-    break;
-  }
   case UpdateBoard: {
     Position position = command.arg.position;
     try {
@@ -106,6 +102,10 @@ void execute_command(const Command &command, std::atomic<bool> &stop,
     params.allocated_time = command.arg.integer - move_overhead;
     Search search = Search(board, params, stop);
     search.iterative_deepening_search();
+    break;
+  }
+  case Quit: {
+    // Quit is already handled in main
     break;
   }
   }

@@ -1,93 +1,74 @@
 #include "board/board.hpp"
 #include <atomic>
+#include <condition_variable>
 #include <iostream>
+#include <mutex>
+#include <queue>
 #include <thread>
-
-#ifdef _WIN32
-#include <fileapi.h>
-#include <namedpipeapi.h>
-#else
-#include <unistd.h>
-#endif
 
 #include "engine/command.hpp"
 #include "engine/engine.hpp"
 #include "uci.hpp"
 
-#ifdef _WIN32
-void read_input(HANDLE wd, std::atomic<bool> &stop) {
+void read_input(std::queue<Command> &commands, std::condition_variable &cv,
+                std::mutex &mtx, std::atomic<bool> &stop) {
   std::string input;
-  while (true) {
-    std::getline(std::cin, input);
+  while (std::getline(std::cin, input)) {
     if (input == "stop") {
       stop = true;
-    } else {
-      Command command = uci::process(input);
-      WriteFile(wd, &command, sizeof(command), NULL, NULL);
-      if (command.type == CommandType::Quit) {
-        exit(0);
-      }
+      continue;
     }
-  }
-}
-#else
-void read_input(int wd, std::atomic<bool> &stop) {
-  std::string input;
-  while (true) {
-    std::getline(std::cin, input);
-    if (input == "stop") {
-      stop = true;
-    } else {
-      Command command = uci::process(input);
-      write(wd, &command, sizeof(command));
-      if (command.type == CommandType::Quit) {
-        exit(0);
-      }
-    }
-  }
-}
-#endif
 
-#ifdef _WIN32
-void run_engine(HANDLE rd, std::atomic<bool> &stop) {
+    Command cmd = uci::process(input);
+    {
+      std::lock_guard<std::mutex> lock(mtx);
+      commands.push(cmd);
+    }
+    cv.notify_one();
+
+    if (cmd.type == CommandType::Quit) {
+      return;
+    }
+  }
+
+  {
+    std::lock_guard<std::mutex> lock(mtx);
+    commands.push(Command::quit());
+  }
+  cv.notify_one();
+}
+
+void run_engine(std::queue<Command> &commands, std::condition_variable &cv,
+                std::mutex &mtx, std::atomic<bool> &stop) {
   Board board = Board::get_starting_position();
-  Command command;
   while (true) {
-    ReadFile(rd, &command, sizeof(command), NULL, NULL);
-    engine::execute_command(command, stop, board);
+    Command cmd;
+    {
+      std::unique_lock<std::mutex> lock(mtx);
+      cv.wait(lock, [&] { return !commands.empty(); });
+      cmd = commands.front();
+      commands.pop();
+    }
+
+    if (cmd.type == CommandType::Quit) {
+      return;
+    }
+    engine::execute_command(cmd, stop, board);
   }
 }
-#else
-void run_engine(int rd, std::atomic<bool> &stop) {
-  Board board = Board::get_starting_position();
-  Command command;
-  while (true) {
-    read(rd, &command, sizeof(command));
-    engine::execute_command(command, stop, board);
-  }
-}
-#endif
 
 int main() {
+  std::queue<Command> commands;
+  std::condition_variable cv;
+  std::mutex mtx;
   std::atomic<bool> stop = false;
-#ifdef _WIN32
-  HANDLE rd;
-  HANDLE wd;
-  if (CreatePipe(&rd, &wd, NULL, 0) == 0) {
-    exit(1);
-  }
-  std::thread t1(read_input, wd, std::ref(stop));
-  std::thread t2(run_engine, rd, std::ref(stop));
-#else
-  int pipefd[2];
-  if (pipe(pipefd) == -1) {
-    exit(1);
-  }
-  std::thread t1(read_input, pipefd[1], std::ref(stop));
-  std::thread t2(run_engine, pipefd[0], std::ref(stop));
-#endif
+
+  std::thread t1(read_input, std::ref(commands), std::ref(cv), std::ref(mtx),
+                 std::ref(stop));
+  std::thread t2(run_engine, std::ref(commands), std::ref(cv), std::ref(mtx),
+                 std::ref(stop));
+
   t1.join();
   t2.join();
-
   return 0;
 }

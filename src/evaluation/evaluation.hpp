@@ -112,10 +112,10 @@ int get_psqt_score(PieceType piece_type, int pos, Color color,
                    bool is_lone_king, bool is_endgame);
 
 // TODO: make each psqt value be the exact value of the piece 
-// at that position. So a knight should be 300 instead of 0 on a normal square 
-// and maybe 350 in if it's in the middle. That makes it more clear
-// what they mean and I don't need to keep track of material in a separate 
-// array.
+// at that position. So on a normal square a knight should be 300 instead of 0
+// and maybe 350 if it's in the middle of the board. That makes it more clear
+// what the values mean and I don't need to keep track of material in a
+// separate array.
 const std::array<std::array<int, 64>, NR_PIECES> PSQTs = { PAWN_PSQT,
     KNIGHT_PSQT, BISHOP_PSQT, ROOK_PSQT, QUEEN_PSQT, KING_PSQT };
 

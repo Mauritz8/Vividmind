@@ -10,9 +10,6 @@
 #include "move.hpp"
 #include "piece.hpp"
 
-// TODO: Maybe change squares to go from a1-h8 instead of a8-h1, might be more
-// logical
-
 struct PosData {
   Color player_to_move;
   std::array<Castling, 2> castling_rights;
