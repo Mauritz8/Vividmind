@@ -39,11 +39,10 @@ Board::Board(std::vector<Piece> pieces, Color player_to_move,
       material_side +=
           bits::nr_bits_set(piece_bb) * get_piece_value(piece_type);
 
-      std::optional<int> pos = bits::popLSB(piece_bb);
-      while (pos.has_value()) {
+      while (piece_bb != 0) {
+        int pos = bits::popLSB(piece_bb);
         psqt_side +=
-            get_psqt_score(piece_type, pos.value(), (Color)color, false, false);
-        pos = bits::popLSB(piece_bb);
+            get_psqt_score(piece_type, pos, (Color)color, false, false);
       }
     }
     material.at(color) = material_side;

@@ -1,5 +1,4 @@
 #include "bits.hpp"
-#include <optional>
 #include <strings.h>
 
 namespace bits {
@@ -27,13 +26,10 @@ int first_set_bit(uint64_t bits) {
     return index64[(bits * 0x03F79D71B4CB0A89) >> 58];
 }
 
-std::optional<int> popLSB(uint64_t &bits) {
+int popLSB(uint64_t &bits) {
   const int i = first_set_bit(bits);
-  if (i != -1) {
-    unset(bits, i);
-    return i;
-  }
-  return std::nullopt;
+  unset(bits, i);
+  return i;
 }
 
 std::string to_string(uint64_t bits) {
