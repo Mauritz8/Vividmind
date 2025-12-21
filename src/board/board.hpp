@@ -70,6 +70,9 @@ private:
   std::stack<Move> move_history;
   const Masks masks;
 
+  void add_piece(int pos, PieceType piece_type, Color color);
+  void remove_piece(int pos, PieceType piece_type, Color color);
+  bool piece_at_pos(int pos, Color color, PieceType piece_type) const;
   std::optional<Piece> get_piece_to_be_captured(const Move &move) const;
   std::array<int, 2>
   updated_material(const Move &move, std::optional<Piece> captured_piece) const;

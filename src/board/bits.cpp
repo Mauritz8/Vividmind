@@ -4,15 +4,9 @@
 
 namespace bits {
 
-uint64_t get(uint64_t bits, int n) { return (bits >> n) & (uint64_t)1; }
-
-void set(uint64_t &bits, int n) { bits |= (uint64_t)1 << n; }
-
-void unset(uint64_t &bits, int n) { bits ^= (uint64_t)1 << n; }
-
 int popLSB(uint64_t &bits) {
   const int i = std::countr_zero(bits);
-  unset(bits, i);
+  bits ^= (uint64_t)1 << i;
   return i;
 }
 
@@ -20,7 +14,7 @@ std::string to_str(uint64_t bits) {
   std::string out;
   for (int row = 7; row >= 0; row--) {
     for (int col = 7; col >= 0; col--) {
-      uint64_t bit = get(bits, row * 8 + col);
+      uint64_t bit = (bits >> (row * 8 + col)) & (uint64_t)1;
       out += bit == 1 ? "1" : "0";
     }
     out += " ";
