@@ -44,8 +44,11 @@ void Search::iterative_deepening_search() {
 
     // alpha-beta function
     // evaluate the position at the current depth
-    const int evaluation =
-        alpha_beta(info.depth, alpha, beta, principal_variation);
+    const std::optional<Move> best_move_prev_depth =
+        best_moves.size() > 0 ? std::make_optional(best_moves.top())
+                              : std::nullopt;
+    const int evaluation = alpha_beta(
+        info.depth, alpha, beta, principal_variation, best_move_prev_depth);
 
     // if the search has not been terminated
     // then we can use the result from the search at this depth
@@ -69,7 +72,8 @@ void Search::iterative_deepening_search() {
 }
 
 int Search::alpha_beta(int depth, int alpha, int beta,
-                       std::vector<Move> &principal_variation) {
+                       std::vector<Move> &principal_variation,
+                       const std::optional<Move> &best_move_prev_depth) {
   const Color player = board.get_player_to_move();
 
   // if the search has been terminated, then return immediately
@@ -95,6 +99,14 @@ int Search::alpha_beta(int depth, int alpha, int beta,
 
   std::vector<Move> pseudo_legal_moves = board.get_pseudo_legal_moves(ALL);
   sort_moves(pseudo_legal_moves);
+
+  if (best_move_prev_depth.has_value()) {
+    auto it = std::find(pseudo_legal_moves.begin(), pseudo_legal_moves.end(),
+                        best_move_prev_depth);
+    if (it != pseudo_legal_moves.end()) {
+      std::rotate(pseudo_legal_moves.begin(), it, it + 1);
+    }
+  }
 
   int legal_moves_found = 0;
   for (const Move &move : pseudo_legal_moves) {
@@ -122,7 +134,8 @@ int Search::alpha_beta(int depth, int alpha, int beta,
     // if it's not a draw we must search further
     if (!board.is_draw()) {
       // call search function again and decrease the depth
-      evaluation = -alpha_beta(depth - 1, -beta, -alpha, variation);
+      evaluation =
+          -alpha_beta(depth - 1, -beta, -alpha, variation, std::nullopt);
     }
 
     board.undo();

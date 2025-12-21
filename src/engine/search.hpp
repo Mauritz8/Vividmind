@@ -21,7 +21,8 @@ private:
   std::atomic<bool> &stop;
 
   int alpha_beta(int depth, int alpha, int beta,
-                 std::vector<Move> &principal_variation);
+                 std::vector<Move> &principal_variation,
+                 const std::optional<Move> &best_move_prev_depth);
   int quiescence(int alpha, int beta, std::vector<Move> &principal_variation);
   bool is_terminate();
   void sort_moves(std::vector<Move> &moves);
