@@ -10,16 +10,8 @@ Send it a challenge on Lichess: [lichess.org/@/Vividmind](https://lichess.org/@/
 Vividmind implements the Universal Chess Interface (UCI) protocol so you can
 also play against it offline in your favorite chess application.
 
-## Build instructions
-First, you need to create the build directory if it doesn't already exist: 
-```
-mkdir build 
-```
-
-To build the program, enter the build directory and compile the code using CMake: 
-```
-cd build
-cmake -DCMAKE_BUILD_TYPE=Release ..
-cmake --build .
-```
-The program will be generated in the output binary `vividmind`.
+## Development
+- Generate build system: `cmake -DCMAKE_BUILD_TYPE=Release -B build/`
+- Run engine: `cmake --build build/ -t vividmind && ./build/vividmind`
+- Test: `cmake --build build/ -t test && ./build/test --gtest_break_on_failure`
+- Format: `./scripts/format.sh # requires clang-format`

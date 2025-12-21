@@ -44,34 +44,20 @@ add_executable(vividmind
     src/main.cpp
     ${COMMON_SOURCES}
 )
-target_compile_options(vividmind PUBLIC -O3 -march=native -flto)
-target_link_options(vividmind PUBLIC -flto)
 target_include_directories(vividmind PRIVATE
     src/
 )
 target_link_libraries(vividmind fmt::fmt)
+target_compile_options(vividmind PUBLIC -O3 -march=native -flto)
+target_link_options(vividmind PUBLIC -flto)
 
-add_executable(tests
+add_executable(test
     tests/tests.cpp
     ${COMMON_SOURCES}
 )
-target_include_directories(tests PRIVATE
+target_include_directories(test PRIVATE
     tests/
     src/
 )
-target_compile_options(tests PUBLIC)
-target_link_libraries(tests GTest::gtest_main fmt::fmt)
-
-add_custom_target(run-tests
-    COMMAND ${CMAKE_SOURCE_DIR}/build/tests --gtest_break_on_failure
-)
-add_dependencies(run-tests tests)
-
-add_custom_target(format-check
-    COMMAND ${CMAKE_SOURCE_DIR}/scripts/format-check.sh
-    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-)
-add_custom_target(format
-    COMMAND ${CMAKE_SOURCE_DIR}/scripts/format.sh
-    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-)
+target_link_libraries(test GTest::gtest_main fmt::fmt)
+target_compile_options(test PUBLIC)

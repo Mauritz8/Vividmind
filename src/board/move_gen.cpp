@@ -283,11 +283,9 @@ uint64_t Board::get_attacking_bb(Color color) const {
     uint64_t piece_bb = piece_bbs.at(color).at(piece);
     while (piece_bb != 0) {
       int start_pos = bits::popLSB(piece_bb);
-      attacking |=
-          piece == BISHOP ? gen_bishop_attacks(start_pos, occupied)
-          : piece == ROOK ? gen_rook_attacks(start_pos, occupied)
-                          : gen_queen_attacks(start_pos, occupied);
-
+      attacking |= piece == BISHOP ? gen_bishop_attacks(start_pos, occupied)
+                   : piece == ROOK ? gen_rook_attacks(start_pos, occupied)
+                                   : gen_queen_attacks(start_pos, occupied);
     }
   }
 

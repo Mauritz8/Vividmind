@@ -21,7 +21,6 @@ const int index64[64] = {
   25, 14, 19,  9, 13,  8,  7,  6
 };
 int first_set_bit(uint64_t bits) {
-    if (bits == 0) return -1;
     bits &= -bits;
     return index64[(bits * 0x03F79D71B4CB0A89) >> 58];
 }
