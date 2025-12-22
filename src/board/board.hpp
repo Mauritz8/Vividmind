@@ -1,6 +1,7 @@
 #pragma once
 
 #include <array>
+#include <cstdint>
 #include <optional>
 #include <stack>
 #include <vector>
@@ -95,16 +96,12 @@ private:
   uint64_t get_castling_pieces_not_allowed_bb(int start, bool kingside) const;
   uint64_t gen_castling_moves_bb(int start) const;
 
-  uint64_t gen_rook_attacks(int start, uint64_t occupied) const;
-  uint64_t gen_bishop_attacks(int start, uint64_t occupied) const;
-  uint64_t gen_queen_attacks(int start, uint64_t occupied) const;
+  uint64_t gen_rook_attacks(int start) const;
+  uint64_t gen_bishop_attacks(int start) const;
+  uint64_t gen_queen_attacks(int start) const;
 
-  uint64_t gen_file_attacks(int start, uint64_t occupied) const;
-  uint64_t gen_rank_attacks(int start, uint64_t occupied) const;
-  uint64_t gen_diag_attacks(int start, uint64_t occupied) const;
-  uint64_t gen_antidiag_attacks(int start, uint64_t occupied) const;
-  uint64_t gen_sliding_attacks(int start, uint64_t occupied,
-                               uint64_t mask) const;
+  uint64_t gen_rank_attacks(int start) const;
+  uint64_t gen_diag_attacks(int start, uint64_t diagonal_mask) const;
 
   uint64_t get_attacking_bb(Color color) const;
   bool is_attacking(int pos, Color color) const;

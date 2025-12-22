@@ -4,6 +4,7 @@
 #include "move.hpp"
 #include "utils.hpp"
 #include <cassert>
+#include <cstdint>
 
 uint64_t Board::get_castling_check_not_allowed_bb(int start,
                                                   bool kingside) const {
@@ -163,59 +164,46 @@ void Board::gen_pawn_moves(int start, MoveCategory move_category,
   }
 }
 
-// TODO: try and optimize move generation for sliding pieces
-// I think I can use std::byteswap instead of manual bitswap for
-// rank or file attacks.
 // https://www.chessprogramming.org/Efficient_Generation_of_Sliding_Piece_Attacks#Sliding_Attacks_by_Calculation
-uint64_t Board::gen_sliding_attacks(int start, uint64_t occupied,
-                                    uint64_t mask) const {
-  uint64_t forward = 0;
-  uint64_t reverse = 0;
-  forward = occupied & mask;
-  reverse = bits::reverse(forward);
-  forward -= 2 * masks.squares.at(start);
-  reverse -= 2 * bits::reverse(masks.squares.at(start));
-  forward ^= bits::reverse(reverse);
-  forward &= mask;
-  return forward;
+// TODO: find a way to use std::byteswap instead of bits::reverse
+uint64_t Board::gen_rank_attacks(int start) const {
+  uint64_t o = side_bbs.at(WHITE) | side_bbs.at(BLACK);
+  uint64_t s = masks.squares.at(start);
+  uint64_t o_rev = bits::reverse(o);
+  uint64_t s_rev = bits::reverse(s);
+  return ((o - 2 * s) ^ bits::reverse(o_rev - 2 * s_rev)) &
+         masks.ranks.at(start / 8);
 }
 
-uint64_t Board::gen_file_attacks(int start, uint64_t occupied) const {
+uint64_t Board::gen_diag_attacks(int start, uint64_t diagonal_mask) const {
+  uint64_t slider = masks.squares.at(start);  // single bit 1 << sq, 2^sq
+  uint64_t lineMask = diagonal_mask ^ slider; // excludes square of slider
+
+  uint64_t occ = side_bbs.at(WHITE) | side_bbs.at(BLACK);
+  uint64_t forward =
+      occ &
+      lineMask; // also performs the first subtraction by clearing the s in o
+  uint64_t reverse = std::byteswap(forward); // o'-s'
+  forward -= slider;                         // o -2s
+  reverse -= std::byteswap(slider);          // o'-2s'
+  forward ^= std::byteswap(reverse);
+  return forward & lineMask;
+}
+
+uint64_t Board::gen_rook_attacks(int start) const {
+  return gen_diag_attacks(start, masks.files.at(start % 8)) |
+         gen_rank_attacks(start);
+}
+
+uint64_t Board::gen_bishop_attacks(int start) const {
   int file = start % 8;
-  return gen_sliding_attacks(start, occupied, masks.files.at(file));
-}
-
-uint64_t Board::gen_rank_attacks(int start, uint64_t occupied) const {
   int rank = start / 8;
-  return gen_sliding_attacks(start, occupied, masks.ranks.at(rank));
+  return gen_diag_attacks(start, masks.diags.at(file + rank)) |
+         gen_diag_attacks(start, masks.antidiags.at(file - rank + 7));
 }
 
-uint64_t Board::gen_diag_attacks(int start, uint64_t occupied) const {
-  int file = start % 8;
-  int rank = start / 8;
-  int diag = file + rank;
-  return gen_sliding_attacks(start, occupied, masks.diags.at(diag));
-}
-
-uint64_t Board::gen_antidiag_attacks(int start, uint64_t occupied) const {
-  int file = start % 8;
-  int rank = start / 8;
-  int diag = file - rank + 7;
-  return gen_sliding_attacks(start, occupied, masks.antidiags.at(diag));
-}
-
-uint64_t Board::gen_rook_attacks(int start, uint64_t occupied) const {
-  return gen_file_attacks(start, occupied) | gen_rank_attacks(start, occupied);
-}
-
-uint64_t Board::gen_bishop_attacks(int start, uint64_t occupied) const {
-  return gen_diag_attacks(start, occupied) |
-         gen_antidiag_attacks(start, occupied);
-}
-
-uint64_t Board::gen_queen_attacks(int start, uint64_t occupied) const {
-  return gen_rook_attacks(start, occupied) |
-         gen_bishop_attacks(start, occupied);
+uint64_t Board::gen_queen_attacks(int start) const {
+  return gen_rook_attacks(start) | gen_bishop_attacks(start);
 }
 
 void Board::gen_moves_piece(PieceType piece, int start,
@@ -230,11 +218,10 @@ void Board::gen_moves_piece(PieceType piece, int start,
     return;
   }
 
-  uint64_t occupied = side_bbs.at(WHITE) | side_bbs.at(BLACK);
   uint64_t attacks = piece == KNIGHT   ? masks.knight_moves.at(start)
-                     : piece == BISHOP ? gen_bishop_attacks(start, occupied)
-                     : piece == ROOK   ? gen_rook_attacks(start, occupied)
-                                       : gen_queen_attacks(start, occupied);
+                     : piece == BISHOP ? gen_bishop_attacks(start)
+                     : piece == ROOK   ? gen_rook_attacks(start)
+                                       : gen_queen_attacks(start);
 
   // TODO: check moves should be included in tactical moves
   uint64_t moves_bb =
@@ -283,15 +270,14 @@ uint64_t Board::get_attacking_bb(Color color) const {
     }
   }
 
-  uint64_t occupied = side_bbs.at(WHITE) | side_bbs.at(BLACK);
   std::array<PieceType, 3> sliding_pieces = {BISHOP, ROOK, QUEEN};
   for (PieceType piece : sliding_pieces) {
     uint64_t piece_bb = piece_bbs.at(color).at(piece);
     while (piece_bb != 0) {
       int start_pos = bits::pop_lsb(piece_bb);
-      attacking |= piece == BISHOP ? gen_bishop_attacks(start_pos, occupied)
-                   : piece == ROOK ? gen_rook_attacks(start_pos, occupied)
-                                   : gen_queen_attacks(start_pos, occupied);
+      attacking |= piece == BISHOP ? gen_bishop_attacks(start_pos)
+                   : piece == ROOK ? gen_rook_attacks(start_pos)
+                                   : gen_queen_attacks(start_pos);
     }
   }
 
@@ -313,11 +299,11 @@ bool Board::is_attacking(int pos, Color color) const {
   }
 
   uint64_t occupied = side_bbs.at(WHITE) | side_bbs.at(BLACK);
-  uint64_t bishop_moves = gen_bishop_attacks(pos, occupied);
+  uint64_t bishop_moves = gen_bishop_attacks(pos);
   if ((bishop_moves & pieces_bb.at(BISHOP)) != 0) {
     return true;
   }
-  uint64_t rook_moves = gen_rook_attacks(pos, occupied);
+  uint64_t rook_moves = gen_rook_attacks(pos);
   if ((rook_moves & pieces_bb.at(ROOK)) != 0) {
     return true;
   }
