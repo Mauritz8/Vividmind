@@ -165,21 +165,21 @@ void Board::gen_pawn_moves(int start, MoveCategory move_category,
 }
 
 // https://www.chessprogramming.org/Efficient_Generation_of_Sliding_Piece_Attacks#Sliding_Attacks_by_Calculation
-// TODO: find a way to use std::byteswap instead of bits::reverse
+// TODO: find a way to not use bits::reverse
 uint64_t Board::gen_rank_attacks(int start) const {
-  uint64_t o = side_bbs.at(WHITE) | side_bbs.at(BLACK);
-  uint64_t s = masks.squares.at(start);
+  uint64_t o = side_bbs[WHITE] | side_bbs[BLACK];
+  uint64_t s = masks.squares[start];
   uint64_t o_rev = bits::reverse(o);
   uint64_t s_rev = bits::reverse(s);
-  return ((o - 2 * s) ^ bits::reverse(o_rev - 2 * s_rev)) &
-         masks.ranks.at(start / 8);
+  return ((o - (s << 1)) ^ bits::reverse(o_rev - (s_rev << 1))) &
+         masks.ranks[start >> 3];
 }
 
 uint64_t Board::gen_diag_attacks(int start, uint64_t diagonal_mask) const {
-  uint64_t slider = masks.squares.at(start);  // single bit 1 << sq, 2^sq
+  uint64_t slider = masks.squares[start];     // single bit 1 << sq, 2^sq
   uint64_t lineMask = diagonal_mask ^ slider; // excludes square of slider
 
-  uint64_t occ = side_bbs.at(WHITE) | side_bbs.at(BLACK);
+  uint64_t occ = side_bbs[WHITE] | side_bbs[BLACK];
   uint64_t forward =
       occ &
       lineMask; // also performs the first subtraction by clearing the s in o
@@ -197,7 +197,7 @@ uint64_t Board::gen_rook_attacks(int start) const {
 
 uint64_t Board::gen_bishop_attacks(int start) const {
   int file = start % 8;
-  int rank = start / 8;
+  int rank = start >> 3;
   return gen_diag_attacks(start, masks.diags.at(file + rank)) |
          gen_diag_attacks(start, masks.antidiags.at(file - rank + 7));
 }
