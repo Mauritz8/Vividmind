@@ -41,7 +41,7 @@ Board::Board(std::vector<Piece> pieces, Color player_to_move,
       material_side += std::popcount(piece_bb) * PIECE_VALUES.at(piece_type);
 
       while (piece_bb != 0) {
-        int pos = bits::popLSB(piece_bb);
+        int pos = bits::pop_lsb(piece_bb);
         psqt_side +=
             get_psqt_score(piece_type, pos, (Color)color, false, false);
       }

@@ -4,7 +4,7 @@
 
 namespace bits {
 
-int popLSB(uint64_t &bits) {
+int pop_lsb(uint64_t &bits) {
   const int i = std::countr_zero(bits);
   bits ^= (uint64_t)1 << i;
   return i;

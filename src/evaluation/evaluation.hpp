@@ -93,9 +93,8 @@ const std::array<int, 64> ROOK_PSQT = {
     0,   0,   0,   5,   5,   0,   0,   0,
 };
 
-// used when only the king is left
-// in order to force the king to the edge of the board
-// and eventually mate
+// when the king is the only piece left, force it to the edge of the board 
+// if no checkmate is found
 const std::array<int, 64> KING_MATE = {
     -50, -50, -50, -50, -50, -50, -50, -50,
     -50, -30, -30, -30, -30, -30, -30, -50,
@@ -111,11 +110,6 @@ int evaluate(const Board &board);
 int get_psqt_score(PieceType piece_type, int pos, Color color,
                    bool is_lone_king, bool is_endgame);
 
-// TODO: make each psqt value be the exact value of the piece 
-// at that position. So on a normal square a knight should be 300 instead of 0
-// and maybe 350 if it's in the middle of the board. That makes it more clear
-// what the values mean and I don't need to keep track of material in a
-// separate array.
 const std::array<std::array<int, 64>, NR_PIECES> PSQTs = { PAWN_PSQT,
     KNIGHT_PSQT, BISHOP_PSQT, ROOK_PSQT, QUEEN_PSQT, KING_PSQT };
 
