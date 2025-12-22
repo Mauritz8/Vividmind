@@ -236,7 +236,7 @@ void Board::gen_moves_piece(PieceType piece, int start,
                      : piece == ROOK   ? gen_rook_attacks(start, occupied)
                                        : gen_queen_attacks(start, occupied);
 
-  // TODO: checkmate moves should be included in tactical moves
+  // TODO: check moves should be included in tactical moves
   uint64_t moves_bb =
       move_category == TACTICAL
           ? attacks & side_bbs.at(get_opposite_color(get_player_to_move()))

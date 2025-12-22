@@ -3,7 +3,16 @@
 #include <string>
 
 #include "engine/command.hpp"
-#include "engine/search_defs.hpp"
+#include "move.hpp"
+
+struct SearchSummary {
+  int depth;
+  int seldepth;
+  int score;
+  long long nodes;
+  long long time;
+  std::vector<Move> pv;
+};
 
 namespace uci {
 Command process(const std::string &input);

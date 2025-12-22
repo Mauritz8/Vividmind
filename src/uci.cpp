@@ -9,7 +9,7 @@
 
 #include "defs.hpp"
 #include "engine/command.hpp"
-#include "engine/search_defs.hpp"
+#include "engine/search.hpp"
 #include "move.hpp"
 #include "utils.hpp"
 

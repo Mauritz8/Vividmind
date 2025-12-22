@@ -4,8 +4,34 @@
 #include <vector>
 
 #include "board/board.hpp"
-#include "engine/search_defs.hpp"
 #include "move.hpp"
+
+#include <chrono>
+#include <vector>
+
+#include "move.hpp"
+
+enum SearchMode { DEPTH, MOVE_TIME, INFINITE };
+
+struct SearchParams {
+  SearchMode search_mode;
+  int depth;
+  int allocated_time;
+};
+
+struct SearchInfo {
+  std::chrono::time_point<std::chrono::high_resolution_clock> start_time;
+  int depth;
+  int ply_from_root;
+  int seldepth;
+  long nodes;
+  bool is_terminated;
+};
+
+const int MAX_PLY = 100;
+const int DRAW = 0;
+const int CHECKMATE = 50000;
+const int CHECKMATE_THRESHOLD = 49000;
 
 class Search {
 public:

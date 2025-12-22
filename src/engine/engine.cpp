@@ -2,7 +2,6 @@
 #include "board/board.hpp"
 #include "engine/command.hpp"
 #include "engine/search.hpp"
-#include "engine/search_defs.hpp"
 #include "engine/time_management.hpp"
 #include "fen.hpp"
 #include "fmt/core.h"
@@ -70,36 +69,45 @@ void execute_command(const Command &command, std::atomic<bool> &stop,
     break;
   }
   case GoInfinite: {
-    SearchParams params = SearchParams();
-    params.search_mode = SearchMode::INFINITE;
+    SearchParams params = {
+        .search_mode = SearchMode::INFINITE,
+        .depth = MAX_PLY,
+        .allocated_time = 0,
+    };
     Search search = Search(board, params, stop);
     search.iterative_deepening_search();
     break;
   }
   case GoDepth: {
-    SearchParams params = SearchParams();
-    params.search_mode = SearchMode::DEPTH;
-    params.depth = command.arg.integer;
+    SearchParams params = {
+        .search_mode = SearchMode::DEPTH,
+        .depth = command.arg.integer,
+        .allocated_time = 0,
+    };
     Search search = Search(board, params, stop);
     search.iterative_deepening_search();
     break;
   }
   case GoGameTime: {
-    SearchParams params = SearchParams();
-    params.search_mode = SearchMode::MOVE_TIME;
-    params.allocated_time = calc_allocated_time(board.get_player_to_move(),
-                                                command.arg.game_time.wtime,
-                                                command.arg.game_time.btime);
+    SearchParams params = {
+        .search_mode = SearchMode::MOVE_TIME,
+        .depth = MAX_PLY,
+        .allocated_time = calc_allocated_time(board.get_player_to_move(),
+                                              command.arg.game_time.wtime,
+                                              command.arg.game_time.btime),
+    };
     Search search = Search(board, params, stop);
     search.iterative_deepening_search();
     break;
   }
   case GoMoveTime: {
-    SearchParams params = SearchParams();
-    params.search_mode = SearchMode::MOVE_TIME;
-    // to ensure a move is returned before the allocated time runs out
+    // ensure a move is returned before the allocated time runs out
     int move_overhead = 50;
-    params.allocated_time = command.arg.integer - move_overhead;
+    SearchParams params = {
+        .search_mode = SearchMode::MOVE_TIME,
+        .depth = MAX_PLY,
+        .allocated_time = command.arg.integer - move_overhead,
+    };
     Search search = Search(board, params, stop);
     search.iterative_deepening_search();
     break;

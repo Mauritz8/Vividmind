@@ -27,7 +27,6 @@ set(COMMON_SOURCES
     src/board/move_gen.cpp
     src/board/masks.cpp
     src/evaluation/evaluation.cpp
-    src/engine/search_defs.cpp
     src/engine/time_management.cpp
     src/engine/search.cpp
     src/engine/engine.cpp
