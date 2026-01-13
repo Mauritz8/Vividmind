@@ -54,7 +54,6 @@ public:
 
   bool is_in_check(Color color) const;
 
-  std::vector<Move> get_pseudo_legal_moves() const;
   std::vector<Move> get_legal_moves();
   std::vector<Move> get_forcing_moves();
 
@@ -86,6 +85,7 @@ private:
   std::array<Castling, 2> updated_castling_rights(const Move &move) const;
   int get_castling_rook(const Move &move, Color color) const;
 
+  std::vector<Move> get_pseudo_legal_moves() const;
   void gen_moves_piece(PieceType piece, int start,
                        std::vector<Move> &moves) const;
   void gen_all_moves_piece(PieceType piece, std::vector<Move> &moves) const;

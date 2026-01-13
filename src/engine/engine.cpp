@@ -12,18 +12,13 @@
 #include <unistd.h>
 
 namespace engine {
-bool make_move(const char *move_uci, Board &board) {
+void make_move(const char *move_uci, Board &board) {
   const Color player = board.get_player_to_move();
-  const std::vector<Move> pseudo_legal_moves = board.get_pseudo_legal_moves();
-  for (const Move &move : pseudo_legal_moves) {
+  const std::vector<Move> moves = board.get_legal_moves();
+  for (const Move &move : moves) {
     if (move.to_uci_notation() == std::string(move_uci)) {
       board.make(move);
-      if (board.is_in_check(player)) {
-        board.undo();
-        throw std::invalid_argument(fmt::format(
-            "Illegal move: {} puts the player in check\n", move_uci));
-      }
-      return true;
+      return;
     }
   }
   throw std::invalid_argument(

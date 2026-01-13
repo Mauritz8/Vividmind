@@ -1,6 +1,6 @@
 #include "test_board.cpp"
 #include "test_draw.cpp"
-#include "test_gen_pseudo_legal_moves.cpp"
+#include "test_basic_move_gen.cpp"
 #include "test_move.cpp"
 #include "test_move_gen.cpp"
 #include <gtest/gtest.h>

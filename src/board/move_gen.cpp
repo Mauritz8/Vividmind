@@ -239,32 +239,35 @@ std::vector<Move> Board::get_pseudo_legal_moves() const {
 }
 
 std::vector<Move> Board::get_legal_moves() {
-  std::vector<Move> pseudo_legal_moves = get_pseudo_legal_moves();
+  const Color player = get_player_to_move();
+  std::vector<Move> moves = get_pseudo_legal_moves();
 
-  auto is_legal_move = [this](Move move) {
-    const Color player = get_player_to_move();
+  auto in_check_after_move = [this, player](const Move &move) {
     make(move);
-    bool is_in_check_after_move = is_in_check(player);
+    bool in_check = is_in_check(player);
     undo();
-    return !is_in_check_after_move;
+    return in_check;
   };
-  return pseudo_legal_moves | std::ranges::views::filter(is_legal_move) |
-         std::ranges::to<std::vector>();
+
+  std::erase_if(moves, in_check_after_move);
+  return moves;
 }
 
 std::vector<Move> Board::get_forcing_moves() {
-  std::vector<Move> legal_moves = get_legal_moves();
-  auto is_forcing_move = [this](Move move) {
-    const Color player = get_player_to_move();
+  const Color player = get_player_to_move();
+  std::vector<Move> moves = get_legal_moves();
+
+  auto not_forcing_move = [this, player](const Move &move) {
     make(move);
     bool is_forcing_move = get_captured_piece().has_value() ||
                            is_in_check(get_opponent(player)) ||
                            move.move_type == MoveType::PROMOTION;
     undo();
-    return is_forcing_move;
+    return !is_forcing_move;
   };
-  return legal_moves | std::ranges::views::filter(is_forcing_move) |
-         std::ranges::to<std::vector>();
+
+  std::erase_if(moves, not_forcing_move);
+  return moves;
 }
 
 uint64_t Board::get_attacking_bb(Color color) const {
