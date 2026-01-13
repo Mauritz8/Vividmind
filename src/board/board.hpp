@@ -55,6 +55,8 @@ public:
   bool is_in_check(Color color) const;
 
   std::vector<Move> get_pseudo_legal_moves() const;
+  std::vector<Move> get_legal_moves();
+  std::vector<Move> get_forcing_moves();
 
   bool is_draw();
   bool is_insufficient_material() const;

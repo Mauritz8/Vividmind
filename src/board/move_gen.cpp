@@ -238,6 +238,35 @@ std::vector<Move> Board::get_pseudo_legal_moves() const {
   return moves;
 }
 
+std::vector<Move> Board::get_legal_moves() {
+  std::vector<Move> pseudo_legal_moves = get_pseudo_legal_moves();
+
+  auto is_legal_move = [this](Move move) {
+    const Color player = get_player_to_move();
+    make(move);
+    bool is_in_check_after_move = is_in_check(player);
+    undo();
+    return !is_in_check_after_move;
+  };
+  return pseudo_legal_moves | std::ranges::views::filter(is_legal_move) |
+         std::ranges::to<std::vector>();
+}
+
+std::vector<Move> Board::get_forcing_moves() {
+  std::vector<Move> legal_moves = get_legal_moves();
+  auto is_forcing_move = [this](Move move) {
+    const Color player = get_player_to_move();
+    make(move);
+    bool is_forcing_move = get_captured_piece().has_value() ||
+                           is_in_check(get_opponent(player)) ||
+                           move.move_type == MoveType::PROMOTION;
+    undo();
+    return is_forcing_move;
+  };
+  return legal_moves | std::ranges::views::filter(is_forcing_move) |
+         std::ranges::to<std::vector>();
+}
+
 uint64_t Board::get_attacking_bb(Color color) const {
   uint64_t attacking = 0;
 
@@ -282,7 +311,6 @@ bool Board::is_attacking(int pos, Color color) const {
     return true;
   }
 
-  uint64_t occupied = side_bbs.at(WHITE) | side_bbs.at(BLACK);
   uint64_t bishop_moves = gen_bishop_attacks(pos);
   if ((bishop_moves & pieces_bb.at(BISHOP)) != 0) {
     return true;

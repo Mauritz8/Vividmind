@@ -13,7 +13,6 @@
 #include "evaluation/evaluation.hpp"
 #include "move.hpp"
 #include "uci.hpp"
-#include "utils.hpp"
 
 Search::Search(Board &board, SearchParams &params, std::atomic<bool> &stop)
     : board(board), params(params), stop(stop) {}
@@ -69,8 +68,6 @@ void Search::iterative_deepening_search() {
 int Search::alpha_beta(int depth, int alpha, int beta,
                        std::vector<Move> &principal_variation,
                        const std::optional<Move> &best_move_prev_depth) {
-  const Color player = board.get_player_to_move();
-
   if (is_terminate()) {
     info.is_terminated = true;
     return 0;
@@ -86,8 +83,7 @@ int Search::alpha_beta(int depth, int alpha, int beta,
 
   // look one move further if the player is in check because the opponent
   // could have a strong next move after we move out of check
-  const bool is_in_check = board.is_in_check(player);
-  if (is_in_check) {
+  if (board.is_in_check(board.get_player_to_move())) {
     depth++;
   }
 
@@ -98,7 +94,7 @@ int Search::alpha_beta(int depth, int alpha, int beta,
     return quiescence(alpha, beta, principal_variation);
   }
 
-  std::vector<Move> moves = board.get_pseudo_legal_moves();
+  std::vector<Move> moves = board.get_legal_moves();
   sort_moves(moves);
 
   // TODO: this should not use rotate since it moves all the elements
@@ -112,10 +108,6 @@ int Search::alpha_beta(int depth, int alpha, int beta,
 
   for (const Move &move : moves) {
     board.make(move);
-    if (board.is_in_check(player)) {
-      board.undo();
-      continue;
-    }
 
     info.ply_from_root++;
     if (info.ply_from_root > info.seldepth) {
@@ -169,18 +161,9 @@ int Search::quiescence(int alpha, int beta,
     alpha = evaluation;
   }
 
-  const Color player = board.get_player_to_move();
-  std::vector<Move> moves = board.get_pseudo_legal_moves();
+  std::vector<Move> moves = board.get_forcing_moves();
   for (const Move &move : moves) {
     board.make(move);
-
-    bool is_forcing_move = board.get_captured_piece().has_value() ||
-                           board.is_in_check(get_opponent(player)) ||
-                           move.move_type == MoveType::PROMOTION;
-    if (board.is_in_check(player) || !is_forcing_move) {
-      board.undo();
-      continue;
-    }
 
     info.ply_from_root++;
     if (info.ply_from_root > info.seldepth) {
