@@ -191,7 +191,7 @@ std::array<Castling, 2> Board::updated_castling_rights(const Move &move) const {
                              .queenside,
   };
 
-  Color opponent = get_opposite_color(get_player_to_move());
+  Color opponent = get_opponent(get_player_to_move());
   bool disable_kingside_opponent = move.end == opponent_kingside_rook;
   bool disable_queenside_opponent = move.end == opponent_queenside_rook;
   castling_rights.at(opponent) = {
@@ -226,7 +226,7 @@ std::optional<PieceType> Board::piece_type(int pos, Color color) const {
 
 std::optional<Piece> Board::get_piece_to_be_captured(const Move &move) const {
   Color player = get_player_to_move();
-  Color opponent = get_opposite_color(player);
+  Color opponent = get_opponent(player);
   int pos = move.move_type == EN_PASSANT
                 ? get_en_passant_square().value() + (player == WHITE ? 8 : -8)
                 : move.end;
@@ -241,7 +241,7 @@ std::array<int, 2>
 Board::updated_material(const Move &move,
                         std::optional<Piece> captured_piece) const {
   const Color player_to_move = get_player_to_move();
-  const Color opponent = get_opposite_color(player_to_move);
+  const Color opponent = get_opponent(player_to_move);
 
   std::array<int, 2> material;
   material.at(player_to_move) =
@@ -262,7 +262,7 @@ std::array<int, 2>
 Board::updated_psqt(const Move &move,
                     std::optional<Piece> captured_piece) const {
   const Color player_to_move = get_player_to_move();
-  const Color opponent = get_opposite_color(player_to_move);
+  const Color opponent = get_opponent(player_to_move);
 
   const std::optional<PieceType> piece_type_optional =
       piece_type(move.start, player_to_move);
@@ -311,7 +311,7 @@ void Board::make(const Move &move) {
       get_piece_to_be_captured(move);
 
   const PosData new_pos_data = {
-      .player_to_move = get_opposite_color(player_to_move),
+      .player_to_move = get_opponent(player_to_move),
       .castling_rights = updated_castling_rights(move),
       .en_passant_square = move.move_type == PAWN_TWO_SQUARES_FORWARD
                                ? std::optional<int>((move.start + move.end) / 2)
@@ -355,7 +355,7 @@ void Board::undo() {
 
   const Move &move = move_history.top();
 
-  const Color move_played_by = get_opposite_color(get_player_to_move());
+  const Color move_played_by = get_opponent(get_player_to_move());
   const std::optional<PieceType> piece_type_opt =
       piece_type(move.end, move_played_by);
   assert(piece_type_opt.has_value());

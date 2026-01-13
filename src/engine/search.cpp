@@ -13,6 +13,7 @@
 #include "evaluation/evaluation.hpp"
 #include "move.hpp"
 #include "uci.hpp"
+#include "utils.hpp"
 
 Search::Search(Board &board, SearchParams &params, std::atomic<bool> &stop)
     : board(board), params(params), stop(stop) {}
@@ -83,25 +84,29 @@ int Search::alpha_beta(int depth, int alpha, int beta,
   }
 
   // after the search has concluded,
-  // see if there are any winning/losing captures in the position
+  // see if there are any winning/losing forcing moves in the position
   // that might change the evaluation of the position
   if (depth == 0) {
     return quiescence(alpha, beta, principal_variation);
   }
 
-  std::vector<Move> pseudo_legal_moves = board.get_pseudo_legal_moves();
-  sort_moves(pseudo_legal_moves);
+  std::vector<Move> moves = board.get_pseudo_legal_moves();
+  sort_moves(moves);
 
+  // TODO: this should not use rotate since it moves all the elements
+  // after it has just been sorted
+  // simply insert at beginning instead
+  // consider using a linked list instead of vector since it's fast for
+  // insertion
   if (best_move_prev_depth.has_value()) {
-    auto it = std::find(pseudo_legal_moves.begin(), pseudo_legal_moves.end(),
-                        best_move_prev_depth);
-    if (it != pseudo_legal_moves.end()) {
-      std::rotate(pseudo_legal_moves.begin(), it, it + 1);
+    auto it = std::find(moves.begin(), moves.end(), best_move_prev_depth);
+    if (it != moves.end()) {
+      std::rotate(moves.begin(), it, it + 1);
     }
   }
 
   int legal_moves_found = 0;
-  for (const Move &move : pseudo_legal_moves) {
+  for (const Move &move : moves) {
 
     board.make(move);
     if (board.is_in_check(player)) {
@@ -159,11 +164,14 @@ int Search::quiescence(int alpha, int beta,
   }
 
   const Color player = board.get_player_to_move();
-  std::vector<Move> captures = board.get_pseudo_legal_moves(true);
-  sort_moves(captures);
-  for (const Move &capture : captures) {
-    board.make(capture);
-    if (board.is_in_check(player)) {
+  std::vector<Move> moves = board.get_pseudo_legal_moves();
+  for (const Move &move : moves) {
+    board.make(move);
+
+    bool is_forcing_move = board.get_captured_piece().has_value() ||
+                           board.is_in_check(get_opponent(player)) ||
+                           move.move_type == MoveType::PROMOTION;
+    if (board.is_in_check(player) || !is_forcing_move) {
       board.undo();
       continue;
     }
@@ -183,7 +191,7 @@ int Search::quiescence(int alpha, int beta,
     }
     if (evaluation > alpha) {
       alpha = evaluation;
-      variation.insert(variation.begin(), capture);
+      variation.insert(variation.begin(), move);
       principal_variation = variation;
     }
   }

@@ -54,8 +54,7 @@ public:
 
   bool is_in_check(Color color) const;
 
-  std::vector<Move>
-  get_pseudo_legal_moves(bool only_forcing_moves = false) const;
+  std::vector<Move> get_pseudo_legal_moves() const;
 
   bool is_draw() const;
   bool is_insufficient_material() const;
@@ -82,17 +81,14 @@ private:
   std::array<Castling, 2> updated_castling_rights(const Move &move) const;
   int get_castling_rook(const Move &move, Color color) const;
 
-  void gen_moves_piece(PieceType piece, int start, bool only_forcing_moves,
+  void gen_moves_piece(PieceType piece, int start,
                        std::vector<Move> &moves) const;
-  void gen_all_moves_piece(PieceType piece, bool only_forcing_moves,
-                           std::vector<Move> &moves) const;
+  void gen_all_moves_piece(PieceType piece, std::vector<Move> &moves) const;
 
   std::vector<Move> gen_knight_moves(int start) const;
-  void gen_pawn_moves(int start, bool only_forcing_moves,
-                      std::vector<Move> &moves) const;
+  void gen_pawn_moves(int start, std::vector<Move> &moves) const;
 
-  void gen_king_moves(int start, bool only_forcing_moves,
-                      std::vector<Move> &moves) const;
+  void gen_king_moves(int start, std::vector<Move> &moves) const;
   uint64_t get_castling_check_not_allowed_bb(int start, bool kingside) const;
   uint64_t get_castling_pieces_not_allowed_bb(int start, bool kingside) const;
   uint64_t gen_castling_moves_bb(int start) const;

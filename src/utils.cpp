@@ -3,7 +3,7 @@
 #include <stdexcept>
 #include <vector>
 
-Color get_opposite_color(Color color) { return color == WHITE ? BLACK : WHITE; }
+Color get_opponent(Color color) { return color == WHITE ? BLACK : WHITE; }
 
 char get_char_representation(PieceType piece_type) {
   switch (piece_type) {
