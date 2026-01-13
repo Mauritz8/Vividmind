@@ -6,7 +6,6 @@
 
 static void assertMoveListsEqual(std::vector<Move> actual_moves,
                                  std::vector<Move> expected_moves) {
-  EXPECT_EQ(actual_moves.size(), expected_moves.size());
   for (Move expected_move : expected_moves) {
     EXPECT_TRUE(std::find(actual_moves.begin(), actual_moves.end(),
                           expected_move) != actual_moves.end())
@@ -20,9 +19,10 @@ static void assertMoveListsEqual(std::vector<Move> actual_moves,
         << fmt::format("move {} generated but shouldn't be",
                        actual_move.to_uci_notation());
   }
+  EXPECT_EQ(actual_moves.size(), expected_moves.size());
 }
 
-TEST(MoveGenTests, FindAllLegalMovesTest1) {
+TEST(BasicMoveGenTests, Position1) {
   Board board = fen::get_position(
       "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1");
 
@@ -53,16 +53,10 @@ TEST(MoveGenTests, FindAllLegalMovesTest1) {
 
       Move(h1, g1), Move(h1, f1),
   };
-
   assertMoveListsEqual(actual_moves, expected_moves);
-}
 
-TEST(MoveGenTests, FindForcingMovesTest1) {
-  Board board = fen::get_position(
-      "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1");
-
-  std::vector<Move> actual_moves = board.get_forcing_moves();
-  std::vector<Move> expected_moves = {
+  std::vector<Move> actual_forcing_moves = board.get_forcing_moves();
+  std::vector<Move> expected_forcing_moves = {
       Move(d5, e6),
 
       Move(e5, d7), Move(e5, f7), Move(e5, g6),
@@ -73,11 +67,10 @@ TEST(MoveGenTests, FindForcingMovesTest1) {
 
       Move(g2, h3),
   };
-
-  assertMoveListsEqual(actual_moves, expected_moves);
+  assertMoveListsEqual(actual_forcing_moves, expected_forcing_moves);
 }
 
-TEST(MoveGenTests, FindAllLegalMovesTest2) {
+TEST(BasicMoveGenTests, Position2) {
   Board board = fen::get_position(
       "rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ - 1 8");
 
@@ -112,41 +105,70 @@ TEST(MoveGenTests, FindAllLegalMovesTest2) {
 
       Move(h1, g1),         Move(h1, f1),
   };
-
   assertMoveListsEqual(actual_moves, expected_moves);
-}
 
-TEST(MoveGenTests, FindForcingMovesTest2) {
-  Board board = fen::get_position(
-      "rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ - 1 8");
-
-  std::vector<Move> actual_moves = board.get_forcing_moves();
-  std::vector<Move> expected_moves = {
+  std::vector<Move> actual_forcing_moves = board.get_forcing_moves();
+  std::vector<Move> expected_forcing_moves = {
       Move(d7, c8, QUEEN),  Move(d7, c8, ROOK), Move(d7, c8, KNIGHT),
       Move(d7, c8, BISHOP), Move(c4, f7),       Move(e1, f2),
   };
 
-  assertMoveListsEqual(actual_moves, expected_moves);
+  assertMoveListsEqual(actual_forcing_moves, expected_forcing_moves);
 }
 
-TEST(MoveGenTests, FindAllLegalMovesTest3) {
+TEST(BasicMoveGenTests, Position3) {
   Board board = fen::get_position("8/3k4/4r3/8/5N2/3K4/8/8 w - - 0 1");
 
   std::vector<Move> actual_moves = board.get_legal_moves();
   std::vector<Move> expected_moves = {
-      Move(d3, c4), Move(d3, c3), Move(d3, c2), Move(d3, d4),
-      Move(d3, d2),
+      Move(d3, c4), Move(d3, c3), Move(d3, c2), Move(d3, d4), Move(d3, d2),
 
-      Move(f4, d5), Move(f4, e6), Move(f4, g6), Move(f4, h5),
-      Move(f4, h3), Move(f4, g2), Move(f4, e2),
+      Move(f4, d5), Move(f4, e6), Move(f4, g6), Move(f4, h5), Move(f4, h3),
+      Move(f4, g2), Move(f4, e2),
   };
   assertMoveListsEqual(actual_moves, expected_moves);
+
+  std::vector<Move> actual_forcing_moves = board.get_forcing_moves();
+  std::vector<Move> expected_forcing_moves = {Move(f4, e6)};
+  assertMoveListsEqual(actual_forcing_moves, expected_forcing_moves);
 }
 
-TEST(MoveGenTests, FindForcingMovesTest3) {
-  Board board = fen::get_position("8/3k4/4r3/8/5N2/3K4/8/8 w - - 0 1");
+TEST(BasicMoveGenTests, Position4) {
+  Board board =
+      fen::get_position("4r3/1p5k/p1n3p1/3Qp3/1P4q1/P5B1/7P/1B3RK1 w - - 1 34");
 
-  std::vector<Move> actual_tactical_moves = board.get_forcing_moves();
-  std::vector<Move> expected_tactical_moves = {Move(f4, e6)};
-  assertMoveListsEqual(actual_tactical_moves, expected_tactical_moves);
+  std::vector<Move> actual_moves = board.get_legal_moves();
+  for (Move actual_move : actual_moves) {
+    fmt::println("{}", actual_move.to_uci_notation());
+  }
+  std::vector<Move> expected_moves = {
+      Move(a3, a4), Move(b4, b5),
+
+      Move(b1, c2), Move(b1, d3), Move(b1, e4), Move(b1, f5), Move(b1, g6),
+      Move(b1, a2),
+
+      Move(d5, d6), Move(d5, d7), Move(d5, d8), Move(d5, d4), Move(d5, d3),
+      Move(d5, d2), Move(d5, d1), Move(d5, c5), Move(d5, b5), Move(d5, a5),
+      Move(d5, e5), Move(d5, c4), Move(d5, b3), Move(d5, a2), Move(d5, e6),
+      Move(d5, f7), Move(d5, g8), Move(d5, e4), Move(d5, f3), Move(d5, g2),
+      Move(d5, h1), Move(d5, c6),
+
+      Move(f1, f2), Move(f1, f3), Move(f1, f4), Move(f1, f5), Move(f1, f6),
+      Move(f1, f7), Move(f1, f8), Move(f1, e1), Move(f1, d1), Move(f1, c1),
+
+      Move(g1, f2), Move(g1, g2), Move(g1, h1),
+
+      Move(h2, h3), Move(h2, h4),
+  };
+  assertMoveListsEqual(actual_moves, expected_moves);
+
+  std::vector<Move> actual_forcing_moves = board.get_forcing_moves();
+  std::vector<Move> expected_forcing_moves = {
+      Move(b1, g6),
+
+      Move(d5, d7), Move(d5, e5), Move(d5, f7), Move(d5, g8), Move(d5, c6),
+
+      Move(f1, f7),
+  };
+  assertMoveListsEqual(actual_forcing_moves, expected_forcing_moves);
 }
