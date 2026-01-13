@@ -64,10 +64,10 @@ uint64_t Board::gen_castling_moves_bb(int start) const {
   return castling;
 }
 
-void Board::gen_king_moves(int start, MoveCategory move_category,
+void Board::gen_king_moves(int start, bool only_forcing_moves,
                            std::vector<Move> &moves) const {
   uint64_t normal = masks.king_moves.at(start);
-  normal &= move_category == TACTICAL
+  normal &= only_forcing_moves
                 ? side_bbs.at(get_opposite_color(get_player_to_move()))
                 : ~side_bbs.at(get_player_to_move());
 
@@ -77,7 +77,7 @@ void Board::gen_king_moves(int start, MoveCategory move_category,
     moves.push_back(move);
   }
 
-  if (move_category == ALL) {
+  if (!only_forcing_moves) {
     uint64_t castling = gen_castling_moves_bb(start);
     while (castling != 0) {
       int end_pos = bits::pop_lsb(castling);
@@ -87,7 +87,7 @@ void Board::gen_king_moves(int start, MoveCategory move_category,
   }
 }
 
-void Board::gen_pawn_moves(int start, MoveCategory move_category,
+void Board::gen_pawn_moves(int start, bool only_forcing_moves,
                            std::vector<Move> &moves) const {
   uint64_t pawn = masks.squares.at(start);
   uint64_t all_pieces = side_bbs.at(WHITE) | side_bbs.at(BLACK);
@@ -123,7 +123,7 @@ void Board::gen_pawn_moves(int start, MoveCategory move_category,
         Move move(start, end_pos, p);
         moves.push_back(move);
       }
-    } else if (move_category == ALL) {
+    } else if (!only_forcing_moves) {
       Move move(start, end_pos);
       moves.push_back(move);
     }
@@ -149,7 +149,7 @@ void Board::gen_pawn_moves(int start, MoveCategory move_category,
     }
   }
 
-  if (move_category == ALL) {
+  if (!only_forcing_moves) {
     while (move_two != 0) {
       int end_pos = bits::pop_lsb(move_two);
       Move move(start, end_pos, PAWN_TWO_SQUARES_FORWARD);
@@ -206,15 +206,14 @@ uint64_t Board::gen_queen_attacks(int start) const {
   return gen_rook_attacks(start) | gen_bishop_attacks(start);
 }
 
-void Board::gen_moves_piece(PieceType piece, int start,
-                            MoveCategory move_category,
+void Board::gen_moves_piece(PieceType piece, int start, bool only_forcing_moves,
                             std::vector<Move> &moves) const {
   if (piece == KING) {
-    gen_king_moves(start, move_category, moves);
+    gen_king_moves(start, only_forcing_moves, moves);
     return;
   }
   if (piece == PAWN) {
-    gen_pawn_moves(start, move_category, moves);
+    gen_pawn_moves(start, only_forcing_moves, moves);
     return;
   }
 
@@ -223,9 +222,9 @@ void Board::gen_moves_piece(PieceType piece, int start,
                      : piece == ROOK   ? gen_rook_attacks(start)
                                        : gen_queen_attacks(start);
 
-  // TODO: check moves should be included in tactical moves
+  // TODO: check moves should be included in forcing moves
   uint64_t moves_bb =
-      move_category == TACTICAL
+      only_forcing_moves
           ? attacks & side_bbs.at(get_opposite_color(get_player_to_move()))
           : attacks &= ~side_bbs.at(get_player_to_move());
 
@@ -236,20 +235,19 @@ void Board::gen_moves_piece(PieceType piece, int start,
   }
 }
 
-void Board::gen_all_moves_piece(PieceType piece, MoveCategory move_category,
+void Board::gen_all_moves_piece(PieceType piece, bool only_forcing_moves,
                                 std::vector<Move> &moves) const {
   uint64_t piece_bb = piece_bbs.at(get_player_to_move()).at(piece);
   while (piece_bb != 0) {
     int start_pos = bits::pop_lsb(piece_bb);
-    gen_moves_piece(piece, start_pos, move_category, moves);
+    gen_moves_piece(piece, start_pos, only_forcing_moves, moves);
   }
 }
 
-std::vector<Move>
-Board::get_pseudo_legal_moves(MoveCategory move_category) const {
+std::vector<Move> Board::get_pseudo_legal_moves(bool only_forcing_moves) const {
   std::vector<Move> moves;
   for (int piece = 0; piece < 6; piece++) {
-    gen_all_moves_piece((PieceType)piece, move_category, moves);
+    gen_all_moves_piece((PieceType)piece, only_forcing_moves, moves);
   }
   return moves;
 }

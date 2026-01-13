@@ -15,8 +15,6 @@ struct Castling {
   bool queenside;
 };
 
-enum MoveCategory { ALL, TACTICAL };
-
 const std::string STARTING_POSITION_FEN =
     "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 

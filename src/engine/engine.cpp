@@ -14,8 +14,7 @@
 namespace engine {
 bool make_move(const char *move_uci, Board &board) {
   const Color player = board.get_player_to_move();
-  const std::vector<Move> pseudo_legal_moves =
-      board.get_pseudo_legal_moves(ALL);
+  const std::vector<Move> pseudo_legal_moves = board.get_pseudo_legal_moves();
   for (const Move &move : pseudo_legal_moves) {
     if (move.to_uci_notation() == std::string(move_uci)) {
       board.make(move);

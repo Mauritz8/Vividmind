@@ -26,7 +26,7 @@ TEST(PseudoLegalMoveGenTests, FindAllPseudoLegalMovesTest1) {
   Board board = fen::get_position(
       "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1");
 
-  std::vector<Move> actual_moves = board.get_pseudo_legal_moves(ALL);
+  std::vector<Move> actual_moves = board.get_pseudo_legal_moves();
   std::vector<Move> expected_moves = {
       Move(d5, d6), Move(d5, e6),
 
@@ -61,7 +61,7 @@ TEST(PseudoLegalMoveGenTests, FindTacticalPseudoLegalMovesTest1) {
   Board board = fen::get_position(
       "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1");
 
-  std::vector<Move> actual_moves = board.get_pseudo_legal_moves(TACTICAL);
+  std::vector<Move> actual_moves = board.get_pseudo_legal_moves(true);
   std::vector<Move> expected_moves = {
       Move(d5, e6),
 
@@ -81,7 +81,7 @@ TEST(PseudoLegalMoveGenTests, FindAllPseudoLegalMovesTest2) {
   Board board = fen::get_position(
       "rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ - 1 8");
 
-  std::vector<Move> actual_moves = board.get_pseudo_legal_moves(ALL);
+  std::vector<Move> actual_moves = board.get_pseudo_legal_moves();
   std::vector<Move> expected_moves = {
       Move(d7, c8, QUEEN),  Move(d7, c8, ROOK), Move(d7, c8, KNIGHT),
       Move(d7, c8, BISHOP),
@@ -120,7 +120,7 @@ TEST(PseudoLegalMoveGenTests, FindTacticalPseudoLegalMovesTest2) {
   Board board = fen::get_position(
       "rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ - 1 8");
 
-  std::vector<Move> actual_moves = board.get_pseudo_legal_moves(TACTICAL);
+  std::vector<Move> actual_moves = board.get_pseudo_legal_moves(true);
   std::vector<Move> expected_moves = {
       Move(d7, c8, QUEEN),  Move(d7, c8, ROOK), Move(d7, c8, KNIGHT),
       Move(d7, c8, BISHOP), Move(c4, f7),       Move(e1, f2),
@@ -132,7 +132,7 @@ TEST(PseudoLegalMoveGenTests, FindTacticalPseudoLegalMovesTest2) {
 TEST(PseudoLegalMoveGenTests, FindPseudoLegalMovesTest3) {
   Board board = fen::get_position("8/3k4/4r3/8/5N2/3K4/8/8 w - - 0 1");
 
-  std::vector<Move> actual_moves = board.get_pseudo_legal_moves(ALL);
+  std::vector<Move> actual_moves = board.get_pseudo_legal_moves();
   std::vector<Move> expected_moves = {
       Move(d3, c4), Move(d3, c3), Move(d3, c2), Move(d3, d4),
       Move(d3, d2), Move(d3, e4), Move(d3, e3), Move(d3, e2),
@@ -142,8 +142,7 @@ TEST(PseudoLegalMoveGenTests, FindPseudoLegalMovesTest3) {
   };
   assertMoveListsEqual(actual_moves, expected_moves);
 
-  std::vector<Move> actual_tactical_moves =
-      board.get_pseudo_legal_moves(TACTICAL);
+  std::vector<Move> actual_tactical_moves = board.get_pseudo_legal_moves(true);
   std::vector<Move> expected_tactical_moves = {Move(f4, e6)};
   assertMoveListsEqual(actual_tactical_moves, expected_tactical_moves);
 }

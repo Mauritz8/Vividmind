@@ -89,7 +89,7 @@ int Search::alpha_beta(int depth, int alpha, int beta,
     return quiescence(alpha, beta, principal_variation);
   }
 
-  std::vector<Move> pseudo_legal_moves = board.get_pseudo_legal_moves(ALL);
+  std::vector<Move> pseudo_legal_moves = board.get_pseudo_legal_moves();
   sort_moves(pseudo_legal_moves);
 
   if (best_move_prev_depth.has_value()) {
@@ -159,7 +159,7 @@ int Search::quiescence(int alpha, int beta,
   }
 
   const Color player = board.get_player_to_move();
-  std::vector<Move> captures = board.get_pseudo_legal_moves(TACTICAL);
+  std::vector<Move> captures = board.get_pseudo_legal_moves(true);
   sort_moves(captures);
   for (const Move &capture : captures) {
     board.make(capture);
