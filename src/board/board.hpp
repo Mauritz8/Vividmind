@@ -56,10 +56,13 @@ public:
 
   std::vector<Move> get_pseudo_legal_moves() const;
 
-  bool is_draw() const;
+  bool is_draw();
   bool is_insufficient_material() const;
   bool is_draw_by_fifty_move_rule() const;
   bool is_threefold_repetition() const;
+
+  bool is_checkmate();
+  bool is_stalemate();
 
 private:
   std::array<std::array<uint64_t, 6>, 2> piece_bbs;
@@ -105,4 +108,6 @@ private:
 
   bool is_lone_king(Color color) const;
   bool is_endgame() const;
+
+  bool no_legal_moves();
 };

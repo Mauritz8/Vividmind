@@ -92,9 +92,9 @@ bool Board::operator==(const Board &other) const {
   return true;
 }
 
-bool Board::is_draw() const {
+bool Board::is_draw() {
   return is_insufficient_material() || is_threefold_repetition() ||
-         is_draw_by_fifty_move_rule();
+         is_draw_by_fifty_move_rule() || is_stalemate();
 }
 
 std::optional<PieceType> Board::get_piece_type(int pos) const {
@@ -444,4 +444,25 @@ int Board::get_doubled_pawns(Color color) const {
     }
   }
   return doubled_pawns;
+}
+
+bool Board::is_checkmate() {
+  return is_in_check(get_player_to_move()) && no_legal_moves();
+}
+bool Board::is_stalemate() {
+  return !is_in_check(get_player_to_move()) && no_legal_moves();
+}
+
+bool Board::no_legal_moves() {
+  const Color player = get_player_to_move();
+  std::vector<Move> moves = get_pseudo_legal_moves();
+  for (const Move &move : moves) {
+    make(move);
+    if (!is_in_check(player)) {
+      undo();
+      return false;
+    }
+    undo();
+  }
+  return true;
 }

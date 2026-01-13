@@ -76,6 +76,14 @@ int Search::alpha_beta(int depth, int alpha, int beta,
     return 0;
   }
 
+  if (board.is_draw()) {
+    return DRAW;
+  }
+
+  if (board.is_checkmate()) {
+    return -CHECKMATE + info.ply_from_root;
+  }
+
   // look one move further if the player is in check because the opponent
   // could have a strong next move after we move out of check
   const bool is_in_check = board.is_in_check(player);
@@ -94,10 +102,7 @@ int Search::alpha_beta(int depth, int alpha, int beta,
   sort_moves(moves);
 
   // TODO: this should not use rotate since it moves all the elements
-  // after it has just been sorted
-  // simply insert at beginning instead
-  // consider using a linked list instead of vector since it's fast for
-  // insertion
+  // after it has just been sorted. simply insert at the beginning instead
   if (best_move_prev_depth.has_value()) {
     auto it = std::find(moves.begin(), moves.end(), best_move_prev_depth);
     if (it != moves.end()) {
@@ -105,15 +110,12 @@ int Search::alpha_beta(int depth, int alpha, int beta,
     }
   }
 
-  int legal_moves_found = 0;
   for (const Move &move : moves) {
-
     board.make(move);
     if (board.is_in_check(player)) {
       board.undo();
       continue;
     }
-    legal_moves_found++;
 
     info.ply_from_root++;
     if (info.ply_from_root > info.seldepth) {
@@ -121,9 +123,8 @@ int Search::alpha_beta(int depth, int alpha, int beta,
     }
 
     std::vector<Move> variation;
-    int evaluation = board.is_draw() ? DRAW
-                                     : -alpha_beta(depth - 1, -beta, -alpha,
-                                                   variation, std::nullopt);
+    int evaluation =
+        -alpha_beta(depth - 1, -beta, -alpha, variation, std::nullopt);
 
     board.undo();
     info.ply_from_root--;
@@ -141,10 +142,7 @@ int Search::alpha_beta(int depth, int alpha, int beta,
       principal_variation = variation;
     }
   }
-  if (legal_moves_found > 0) {
-    return alpha;
-  }
-  return is_in_check ? -CHECKMATE + info.ply_from_root : DRAW;
+  return alpha;
 }
 
 int Search::quiescence(int alpha, int beta,
@@ -153,9 +151,17 @@ int Search::quiescence(int alpha, int beta,
     info.is_terminated = true;
     return 0;
   }
-
   info.nodes++;
-  int evaluation = evaluate(board);
+
+  if (board.is_draw()) {
+    return DRAW;
+  }
+
+  if (board.is_checkmate()) {
+    return -CHECKMATE + info.ply_from_root;
+  }
+
+  const int evaluation = evaluate(board);
   if (evaluation >= beta) {
     return beta;
   }
@@ -182,7 +188,7 @@ int Search::quiescence(int alpha, int beta,
     }
 
     std::vector<Move> variation;
-    evaluation = -quiescence(-beta, -alpha, variation);
+    const int evaluation = -quiescence(-beta, -alpha, variation);
     board.undo();
     info.ply_from_root--;
 
@@ -195,7 +201,6 @@ int Search::quiescence(int alpha, int beta,
       principal_variation = variation;
     }
   }
-
   return alpha;
 }
 
