@@ -1,2 +1,3 @@
 src/defs.hpp
 src/evaluation/evaluation.hpp
+tests/tests.cpp

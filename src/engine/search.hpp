@@ -51,6 +51,4 @@ private:
                  const std::optional<Move> &best_move_prev_depth);
   int quiescence(int alpha, int beta, std::vector<Move> &principal_variation);
   bool is_terminate();
-  void sort_moves(std::vector<Move> &moves);
-  int get_move_score(const Move &move);
 };

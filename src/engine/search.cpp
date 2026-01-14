@@ -1,6 +1,5 @@
 #include "search.hpp"
 
-#include <algorithm>
 #include <cassert>
 #include <fmt/core.h>
 #include <iostream>
@@ -9,7 +8,7 @@
 #include <vector>
 
 #include "board/board.hpp"
-#include "defs.hpp"
+#include "engine/move_sort.hpp"
 #include "evaluation/evaluation.hpp"
 #include "move.hpp"
 #include "uci.hpp"
@@ -97,16 +96,7 @@ int Search::alpha_beta(int depth, int alpha, int beta,
     return is_in_check ? -CHECKMATE + info.ply_from_root : DRAW;
   }
 
-  sort_moves(moves);
-  // TODO: this should not use rotate since it moves all the elements
-  // after it has just been sorted. simply insert at the beginning instead
-  if (best_move_prev_depth.has_value()) {
-    auto it = std::find(moves.begin(), moves.end(), best_move_prev_depth);
-    if (it != moves.end()) {
-      std::rotate(moves.begin(), it, it + 1);
-    }
-  }
-
+  sort_moves(moves, best_move_prev_depth, board);
   for (const Move &move : moves) {
     board.make(move);
 
@@ -216,23 +206,4 @@ bool Search::is_terminate() {
     return false;
   }
   return false;
-}
-
-void Search::sort_moves(std::vector<Move> &moves) {
-  auto sort_mvv_lva = [&](Move i, Move j) {
-    return get_move_score(i) > get_move_score(j);
-  };
-  std::sort(moves.begin(), moves.end(), sort_mvv_lva);
-}
-
-int Search::get_move_score(const Move &move) {
-  const std::optional<PieceType> start_piece = board.get_piece_type(move.start);
-  const std::optional<PieceType> end_piece = board.get_piece_type(move.end);
-
-  // score non-capture moves lower than captures
-  if (!end_piece) {
-    return -QUEEN_VALUE;
-  }
-  return PIECE_VALUES.at(end_piece.value()) -
-         PIECE_VALUES.at(start_piece.value());
 }

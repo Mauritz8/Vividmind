@@ -31,6 +31,7 @@ set(COMMON_SOURCES
     src/engine/search.cpp
     src/engine/engine.cpp
     src/engine/command.cpp
+    src/engine/move_sort.cpp
     src/piece.cpp
     src/fen.cpp
     src/move.cpp
