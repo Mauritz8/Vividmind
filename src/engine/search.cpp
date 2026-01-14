@@ -31,9 +31,9 @@ void Search::iterative_deepening_search() {
       .seldepth = 0,
       .nodes = 0,
       .is_terminated = false,
+      .best_move = std::nullopt,
   };
   stop = false;
-  std::optional<Move> best_move = std::nullopt;
   while (info.depth < params.depth && !info.is_terminated) {
     info.depth++;
 
@@ -43,7 +43,7 @@ void Search::iterative_deepening_search() {
     const int beta = CHECKMATE;
     std::vector<Move> principal_variation;
     const int evaluation =
-        alpha_beta(info.depth, alpha, beta, principal_variation, best_move);
+        alpha_beta(info.depth, alpha, beta, principal_variation);
 
     if (!info.is_terminated) {
       SearchSummary search_summary = {.depth = info.depth,
@@ -53,20 +53,19 @@ void Search::iterative_deepening_search() {
                                       .time = time_elapsed(info.start_time),
                                       .pv = principal_variation};
       assert(search_summary.pv.size() > 0);
-      best_move = search_summary.pv.at(0);
+      info.best_move = search_summary.pv.at(0);
 
       fmt::println("{}", uci::show(search_summary));
       std::flush(std::cout);
     }
   }
-  assert(best_move.has_value());
-  fmt::println("{}", uci::bestmove(best_move.value()));
+  assert(info.best_move.has_value());
+  fmt::println("{}", uci::bestmove(info.best_move.value()));
   std::flush(std::cout);
 }
 
 int Search::alpha_beta(int depth, int alpha, int beta,
-                       std::vector<Move> &principal_variation,
-                       const std::optional<Move> &best_move_prev_depth) {
+                       std::vector<Move> &principal_variation) {
   if (is_terminate()) {
     info.is_terminated = true;
     return 0;
@@ -96,7 +95,7 @@ int Search::alpha_beta(int depth, int alpha, int beta,
     return is_in_check ? -CHECKMATE + info.ply_from_root : DRAW;
   }
 
-  sort_moves(moves, best_move_prev_depth, board);
+  sort_moves(moves, info.best_move, board);
   for (const Move &move : moves) {
     board.make(move);
 
@@ -106,8 +105,7 @@ int Search::alpha_beta(int depth, int alpha, int beta,
     }
 
     std::vector<Move> variation;
-    int evaluation =
-        -alpha_beta(depth - 1, -beta, -alpha, variation, std::nullopt);
+    int evaluation = -alpha_beta(depth - 1, -beta, -alpha, variation);
 
     board.undo();
     info.ply_from_root--;

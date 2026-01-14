@@ -178,11 +178,10 @@ TEST(BasicMoveGenTests, Position5) {
   Board board = fen::get_position("4k3/b7/8/2pP4/8/8/8/6K1 w - c6 0 1");
 
   std::vector<Move> actual_moves = board.get_legal_moves();
-  std::vector<Move> expected_moves = {
-      Move(g1, f1), Move(g1, f2), Move(g1, g2), Move(g1, h1), Move(g1, h2),
+  std::vector<Move> expected_moves = {Move(g1, f1), Move(g1, f2), Move(g1, g2),
+                                      Move(g1, h1), Move(g1, h2),
 
-      Move(d5, d6)
-  };
+                                      Move(d5, d6)};
   assertMoveListsEqual(actual_moves, expected_moves);
 
   std::vector<Move> actual_forcing_moves =
