@@ -55,15 +55,11 @@ public:
   bool is_in_check(Color color) const;
 
   std::vector<Move> get_legal_moves();
-  std::vector<Move> get_forcing_moves();
+  std::vector<Move> get_forcing_moves(const std::vector<Move> &legal_moves);
 
-  bool is_draw();
   bool is_insufficient_material() const;
   bool is_draw_by_fifty_move_rule() const;
   bool is_threefold_repetition() const;
-
-  bool is_checkmate();
-  bool is_stalemate();
 
 private:
   std::array<std::array<uint64_t, 6>, 2> piece_bbs;

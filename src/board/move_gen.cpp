@@ -253,21 +253,22 @@ std::vector<Move> Board::get_legal_moves() {
   return moves;
 }
 
-std::vector<Move> Board::get_forcing_moves() {
+std::vector<Move>
+Board::get_forcing_moves(const std::vector<Move> &legal_moves) {
   const Color player = get_player_to_move();
-  std::vector<Move> moves = get_legal_moves();
-
-  auto not_forcing_move = [this, player](const Move &move) {
+  std::vector<Move> forcing_moves;
+  for (const Move &move : legal_moves) {
     make(move);
     bool is_forcing_move = get_captured_piece().has_value() ||
                            is_in_check(get_opponent(player)) ||
                            move.move_type == MoveType::PROMOTION;
+    if (is_forcing_move) {
+      forcing_moves.push_back(move);
+    }
     undo();
-    return !is_forcing_move;
-  };
+  }
 
-  std::erase_if(moves, not_forcing_move);
-  return moves;
+  return forcing_moves;
 }
 
 uint64_t Board::get_attacking_bb(Color color) const {

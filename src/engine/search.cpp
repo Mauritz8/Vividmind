@@ -73,17 +73,10 @@ int Search::alpha_beta(int depth, int alpha, int beta,
     return 0;
   }
 
-  if (board.is_draw()) {
-    return DRAW;
-  }
-
-  if (board.is_checkmate()) {
-    return -CHECKMATE + info.ply_from_root;
-  }
-
   // look one move further if the player is in check because the opponent
   // could have a strong next move after we move out of check
-  if (board.is_in_check(board.get_player_to_move())) {
+  const bool is_in_check = board.is_in_check(board.get_player_to_move());
+  if (is_in_check) {
     depth++;
   }
 
@@ -94,9 +87,17 @@ int Search::alpha_beta(int depth, int alpha, int beta,
     return quiescence(alpha, beta, principal_variation);
   }
 
-  std::vector<Move> moves = board.get_legal_moves();
-  sort_moves(moves);
+  if (board.is_insufficient_material() || board.is_threefold_repetition() ||
+      board.is_draw_by_fifty_move_rule()) {
+    return DRAW;
+  }
 
+  std::vector<Move> moves = board.get_legal_moves();
+  if (moves.empty()) {
+    return is_in_check ? -CHECKMATE + info.ply_from_root : DRAW;
+  }
+
+  sort_moves(moves);
   // TODO: this should not use rotate since it moves all the elements
   // after it has just been sorted. simply insert at the beginning instead
   if (best_move_prev_depth.has_value()) {
@@ -145,12 +146,16 @@ int Search::quiescence(int alpha, int beta,
   }
   info.nodes++;
 
-  if (board.is_draw()) {
+  if (board.is_insufficient_material() || board.is_threefold_repetition() ||
+      board.is_draw_by_fifty_move_rule()) {
     return DRAW;
   }
 
-  if (board.is_checkmate()) {
-    return -CHECKMATE + info.ply_from_root;
+  std::vector<Move> moves = board.get_legal_moves();
+  if (moves.empty()) {
+    return board.is_in_check(board.get_player_to_move())
+               ? -CHECKMATE + info.ply_from_root
+               : DRAW;
   }
 
   const int evaluation = evaluate(board);
@@ -161,8 +166,8 @@ int Search::quiescence(int alpha, int beta,
     alpha = evaluation;
   }
 
-  std::vector<Move> moves = board.get_forcing_moves();
-  for (const Move &move : moves) {
+  std::vector<Move> forcing_moves = board.get_forcing_moves(moves);
+  for (const Move &move : forcing_moves) {
     board.make(move);
 
     info.ply_from_root++;

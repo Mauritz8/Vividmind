@@ -55,7 +55,8 @@ TEST(BasicMoveGenTests, Position1) {
   };
   assertMoveListsEqual(actual_moves, expected_moves);
 
-  std::vector<Move> actual_forcing_moves = board.get_forcing_moves();
+  std::vector<Move> actual_forcing_moves =
+      board.get_forcing_moves(actual_moves);
   std::vector<Move> expected_forcing_moves = {
       Move(d5, e6),
 
@@ -107,7 +108,8 @@ TEST(BasicMoveGenTests, Position2) {
   };
   assertMoveListsEqual(actual_moves, expected_moves);
 
-  std::vector<Move> actual_forcing_moves = board.get_forcing_moves();
+  std::vector<Move> actual_forcing_moves =
+      board.get_forcing_moves(actual_moves);
   std::vector<Move> expected_forcing_moves = {
       Move(d7, c8, QUEEN),  Move(d7, c8, ROOK), Move(d7, c8, KNIGHT),
       Move(d7, c8, BISHOP), Move(c4, f7),       Move(e1, f2),
@@ -128,7 +130,8 @@ TEST(BasicMoveGenTests, Position3) {
   };
   assertMoveListsEqual(actual_moves, expected_moves);
 
-  std::vector<Move> actual_forcing_moves = board.get_forcing_moves();
+  std::vector<Move> actual_forcing_moves =
+      board.get_forcing_moves(actual_moves);
   std::vector<Move> expected_forcing_moves = {Move(f4, e6)};
   assertMoveListsEqual(actual_forcing_moves, expected_forcing_moves);
 }
@@ -162,7 +165,8 @@ TEST(BasicMoveGenTests, Position4) {
   };
   assertMoveListsEqual(actual_moves, expected_moves);
 
-  std::vector<Move> actual_forcing_moves = board.get_forcing_moves();
+  std::vector<Move> actual_forcing_moves =
+      board.get_forcing_moves(actual_moves);
   std::vector<Move> expected_forcing_moves = {
       Move(b1, g6),
 
