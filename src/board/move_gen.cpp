@@ -24,26 +24,20 @@ uint64_t Board::get_castling_pieces_not_allowed_bb(int start,
 uint64_t Board::gen_castling_moves_bb(int start) const {
   uint64_t castling = 0;
 
-  int king_initial = get_player_to_move() == WHITE ? 60 : 4;
+  const Color player = get_player_to_move();
+  int king_initial = player == WHITE ? 60 : 4;
   if (start != king_initial) {
     return 0;
   }
 
-  if (is_in_check(get_player_to_move())) {
+  Castling castling_rights = history.top().castling_rights.at(player);
+  uint64_t attacked_bb = get_attacking_bb(get_opponent(player));
+  if (attacked_bb & masks.squares.at(start)) {
     return 0;
   }
 
-  Castling castling_rights =
-      history.top().castling_rights.at(get_player_to_move());
-
-  uint64_t attacked_bb =
-      castling_rights.kingside || castling_rights.queenside
-          ? get_attacking_bb(get_opponent(get_player_to_move()))
-          : 0;
-
-  uint64_t pieces_bb = (side_bbs.at(get_player_to_move()) &
-                        ~piece_bbs.at(get_player_to_move()).at(KING)) |
-                       side_bbs.at(get_opponent(get_player_to_move()));
+  uint64_t pieces_bb = (side_bbs.at(player) & ~masks.squares.at(start)) |
+                       side_bbs.at(get_opponent(player));
 
   if (castling_rights.kingside) {
     uint64_t no_check_bb = get_castling_check_not_allowed_bb(start, true);
@@ -243,6 +237,18 @@ std::vector<Move> Board::get_legal_moves() {
   std::vector<Move> moves = get_pseudo_legal_moves();
 
   auto in_check_after_move = [this, player](const Move &move) {
+    // TODO: change the logic to:
+    // if (piece_is_pinned()) {
+    //   return true;
+    // }
+    // if (moving_king()) {
+    //   make(move);
+    //   bool in_check = is_in_check(player);
+    //   undo();
+    //   return in_check;
+    // }
+    // return false;
+
     make(move);
     bool in_check = is_in_check(player);
     undo();

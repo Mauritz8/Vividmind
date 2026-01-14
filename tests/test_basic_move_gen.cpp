@@ -141,9 +141,6 @@ TEST(BasicMoveGenTests, Position4) {
       fen::get_position("4r3/1p5k/p1n3p1/3Qp3/1P4q1/P5B1/7P/1B3RK1 w - - 1 34");
 
   std::vector<Move> actual_moves = board.get_legal_moves();
-  for (Move actual_move : actual_moves) {
-    fmt::println("{}", actual_move.to_uci_notation());
-  }
   std::vector<Move> expected_moves = {
       Move(a3, a4), Move(b4, b5),
 
