@@ -42,7 +42,7 @@ uint64_t Board::gen_castling_moves_bb(int start) const {
   if (castling_rights.kingside) {
     uint64_t no_check_bb = get_castling_check_not_allowed_bb(start, true);
     uint64_t no_pieces_bb = get_castling_pieces_not_allowed_bb(start, true);
-    if (((no_check_bb & attacked_bb) | (no_pieces_bb & pieces_bb)) == 0) {
+    if (!((no_check_bb & attacked_bb) | (no_pieces_bb & pieces_bb))) {
       castling |= masks.squares.at(start + 2);
     }
   }
@@ -50,7 +50,7 @@ uint64_t Board::gen_castling_moves_bb(int start) const {
   if (castling_rights.queenside) {
     uint64_t no_check_bb = get_castling_check_not_allowed_bb(start, false);
     uint64_t no_pieces_bb = get_castling_pieces_not_allowed_bb(start, false);
-    if (((no_check_bb & attacked_bb) | (no_pieces_bb & pieces_bb)) == 0) {
+    if (!((no_check_bb & attacked_bb) | (no_pieces_bb & pieces_bb))) {
       castling |= masks.squares.at(start - 2);
     }
   }
@@ -61,14 +61,14 @@ uint64_t Board::gen_castling_moves_bb(int start) const {
 void Board::gen_king_moves(int start, std::vector<Move> &moves) const {
   uint64_t normal =
       masks.king_moves.at(start) & ~side_bbs.at(get_player_to_move());
-  while (normal != 0) {
+  while (normal) {
     int end_pos = bits::pop_lsb(normal);
     Move move(start, end_pos);
     moves.push_back(move);
   }
 
   uint64_t castling = gen_castling_moves_bb(start);
-  while (castling != 0) {
+  while (castling) {
     int end_pos = bits::pop_lsb(castling);
     Move move(start, end_pos, CASTLING);
     moves.push_back(move);
@@ -96,7 +96,7 @@ void Board::gen_pawn_moves(int start, std::vector<Move> &moves) const {
           ? captures & masks.squares.at(get_en_passant_square().value())
           : 0;
 
-  while (move_one != 0) {
+  while (move_one) {
     int end_pos = bits::pop_lsb(move_one);
     bool is_promotion = end_pos < 8 || end_pos > 55;
     if (is_promotion) {
@@ -116,7 +116,7 @@ void Board::gen_pawn_moves(int start, std::vector<Move> &moves) const {
     }
   }
 
-  while (normal_captures != 0) {
+  while (normal_captures) {
     int end_pos = bits::pop_lsb(normal_captures);
     bool is_promotion = end_pos < 8 || end_pos > 55;
     if (is_promotion) {
@@ -136,13 +136,13 @@ void Board::gen_pawn_moves(int start, std::vector<Move> &moves) const {
     }
   }
 
-  while (move_two != 0) {
+  while (move_two) {
     int end_pos = bits::pop_lsb(move_two);
     Move move(start, end_pos, PAWN_TWO_SQUARES_FORWARD);
     moves.push_back(move);
   }
 
-  while (en_passant_captures != 0) {
+  while (en_passant_captures) {
     int end_pos = bits::pop_lsb(en_passant_captures);
     Move move(start, end_pos, EN_PASSANT);
     moves.push_back(move);
@@ -208,7 +208,7 @@ void Board::gen_moves_piece(PieceType piece, int start,
                                        : gen_queen_attacks(start);
 
   uint64_t moves_bb = attacks &= ~side_bbs.at(get_player_to_move());
-  while (moves_bb != 0) {
+  while (moves_bb) {
     int end_pos = bits::pop_lsb(moves_bb);
     Move move(start, end_pos);
     moves.push_back(move);
@@ -218,7 +218,7 @@ void Board::gen_moves_piece(PieceType piece, int start,
 void Board::gen_all_moves_piece(PieceType piece,
                                 std::vector<Move> &moves) const {
   uint64_t piece_bb = piece_bbs.at(get_player_to_move()).at(piece);
-  while (piece_bb != 0) {
+  while (piece_bb) {
     int start_pos = bits::pop_lsb(piece_bb);
     gen_moves_piece(piece, start_pos, moves);
   }
@@ -287,7 +287,7 @@ uint64_t Board::get_attacking_bb(Color color) const {
         : piece == PAWN ? masks.pawn_captures.at(color)
                         : masks.knight_moves;
     uint64_t piece_bb = piece_bbs.at(color).at(piece);
-    while (piece_bb != 0) {
+    while (piece_bb) {
       int start_pos = bits::pop_lsb(piece_bb);
       attacking |= piece_attacking_bb.at(start_pos);
     }
@@ -296,7 +296,7 @@ uint64_t Board::get_attacking_bb(Color color) const {
   std::array<PieceType, 3> sliding_pieces = {BISHOP, ROOK, QUEEN};
   for (PieceType piece : sliding_pieces) {
     uint64_t piece_bb = piece_bbs.at(color).at(piece);
-    while (piece_bb != 0) {
+    while (piece_bb) {
       int start_pos = bits::pop_lsb(piece_bb);
       attacking |= piece == BISHOP ? gen_bishop_attacks(start_pos)
                    : piece == ROOK ? gen_rook_attacks(start_pos)
@@ -310,26 +310,26 @@ uint64_t Board::get_attacking_bb(Color color) const {
 bool Board::is_attacking(int pos, Color color) const {
   std::array<uint64_t, 6> pieces_bb = piece_bbs.at(color);
 
-  if ((masks.knight_moves.at(pos) & pieces_bb.at(KNIGHT)) != 0) {
+  if ((masks.knight_moves.at(pos) & pieces_bb.at(KNIGHT))) {
     return true;
   }
-  if ((masks.king_moves.at(pos) & pieces_bb.at(KING)) != 0) {
+  if ((masks.king_moves.at(pos) & pieces_bb.at(KING))) {
     return true;
   }
   if ((masks.pawn_captures.at(get_opponent(color)).at(pos) &
-       pieces_bb.at(PAWN)) != 0) {
+       pieces_bb.at(PAWN))) {
     return true;
   }
 
   uint64_t bishop_moves = gen_bishop_attacks(pos);
-  if ((bishop_moves & pieces_bb.at(BISHOP)) != 0) {
+  if ((bishop_moves & pieces_bb.at(BISHOP))) {
     return true;
   }
   uint64_t rook_moves = gen_rook_attacks(pos);
-  if ((rook_moves & pieces_bb.at(ROOK)) != 0) {
+  if ((rook_moves & pieces_bb.at(ROOK))) {
     return true;
   }
-  if (((bishop_moves | rook_moves) & pieces_bb.at(QUEEN)) != 0) {
+  if (((bishop_moves | rook_moves) & pieces_bb.at(QUEEN))) {
     return true;
   }
 
@@ -338,7 +338,7 @@ bool Board::is_attacking(int pos, Color color) const {
 
 bool Board::is_in_check(Color color) const {
   uint64_t king_bb = piece_bbs.at(color).at(KING);
-  assert(king_bb != 0);
+  assert(king_bb);
   int king_pos = bits::pop_lsb(king_bb);
   return is_attacking(king_pos, get_opponent(color));
 }

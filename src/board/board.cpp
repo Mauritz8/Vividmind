@@ -40,7 +40,7 @@ Board::Board(std::vector<Piece> pieces, Color player_to_move,
       uint64_t piece_bb = piece_bbs.at(color).at(piece);
       material_side += std::popcount(piece_bb) * PIECE_VALUES.at(piece_type);
 
-      while (piece_bb != 0) {
+      while (piece_bb) {
         int pos = bits::pop_lsb(piece_bb);
         psqt_side +=
             get_psqt_score(piece_type, pos, (Color)color, false, false);
@@ -402,7 +402,7 @@ bool Board::is_insufficient_material() const {
   std::array<PieceType, 3> pieces = {PAWN, ROOK, QUEEN};
   for (PieceType p : pieces) {
     for (int color = 0; color < 2; color++) {
-      if (piece_bbs.at(color).at(p) != 0) {
+      if (piece_bbs.at(color).at(p)) {
         return false;
       }
     }
