@@ -182,6 +182,8 @@ int Search::quiescence(int alpha, int beta,
 
   std::vector<Move> moves =
       extend_search ? legal_moves : board.get_forcing_moves(legal_moves);
+  std::unordered_set<Move, Move::HashFunction> killer_moves = {};
+  sort_moves(moves, std::nullopt, killer_moves, board);
   for (const Move &move : moves) {
     board.make(move);
 

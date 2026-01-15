@@ -19,7 +19,7 @@ except:
 
 
 command = f'''
-    cutechess-cli \
+    cutechess cli \
     -engine cmd={args.new_version} -engine cmd={args.old_version} \
     -each proto=uci tc=inf/10+0.1 book={args.opening_book} bookdepth=4 \
     -rounds 2500 -games 2 -repeat 2 -maxmoves 200 \
