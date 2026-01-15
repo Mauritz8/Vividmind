@@ -29,4 +29,8 @@ public:
   bool operator==(const Move &move) const;
 
   std::string to_uci_notation() const;
+
+  struct HashFunction {
+    size_t operator()(const Move &move) const;
+  };
 };

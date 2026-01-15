@@ -32,6 +32,7 @@ void Search::iterative_deepening_search() {
       .nodes = 0,
       .is_terminated = false,
       .best_move = std::nullopt,
+      .killer_moves = {},
       .quiescence_plies = 0,
   };
   stop = false;
@@ -96,7 +97,8 @@ int Search::alpha_beta(int depth, int alpha, int beta,
     return is_in_check ? -CHECKMATE + info.ply_from_root : DRAW;
   }
 
-  sort_moves(moves, info.best_move, board);
+  sort_moves(moves, info.best_move, info.killer_moves[info.ply_from_root],
+             board);
   for (const Move &move : moves) {
     board.make(move);
 
@@ -113,6 +115,9 @@ int Search::alpha_beta(int depth, int alpha, int beta,
 
     // the move is too good so the opponent will not enter this variation
     if (evaluation >= beta) {
+      // because the move was so good, try to refute the opponents other
+      // moves with it as well
+      info.killer_moves[info.ply_from_root].insert(move);
       return beta;
     }
 

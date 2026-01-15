@@ -1,14 +1,11 @@
 #pragma once
 
 #include <atomic>
-#include <vector>
+#include <chrono>
+#include <map>
+#include <unordered_set>
 
 #include "board/board.hpp"
-#include "move.hpp"
-
-#include <chrono>
-#include <vector>
-
 #include "move.hpp"
 
 enum SearchMode { DEPTH, MOVE_TIME, INFINITE };
@@ -27,6 +24,7 @@ struct SearchInfo {
   long nodes;
   bool is_terminated;
   std::optional<Move> best_move;
+  std::map<int, std::unordered_set<Move, Move::HashFunction>> killer_moves;
   int quiescence_plies;
 };
 

@@ -37,3 +37,9 @@ std::string Move::to_uci_notation() const {
   return fmt::format("{}{}{}", SQUARES.at(start), SQUARES.at(end),
                      promotion_piece_str);
 }
+
+size_t Move::HashFunction::operator()(const Move &move) const {
+  size_t start_hash = std::hash<int>()(move.start);
+  size_t end_hash = std::hash<int>()(move.start) << 1;
+  return start_hash ^ end_hash;
+}
