@@ -32,6 +32,7 @@ void Search::iterative_deepening_search() {
       .nodes = 0,
       .is_terminated = false,
       .best_move = std::nullopt,
+      .quiescence_plies = 0,
   };
   stop = false;
   while (info.depth < params.depth && !info.is_terminated) {
@@ -110,8 +111,7 @@ int Search::alpha_beta(int depth, int alpha, int beta,
     board.undo();
     info.ply_from_root--;
 
-    // the move is guaranteed to be worse than a previous move we could play
-    // so we don't have to consider this variation any further
+    // the move is too good so the opponent will not enter this variation
     if (evaluation >= beta) {
       return beta;
     }
@@ -139,26 +139,47 @@ int Search::quiescence(int alpha, int beta,
     return DRAW;
   }
 
-  std::vector<Move> moves = board.get_legal_moves();
-  if (moves.empty()) {
-    return board.is_in_check(board.get_player_to_move())
-               ? -CHECKMATE + info.ply_from_root
-               : DRAW;
+  std::vector<Move> legal_moves = board.get_legal_moves();
+  const bool in_check = board.is_in_check(board.get_player_to_move());
+  if (legal_moves.empty()) {
+    return in_check ? -CHECKMATE + info.ply_from_root : DRAW;
   }
 
-  const int evaluation = evaluate(board);
-  if (evaluation >= beta) {
-    return beta;
-  }
-  if (evaluation > alpha) {
-    alpha = evaluation;
+  // If you are not in check, you can evaluate the current board because you
+  // can always choose to not make any of the forcing moves. However, if you
+  // are in check, you can't because the opponent could force a new board state.
+  //
+  // You have to limit this to a certain depth because in many situations
+  // a piece can continually check the king and not taking the piece is
+  // often a valid move.
+  //
+  // This position is a good example:
+  // rnb1kbnr/pppp1ppp/8/4p3/4PP1q/6P1/PPPP3P/RNBQKBNR b KQkq - 0 3
+  //
+  // Quiescence would have to look at sequences like:
+  // Qxg3+ Ke2 Qf2+ Kd3 Qf3 Kc4 Qe2
+  // and all the possible captures after each move even though
+  // the queen can simply be captured.
+  int QUIESCENCE_CHECKS_MAX_PLY = 5;
+  bool extend_search =
+      in_check && info.quiescence_plies < QUIESCENCE_CHECKS_MAX_PLY;
+  if (!extend_search) {
+    const int evaluation = evaluate(board);
+    if (evaluation >= beta) {
+      return beta;
+    }
+    if (evaluation > alpha) {
+      alpha = evaluation;
+    }
   }
 
-  std::vector<Move> forcing_moves = board.get_forcing_moves(moves);
-  for (const Move &move : forcing_moves) {
+  std::vector<Move> moves =
+      extend_search ? legal_moves : board.get_forcing_moves(legal_moves);
+  for (const Move &move : moves) {
     board.make(move);
 
     info.ply_from_root++;
+    info.quiescence_plies++;
     if (info.ply_from_root > info.seldepth) {
       info.seldepth = info.ply_from_root;
     }
@@ -167,6 +188,7 @@ int Search::quiescence(int alpha, int beta,
     const int evaluation = -quiescence(-beta, -alpha, variation);
     board.undo();
     info.ply_from_root--;
+    info.quiescence_plies--;
 
     if (evaluation >= beta) {
       return beta;

@@ -27,6 +27,7 @@ struct SearchInfo {
   long nodes;
   bool is_terminated;
   std::optional<Move> best_move;
+  int quiescence_plies;
 };
 
 const int MAX_PLY = 100;
