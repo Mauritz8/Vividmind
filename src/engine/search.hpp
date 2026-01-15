@@ -23,7 +23,7 @@ struct SearchInfo {
   int seldepth;
   long nodes;
   bool is_terminated;
-  std::optional<Move> best_move;
+  std::vector<Move> principal_variation;
   std::map<int, std::unordered_set<Move, Move::HashFunction>> killer_moves;
   int quiescence_plies;
 };

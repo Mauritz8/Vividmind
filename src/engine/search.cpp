@@ -31,7 +31,7 @@ void Search::iterative_deepening_search() {
       .seldepth = 0,
       .nodes = 0,
       .is_terminated = false,
-      .best_move = std::nullopt,
+      .principal_variation = {},
       .killer_moves = {},
       .quiescence_plies = 0,
   };
@@ -48,21 +48,19 @@ void Search::iterative_deepening_search() {
         alpha_beta(info.depth, alpha, beta, principal_variation);
 
     if (!info.is_terminated) {
+      info.principal_variation = principal_variation;
       SearchSummary search_summary = {.depth = info.depth,
                                       .seldepth = info.seldepth,
                                       .score = evaluation,
                                       .nodes = info.nodes,
                                       .time = time_elapsed(info.start_time),
                                       .pv = principal_variation};
-      assert(search_summary.pv.size() > 0);
-      info.best_move = search_summary.pv.at(0);
-
       fmt::println("{}", uci::show(search_summary));
       std::flush(std::cout);
     }
   }
-  assert(info.best_move.has_value());
-  fmt::println("{}", uci::bestmove(info.best_move.value()));
+  assert(!info.principal_variation.empty());
+  fmt::println("{}", uci::bestmove(info.principal_variation.at(0)));
   std::flush(std::cout);
 }
 
@@ -97,7 +95,11 @@ int Search::alpha_beta(int depth, int alpha, int beta,
     return is_in_check ? -CHECKMATE + info.ply_from_root : DRAW;
   }
 
-  sort_moves(moves, info.best_move, info.killer_moves[info.ply_from_root],
+  auto best_move_prev_depth =
+      info.ply_from_root < info.principal_variation.size()
+          ? std::make_optional(info.principal_variation.at(info.ply_from_root))
+          : std::nullopt;
+  sort_moves(moves, best_move_prev_depth, info.killer_moves[info.ply_from_root],
              board);
   for (const Move &move : moves) {
     board.make(move);
