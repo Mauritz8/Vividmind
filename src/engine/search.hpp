@@ -2,8 +2,10 @@
 
 #include <atomic>
 #include <chrono>
+#include <forward_list>
 #include <map>
 #include <unordered_set>
+#include <utility>
 
 #include "board/board.hpp"
 #include "move.hpp"
@@ -23,7 +25,7 @@ struct SearchInfo {
   int seldepth;
   long nodes;
   bool is_terminated;
-  std::vector<Move> principal_variation;
+  std::forward_list<Move> principal_variation;
   std::map<int, std::unordered_set<Move, Move::HashFunction>> killer_moves;
   int quiescence_plies;
 };
@@ -46,8 +48,8 @@ private:
   Board &board;
   std::atomic<bool> &stop;
 
-  int alpha_beta(int depth, int alpha, int beta,
-                 std::vector<Move> &principal_variation);
-  int quiescence(int alpha, int beta, std::vector<Move> &principal_variation);
+  std::pair<int, std::forward_list<Move>> alpha_beta(int depth, int alpha,
+                                                     int beta);
+  std::pair<int, std::forward_list<Move>> quiescence(int alpha, int beta);
   bool is_terminate();
 };

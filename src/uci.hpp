@@ -1,5 +1,6 @@
 #pragma once
 
+#include <forward_list>
 #include <string>
 
 #include "engine/command.hpp"
@@ -11,7 +12,7 @@ struct SearchSummary {
   int score;
   long long nodes;
   long long time;
-  std::vector<Move> pv;
+  std::forward_list<Move> pv;
 };
 
 namespace uci {

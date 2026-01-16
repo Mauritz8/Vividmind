@@ -2,7 +2,9 @@
 
 #include <cassert>
 #include <fmt/core.h>
+#include <forward_list>
 #include <iostream>
+#include <iterator>
 #include <optional>
 #include <ostream>
 #include <vector>
@@ -43,9 +45,8 @@ void Search::iterative_deepening_search() {
     // so any legal move will be considered better
     const int alpha = -CHECKMATE;
     const int beta = CHECKMATE;
-    std::vector<Move> principal_variation;
-    const int evaluation =
-        alpha_beta(info.depth, alpha, beta, principal_variation);
+    const auto [evaluation, principal_variation] =
+        alpha_beta(info.depth, alpha, beta);
 
     if (!info.is_terminated) {
       info.principal_variation = principal_variation;
@@ -60,15 +61,15 @@ void Search::iterative_deepening_search() {
     }
   }
   assert(!info.principal_variation.empty());
-  fmt::println("{}", uci::bestmove(info.principal_variation.at(0)));
+  fmt::println("{}", uci::bestmove(info.principal_variation.front()));
   std::flush(std::cout);
 }
 
-int Search::alpha_beta(int depth, int alpha, int beta,
-                       std::vector<Move> &principal_variation) {
+std::pair<int, std::forward_list<Move>> Search::alpha_beta(int depth, int alpha,
+                                                           int beta) {
   if (is_terminate()) {
     info.is_terminated = true;
-    return 0;
+    return std::make_pair(0, std::forward_list<Move>{});
   }
 
   // look one move further if the player is in check because the opponent
@@ -82,25 +83,32 @@ int Search::alpha_beta(int depth, int alpha, int beta,
   // see if there are any winning/losing forcing moves in the position
   // that might change the evaluation of the position
   if (depth == 0) {
-    return quiescence(alpha, beta, principal_variation);
+    return quiescence(alpha, beta);
   }
 
   if (board.is_insufficient_material() || board.is_threefold_repetition() ||
       board.is_draw_by_fifty_move_rule()) {
-    return DRAW;
+    return std::make_pair(DRAW, std::forward_list<Move>{});
   }
 
   std::vector<Move> moves = board.get_legal_moves();
   if (moves.empty()) {
-    return is_in_check ? -CHECKMATE + info.ply_from_root : DRAW;
+    const int eval = is_in_check ? -CHECKMATE + info.ply_from_root : DRAW;
+    return std::make_pair(eval, std::forward_list<Move>{});
   }
 
-  auto best_move_prev_depth =
-      info.ply_from_root < info.principal_variation.size()
-          ? std::make_optional(info.principal_variation.at(info.ply_from_root))
-          : std::nullopt;
+  std::optional<Move> best_move_prev_depth = std::nullopt;
+  if (info.ply_from_root < std::distance(info.principal_variation.begin(),
+                                         info.principal_variation.end())) {
+    auto move_it = info.principal_variation.begin();
+    std::advance(move_it, info.ply_from_root);
+    best_move_prev_depth = std::make_optional(*move_it);
+  }
   sort_moves(moves, best_move_prev_depth, info.killer_moves[info.ply_from_root],
              board);
+  assert(!moves.empty());
+  Move best_move = moves.at(0);
+  std::forward_list<Move> principal_variation;
   for (const Move &move : moves) {
     board.make(move);
 
@@ -109,8 +117,10 @@ int Search::alpha_beta(int depth, int alpha, int beta,
       info.seldepth = info.ply_from_root;
     }
 
-    std::vector<Move> variation;
-    int evaluation = -alpha_beta(depth - 1, -beta, -alpha, variation);
+    auto res = alpha_beta(depth - 1, -beta, -alpha);
+    const int evaluation = -res.first;
+    std::forward_list<Move> variation = res.second;
+    variation.push_front(move);
 
     board.undo();
     info.ply_from_root--;
@@ -120,36 +130,36 @@ int Search::alpha_beta(int depth, int alpha, int beta,
       // because the move was so good, try to refute the opponents other
       // moves with it as well
       info.killer_moves[info.ply_from_root].insert(move);
-      return beta;
+      return std::make_pair(beta, variation);
     }
 
     // the move is the best so far
     if (evaluation > alpha) {
       alpha = evaluation;
-      variation.insert(variation.begin(), move);
       principal_variation = variation;
     }
   }
-  return alpha;
+  return std::make_pair(alpha, principal_variation);
 }
 
-int Search::quiescence(int alpha, int beta,
-                       std::vector<Move> &principal_variation) {
+std::pair<int, std::forward_list<Move>> Search::quiescence(int alpha,
+                                                           int beta) {
   if (is_terminate()) {
     info.is_terminated = true;
-    return 0;
+    return std::make_pair(0, std::forward_list<Move>{});
   }
   info.nodes++;
 
   if (board.is_insufficient_material() || board.is_threefold_repetition() ||
       board.is_draw_by_fifty_move_rule()) {
-    return DRAW;
+    return std::make_pair(DRAW, std::forward_list<Move>{});
   }
 
   std::vector<Move> legal_moves = board.get_legal_moves();
   const bool in_check = board.is_in_check(board.get_player_to_move());
   if (legal_moves.empty()) {
-    return in_check ? -CHECKMATE + info.ply_from_root : DRAW;
+    int eval = in_check ? -CHECKMATE + info.ply_from_root : DRAW;
+    return std::make_pair(eval, std::forward_list<Move>{});
   }
 
   // If you are not in check, you can evaluate the current board because you
@@ -173,7 +183,7 @@ int Search::quiescence(int alpha, int beta,
   if (!extend_search) {
     const int evaluation = evaluate(board);
     if (evaluation >= beta) {
-      return beta;
+      return std::make_pair(beta, std::forward_list<Move>{});
     }
     if (evaluation > alpha) {
       alpha = evaluation;
@@ -184,6 +194,7 @@ int Search::quiescence(int alpha, int beta,
       extend_search ? legal_moves : board.get_forcing_moves(legal_moves);
   std::unordered_set<Move, Move::HashFunction> killer_moves = {};
   sort_moves(moves, std::nullopt, killer_moves, board);
+  std::forward_list<Move> principal_variation = {};
   for (const Move &move : moves) {
     board.make(move);
 
@@ -193,22 +204,24 @@ int Search::quiescence(int alpha, int beta,
       info.seldepth = info.ply_from_root;
     }
 
-    std::vector<Move> variation;
-    const int evaluation = -quiescence(-beta, -alpha, variation);
+    auto res = quiescence(-beta, -alpha);
+    const int evaluation = -res.first;
+    std::forward_list<Move> variation = res.second;
+    variation.push_front(move);
+
     board.undo();
     info.ply_from_root--;
     info.quiescence_plies--;
 
     if (evaluation >= beta) {
-      return beta;
+      return std::make_pair(beta, variation);
     }
     if (evaluation > alpha) {
       alpha = evaluation;
-      variation.insert(variation.begin(), move);
       principal_variation = variation;
     }
   }
-  return alpha;
+  return std::make_pair(alpha, principal_variation);
 }
 
 bool Search::is_terminate() {
