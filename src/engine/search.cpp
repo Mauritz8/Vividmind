@@ -177,10 +177,7 @@ std::pair<int, std::forward_list<Move>> Search::quiescence(int alpha,
   // Qxg3+ Ke2 Qf2+ Kd3 Qf3 Kc4 Qe2
   // and all the possible captures after each move even though
   // the queen can simply be captured.
-  int QUIESCENCE_CHECKS_MAX_PLY = 5;
-  bool extend_search =
-      in_check && info.quiescence_plies < QUIESCENCE_CHECKS_MAX_PLY;
-  if (!extend_search) {
+  if (!in_check) {
     const int evaluation = evaluate(board);
     if (evaluation >= beta) {
       return std::make_pair(beta, std::forward_list<Move>{});
@@ -190,8 +187,11 @@ std::pair<int, std::forward_list<Move>> Search::quiescence(int alpha,
     }
   }
 
+  const int QUIESCENCE_CHECKS_MAX_PLY = 5;
   std::vector<Move> moves =
-      extend_search ? legal_moves : board.get_forcing_moves(legal_moves);
+      in_check && info.quiescence_plies < QUIESCENCE_CHECKS_MAX_PLY
+          ? legal_moves
+          : board.get_forcing_moves(legal_moves);
   std::unordered_set<Move, Move::HashFunction> killer_moves = {};
   sort_moves(moves, std::nullopt, killer_moves, board);
   std::forward_list<Move> principal_variation = {};
