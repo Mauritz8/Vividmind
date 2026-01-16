@@ -420,10 +420,14 @@ bool Board::is_threefold_repetition() const {
   }
 
   Board b = *this;
+  int repetitions = 0;
   while (!(b.move_history.empty() || history.top().halfmove_clock == 0)) {
     b.undo();
     if (*this == b) {
-      return true;
+      repetitions++;
+      if (repetitions == 2) {
+        return true;
+      }
     }
   }
   return false;

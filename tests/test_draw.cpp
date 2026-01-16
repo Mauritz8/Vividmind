@@ -116,3 +116,19 @@ TEST(DrawTests, TestThreefoldRepetitionNonConsecutiveMoves) {
   b.make(Move(h6, g6));
   EXPECT_TRUE(b.is_threefold_repetition());
 }
+
+TEST(DrawTests, TestNotThreefoldRepetitionIfPositionOccursTwice) {
+  Board b = fen::get_position("5k2/8/6r1/8/3Q4/8/4K3/8 w - - 0 1");
+
+  std::vector<Move> moves = {
+      Move(d4, d8),
+      Move(f8, g7),
+      Move(d8, d4),
+      Move(g7, f8),
+  };
+  EXPECT_FALSE(b.is_threefold_repetition());
+  for (Move m : moves) {
+    b.make(m);
+  }
+  EXPECT_FALSE(b.is_threefold_repetition());
+}
