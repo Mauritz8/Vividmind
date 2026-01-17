@@ -63,47 +63,26 @@ void execute_command(const Command &command, std::atomic<bool> &stop,
     break;
   }
   case GoInfinite: {
-    SearchParams params = {
-        .search_mode = SearchMode::INFINITE,
-        .depth = MAX_PLY,
-        .allocated_time = 0,
-    };
-    Search search = Search(board, params, stop);
-    search.iterative_deepening_search();
+    search::iterative_deepening_search(board, MAX_DEPTH, MAX_TIME, stop);
     break;
   }
   case GoDepth: {
-    SearchParams params = {
-        .search_mode = SearchMode::DEPTH,
-        .depth = command.arg.integer,
-        .allocated_time = 0,
-    };
-    Search search = Search(board, params, stop);
-    search.iterative_deepening_search();
+    search::iterative_deepening_search(board, command.arg.integer, MAX_TIME,
+                                       stop);
     break;
   }
   case GoGameTime: {
-    SearchParams params = {
-        .search_mode = SearchMode::MOVE_TIME,
-        .depth = MAX_PLY,
-        .allocated_time = calc_allocated_time(board.get_player_to_move(),
-                                              command.arg.game_time.wtime,
-                                              command.arg.game_time.btime),
-    };
-    Search search = Search(board, params, stop);
-    search.iterative_deepening_search();
+    const int allocated_time = calc_allocated_time(board.get_player_to_move(),
+                                                   command.arg.game_time.wtime,
+                                                   command.arg.game_time.btime);
+    search::iterative_deepening_search(board, MAX_DEPTH, allocated_time, stop);
     break;
   }
   case GoMoveTime: {
     // ensure a move is returned before the allocated time runs out
     int move_overhead = 50;
-    SearchParams params = {
-        .search_mode = SearchMode::MOVE_TIME,
-        .depth = MAX_PLY,
-        .allocated_time = command.arg.integer - move_overhead,
-    };
-    Search search = Search(board, params, stop);
-    search.iterative_deepening_search();
+    search::iterative_deepening_search(
+        board, MAX_DEPTH, command.arg.integer - move_overhead, stop);
     break;
   }
   case Quit: {
