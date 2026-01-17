@@ -72,13 +72,6 @@ std::pair<int, std::forward_list<Move>> Search::alpha_beta(int depth, int alpha,
     return std::make_pair(0, std::forward_list<Move>{});
   }
 
-  // look one move further if the player is in check because the opponent
-  // could have a strong next move after we move out of check
-  const bool is_in_check = board.is_in_check(board.get_player_to_move());
-  if (is_in_check) {
-    depth++;
-  }
-
   // after the search has concluded,
   // see if there are any winning/losing forcing moves in the position
   // that might change the evaluation of the position
@@ -93,7 +86,9 @@ std::pair<int, std::forward_list<Move>> Search::alpha_beta(int depth, int alpha,
 
   std::vector<Move> moves = board.get_legal_moves();
   if (moves.empty()) {
-    const int eval = is_in_check ? -CHECKMATE + info.ply_from_root : DRAW;
+    const int eval = board.is_in_check(board.get_player_to_move())
+                         ? -CHECKMATE + info.ply_from_root
+                         : DRAW;
     return std::make_pair(eval, std::forward_list<Move>{});
   }
 
@@ -106,8 +101,6 @@ std::pair<int, std::forward_list<Move>> Search::alpha_beta(int depth, int alpha,
   }
   sort_moves(moves, best_move_prev_depth, info.killer_moves[info.ply_from_root],
              board);
-  assert(!moves.empty());
-  Move best_move = moves.at(0);
   std::forward_list<Move> principal_variation;
   for (const Move &move : moves) {
     board.make(move);

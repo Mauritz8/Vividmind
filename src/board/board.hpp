@@ -106,6 +106,4 @@ private:
 
   bool is_lone_king(Color color) const;
   bool is_endgame() const;
-
-  bool no_legal_moves();
 };

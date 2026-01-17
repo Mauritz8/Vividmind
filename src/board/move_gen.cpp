@@ -237,18 +237,6 @@ std::vector<Move> Board::get_legal_moves() {
   std::vector<Move> moves = get_pseudo_legal_moves();
 
   auto in_check_after_move = [this, player](const Move &move) {
-    // TODO: change the logic to:
-    // if (piece_is_pinned()) {
-    //   return true;
-    // }
-    // if (moving_king()) {
-    //   make(move);
-    //   bool in_check = is_in_check(player);
-    //   undo();
-    //   return in_check;
-    // }
-    // return false;
-
     make(move);
     bool in_check = is_in_check(player);
     undo();
