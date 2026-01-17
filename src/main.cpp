@@ -53,6 +53,7 @@ void run_engine(std::queue<Command> &commands, std::condition_variable &cv,
     if (cmd.type == CommandType::Quit) {
       return;
     }
+    stop = false;
     engine::execute_command(cmd, stop, board);
   }
 }

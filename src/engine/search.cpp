@@ -1,5 +1,6 @@
 #include "search.hpp"
 
+#include <algorithm>
 #include <cassert>
 #include <chrono>
 #include <fmt/core.h>
@@ -32,10 +33,8 @@ static bool terminate_search(SearchParams params) {
 
 static std::optional<std::pair<int, std::forward_list<Move>>>
 quiescence(int alpha, int beta, int ply_from_root, int quiescence_plies,
-           Board &board, const SearchParams params, SearchInfo &info) {
-  if (ply_from_root > info.seldepth) {
-    info.seldepth = ply_from_root;
-  }
+           Board &board, const SearchParams &params, SearchInfo &info) {
+  info.seldepth = std::max(ply_from_root, info.seldepth);
 
   if (terminate_search(params)) {
     return std::nullopt;
@@ -112,10 +111,8 @@ quiescence(int alpha, int beta, int ply_from_root, int quiescence_plies,
 
 static std::optional<std::pair<int, std::forward_list<Move>>>
 alpha_beta(int depth, int alpha, int beta, int ply_from_root, Board &board,
-           const SearchParams params, SearchInfo &info) {
-  if (ply_from_root > info.seldepth) {
-    info.seldepth = ply_from_root;
-  }
+           const SearchParams &params, SearchInfo &info) {
+  info.seldepth = std::max(ply_from_root, info.seldepth);
 
   if (terminate_search(params)) {
     return std::nullopt;
@@ -142,9 +139,9 @@ alpha_beta(int depth, int alpha, int beta, int ply_from_root, Board &board,
   }
 
   std::optional<Move> best_move_prev_depth = std::nullopt;
-  if (ply_from_root < std::distance(info.principal_variation.begin(),
-                                    info.principal_variation.end())) {
-    auto move_it = info.principal_variation.begin();
+  if (ply_from_root < std::distance(params.principal_variation.begin(),
+                                    params.principal_variation.end())) {
+    auto move_it = params.principal_variation.begin();
     std::advance(move_it, ply_from_root);
     best_move_prev_depth = std::make_optional(*move_it);
   }
@@ -186,13 +183,13 @@ void iterative_deepening_search(Board &board, int depth, int allocated_time,
   SearchInfo info = {
       .seldepth = 0,
       .nodes = 0,
-      .principal_variation = {},
       .killer_moves = {},
   };
-  stop = false;
+  std::forward_list<Move> principal_variation = {};
   for (int current_depth = 1; current_depth <= depth; current_depth++) {
     SearchParams params = {
         .depth = current_depth,
+        .principal_variation = principal_variation,
         .allocated_time = allocated_time,
         .start_time = start_time,
         .stop = stop,
@@ -205,8 +202,8 @@ void iterative_deepening_search(Board &board, int depth, int allocated_time,
       break;
     }
 
-    const auto [evaluation, principal_variation] = res.value();
-    info.principal_variation = principal_variation;
+    const int evaluation = res.value().first;
+    principal_variation = res.value().second;
     SearchSummary search_summary = {.depth = current_depth,
                                     .seldepth = info.seldepth,
                                     .score = evaluation,
@@ -216,8 +213,8 @@ void iterative_deepening_search(Board &board, int depth, int allocated_time,
     fmt::println("{}", uci::show(search_summary));
     std::flush(std::cout);
   }
-  assert(!info.principal_variation.empty());
-  fmt::println("{}", uci::bestmove(info.principal_variation.front()));
+  assert(!principal_variation.empty());
+  fmt::println("{}", uci::bestmove(principal_variation.front()));
   std::flush(std::cout);
 }
 } // namespace search
