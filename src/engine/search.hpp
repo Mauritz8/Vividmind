@@ -8,6 +8,7 @@
 
 #include "board/board.hpp"
 #include "move.hpp"
+#include "uci.hpp"
 
 struct SearchInfo {
   int seldepth;
@@ -28,6 +29,7 @@ const int CHECKMATE = 50000;
 const int CHECKMATE_THRESHOLD = 49000;
 
 namespace search {
-void iterative_deepening_search(Board &board, int depth, int allocated_time,
-                                std::atomic<bool> &stop);
+std::vector<SearchSummary> iterative_deepening_search(Board &board, int depth,
+                                                      int allocated_time,
+                                                      std::atomic<bool> &stop);
 };

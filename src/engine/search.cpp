@@ -67,7 +67,14 @@ quiescence(int alpha, int beta, int ply_from_root, int quiescence_plies,
   // Qxg3+ Ke2 Qf2+ Kd3 Qf3 Kc4 Qe2
   // and all the possible captures after each move even though
   // the queen can simply be captured.
-  if (!in_check) {
+  //
+  // setting this to a high value is very expensive and in a lot of
+  // scenarios it will look at a lot of useless checks.
+  // I'm not sure what the optimal value is.
+  const int QUIESCENCE_CHECKS_MAX_PLY = 1;
+  const bool extend_search =
+      in_check && quiescence_plies < QUIESCENCE_CHECKS_MAX_PLY;
+  if (!extend_search) {
     info.nodes++;
     const int evaluation = evaluate(board);
     if (evaluation >= beta) {
@@ -78,11 +85,8 @@ quiescence(int alpha, int beta, int ply_from_root, int quiescence_plies,
     }
   }
 
-  const int QUIESCENCE_CHECKS_MAX_PLY = 5;
   std::vector<Move> moves =
-      in_check && quiescence_plies < QUIESCENCE_CHECKS_MAX_PLY
-          ? legal_moves
-          : board.get_forcing_moves(legal_moves);
+      extend_search ? legal_moves : board.get_forcing_moves(legal_moves);
   std::unordered_set<Move, Move::HashFunction> killer_moves = {};
   sort_moves(moves, std::nullopt, killer_moves, board);
   std::forward_list<Move> principal_variation = {};
@@ -177,8 +181,9 @@ alpha_beta(int depth, int alpha, int beta, int ply_from_root, Board &board,
   return std::make_pair(alpha, principal_variation);
 }
 
-void iterative_deepening_search(Board &board, int depth, int allocated_time,
-                                std::atomic<bool> &stop) {
+std::vector<SearchSummary> iterative_deepening_search(Board &board, int depth,
+                                                      int allocated_time,
+                                                      std::atomic<bool> &stop) {
   const auto start_time = std::chrono::high_resolution_clock::now();
   SearchInfo info = {
       .seldepth = 0,
@@ -186,6 +191,7 @@ void iterative_deepening_search(Board &board, int depth, int allocated_time,
       .killer_moves = {},
   };
   std::forward_list<Move> principal_variation = {};
+  std::vector<SearchSummary> search_summaries;
   for (int current_depth = 1; current_depth <= depth; current_depth++) {
     SearchParams params = {
         .depth = current_depth,
@@ -212,9 +218,11 @@ void iterative_deepening_search(Board &board, int depth, int allocated_time,
                                     .pv = principal_variation};
     fmt::println("{}", uci::show(search_summary));
     std::flush(std::cout);
+    search_summaries.push_back(search_summary);
   }
   assert(!principal_variation.empty());
   fmt::println("{}", uci::bestmove(principal_variation.front()));
   std::flush(std::cout);
+  return search_summaries;
 }
 } // namespace search
